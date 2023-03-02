@@ -1,0 +1,28 @@
+{
+  "url": "https://cbcrcott-gem.akamaized.net/0f73fb9d-87f0-4577-81d1-e6e970b89a69/CBC_DOWNTON_ABBEY_S01E05.ism/desktop_master.m3u8?hdnea=st=1651432763~exp=1651432883~acl=*~hmac=7b38d6cd971a4ac1f960b6e5edf5a9c9f255fb3da62b68075e05dc58c0fc1beb",
+  "message": null,
+  "errorCode": 0,
+  "params": [
+    {
+      "name": "mediaType",
+      "value": "video"
+    },
+    {
+      "name": "daiContentSourceId",
+      "value": "2556398"
+    },
+    {
+      "name": "adsEnabled",
+      "value": false
+    },
+    {
+      "name": "contentType",
+      "value": "vnd.apple.mpegURL"
+    },
+    {
+      "name": "tokenId",
+      "value": 1
+    }
+  ],
+  "bitrates": null
+}

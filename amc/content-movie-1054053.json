@@ -1,0 +1,967 @@
+{
+ "data": {
+  "children": [
+   {
+    "properties": {
+     "contentType": "movie",
+     "flagType": "video",
+     "images": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV000489960000_jerry-maguire__img_wide_16x9.jpg",
+     "layout": "detail",
+     "meta": {
+      "alt": "Watch Jerry Maguire Online | Stream Full Movies",
+      "authPlaybackEnd": 1680321540,
+      "authPlaybackStart": 1675238400,
+      "nid": 1054053,
+      "permalink": "/movies/jerry-maguire--1054053",
+      "schemaType": "Movie",
+      "socials": [
+       "facebook",
+       "twitter",
+       "reddit",
+       "envelop"
+      ],
+      "title": "Jerry Maguire",
+      "unauthPlaybackEnd": 86400,
+      "unauthPlaybackStart": 0,
+      "videoCategory": "Movies-Auth"
+     },
+     "text": {
+      "description": "SundanceTV Presents: A successful sports agent, fired for being honorable, fights for his ideals and those who depend on him.",
+      "productionYear": 1996,
+      "title": "Jerry Maguire",
+      "tvContentRating": {
+       "title": "TV-MA"
+      },
+      "videoNickname": "On Demand Movie"
+     }
+    },
+    "type": "detail"
+   },
+   {
+    "properties": {
+     "autoPlayerCountdown": 30,
+     "contentType": "movie",
+     "controlBar": {
+      "extension": {
+       "controlTime": {
+        "iconNameForward": "forward-player",
+        "iconNameRewind": "rewind-player",
+        "time": 15
+       },
+       "exploreMore": true
+      }
+     },
+     "currentVideo": {
+      "images": {
+       "desktop": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV000489960000_jerry-maguire__img_wide_16x9.jpg"
+      },
+      "meta": {
+       "airdate": "1996-01-01T00:00:00.000Z",
+       "alt": "Watch Jerry Maguire Online | Stream Full Movies",
+       "authPlaybackEnd": 1680321540,
+       "authPlaybackStart": 1675238400,
+       "channel": "amcn",
+       "contentTitle": "Jerry Maguire",
+       "creditPercent": 95,
+       "nid": 1054053,
+       "permalink": "/movies/jerry-maguire--1054053",
+       "restrictedAds": false,
+       "title": "Jerry Maguire",
+       "tvContentRating": "TV-MA",
+       "unauthPlaybackEnd": 86400,
+       "unauthPlaybackStart": 0,
+       "videoCategory": "Movies-Auth",
+       "videoId": "6307106869112"
+      },
+      "ready_overlay_buttons": {
+       "restart_button": {
+        "caption": "restart"
+       },
+       "resume_button": {
+        "caption": "resume"
+       }
+      },
+      "text": {
+       "description": "SundanceTV Presents: A successful sports agent, fired for being honorable, fights for his ideals and those who depend on him.",
+       "premiereLogin": {
+        "accountLink": "/tve",
+        "amcPremiereLink": "https://www.amcplus.com/get-started",
+        "btn1": "Get AMC+",
+        "description": "Get the new premium streaming bundle now.",
+        "helpCenter": "Vist our Help Center",
+        "helpCenterLink": "https://amc-customercare.zendesk.com/hc/en-us",
+        "needHelp": "Need help?",
+        "preTitle": "ONLY THE GOOD STUFF",
+        "premiereSubscriber": "Still an AMC Premiere subscriber?",
+        "subscriberSignin": "Continue to sign in and watch",
+        "title": "AMC+ is the new way to upgrade for exclusives, early access and ad-free."
+       },
+       "title": "Jerry Maguire"
+      }
+     },
+     "defaultOverlay": "downloadapp",
+     "downloadApp": {
+      "devices": {
+       "android": {},
+       "ios": {
+        "maybeLaterLink": "/movies/jerry-maguire--1054053"
+       }
+      },
+      "image": "https://cdn.amcnetworks.com/amcplus/logos/app-icon@3x.png",
+      "title": {
+       "text": "Watch On The AMC+ App",
+       "typeface": "display-secondary-4",
+       "typefaceTablet": "display-secondary-4"
+      }
+     },
+     "endCards": {
+      "analyticsObject": {
+       "contentEpisode": -1,
+       "contentSeason": -1,
+       "contentShow": "none",
+       "contentTitle": "none",
+       "listMode": "swimlane",
+       "listPosition": 2,
+       "listTitle": "More from AMC+"
+      },
+      "data": [
+       {
+        "properties": {
+         "analyticsObject": {
+          "clickthroughUrl": "/movies/skinamarink--1061331",
+          "contentEpisode": -1,
+          "contentSeason": -1,
+          "contentShow": "none",
+          "contentTitle": "none"
+         },
+         "image": {
+          "images": "https://images.cds.amcn.com/amcn/amcplus/processed/movie_amcn_FTP68709_skinamarink__img_wide_poster_16x9_Feb2.jpg"
+         },
+         "layout": "end-card-player-ap",
+         "wrappedLink": "/movies/skinamarink--1061331"
+        },
+        "type": "card"
+       },
+       {
+        "properties": {
+         "analyticsObject": {
+          "clickthroughUrl": "/movies/vesper--1061074",
+          "contentEpisode": -1,
+          "contentSeason": -1,
+          "contentShow": "none",
+          "contentTitle": "none"
+         },
+         "image": {
+          "images": "https://images.cds.amcn.com/amcn/amcplus/processed/movie_tms_MV018446160000_vesper_wk1__img_wide_poster_16x9-1.jpg"
+         },
+         "layout": "end-card-player-ap",
+         "wrappedLink": "/movies/vesper--1061074"
+        },
+        "type": "card"
+       },
+       {
+        "properties": {
+         "analyticsObject": {
+          "clickthroughUrl": "/movies/god-s-country--1061293",
+          "contentEpisode": -1,
+          "contentSeason": -1,
+          "contentShow": "none",
+          "contentTitle": "none"
+         },
+         "image": {
+          "images": "https://images.cds.amcn.com/amcn/amcplus/processed/movie_tms_MV018251990000_gods-country_wk1__img_wide_poster_16x9_Feb3_elqlad.jpg"
+         },
+         "layout": "end-card-player-ap",
+         "wrappedLink": "/movies/god-s-country--1061293"
+        },
+        "type": "card"
+       },
+       {
+        "properties": {
+         "analyticsObject": {
+          "clickthroughUrl": "/movies/old-man--1061091",
+          "contentEpisode": -1,
+          "contentSeason": -1,
+          "contentShow": "none",
+          "contentTitle": "none"
+         },
+         "image": {
+          "images": "https://images.cds.amcn.com/amcn/amcplus/processed/movie_tms_MV018734370000_old-man_wk1__img_wide_poster_16x9_jan20.jpg"
+         },
+         "layout": "end-card-player-ap",
+         "wrappedLink": "/movies/old-man--1061091"
+        },
+        "type": "card"
+       },
+       {
+        "properties": {
+         "analyticsObject": {
+          "clickthroughUrl": "/movies/murder-at-yellowstone-city--1060155",
+          "contentEpisode": -1,
+          "contentSeason": -1,
+          "contentShow": "none",
+          "contentTitle": "none"
+         },
+         "image": {
+          "images": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV018057710000_murder-at-yellowstone-city_wk1__img_wide_poster_16x9.jpg"
+         },
+         "layout": "end-card-player-ap",
+         "wrappedLink": "/movies/murder-at-yellowstone-city--1060155"
+        },
+        "type": "card"
+       },
+       {
+        "properties": {
+         "analyticsObject": {
+          "clickthroughUrl": "/movies/the-salvation--1026727",
+          "contentEpisode": -1,
+          "contentSeason": -1,
+          "contentShow": "none",
+          "contentTitle": "none"
+         },
+         "image": {
+          "images": "https://images.cds.amcn.com/amcn/amcplus/processed/movie_tms_MV006485040000_the-salvation__img_wide_poster_16x9.jpg"
+         },
+         "layout": "end-card-player-ap",
+         "wrappedLink": "/movies/the-salvation--1026727"
+        },
+        "type": "card"
+       },
+       {
+        "properties": {
+         "analyticsObject": {
+          "clickthroughUrl": "/movies/sky--1026699",
+          "contentEpisode": -1,
+          "contentSeason": -1,
+          "contentShow": "none",
+          "contentTitle": "none"
+         },
+         "image": {
+          "images": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV008666940000_sky__img_wide_poster_16x9.jpg"
+         },
+         "layout": "end-card-player-ap",
+         "wrappedLink": "/movies/sky--1026699"
+        },
+        "type": "card"
+       },
+       {
+        "properties": {
+         "analyticsObject": {
+          "clickthroughUrl": "/movies/sweet-virginia--1026790",
+          "contentEpisode": -1,
+          "contentSeason": -1,
+          "contentShow": "none",
+          "contentTitle": "none"
+         },
+         "image": {
+          "images": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV010313410000_sweet-virginia__img_wide_poster_16x9.jpg"
+         },
+         "layout": "end-card-player-ap",
+         "wrappedLink": "/movies/sweet-virginia--1026790"
+        },
+        "type": "card"
+       },
+       {
+        "properties": {
+         "analyticsObject": {
+          "clickthroughUrl": "/movies/mayhem--1028079",
+          "contentEpisode": -1,
+          "contentSeason": -1,
+          "contentShow": "none",
+          "contentTitle": "none"
+         },
+         "image": {
+          "images": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV010165930000_mayhem__img_wide_poster_16x9.jpg"
+         },
+         "layout": "end-card-player-ap",
+         "wrappedLink": "/movies/mayhem--1028079"
+        },
+        "type": "card"
+       },
+       {
+        "properties": {
+         "analyticsObject": {
+          "clickthroughUrl": "/movies/dual--1053795",
+          "contentEpisode": -1,
+          "contentSeason": -1,
+          "contentShow": "none",
+          "contentTitle": "none"
+         },
+         "image": {
+          "images": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV017880710000_dual_wk2__img_wide_poster_16x9.jpg"
+         },
+         "layout": "end-card-player-ap",
+         "wrappedLink": "/movies/dual--1053795"
+        },
+        "type": "card"
+       },
+       {
+        "properties": {
+         "analyticsObject": {
+          "clickthroughUrl": "/movies/the-apology--1060656",
+          "contentEpisode": -1,
+          "contentSeason": -1,
+          "contentShow": "none",
+          "contentTitle": "none"
+         },
+         "image": {
+          "images": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV019156420000_apology_wk1__img_wide_poster_16x9.jpg"
+         },
+         "layout": "end-card-player-ap",
+         "wrappedLink": "/movies/the-apology--1060656"
+        },
+        "type": "card"
+       },
+       {
+        "properties": {
+         "analyticsObject": {
+          "clickthroughUrl": "/movies/resurrection--1059496",
+          "contentEpisode": -1,
+          "contentSeason": -1,
+          "contentShow": "none",
+          "contentTitle": "none"
+         },
+         "image": {
+          "images": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV018330220000_resurrection_wk1__img_wide_poster_16x9.jpg"
+         },
+         "layout": "end-card-player-ap",
+         "wrappedLink": "/movies/resurrection--1059496"
+        },
+        "type": "card"
+       },
+       {
+        "properties": {
+         "analyticsObject": {
+          "clickthroughUrl": "/movies/watcher--1055392",
+          "contentEpisode": -1,
+          "contentSeason": -1,
+          "contentShow": "none",
+          "contentTitle": "none"
+         },
+         "image": {
+          "images": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV018028700000_watcher_wk1__img_wide_poster_16x9.jpg"
+         },
+         "layout": "end-card-player-ap",
+         "wrappedLink": "/movies/watcher--1055392"
+        },
+        "type": "card"
+       },
+       {
+        "properties": {
+         "analyticsObject": {
+          "clickthroughUrl": "/movies/rogue-agent--1055365",
+          "contentEpisode": -1,
+          "contentSeason": -1,
+          "contentShow": "none",
+          "contentTitle": "none"
+         },
+         "image": {
+          "images": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV018341070000_rogue-agent_wk1__img_wide_poster_16x9.jpg"
+         },
+         "layout": "end-card-player-ap",
+         "wrappedLink": "/movies/rogue-agent--1055365"
+        },
+        "type": "card"
+       },
+       {
+        "properties": {
+         "analyticsObject": {
+          "clickthroughUrl": "/movies/dangerous--1052831",
+          "contentEpisode": -1,
+          "contentSeason": -1,
+          "contentShow": "none",
+          "contentTitle": "none"
+         },
+         "image": {
+          "images": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV017089140000_dangerous_v2__img_wide_poster_16x9.jpg"
+         },
+         "layout": "end-card-player-ap",
+         "wrappedLink": "/movies/dangerous--1052831"
+        },
+        "type": "card"
+       },
+       {
+        "properties": {
+         "analyticsObject": {
+          "clickthroughUrl": "/movies/last-looks--1054588",
+          "contentEpisode": -1,
+          "contentSeason": -1,
+          "contentShow": "none",
+          "contentTitle": "none"
+         },
+         "image": {
+          "images": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV017672970000_last-looks_wk2__img_wide_poster_16x9.jpg"
+         },
+         "layout": "end-card-player-ap",
+         "wrappedLink": "/movies/last-looks--1054588"
+        },
+        "type": "card"
+       },
+       {
+        "properties": {
+         "analyticsObject": {
+          "clickthroughUrl": "/movies/bar-fight--1060126",
+          "contentEpisode": -1,
+          "contentSeason": -1,
+          "contentShow": "none",
+          "contentTitle": "none"
+         },
+         "image": {
+          "images": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV018796870000_bar-fight_wk1__img_wide_poster_16x9.jpg"
+         },
+         "layout": "end-card-player-ap",
+         "wrappedLink": "/movies/bar-fight--1060126"
+        },
+        "type": "card"
+       },
+       {
+        "properties": {
+         "analyticsObject": {
+          "clickthroughUrl": "/movies/spin-me-round--1055394",
+          "contentEpisode": -1,
+          "contentSeason": -1,
+          "contentShow": "none",
+          "contentTitle": "none"
+         },
+         "image": {
+          "images": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV018340980000_spin-me-round_wk2__img_wide_poster_16x9.jpg"
+         },
+         "layout": "end-card-player-ap",
+         "wrappedLink": "/movies/spin-me-round--1055394"
+        },
+        "type": "card"
+       },
+       {
+        "properties": {
+         "analyticsObject": {
+          "clickthroughUrl": "/movies/sleeping-with-other-people--1027138",
+          "contentEpisode": -1,
+          "contentSeason": -1,
+          "contentShow": "none",
+          "contentTitle": "none"
+         },
+         "image": {
+          "images": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV007585100000_sleeping-with-other-people__img_wide_poster_16x9.jpg"
+         },
+         "layout": "end-card-player-ap",
+         "wrappedLink": "/movies/sleeping-with-other-people--1027138"
+        },
+        "type": "card"
+       },
+       {
+        "properties": {
+         "analyticsObject": {
+          "clickthroughUrl": "/movies/south-of-heaven--1044102",
+          "contentEpisode": -1,
+          "contentSeason": -1,
+          "contentShow": "none",
+          "contentTitle": "none"
+         },
+         "image": {
+          "images": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV017150300000_south-of-heaven_v2__img_wide_poster_16x9.jpg"
+         },
+         "layout": "end-card-player-ap",
+         "wrappedLink": "/movies/south-of-heaven--1044102"
+        },
+        "type": "card"
+       }
+      ],
+      "title": "More from AMC+"
+     },
+     "kindOfCalcRunTime": "duration",
+     "linkCloseButton": "/movies/jerry-maguire--1054053",
+     "miniScreen": false,
+     "mobileApp": true,
+     "overlayImageVisible": false,
+     "runTime": 30000,
+     "textContents": {
+      "onNow": "onNow",
+      "upNext": "upNextWithoutBg"
+     },
+     "timeInvisible": 2000,
+     "watchService": true
+    },
+    "type": "video-player-ap"
+   },
+   {
+    "properties": {
+     "navItems": {
+      "footer-guest": {
+       "followUs": {
+        "className": "footer-column social-media",
+        "items": [
+         {
+          "analyticsObject": {
+           "navComponentName": "bottom_nav"
+          },
+          "icon": {
+           "iconName": "facebook",
+           "iconSize": 3,
+           "viewBox": "0 0 49 26"
+          },
+          "key": "facebook",
+          "permalink": "https://www.facebook.com/TheGoodStuffAMCPlus/"
+         },
+         {
+          "analyticsObject": {
+           "navComponentName": "bottom_nav"
+          },
+          "icon": {
+           "iconName": "instagram",
+           "iconSize": 3,
+           "viewBox": "0 0 49 26"
+          },
+          "key": "instagram",
+          "permalink": "https://www.instagram.com/amcplus/"
+         },
+         {
+          "analyticsObject": {
+           "navComponentName": "bottom_nav"
+          },
+          "icon": {
+           "iconName": "twitter",
+           "iconSize": 3,
+           "viewBox": "0 0 49 26"
+          },
+          "key": "twitter",
+          "permalink": "https://twitter.com/AMCPlus/"
+         },
+         {
+          "analyticsObject": {
+           "navComponentName": "bottom_nav"
+          },
+          "icon": {
+           "iconName": "youtube",
+           "iconSize": 3,
+           "viewBox": "0 0 49 26"
+          },
+          "key": "youtube",
+          "permalink": "https://www.youtube.com/AMC/"
+         }
+        ],
+        "key": "follow-us",
+        "title": {
+         "className": "active-title",
+         "name": "FOLLOW AMC+",
+         "typography": "label-primary-md"
+        }
+       },
+       "footer-bottom": {
+        "className": "footer-row",
+        "items": [
+         {
+          "analyticsObject": {
+           "navComponentName": "bottom_nav"
+          },
+          "key": "advertise",
+          "permalink": "https://www.amcnconnect.com/",
+          "text": {
+           "title": "Advertise",
+           "typography": "body-0"
+          }
+         },
+         {
+          "analyticsObject": {
+           "navComponentName": "bottom_nav"
+          },
+          "key": "press",
+          "permalink": "https://www.amcnetworks.com/news/",
+          "text": {
+           "title": "Press",
+           "typography": "body-0"
+          }
+         },
+         {
+          "analyticsObject": {
+           "navComponentName": "bottom_nav"
+          },
+          "key": "careers",
+          "permalink": "https://www.amcnetworks.com/careers/",
+          "text": {
+           "title": "Careers",
+           "typography": "body-0"
+          }
+         },
+         {
+          "analyticsObject": {
+           "navComponentName": "bottom_nav"
+          },
+          "key": "privacy",
+          "permalink": "https://www.amcnetworks.com/privacy-policy/",
+          "text": {
+           "title": "Privacy",
+           "typography": "body-0"
+          }
+         },
+         {
+          "analyticsObject": {
+           "navComponentName": "bottom_nav"
+          },
+          "key": "cookies",
+          "permalink": "https://www.amcnetworks.com/cookies/",
+          "text": {
+           "title": "Cookies",
+           "typography": "body-0"
+          }
+         },
+         {
+          "analyticsObject": {
+           "navComponentName": "bottom_nav"
+          },
+          "key": "terms&conditions",
+          "permalink": "https://www.amcnetworks.com/terms-of-use/",
+          "text": {
+           "title": "Terms & Conditions",
+           "typography": "body-0"
+          }
+         },
+         {
+          "analyticsObject": {
+           "navComponentName": "bottom_nav"
+          },
+          "key": "do-not-sell-my-personal-info",
+          "text": {
+           "title": "Do Not Sell My Personal Information",
+           "typography": "body-0"
+          }
+         }
+        ],
+        "key": "footer-row"
+       },
+       "footer-copyright": {
+        "className": "footer-copyright",
+        "items": [
+         {
+          "analyticsObject": {
+           "navComponentName": "bottom_nav"
+          },
+          "key": "copyright",
+          "text": {
+           "title": "Copyright &copy; 2010-2023 AMC Network Entertainment LLC. All rights reserved.",
+           "typography": "body-0"
+          }
+         }
+        ],
+        "key": "footer-copyright"
+       },
+       "needHelp": {
+        "className": "footer-column",
+        "items": [
+         {
+          "analyticsObject": {
+           "navComponentName": "bottom_nav"
+          },
+          "key": "faqs",
+          "permalink": "/faqs",
+          "text": {
+           "title": "FAQs",
+           "typography": "body-1"
+          }
+         },
+         {
+          "analyticsObject": {
+           "navComponentName": "bottom_nav"
+          },
+          "key": "contact-us",
+          "permalink": "http://support.amcplus.com/en/support/home",
+          "text": {
+           "title": "Contact us",
+           "typography": "body-1"
+          }
+         }
+        ],
+        "key": "need-help",
+        "title": {
+         "className": "active-title",
+         "name": "NEED HELP?",
+         "typography": "label-primary-md"
+        }
+       },
+       "stayConnected": {
+        "className": "footer-column",
+        "items": [
+         {
+          "analyticsObject": {
+           "navComponentName": "bottom_nav"
+          },
+          "className": "no-desktop",
+          "key": "download-our-app",
+          "permalink": "action://downloadApp",
+          "text": {
+           "title": "Download our app",
+           "typography": "body-1"
+          }
+         },
+         {
+          "analyticsObject": {
+           "navComponentName": "bottom_nav"
+          },
+          "key": "ways-to-watch",
+          "permalink": "/ways-to-watch",
+          "text": {
+           "title": "Ways to watch",
+           "typography": "body-1"
+          }
+         }
+        ],
+        "key": "stay-connected",
+        "title": {
+         "className": "active-title",
+         "name": "STAY CONNECTED",
+         "typography": "label-primary-md"
+        }
+       }
+      },
+      "footer-loggedIn": {
+       "followUs": {
+        "className": "footer-column social-media",
+        "items": [
+         {
+          "analyticsObject": {
+           "navComponentName": "bottom_nav"
+          },
+          "icon": {
+           "iconName": "facebook",
+           "iconSize": 3,
+           "viewBox": "0 0 49 26"
+          },
+          "key": "facebook",
+          "permalink": "https://www.facebook.com/TheGoodStuffAMCPlus/"
+         },
+         {
+          "analyticsObject": {
+           "navComponentName": "bottom_nav"
+          },
+          "icon": {
+           "iconName": "instagram",
+           "iconSize": 3,
+           "viewBox": "0 0 49 26"
+          },
+          "key": "instagram",
+          "permalink": "https://www.instagram.com/amcplus/"
+         },
+         {
+          "analyticsObject": {
+           "navComponentName": "bottom_nav"
+          },
+          "icon": {
+           "iconName": "twitter",
+           "iconSize": 3,
+           "viewBox": "0 0 49 26"
+          },
+          "key": "twitter",
+          "permalink": "https://twitter.com/AMCPlus/"
+         },
+         {
+          "analyticsObject": {
+           "navComponentName": "bottom_nav"
+          },
+          "icon": {
+           "iconName": "youtube",
+           "iconSize": 3,
+           "viewBox": "0 0 49 26"
+          },
+          "key": "youtube",
+          "permalink": "https://www.youtube.com/AMC/"
+         }
+        ],
+        "key": "follow-us",
+        "title": {
+         "className": "active-title",
+         "name": "FOLLOW AMC+",
+         "typography": "label-primary-md"
+        }
+       },
+       "footer-bottom": {
+        "className": "footer-row",
+        "items": [
+         {
+          "analyticsObject": {
+           "navComponentName": "bottom_nav"
+          },
+          "key": "advertise",
+          "permalink": "https://www.amcnconnect.com/",
+          "text": {
+           "title": "Advertise",
+           "typography": "body-0"
+          }
+         },
+         {
+          "analyticsObject": {
+           "navComponentName": "bottom_nav"
+          },
+          "key": "press",
+          "permalink": "https://www.amcnetworks.com/news/",
+          "text": {
+           "title": "Press",
+           "typography": "body-0"
+          }
+         },
+         {
+          "analyticsObject": {
+           "navComponentName": "bottom_nav"
+          },
+          "key": "careers",
+          "permalink": "https://www.amcnetworks.com/careers/",
+          "text": {
+           "title": "Careers",
+           "typography": "body-0"
+          }
+         },
+         {
+          "analyticsObject": {
+           "navComponentName": "bottom_nav"
+          },
+          "key": "privacy",
+          "permalink": "https://www.amcnetworks.com/privacy-policy/",
+          "text": {
+           "title": "Privacy",
+           "typography": "body-0"
+          }
+         },
+         {
+          "analyticsObject": {
+           "navComponentName": "bottom_nav"
+          },
+          "key": "cookies",
+          "permalink": "https://www.amcnetworks.com/cookies/",
+          "text": {
+           "title": "Cookies",
+           "typography": "body-0"
+          }
+         },
+         {
+          "analyticsObject": {
+           "navComponentName": "bottom_nav"
+          },
+          "key": "terms&conditions",
+          "permalink": "https://www.amcnetworks.com/terms-of-use/",
+          "text": {
+           "title": "Terms & Conditions",
+           "typography": "body-0"
+          }
+         },
+         {
+          "analyticsObject": {
+           "navComponentName": "bottom_nav"
+          },
+          "key": "do-not-sell-my-personal-info",
+          "text": {
+           "title": "Do Not Sell My Personal Information",
+           "typography": "body-0"
+          }
+         }
+        ],
+        "key": "footer-row"
+       },
+       "footer-copyright": {
+        "className": "footer-copyright",
+        "items": [
+         {
+          "analyticsObject": {
+           "navComponentName": "bottom_nav"
+          },
+          "key": "copyright",
+          "text": {
+           "title": "Copyright &copy; 2010-2023 AMC Network Entertainment LLC. All rights reserved.",
+           "typography": "body-0"
+          }
+         }
+        ],
+        "key": "footer-copyright"
+       },
+       "needHelp": {
+        "className": "footer-column",
+        "items": [
+         {
+          "analyticsObject": {
+           "navComponentName": "bottom_nav"
+          },
+          "key": "faqs",
+          "permalink": "/faqs",
+          "text": {
+           "title": "FAQs",
+           "typography": "body-1"
+          }
+         },
+         {
+          "analyticsObject": {
+           "navComponentName": "bottom_nav"
+          },
+          "key": "contact-us",
+          "permalink": "http://support.amcplus.com/en/support/home",
+          "text": {
+           "title": "Contact us",
+           "typography": "body-1"
+          }
+         }
+        ],
+        "key": "need-help",
+        "title": {
+         "className": "active-title",
+         "name": "NEED HELP?",
+         "typography": "label-primary-md"
+        }
+       },
+       "stayConnected": {
+        "className": "footer-column",
+        "items": [
+         {
+          "analyticsObject": {
+           "navComponentName": "bottom_nav"
+          },
+          "className": "no-desktop",
+          "key": "download-our-app",
+          "permalink": "action://downloadApp",
+          "text": {
+           "title": "Download our app",
+           "typography": "body-1"
+          }
+         },
+         {
+          "analyticsObject": {
+           "navComponentName": "bottom_nav"
+          },
+          "key": "ways-to-watch",
+          "permalink": "/ways-to-watch",
+          "text": {
+           "title": "Ways to watch",
+           "typography": "body-1"
+          }
+         }
+        ],
+        "key": "stay-connected",
+        "title": {
+         "className": "active-title",
+         "name": "STAY CONNECTED",
+         "typography": "label-primary-md"
+        }
+       }
+      }
+     }
+    },
+    "type": "footer-ap"
+   }
+  ],
+  "properties": {
+   "countryCode": "US",
+   "description": "Watch Jerry Maguire online now with AMC+. Sign up for a free trial and start streaming your favorite movies today.",
+   "entitlements": [
+    "amcn-auth",
+    "ob-sub-amcplus"
+   ],
+   "id": "1054053",
+   "imageDesktop": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV000489960000_jerry-maguire__img_wide_16x9.jpg",
+   "manifestType": "watch-movies",
+   "pageTitle": "Jerry Maguire",
+   "pageType": "watch-movies",
+   "schemaType": "WebSite",
+   "title": "Watch Jerry Maguire Online | AMC+",
+   "videoCategory": "Movies-Auth",
+   "videoId": "6307106869112"
+  },
+  "type": "page"
+ },
+ "status": 200,
+ "success": true
+}

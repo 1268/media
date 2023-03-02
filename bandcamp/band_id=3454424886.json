@@ -1,0 +1,345 @@
+{
+  "merch": [
+    {
+      "in_stock": true,
+      "artist_name": null,
+      "album_art": null,
+      "download_id": 3596433032,
+      "download_type": "a",
+      "download_has_audio": true,
+      "arts": [
+        {
+          "file_name": "3631229204",
+          "crc": 1244967908,
+          "width": 2044,
+          "height": 1533,
+          "index": 0,
+          "id": 352366307,
+          "image_id": 24218431
+        },
+        {
+          "file_name": "587954423",
+          "crc": 2535107024,
+          "width": 3402,
+          "height": 2784,
+          "index": 1,
+          "id": 3914605542,
+          "image_id": 24206876
+        },
+        {
+          "file_name": "file.jpg",
+          "crc": 2762352145,
+          "width": 4088,
+          "height": 3066,
+          "index": 2,
+          "id": 3831386503,
+          "image_id": 24211688
+        }
+      ],
+      "download_title": "Eight Fragments Of An Illusion",
+      "band_id": 3454424886,
+      "grid_index": 0,
+      "title": "CD",
+      "type_name": "Compact Disc (CD)",
+      "is_live_ticket": false,
+      "type_id": 1,
+      "id": 1572967687,
+      "subscriber_only": null
+    },
+    {
+      "in_stock": false,
+      "artist_name": null,
+      "album_art": null,
+      "download_id": 1670971920,
+      "download_type": "a",
+      "download_has_audio": true,
+      "arts": [
+        {
+          "file_name": "3274531565",
+          "crc": 2743925768,
+          "width": 3968,
+          "height": 2976,
+          "index": 0,
+          "id": 3572924952,
+          "image_id": 12946807
+        },
+        {
+          "file_name": "758217616",
+          "crc": 3906328579,
+          "width": 3968,
+          "height": 2976,
+          "index": 1,
+          "id": 3550111652,
+          "image_id": 12946810
+        },
+        {
+          "file_name": "3054082220",
+          "crc": 692557338,
+          "width": 3968,
+          "height": 2976,
+          "index": 2,
+          "id": 3916618560,
+          "image_id": 12946811
+        },
+        {
+          "file_name": "279072070",
+          "crc": 2156719416,
+          "width": 3968,
+          "height": 2976,
+          "index": 3,
+          "id": 3202757093,
+          "image_id": 12946812
+        },
+        {
+          "file_name": "1791178584",
+          "crc": 553261781,
+          "width": 3968,
+          "height": 2976,
+          "index": 4,
+          "id": 638157181,
+          "image_id": 12946813
+        }
+      ],
+      "download_title": "PASSAGE",
+      "band_id": 3454424886,
+      "grid_index": 0,
+      "title": "2018 edition, transparent yellow vinyl",
+      "type_name": "Vinyl LP",
+      "is_live_ticket": false,
+      "type_id": 2,
+      "id": 885645241,
+      "subscriber_only": null
+    },
+    {
+      "in_stock": true,
+      "artist_name": null,
+      "album_art": null,
+      "download_id": 3596433032,
+      "download_type": "a",
+      "download_has_audio": true,
+      "arts": [
+        {
+          "file_name": "1014448557",
+          "crc": 4038389037,
+          "width": 4088,
+          "height": 3066,
+          "index": 0,
+          "id": 2345612,
+          "image_id": 25824810
+        },
+        {
+          "file_name": "533444747",
+          "crc": 30403352,
+          "width": 3968,
+          "height": 2976,
+          "index": 1,
+          "id": 2238218200,
+          "image_id": 25824793
+        },
+        {
+          "file_name": "2150955750",
+          "crc": 3230348300,
+          "width": 2171,
+          "height": 1920,
+          "index": 2,
+          "id": 1868124646,
+          "image_id": 25824795
+        },
+        {
+          "file_name": "3893096874",
+          "crc": 1775478007,
+          "width": 3968,
+          "height": 2976,
+          "index": 3,
+          "id": 1543747932,
+          "image_id": 24472543
+        }
+      ],
+      "download_title": "Eight Fragments Of An Illusion",
+      "band_id": 3454424886,
+      "grid_index": 0,
+      "title": "Limited edition vinyl",
+      "type_name": "Vinyl LP",
+      "is_live_ticket": false,
+      "type_id": 2,
+      "id": 3389177373,
+      "subscriber_only": null
+    },
+    {
+      "in_stock": true,
+      "artist_name": null,
+      "album_art": null,
+      "download_id": 1670971920,
+      "download_type": "a",
+      "download_has_audio": true,
+      "arts": [
+        {
+          "file_name": "1696908512",
+          "crc": 3313502739,
+          "width": 1500,
+          "height": 1500,
+          "index": 0,
+          "id": 2816705115,
+          "image_id": 8919678
+        },
+        {
+          "file_name": "2520850243",
+          "crc": 2521499733,
+          "width": 3108,
+          "height": 2305,
+          "index": 1,
+          "id": 116892697,
+          "image_id": 8920416
+        },
+        {
+          "file_name": "1880159972",
+          "crc": 1991380122,
+          "width": 2876,
+          "height": 2148,
+          "index": 2,
+          "id": 2196749923,
+          "image_id": 8920418
+        },
+        {
+          "file_name": "656564745",
+          "crc": 2684840300,
+          "width": 3069,
+          "height": 2276,
+          "index": 3,
+          "id": 2127193971,
+          "image_id": 8920423
+        },
+        {
+          "file_name": "3699893204",
+          "crc": 1680241359,
+          "width": 3146,
+          "height": 2333,
+          "index": 4,
+          "id": 3570474419,
+          "image_id": 8920422
+        }
+      ],
+      "download_title": "PASSAGE",
+      "band_id": 3454424886,
+      "grid_index": 0,
+      "title": "CD",
+      "type_name": "Compact Disc (CD)",
+      "is_live_ticket": false,
+      "type_id": 1,
+      "id": 513414282,
+      "subscriber_only": null
+    },
+    {
+      "in_stock": false,
+      "artist_name": null,
+      "album_art": null,
+      "download_id": 1670971920,
+      "download_type": "a",
+      "download_has_audio": true,
+      "arts": [
+        {
+          "file_name": "3135095642",
+          "crc": 2056313049,
+          "width": 3146,
+          "height": 2333,
+          "index": 0,
+          "id": 1135500907,
+          "image_id": 9250446
+        },
+        {
+          "file_name": "4132104430",
+          "crc": 2696573234,
+          "width": 3146,
+          "height": 2333,
+          "index": 1,
+          "id": 3838423762,
+          "image_id": 9250442
+        },
+        {
+          "file_name": "3178901845",
+          "crc": 1189133956,
+          "width": 3146,
+          "height": 2333,
+          "index": 2,
+          "id": 3996077526,
+          "image_id": 9250443
+        },
+        {
+          "file_name": "3966753508",
+          "crc": 3948111367,
+          "width": 3071,
+          "height": 2278,
+          "index": 3,
+          "id": 2049800976,
+          "image_id": 9250445
+        }
+      ],
+      "download_title": "PASSAGE",
+      "band_id": 3454424886,
+      "grid_index": 0,
+      "title": "First pressing, black vinyl",
+      "type_name": "Vinyl LP",
+      "is_live_ticket": false,
+      "type_id": 2,
+      "id": 3030243874,
+      "subscriber_only": null
+    }
+  ],
+  "discography": [
+    {
+      "art_id": 3383480635,
+      "is_purchasable": true,
+      "title": "Eight Fragments Of An Illusion",
+      "artist_name": null,
+      "item_type": "album",
+      "item_id": 3596433032,
+      "band_id": 3454424886,
+      "release_date": "23 Apr 2021 00:00:00 GMT",
+      "band_name": "Ulrich Schnauss & Jonas Munk"
+    },
+    {
+      "art_id": 2192926735,
+      "is_purchasable": true,
+      "title": "Asteroid 2467",
+      "artist_name": null,
+      "item_type": "album",
+      "item_id": 1623917322,
+      "band_id": 3454424886,
+      "release_date": "22 Jan 2021 00:00:00 GMT",
+      "band_name": "Ulrich Schnauss & Jonas Munk"
+    },
+    {
+      "art_id": 3809045440,
+      "is_purchasable": true,
+      "title": "PASSAGE",
+      "artist_name": null,
+      "item_type": "album",
+      "item_id": 1670971920,
+      "band_id": 3454424886,
+      "release_date": "20 Jan 2017 00:00:00 GMT",
+      "band_name": "Ulrich Schnauss & Jonas Munk"
+    }
+  ],
+  "bandcamp_url": "https://schnaussandmunk.bandcamp.com",
+  "header_image_id": null,
+  "bio_image_id": 8579411,
+  "navbar_titles": {
+    "c": "community",
+    "s": "subscribe",
+    "u": "audio",
+    "v": "video",
+    "a": "artists",
+    "l": "live streams",
+    "p": "merch",
+    "m": "music"
+  },
+  "bio": null,
+  "bio_image_width": 500,
+  "artists": [],
+  "location": "London, UK",
+  "shows": [],
+  "sites": [],
+  "bio_image_height": 500,
+  "name": "Ulrich Schnauss & Jonas Munk",
+  "id": 3454424886
+}
