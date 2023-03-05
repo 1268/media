@@ -2,6 +2,7 @@ package main
 
 import (
    "2a.pages.dev/mech"
+   "2a.pages.dev/mech/cbc"
    "flag"
 )
 
@@ -12,23 +13,22 @@ type flags struct {
    mech.Stream
    name string
    password string
+   verbose bool
 }
 
 func main() {
    var f flags
-   // b
    flag.StringVar(&f.id, "b", "", "ID")
-   // e
    flag.StringVar(&f.email, "e", "", "email")
-   // f
-   flag.Int64Var(&f.bandwidth, "f", 2767479, "video bandwidth")
-   // g
+   flag.Int64Var(&f.bandwidth, "f", 3687532, "video bandwidth")
    flag.StringVar(&f.name, "g", "English", "audio name")
-   // i
    flag.BoolVar(&f.Info, "i", false, "information")
-   // p
    flag.StringVar(&f.password, "p", "", "password")
+   flag.BoolVar(&f.verbose, "v", false, "verbose")
    flag.Parse()
+   if f.verbose {
+      cbc.Client.Log_Level = 2
+   }
    if f.email != "" {
       err := f.profile()
       if err != nil {
