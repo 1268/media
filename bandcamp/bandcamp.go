@@ -1,12 +1,17 @@
 package bandcamp
 
 import (
+   "2a.pages.dev/mech"
    "encoding/json"
    "net/http"
    "net/url"
    "strconv"
    "time"
 )
+
+func (t Track) Name() string {
+   return t.Band_Name + "-" + mech.Clean(t.Title)
+}
 
 const (
    JPEG = iota
@@ -127,11 +132,7 @@ type Track struct {
    Band_Name string
    Streaming_URL *struct {
       MP3_128 string `json:"mp3-128"`
-   }
-}
-
-func (t Track) Name() string {
-   return t.Band_Name + "-" + t.Title
+   } `json:",omitempty"`
 }
 
 type Tralbum struct {
