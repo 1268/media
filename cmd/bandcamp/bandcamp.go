@@ -3,22 +3,19 @@ package main
 import (
    "2a.pages.dev/mech/bandcamp"
    "2a.pages.dev/rosso/http"
-   "encoding/json"
+   "fmt"
    "io"
    "os"
    "time"
 )
 
 func (f flags) tralbum(tralb *bandcamp.Tralbum) error {
-   for _, track := range tralb.Tracks {
+   for i, track := range tralb.Tracks {
       if f.info {
-         enc := json.NewEncoder(os.Stdout)
-         enc.SetEscapeHTML(false)
-         enc.SetIndent("", " ")
-         err := enc.Encode(track)
-         if err != nil {
-            return err
+         if i >= 1 {
+            fmt.Println()
          }
+         fmt.Println(track)
       } else if track.Streaming_URL != nil {
          req, err := http.NewRequest("GET", track.Streaming_URL.MP3_128, nil)
          if err != nil {

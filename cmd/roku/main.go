@@ -29,7 +29,7 @@ func main() {
    f.Client_ID = filepath.Join(home, "mech/client_id.bin")
    flag.StringVar(&f.Client_ID, "c", f.Client_ID, "client ID")
    // f
-   flag.Int64Var(&f.bandwidth, "f", 2621580, "video bandwidth")
+   flag.Int64Var(&f.bandwidth, "f", 2865154, "video bandwidth")
    // g
    flag.StringVar(&f.codec, "g", "mp4a", "audio codec")
    // i

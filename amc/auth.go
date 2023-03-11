@@ -40,11 +40,11 @@ func (a Auth) Playback(ref string) (*Playback, error) {
    req.Header = http.Header{
       "Authorization": {"Bearer " + a.Data.Access_Token},
       "Content-Type": {"application/json"},
-      "X-Amcn-Device-Ad-Id": {"-"},
+      "X-Amcn-Device-Ad-ID": {"-"},
       "X-Amcn-Language": {"en"},
       "X-Amcn-Network": {"amcplus"},
       "X-Amcn-Platform": {"web"},
-      "X-Amcn-Service-Id": {"amcplus"},
+      "X-Amcn-Service-ID": {"amcplus"},
       "X-Amcn-Tenant": {"amcn"},
       "X-Ccpa-Do-Not-Sell": {"doNotPassData"},
    }
@@ -125,7 +125,7 @@ func Unauth() (*Auth, error) {
       return nil, err
    }
    req.Header = http.Header{
-      "X-Amcn-Device-Id": {"-"},
+      "X-Amcn-Device-ID": {"-"},
       "X-Amcn-Language": {"en"},
       "X-Amcn-Network": {"amcplus"},
       "X-Amcn-Platform": {"web"},
@@ -161,13 +161,13 @@ func (a *Auth) Login(email, password string) error {
    req.Header = http.Header{
       "Authorization": {"Bearer " + a.Data.Access_Token},
       "Content-Type": {"application/json"},
-      "X-Amcn-Device-Ad-Id": {"-"},
-      "X-Amcn-Device-Id": {"-"},
+      "X-Amcn-Device-Ad-ID": {"-"},
+      "X-Amcn-Device-ID": {"-"},
       "X-Amcn-Language": {"en"},
       "X-Amcn-Network": {"amcplus"},
       "X-Amcn-Platform": {"web"},
-      "X-Amcn-Service-Group-Id": {"10"},
-      "X-Amcn-Service-Id": {"amcplus"},
+      "X-Amcn-Service-Group-ID": {"10"},
+      "X-Amcn-Service-ID": {"amcplus"},
       "X-Amcn-Tenant": {"amcn"},
       "X-Ccpa-Do-Not-Sell": {"doNotPassData"},
    }
