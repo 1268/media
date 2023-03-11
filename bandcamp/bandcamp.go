@@ -127,7 +127,7 @@ type Track struct {
    Band_Name string
    Streaming_URL *struct {
       MP3_128 string `json:"mp3-128"`
-   }
+   } `json:",omitempty"`
 }
 
 func (t Track) Name() string {
