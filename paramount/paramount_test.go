@@ -17,22 +17,6 @@ const (
    stream_pack
 )
 
-type key struct {
-   asset int
-   content_type int
-}
-
-func Test_Preview(t *testing.T) {
-   for _, test := range tests {
-      preview, err := New_Preview(test.guid)
-      if err != nil {
-         t.Fatal(err)
-      }
-      fmt.Printf("%+v\n", preview)
-      time.Sleep(time.Second)
-   }
-}
-
 var tests = map[key]struct{
    guid string
    key string
@@ -46,12 +30,6 @@ var tests = map[key]struct{
    },
    // paramountplus.com/movies/video/tQk_Qooh5wUlxQqzj_4LiBO2m4iMrcPD
    {dash_cenc, movie}: {guid: "tQk_Qooh5wUlxQqzj_4LiBO2m4iMrcPD"},
-   // cbs.com/shows/video/YxlqOUdP1zZaIs7FGXCaS1dJi7gGzxG_
-   {hls_clear, episode}: {guid: "YxlqOUdP1zZaIs7FGXCaS1dJi7gGzxG_"},
-   // paramountplus.com/shows/video/622520382
-   {stream_pack, episode}: {guid: "622520382"},
-   // paramountplus.com/movies/video/wQH9yE_y_Dt4ekDYm3yelhhY2KXvOra_
-   {stream_pack, movie}: {guid: "wQH9yE_y_Dt4ekDYm3yelhhY2KXvOra_"},
 }
 
 func Test_Post(t *testing.T) {
@@ -88,3 +66,20 @@ func Test_Post(t *testing.T) {
       t.Fatal(keys)
    }
 }
+
+type key struct {
+   asset int
+   content_type int
+}
+
+func Test_Preview(t *testing.T) {
+   for _, test := range tests {
+      preview, err := New_Preview(test.guid)
+      if err != nil {
+         t.Fatal(err)
+      }
+      fmt.Printf("%+v\n", preview)
+      time.Sleep(time.Second)
+   }
+}
+
