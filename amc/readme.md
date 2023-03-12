@@ -19,15 +19,15 @@ com.amcplus.amcfullepisodes
 
 ## TRY 7 DAYS FREE
 
-1. New Private Window
-2. visit https://account.riseup.net/mail/aliases
-3. visit https://amcplus.com
-4. click TRY 7 DAY FREE
-5. click CREATE ACCOUNT
-6. click MONTHLY
-7. click START FREE TRIAL
-8. click START WATCHING NOW
-9. click SETTINGS
-10. click Subscription
-11. click CANCEL
-12. click NO THANKS, CANCEL AMC+
+1. visit https://account.riseup.net/mail/aliases
+2. visit https://amcplus.com
+3. click TRY 7 DAY FREE
+4. click CREATE ACCOUNT
+5. click MONTHLY
+6. click START FREE TRIAL
+7. click START WATCHING NOW
+8. click SETTINGS
+9. click Subscription
+10. click CANCEL
+11. click NO THANKS, CANCEL AMC+
+12. Forget About This Site
