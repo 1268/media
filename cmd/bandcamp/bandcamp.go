@@ -25,7 +25,7 @@ func (f flags) tralbum(tralb *bandcamp.Tralbum) error {
          if err != nil {
             return err
          }
-         file, err := os.Create(track.Name() + ".mp3")
+         file, err := os.Create(track.Name())
          if err != nil {
             return err
          }

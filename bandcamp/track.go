@@ -30,5 +30,5 @@ type Track struct {
 }
 
 func (t Track) Name() string {
-   return t.Band_Name + "-" + mech.Clean(t.Title)
+   return t.Band_Name + "-" + mech.Clean(t.Title) + ".mp3"
 }
