@@ -21,65 +21,106 @@ link.theplatform.com/s/dJ5BDC/media/guid/2198311517/
 tQk_Qooh5wUlxQqzj_4LiBO2m4iMrcPD?formats=mpeg-dash
 ~~~
 
+## CBS web client
+
+<https://cbs.com/shows/video/_3vZxZoTZV2s2ig346INss95UDzokC20>
+
+so the client is requesting this URL:
+
+~~~
+https://pubads.g.doubleclick.net/ondemand/dash/content/2497752/vid/
+_3vZxZoTZV2s2ig346INss95UDzokC20/TUL/streams/
+f48bcd8c-2c2a-4094-85af-a2cdc3e64bae/manifest.mpd
+~~~
+
+which splits the video into multiple Periods to allow for ads. However, in the
+HTML response of the original URL, we also have this:
+
+~~~
+https://vod-gcs-cedexis.cbsaavideo.com/intl_vms/2023/03/07/2179633731600/
+2006101_cenc_dash/stream.mpd
+~~~
+
+which is the unsplit video.
+
+## Paramount web client
+
+https://paramountplus.com/shows/video/rn1zyirVOPjCl8rxopWrhUmJEIs3GcKW
+
+so the client is requesting this URL:
+
+~~~
+https://pubads.g.doubleclick.net/ondemand/dash/content/2497752/vid/
+rn1zyirVOPjCl8rxopWrhUmJEIs3GcKW/TUL/streams/
+dedd6f4c-a4f3-4aa6-8c65-192d525ab127/manifest.mpd
+~~~
+
+which splits the video into multiple Periods to allow for ads. However, in the
+HTML response of the original URL, we also have this:
+
+~~~
+https://vod-gcs-cedexis.cbsaavideo.com/intl_vms/2017/09/23/1053238851585/dubs/
+1664335_cenc_dash/stream.mpd
+~~~
+
+which is the unsplit video.
+
 ## CBS Android client
 
 https://play.google.com/store/apps/details?id=com.cbs.tve
 
-## CBS web client
+so the client is requesting this URL:
 
-- https://cbs.com/shows/video/YxlqOUdP1zZaIs7FGXCaS1dJi7gGzxG_
-- https://paramountplus.com/shows/video/YxlqOUdP1zZaIs7FGXCaS1dJi7gGzxG_
+~~~
+https://pubads.g.doubleclick.net/ondemand/dash/content/2497752/vid/
+_3vZxZoTZV2s2ig346INss95UDzokC20/TUL/streams/
+dc860dc5-1cf1-4a52-91cb-13654e097007/manifest.mpd
+~~~
+
+which splits the video into multiple Periods to allow for ads. Also in the
+response to this request:
+
+~~~
+https://cbsdigital.cbs.com/apps-api/v2.0/androidphone/video/cid/
+_3vZxZoTZV2s2ig346INss95UDzokC20.json
+~~~
+
+we have another split:
+
+~~~
+https://vod-gcs-cedexis.cbsaavideo.com/intl_vms/2023/03/07/2179633731600/
+2006101_cenc_precon_dash/stream.mpd
+~~~
 
 ## Paramount Android client
 
 https://play.google.com/store/apps/details?id=com.cbs.app
 
-Android client request this URL:
-
-~~~
-https://vod-gcs-cedexis.cbsaavideo.com/intl_vms/2023/01/25/2165477955514/
-1977711_cenc_precon_dash/
-MTV_THECHALLENGEWORLDCHAMPIONSHIP_101_HD_V1_en-US_1961718_3_aac_128/seg_13.m4s
-~~~
-
-which comes from:
+so the client is requesting this URL:
 
 ~~~
 https://pubads.g.doubleclick.net/ondemand/dash/content/2497752/vid/
-SQGw5gWeMWBeZfvz7D78tJ9jmkMUbL4X/TUL/streams/
-3ac204df-51c7-46d8-99e7-4960bb84c4a4/manifest.mpd
+7H97Abj_yordO5mKdGAyWOrnM87UCpE9/TUL/streams/
+cb0d5705-ff9b-4640-bd76-e05dbd2225c3/manifest.mpd
 ~~~
 
-avoid this:
+which splits the video into multiple Periods to allow for ads. Also we have a
+request that returns single video in some cases:
 
 ~~~
 https://www.paramountplus.com/apps-api/v2.0/androidphone/video/cid/
-SQGw5gWeMWBeZfvz7D78tJ9jmkMUbL4X.json
+7H97Abj_yordO5mKdGAyWOrnM87UCpE9.json
+
+https://vod-gcs-cedexis.cbsaavideo.com/intl_vms/2023/02/14/2172339267761/
+1965235_cenc_fmp4_hdr_dash/stream.mpd
 ~~~
 
-because the resulting MPD is:
+and split video in others:
 
 ~~~
-assetType	"DASH_CENC_PRECON"
-~~~
+https://www.paramountplus.com/apps-api/v2.0/androidphone/video/cid/
+rn1zyirVOPjCl8rxopWrhUmJEIs3GcKW.json
 
-which means the video is broken up into pieces. Maybe cbs.com videos are better,
-or CBS app?
-
-## Paramount web client
-
-searching the web client for MPEG-DASH returns nothing however. Web client is
-requesting this URL:
-
-~~~
 https://vod-gcs-cedexis.cbsaavideo.com/intl_vms/2017/09/23/1053238851585/dubs/
-1664335_cenc_precon_dash/CBS_SEAL_TEAM_101_HD_R_1563332_4500/seg_3.m4s
-~~~
-
-which comes from here:
-
-~~~
-https://pubads.g.doubleclick.net/ondemand/dash/content/2497752/vid/
-rn1zyirVOPjCl8rxopWrhUmJEIs3GcKW/TUL/streams/
-279e4e07-11a6-4ebd-800c-ee5720115139/manifest.mpd
+1664335_cenc_precon_dash/stream.mpd
 ~~~
