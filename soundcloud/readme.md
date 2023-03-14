@@ -2,11 +2,23 @@
 
 ## Android client
 
+https://play.google.com/store/apps/details?id=com.soundcloud.android
+
+Must use Android API 24 or higher:
+
 ~~~
-com.soundcloud.android
+sdkVersion:'24'
 ~~~
 
-Install system certificate.
+which means API 23 will fail:
+
+~~~
+APK Installer
+---------------------------
+The APK failed to install.<br/> Error: INSTALL_FAILED_OLDER_SDK
+~~~
+
+So you must install system certificate.
 
 ## How to get `client_id`
 

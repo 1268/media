@@ -8,7 +8,7 @@ https://justwatch.com/us/provider/paramount-plus
 com.cbs.app
 ~~~
 
-Create device with Android API 23 or higher. Install user certificate. After the
+Create device with Android API 23. Install user certificate. After the
 commercial you might get an error, try again.
 
 ## How to get aid?
