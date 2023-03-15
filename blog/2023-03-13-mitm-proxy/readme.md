@@ -28,6 +28,7 @@ Press `O` to enter options. Move to `modify_headers` and press Enter. Then press
 `a` to add a new entry. Press Esc when finished, then `q`.
 
 - <https://github.com/firehol/blocklist-ipsets/blob/master/geolite2_country/country_ca.netset>
+- https://calculator.net/ip-subnet-calculator.html
 - https://docs.mitmproxy.org/stable/overview-features
 
 Canada:
