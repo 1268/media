@@ -14,16 +14,22 @@ func main() {
    var req http.Request
    req.URL = new(url.URL)
    req.URL.Host = "link.theplatform.com"
-   // DRM only
-   // req.URL.Path = "/s/dJ5BDC/media/guid/2198311517/tQk_Qooh5wUlxQqzj_4LiBO2m4iMrcPD"
+   // <assetType>DASH_CENC</assetType>
+   //req.URL.Path = "/s/dJ5BDC/media/guid/2198311517/tQk_Qooh5wUlxQqzj_4LiBO2m4iMrcPD"
    
-   req.URL.Path = "/s/dJ5BDC/media/guid/2198311517/YxlqOUdP1zZaIs7FGXCaS1dJi7gGzxG_"
+   // <assetType>DASH_CENC</assetType>
+   // <assetType>Downloadable</assetType>
+   //req.URL.Path = "/s/dJ5BDC/media/guid/2198311517/YxlqOUdP1zZaIs7FGXCaS1dJi7gGzxG_"
    
+   // <assetType>DASH_CENC</assetType>
+   // <assetType>StreamPack</assetType>
+   req.URL.Path = "/s/dJ5BDC/media/guid/2198311517/wQH9yE_y_Dt4ekDYm3yelhhY2KXvOra_"
    req.URL.Scheme = "http"
    req.Header = make(http.Header)
    power := power_set(
       "assetTypes=DASH_CENC",
       "assetTypes=Downloadable",
+      "assetTypes=StreamPack",
       "format=smil",
       "formats=MPEG-DASH",
       "mbr=true",

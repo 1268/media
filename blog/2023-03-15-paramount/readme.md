@@ -1,33 +1,50 @@
 # Paramount
 
-responses:
+`DASH_CENC`:
+
+~~~
+pass "formats=MPEG-DASH"
+pass "formats=MPEG-DASH&mbr=true"
+pass "format=smil&formats=MPEG-DASH"
+pass "assetTypes=DASH_CENC&formats=MPEG-DASH"
+pass "format=smil&formats=MPEG-DASH&mbr=true"
+pass "assetTypes=DASH_CENC&formats=MPEG-DASH&mbr=true"
+pass "assetTypes=DASH_CENC&format=smil&formats=MPEG-DASH"
+pass "assetTypes=DASH_CENC&format=smil&formats=MPEG-DASH&mbr=true"
+~~~
+
+Downloadable:
 
 ~~~
 pass ""
-pass "assetTypes=DASH_CENC&format=smil&formats=MPEG-DASH"
-pass "assetTypes=DASH_CENC&format=smil&formats=MPEG-DASH&mbr=true"
-pass "assetTypes=DASH_CENC&formats=MPEG-DASH"
-pass "assetTypes=DASH_CENC&formats=MPEG-DASH&mbr=true"
-pass "assetTypes=Downloadable"
-pass "assetTypes=Downloadable&format=smil"
-pass "assetTypes=Downloadable&format=smil&mbr=true"
-pass "assetTypes=Downloadable&mbr=true"
-pass "format=smil"
-pass "format=smil&formats=MPEG-DASH"
-pass "format=smil&formats=MPEG-DASH&mbr=true"
-pass "format=smil&mbr=true"
-pass "formats=MPEG-DASH"
-pass "formats=MPEG-DASH&mbr=true"
 pass "mbr=true"
+pass "format=smil"
+pass "formats=MPEG-DASH"
+pass "format=smil&mbr=true"
+pass "assetTypes=Downloadable"
+pass "formats=MPEG-DASH&mbr=true"
+pass "format=smil&formats=MPEG-DASH"
+pass "assetTypes=Downloadable&mbr=true"
+pass "assetTypes=Downloadable&format=smil"
+pass "format=smil&formats=MPEG-DASH&mbr=true"
+pass "assetTypes=Downloadable&format=smil&mbr=true"
+~~~
 
-fail "assetTypes=DASH_CENC"
-fail "assetTypes=DASH_CENC&format=smil"
-fail "assetTypes=DASH_CENC&format=smil&mbr=true"
-fail "assetTypes=DASH_CENC&mbr=true"
-fail "assetTypes=Downloadable&format=smil&formats=MPEG-DASH"
-fail "assetTypes=Downloadable&format=smil&formats=MPEG-DASH&mbr=true"
-fail "assetTypes=Downloadable&formats=MPEG-DASH"
-fail "assetTypes=Downloadable&formats=MPEG-DASH&mbr=true"
+StreamPack:
+
+~~~
+pass ""
+pass "mbr=true"
+pass "format=smil"
+pass "formats=MPEG-DASH"
+pass "format=smil&mbr=true"
+pass "assetTypes=StreamPack"
+pass "formats=MPEG-DASH&mbr=true"
+pass "format=smil&formats=MPEG-DASH"
+pass "assetTypes=StreamPack&mbr=true"
+pass "assetTypes=StreamPack&format=smil"
+pass "format=smil&formats=MPEG-DASH&mbr=true"
+pass "assetTypes=StreamPack&format=smil&mbr=true"
 ~~~
 
 This is what I have been using:
