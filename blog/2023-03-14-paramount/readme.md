@@ -1,28 +1,5 @@
 # Paramount
 
-This is what I have been using:
-
-~~~
-link.theplatform.com/s/dJ5BDC/media/guid/2198311517/
-tQk_Qooh5wUlxQqzj_4LiBO2m4iMrcPD?assetTypes=DASH_CENC&formats=MPEG-DASH
-~~~
-
-which returns up to 1080. Whats interesting is, this returns up to 2160:
-
-~~~
-link.theplatform.com/s/dJ5BDC/media/guid/2198311517/
-tQk_Qooh5wUlxQqzj_4LiBO2m4iMrcPD?formats=MPEG-DASH
-~~~
-
-responses:
-
-~~~
-302 Found [assetTypes=DASH_CENC formats=MPEG-DASH]
-302 Found [formats=MPEG-DASH]
-412 Precondition Failed []
-412 Precondition Failed [assetTypes=DASH_CENC]
-~~~
-
 ## Paramount Android client
 
 https://play.google.com/store/apps/details?id=com.cbs.app
