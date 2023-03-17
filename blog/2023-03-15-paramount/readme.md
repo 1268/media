@@ -47,6 +47,12 @@ pass "format=smil&formats=MPEG-DASH&mbr=true"
 pass "assetTypes=StreamPack&format=smil&mbr=true"
 ~~~
 
+This works:
+
+http://link.theplatform.com/s/dJ5BDC/media/guid/2198311517/wQH9yE_y_Dt4ekDYm3yelhhY2KXvOra_?formats=M3U
+
+
+
 This is what I have been using:
 
 ~~~
@@ -91,4 +97,3 @@ search
 ~~~
 theplatform assetType "Downloadable"
 ~~~
-
