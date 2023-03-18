@@ -28,7 +28,7 @@ func New_Module(private_key, client_ID, pssh []byte) (*Module, error) {
       return nil, err
    }
    mod.license_request = protobuf.Message{
-      1: protobuf.Bytes(client_ID),
+      1: protobuf.Bytes(client_ID), // ClientId
       2: protobuf.Message{ // ContentId
          1: protobuf.Message{ // CencId
             1: protobuf.Bytes(pssh[32:]),

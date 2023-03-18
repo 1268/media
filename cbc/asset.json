@@ -1,0 +1,54 @@
+{
+  "id": "the-witch/s01e01",
+  "title": "The Witch",
+  "description": "New England, 1630: William and Katherine lead a devout Christian life, homesteading on the edge of an impassible wilderness, with five children. When their newborn son mysteriously vanishes and their crops fail, the family begins to turn on one another. In his debut feature, writer/director Robert Eggers painstakingly designs an authentic re-creation of New England - generations before the 1692 trials in Salem - evoking the alluring and terrifying power of the timeless witch myth. Told through the eyes of Thomasin, the teenage daughter (in a star making performance by Anya Taylor-Joy), and supported by haunting camera work and an ominous score, The Witch is a chilling portrait of a family unraveling within their own fears and anxieties, leaving them prey for an inescapable evil.",
+  "image": "https://images.radio-canada.ca/v1/synps-cbc/episode/perso/cbc_films_season_01e1017_thumbnail_v01.jpg?impolicy=ott&im=Resize=(_Size_)&quality=75",
+  "series": "The Witch",
+  "season": 1,
+  "isTrailer": false,
+  "duration": 5527,
+  "contentTier": "STANDARD",
+  "playSession": {
+    "url": "https://services.radio-canada.ca/media/validation/v2?appCode=gem&idMedia=165636&manifestType=desktop&output=json&tech=hls",
+    "mediaId": "165636"
+  },
+  "rating": "14+",
+  "category": "horror",
+  "availableDate": 1571403600000,
+  "airDate": 1571389200000,
+  "showId": "the-witch",
+  "appleContentId": "CBC_FILMS_THE_WITCH",
+  "credits": {
+    "actors": "Anya Taylor-Joy, Ralph Ineson, Kate Dickie, Julian Richings",
+    "directors": "Robert Eggers",
+    "releaseDate": "2015"
+  },
+  "adParameters": {
+    "adUnit": "5876/entertainment/features/films",
+    "adUrl": "https://pubads.g.doubleclick.net/gampad/ads?description_url=https%3a%2f%2fgem.cbc.ca%2fthe-witch%2fs01e01&pp=web-app&scp=bu%3dgem&env=vp&gdfp_req=1&unviewed_position_start=1&correlator=2408293&output=xml_vast&iu=5876%2fentertainment%2ffeatures%2ffilms&sz=320x240&vid=165636&url=https%3a%2f%2fgem.cbc.ca%2fthe-witch%2fs01e01&cust_params=plat%3dott%26client%3dweb-app%26ut%3dano&ad_rule=1&ciu_szs=300x250&cmsid=2556398&hl=en&label=viewable_impression&nofb=2",
+    "hasAds": true,
+    "restrictsAds": false,
+    "mandatoryAdsForAllUsers": false
+  },
+  "amplitudeAnalytics": {
+    "id": "the-witch/s01e01",
+    "title": "the-witch",
+    "series": "the-witch",
+    "season": "s01",
+    "episode": "e01",
+    "duration": 5527,
+    "bookmark": null,
+    "contentTier": "free"
+  },
+  "comscoreAnalytics": {
+    "title": "the-witch",
+    "series": "the-witch",
+    "season": 1,
+    "episode": 1,
+    "rating": "14",
+    "duration": 5527,
+    "id": "the-witch/s01e01",
+    "keyword": "horror"
+  },
+  "isCompleted": false
+}
