@@ -10,6 +10,71 @@ import (
    "strings"
 )
 
+const forwarded_for = "99.224.0.0"
+
+var Client = http.Default_Client
+
+// gem.cbc.ca/media/downton-abbey/s01e05
+func Get_ID(input string) string {
+   _, after, found := strings.Cut(input, "/media/")
+   if found {
+      return after
+   }
+   return input
+}
+
+type Media struct {
+   Message *string
+   URL *string
+}
+
+func (p Profile) Media(a *Asset) (*Media, error) {
+   req, err := http.NewRequest("GET", a.Play_Session.URL, nil)
+   if err != nil {
+      return nil, err
+   }
+   req.Header = http.Header{
+      "X-Claims-Token": {p.Claims_Token},
+      "X-Forwarded-For": {forwarded_for},
+   }
+   res, err := Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   med := new(Media)
+   if err := json.NewDecoder(res.Body).Decode(med); err != nil {
+      return nil, err
+   }
+   if med.Message != nil {
+      return nil, errors.New(*med.Message)
+   }
+   return med, nil
+}
+
+type Asset struct {
+   Apple_Content_ID string `json:"appleContentId"`
+   Play_Session struct {
+      URL string
+   } `json:"playSession"`
+}
+
+func New_Asset(id string) (*Asset, error) {
+   var b strings.Builder
+   b.WriteString("https://services.radio-canada.ca/ott/cbc-api/v2/assets/")
+   b.WriteString(id)
+   res, err := Client.Get(b.String())
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   a := new(Asset)
+   if err := json.NewDecoder(res.Body).Decode(a); err != nil {
+      return nil, err
+   }
+   return a, nil
+}
+
 func Open_Profile(name string) (*Profile, error) {
    file, err := os.Open(name)
    if err != nil {
@@ -37,35 +102,6 @@ const api_key = "3f4beddd-2061-49b0-ae80-6f1f2ed65b37"
 type Login struct {
    Access_Token string
    Expires_In string
-}
-
-func New_Login(email, password string) (*Login, error) {
-   buf, err := json.Marshal(map[string]string{
-      "email": email,
-      "password": password,
-   })
-   if err != nil {
-      return nil, err
-   }
-   req, err := http.NewRequest(
-      "POST", "https://api.loginradius.com/identity/v2/auth/login",
-      bytes.NewReader(buf),
-   )
-   if err != nil {
-      return nil, err
-   }
-   req.Header.Set("Content-Type", "application/json")
-   req.URL.RawQuery = "apiKey=" + api_key
-   res, err := Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   login := new(Login)
-   if err := json.NewDecoder(res.Body).Decode(login); err != nil {
-      return nil, err
-   }
-   return login, nil
 }
 
 func (l Login) Web_Token() (*Web_Token, error) {
@@ -125,20 +161,50 @@ type Web_Token struct {
    Signature string
 }
 
+func New_Login(email, password string) (*Login, error) {
+   auth := map[string]string{
+      "email": email,
+      "password": password,
+   }
+   raw_auth, err := json.MarshalIndent(auth, "", " ")
+   if err != nil {
+      return nil, err
+   }
+   req, err := http.NewRequest(
+      "POST", "https://api.loginradius.com/identity/v2/auth/login",
+      bytes.NewReader(raw_auth),
+   )
+   if err != nil {
+      return nil, err
+   }
+   req.Header.Set("Content-Type", "application/json")
+   req.URL.RawQuery = "apiKey=" + api_key
+   res, err := Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   login := new(Login)
+   if err := json.NewDecoder(res.Body).Decode(login); err != nil {
+      return nil, err
+   }
+   return login, nil
+}
+
 func (w Web_Token) Over_The_Top() (*Over_The_Top, error) {
-   buf, err := json.Marshal(map[string]string{
-      "jwt": w.Signature,
-   })
+   token := map[string]string{"jwt": w.Signature}
+   raw_token, err := json.MarshalIndent(token, "", " ")
    if err != nil {
       return nil, err
    }
    req, err := http.NewRequest(
       "POST", "https://services.radio-canada.ca/ott/cbc-api/v2/token",
-      bytes.NewReader(buf),
+      bytes.NewReader(raw_token),
    )
    if err != nil {
       return nil, err
    }
+   req.Header.Set("Content-Type", "application/json")
    res, err := Client.Do(req)
    if err != nil {
       return nil, err
@@ -149,45 +215,4 @@ func (w Web_Token) Over_The_Top() (*Over_The_Top, error) {
       return nil, err
    }
    return top, nil
-}
-const forwarded_for = "99.224.0.0"
-
-var Client = http.Default_Client
-
-// gem.cbc.ca/media/downton-abbey/s01e05
-func Get_ID(input string) string {
-   _, after, found := strings.Cut(input, "/media/")
-   if found {
-      return after
-   }
-   return input
-}
-
-type Media struct {
-   Message *string
-   URL *string
-}
-
-func (p Profile) Media(a *Asset) (*Media, error) {
-   req, err := http.NewRequest("GET", a.Play_Session.URL, nil)
-   if err != nil {
-      return nil, err
-   }
-   req.Header = http.Header{
-      "X-Claims-Token": {p.Claims_Token},
-      "X-Forwarded-For": {forwarded_for},
-   }
-   res, err := Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   med := new(Media)
-   if err := json.NewDecoder(res.Body).Decode(med); err != nil {
-      return nil, err
-   }
-   if med.Message != nil {
-      return nil, errors.New(*med.Message)
-   }
-   return med, nil
 }
