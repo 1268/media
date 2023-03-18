@@ -33,7 +33,7 @@
   },
   "adParameters": {
     "adUnit": "5876/entertainment/shows/downtonabbey",
-    "adUrl": "https://pubads.g.doubleclick.net/gampad/ads?description_url=https%3a%2f%2fgem.cbc.ca%2fdownton-abbey%2fs01e05&pp=web-app&scp=bu%3dgem&env=vp&gdfp_req=1&unviewed_position_start=1&correlator=4720672&output=xml_vast&iu=5876%2fentertainment%2fshows%2fdowntonabbey&sz=320x240&vid=929078&url=https%3a%2f%2fgem.cbc.ca%2fdownton-abbey%2fs01e05&cust_params=plat%3dott%26client%3dweb-app%26ut%3dano&ad_rule=1&ciu_szs=300x250&cmsid=2556398&hl=en&label=viewable_impression&nofb=2",
+    "adUrl": "https://pubads.g.doubleclick.net/gampad/ads?description_url=https%3a%2f%2fgem.cbc.ca%2fdownton-abbey%2fs01e05&pp=web-app&scp=bu%3dgem&env=vp&gdfp_req=1&unviewed_position_start=1&correlator=8141653&output=xml_vast&iu=5876%2fentertainment%2fshows%2fdowntonabbey&sz=320x240&vid=929078&url=https%3a%2f%2fgem.cbc.ca%2fdownton-abbey%2fs01e05&cust_params=plat%3dott%26client%3dweb-app%26ut%3dano&ad_rule=1&ciu_szs=300x250&cmsid=2556398&hl=en&label=viewable_impression&nofb=2",
     "hasAds": true,
     "restrictsAds": false,
     "mandatoryAdsForAllUsers": false

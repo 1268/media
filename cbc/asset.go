@@ -2,14 +2,37 @@ package cbc
 
 import (
    "encoding/json"
+   "strconv"
    "strings"
 )
 
+func (a Asset) Name() string {
+   var b []byte
+   b = append(b, a.Series...)
+   if a.Episode >= 1 {
+      b = append(b, '-')
+      b = append(b, a.Title...)
+      b = append(b, '-')
+      b = strconv.AppendInt(b, a.Season, 10)
+      b = append(b, '-')
+      b = strconv.AppendInt(b, a.Episode, 10)
+   }
+   b = append(b, '-')
+   b = append(b, a.Credits.Release_Date...)
+   return string(b)
+}
+
 type Asset struct {
-   Apple_Content_ID string `json:"appleContentId"`
    Play_Session struct {
       URL string
    } `json:"playSession"`
+   Series string
+   Title string
+   Season int64
+   Episode int64
+   Credits struct {
+      Release_Date string `json:"releaseDate"`
+   }
 }
 
 func New_Asset(id string) (*Asset, error) {

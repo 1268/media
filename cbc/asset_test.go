@@ -4,9 +4,25 @@ import (
    "fmt"
    "os"
    "testing"
+   "time"
 )
 
-const downton = "downton-abbey/s01e05"
+var ids = []string{
+   "downton-abbey/s01e05",
+   "the-fall/s02e03",
+   "the-witch/s01e01",
+}
+
+func Test_Asset(t *testing.T) {
+   for _, id := range ids {
+      asset, err := New_Asset(id)
+      if err != nil {
+         t.Fatal(err)
+      }
+      fmt.Println(asset.Name())
+      time.Sleep(time.Second)
+   }
+}
 
 func Test_Media(t *testing.T) {
    home, err := os.UserHomeDir()
@@ -17,11 +33,10 @@ func Test_Media(t *testing.T) {
    if err != nil {
       t.Fatal(err)
    }
-   asset, err := New_Asset(downton)
+   asset, err := New_Asset(ids[0])
    if err != nil {
       t.Fatal(err)
    }
-   fmt.Println(asset)
    media, err := profile.Media(asset)
    if err != nil {
       t.Fatal(err)
