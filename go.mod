@@ -9,5 +9,5 @@ require (
 
 require (
 	github.com/Eyevinn/mp4ff v0.34.1 // indirect
-	google.golang.org/protobuf v1.29.0 // indirect
+	google.golang.org/protobuf v1.30.0 // indirect
 )
