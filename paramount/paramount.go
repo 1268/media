@@ -3,49 +3,11 @@ package paramount
 import (
    "2a.pages.dev/rosso/http"
    "crypto/aes"
-   "crypto/cipher"
-   "encoding/base64"
-   "encoding/hex"
    "encoding/json"
    "strconv"
    "strings"
    "time"
 )
-
-var app_secrets = map[string]string{
-   "12.0.28": "439ba2e3622c344a",
-   "12.0.27": "79b7e56e442e65ed",
-   "12.0.26": "f012987182d6f16c",
-   "8.1.28": "d0795c0dffebea73",
-   "8.1.26": "a75bd3a39bfcbc77",
-   "8.1.23": "c0966212aa651e8b",
-   "8.1.22": "ddca2f16bfa3d937",
-   "8.1.20": "817774cbafb2b797",
-   "8.1.18": "1705732089ff4d60",
-   "8.1.16": "add603b54be2fc3c",
-}
-
-func new_token() (string, error) {
-   key, err := hex.DecodeString(secret_key)
-   if err != nil {
-      return "", err
-   }
-   block, err := aes.NewCipher(key)
-   if err != nil {
-      return "", err
-   }
-   var src []byte
-   src = append(src, '|')
-   src = append(src, app_secrets["12.0.28"]...)
-   src = pad(src)
-   var iv [aes.BlockSize]byte
-   cipher.NewCBCEncrypter(block, iv[:]).CryptBlocks(src, src)
-   var dst []byte
-   dst = append(dst, 0, aes.BlockSize)
-   dst = append(dst, iv[:]...)
-   dst = append(dst, src...)
-   return base64.StdEncoding.EncodeToString(dst), nil
-}
 
 func (p Preview) Name() string {
    var b []byte

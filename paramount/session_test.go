@@ -3,9 +3,30 @@ package paramount
 import (
    "2a.pages.dev/mech/widevine"
    "encoding/base64"
+   "encoding/json"
    "os"
    "testing"
+   "time"
 )
+
+func Test_Session(t *testing.T) {
+   test := tests[key{dash_cenc, episode}]
+   enc := json.NewEncoder(os.Stdout)
+   enc.SetIndent("", " ")
+   enc.SetEscapeHTML(false)
+   for version, secret := range app_secrets {
+      if secret != "" {
+         sess, err := session_secret(test.guid, secret)
+         if err != nil {
+            t.Fatal(version, err)
+         }
+         if err := enc.Encode(sess); err != nil {
+            t.Fatal(err)
+         }
+         time.Sleep(time.Second)
+      }
+   }
+}
 
 func Test_Post(t *testing.T) {
    home, err := os.UserHomeDir()
