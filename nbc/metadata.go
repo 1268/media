@@ -13,6 +13,21 @@ import (
    "time"
 )
 
+var secret_key = []byte("2b84a073ede61c766e4c0b3f1e656f7f")
+
+func authorization() string {
+   now := strconv.FormatInt(time.Now().UnixMilli(), 10)
+   b := new(strings.Builder)
+   b.WriteString("NBC-Security key=android_nbcuniversal,version=2.4")
+   b.WriteString(",time=")
+   b.WriteString(now)
+   b.WriteString(",hash=")
+   mac := hmac.New(sha256.New, secret_key)
+   io.WriteString(mac, now)
+   hex.NewEncoder(b).Write(mac.Sum(nil))
+   return b.String()
+}
+
 type Metadata struct {
    MPX_Account_ID string `json:"mpxAccountId"`
    MPX_GUID string `json:"mpxGuid"`
@@ -97,19 +112,4 @@ func (m Metadata) Video() (*Video, error) {
       return nil, err
    }
    return vid, nil
-}
-
-var secret_key = []byte("2b84a073ede61c766e4c0b3f1e656f7f")
-
-func authorization() string {
-   now := strconv.FormatInt(time.Now().UnixMilli(), 10)
-   str := new(strings.Builder)
-   str.WriteString("NBC-Security key=android_nbcuniversal,version=2.4")
-   str.WriteString(",time=")
-   str.WriteString(now)
-   str.WriteString(",hash=")
-   mac := hmac.New(sha256.New, secret_key)
-   io.WriteString(mac, now)
-   hex.NewEncoder(str).Write(mac.Sum(nil))
-   return str.String()
 }
