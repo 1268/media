@@ -43,7 +43,7 @@ func (f *flags) master() (*hls.Master, error) {
    if err != nil {
       return nil, err
    }
-   f.Name = asset.Apple_Content_ID
+   f.Name = asset.Name()
    return f.HLS(*media.URL)
 }
 

@@ -12,13 +12,15 @@ func (a Asset) Name() string {
    if a.Episode >= 1 {
       b = append(b, '-')
       b = append(b, a.Title...)
-      b = append(b, '-')
+      b = append(b, "-s"...)
       b = strconv.AppendInt(b, a.Season, 10)
-      b = append(b, '-')
+      b = append(b, 'e')
       b = strconv.AppendInt(b, a.Episode, 10)
    }
-   b = append(b, '-')
-   b = append(b, a.Credits.Release_Date...)
+   if a.Credits.Release_Date != "" {
+      b = append(b, '-')
+      b = append(b, a.Credits.Release_Date...)
+   }
    return string(b)
 }
 
