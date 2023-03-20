@@ -8,6 +8,25 @@ import (
    "strconv"
 )
 
+func (f Format) String() string {
+   var b []byte
+   b = append(b, "quality: "...)
+   if f.Quality_Label != "" {
+      b = append(b, f.Quality_Label...)
+   } else {
+      b = append(b, f.Audio_Quality...)
+   }
+   b = append(b, "\n\tbitrate: "...)
+   b = strconv.AppendInt(b, f.Bitrate, 10)
+   if f.Content_Length >= 1 { // Tq92D6wQ1mg
+      b = append(b, "\n\tContent-Length: "...)
+      b = strconv.AppendInt(b, f.Content_Length, 10)
+   }
+   b = append(b, "\n\tMIME type: "...)
+   b = append(b, f.MIME_Type...)
+   return string(b)
+}
+
 func (f Format) Encode(w io.Writer) error {
    req, err := http.NewRequest("GET", f.URL, nil)
    if err != nil {
@@ -39,24 +58,6 @@ func (f Format) Encode(w io.Writer) error {
       pos += chunk
    }
    return nil
-}
-
-func (f Format) MarshalText() ([]byte, error) {
-   b := []byte("Quality:")
-   if f.Quality_Label != "" {
-      b = append(b, f.Quality_Label...)
-   } else {
-      b = append(b, f.Audio_Quality...)
-   }
-   b = append(b, " Bitrate:"...)
-   b = strconv.AppendInt(b, f.Bitrate, 10)
-   if f.Content_Length >= 1 { // Tq92D6wQ1mg
-      b = append(b, " Content-Length:"...)
-      b = strconv.AppendInt(b, f.Content_Length, 10)
-   }
-   b = append(b, "\n\tMIME type:"...)
-   b = append(b, f.MIME_Type...)
-   return append(b, '\n'), nil
 }
 
 const chunk = 10_000_000

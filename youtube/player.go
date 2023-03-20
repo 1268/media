@@ -6,35 +6,43 @@ import (
    "time"
 )
 
-func (p Player) Time() (time.Time, error) {
-   return time.Parse(time.DateOnly, p.Publish_Date())
+func (p Status) String() string {
+   var b strings.Builder
+   b.WriteString("status: ")
+   b.WriteString(p.Status)
+   if p.Reason != "" {
+      b.WriteString("\nreason: ")
+      b.WriteString(p.Reason)
+   }
+   return b.String()
 }
 
-func (p Player) MarshalText() ([]byte, error) {
-   b := []byte(p.Playability_Status.String())
-   b = append(b, "\nVideo ID: "...)
-   b = append(b, p.Video_Details.Video_ID...)
-   b = append(b, "\nDuration: "...)
+func (p Player) String() string {
+   var b []byte
+   b = append(b, p.Playability_Status.String()...)
+   b = append(b, "\nduration: "...)
    b = append(b, p.Duration().String()...)
-   b = append(b, "\nView Count: "...)
-   b = strconv.AppendInt(b, p.Video_Details.View_Count, 10)
-   b = append(b, "\nAuthor: "...)
-   b = append(b, p.Video_Details.Author...)
-   b = append(b, "\nTitle: "...)
-   b = append(b, p.Video_Details.Title...)
    if p.Publish_Date() != "" {
-      b = append(b, "\nPublish Date: "...)
+      b = append(b, "\npublish date: "...)
       b = append(b, p.Publish_Date()...)
    }
-   b = append(b, '\n')
+   b = append(b, "\nauthor: "...)
+   b = append(b, p.Video_Details.Author...)
+   b = append(b, "\ntitle: "...)
+   b = append(b, p.Video_Details.Title...)
+   b = append(b, "\nvideo ID: "...)
+   b = append(b, p.Video_Details.Video_ID...)
+   b = append(b, "\nview count: "...)
+   b = strconv.AppendInt(b, p.Video_Details.View_Count, 10)
    for _, form := range p.Streaming_Data.Adaptive_Formats {
-      t, err := form.MarshalText()
-      if err != nil {
-         return nil, err
-      }
-      b = append(b, t...)
+      b = append(b, '\n')
+      b = append(b, form.String()...)
    }
-   return b, nil
+   return string(b)
+}
+
+func (p Player) Time() (time.Time, error) {
+   return time.Parse(time.DateOnly, p.Publish_Date())
 }
 
 func (p Player) Duration() time.Duration {
@@ -50,17 +58,6 @@ func (p Player) Name() string {
    buf.WriteString(p.Video_Details.Author)
    buf.WriteByte('-')
    buf.WriteString(p.Video_Details.Title)
-   return buf.String()
-}
-
-func (p Status) String() string {
-   var buf strings.Builder
-   buf.WriteString("Status: ")
-   buf.WriteString(p.Status)
-   if p.Reason != "" {
-      buf.WriteString("\nReason: ")
-      buf.WriteString(p.Reason)
-   }
    return buf.String()
 }
 
