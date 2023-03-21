@@ -9,13 +9,13 @@ import (
 )
 
 func (c Code) String() string {
-   var str strings.Builder
-   str.WriteString("1. Go to\n")
-   str.WriteString(c.Verification_URL)
-   str.WriteString("\n\n2. Enter this code\n")
-   str.WriteString(c.User_Code)
-   str.WriteString("\n\n3. Press Enter to continue")
-   return str.String()
+   var b strings.Builder
+   b.WriteString("1. Go to\n")
+   b.WriteString(c.Verification_URL)
+   b.WriteString("\n\n2. Enter this code\n")
+   b.WriteString(c.User_Code)
+   b.WriteString("\n\n3. Press Enter to continue")
+   return b.String()
 }
 
 type Code struct {
