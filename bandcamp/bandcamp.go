@@ -10,6 +10,13 @@ import (
    "time"
 )
 
+func (i invalid_type) Error() string {
+   var b []byte
+   b = append(b, "invalid type "...)
+   b = strconv.AppendQuote(b, i.value)
+   return string(b)
+}
+
 var Client = http.Default_Client
 
 type Params struct {
@@ -144,7 +151,8 @@ var Images = []Image{
 
 // Extension is optional.
 func (i Image) URL(art_ID int64) string {
-   b := []byte("http://f4.bcbits.com/img/a")
+   var b []byte
+   b = append(b, "http://f4.bcbits.com/img/a"...)
    b = strconv.AppendInt(b, art_ID, 10)
    b = append(b, '_')
    b = strconv.AppendInt(b, i.ID, 10)
@@ -211,8 +219,3 @@ type invalid_type struct {
    value string
 }
 
-func (i invalid_type) Error() string {
-   b := []byte("invalid type ")
-   b = strconv.AppendQuote(b, i.value)
-   return string(b)
-}
