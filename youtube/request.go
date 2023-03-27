@@ -6,7 +6,7 @@ import (
    "encoding/json"
 )
 
-func (r Request) Player(c http.Client, id string, t *Token) (*Player, error) {
+func (r Request) Player(id string, t *Token) (*Player, error) {
    r.Video_ID = id
    buf, err := json.MarshalIndent(r, "", " ")
    if err != nil {
@@ -23,7 +23,7 @@ func (r Request) Player(c http.Client, id string, t *Token) (*Player, error) {
    } else {
       req.Header.Set("X-Goog-API-Key", api_key)
    }
-   res, err := c.Do(req)
+   res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
    }
@@ -88,7 +88,7 @@ type Request struct {
    Video_ID string `json:"videoId,omitempty"`
 }
 
-func (r Request) Search(c http.Client, query string) (*Search, error) {
+func (r Request) Search(query string) (*Search, error) {
    filter := New_Filters()
    filter.Type(Type["Video"])
    r.Params = filter.Marshal()
@@ -104,7 +104,7 @@ func (r Request) Search(c http.Client, query string) (*Search, error) {
       return nil, err
    }
    req.Header.Set("X-Goog-API-Key", api_key)
-   res, err := c.Do(req)
+   res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
    }

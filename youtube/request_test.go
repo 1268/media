@@ -1,7 +1,6 @@
 package youtube
 
 import (
-   "2a.pages.dev/rosso/http"
    "encoding/json"
    "fmt"
    "os"
@@ -11,7 +10,7 @@ import (
 
 func Test_Android_Embed(t *testing.T) {
    for _, embed := range android_embeds {
-      play, err := Android_Embed().Player(http.Default_Client, embed, nil)
+      play, err := Android_Embed().Player(embed, nil)
       if err != nil {
          t.Fatal(err)
       }
@@ -28,7 +27,7 @@ var androids = []string{
 
 func Test_Android(t *testing.T) {
    for _, android := range androids {
-      play, err := Android().Player(http.Default_Client, android, nil)
+      play, err := Android().Player(android, nil)
       if err != nil {
          t.Fatal(err)
       }
@@ -59,7 +58,7 @@ func Test_Android_Check(t *testing.T) {
       t.Fatal(err)
    }
    for _, check := range android_checks {
-      play, err := req.Player(http.Default_Client, check, tok)
+      play, err := req.Player(check, tok)
       if err != nil {
          t.Fatal(err)
       }
@@ -71,9 +70,7 @@ func Test_Android_Check(t *testing.T) {
 }
 
 func Test_Search(t *testing.T) {
-   search, err := Mobile_Web().Search(
-      http.Default_Client, "oneohtrix point never along",
-   )
+   search, err := Mobile_Web().Search("oneohtrix point never along")
    if err != nil {
       t.Fatal(err)
    }

@@ -27,11 +27,11 @@ func (f flags) player() (*youtube.Player, error) {
       if err != nil {
          return nil, err
       }
-      if err := token.Refresh(f.Client); err != nil {
+      if err := token.Refresh(); err != nil {
          return nil, err
       }
    }
-   return req.Player(f.Client, f.video_ID, token)
+   return req.Player(f.video_ID, token)
 }
 
 func (f flags) encode(form *youtube.Format, name string) error {
@@ -45,7 +45,7 @@ func (f flags) encode(form *youtube.Format, name string) error {
       return err
    }
    defer file.Close()
-   return form.Encode(file, f.Client)
+   return form.Encode(file)
 }
 
 func (f flags) download() error {
@@ -81,13 +81,13 @@ func (f flags) download() error {
 }
 
 func (f flags) do_refresh() error {
-   code, err := youtube.New_Device_Code(f.Client)
+   code, err := youtube.New_Device_Code()
    if err != nil {
       return err
    }
    fmt.Println(code)
    fmt.Scanln()
-   token, err := code.Token(f.Client)
+   token, err := code.Token()
    if err != nil {
       return err
    }

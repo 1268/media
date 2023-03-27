@@ -8,7 +8,7 @@ import (
    "strconv"
 )
 
-func (f Format) Encode(w io.Writer, c http.Client) error {
+func (f Format) Encode(w io.Writer) error {
    req, err := http.NewRequest("GET", f.URL, nil)
    if err != nil {
       return err
@@ -18,6 +18,8 @@ func (f Format) Encode(w io.Writer, c http.Client) error {
       return err
    }
    pro := http.Progress_Bytes(w, f.Content_Length)
+   client := http.Default_Client
+   client.Log_Level = 0
    var pos int64
    for pos < f.Content_Length {
       var b []byte
@@ -26,7 +28,7 @@ func (f Format) Encode(w io.Writer, c http.Client) error {
       b = strconv.AppendInt(b, pos+chunk-1, 10)
       val.Set("range", string(b))
       req.URL.RawQuery = val.Encode()
-      res, err := c.Level(0).Do(req)
+      res, err := client.Level(0).Do(req)
       if err != nil {
          return err
       }

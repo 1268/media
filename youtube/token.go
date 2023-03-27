@@ -52,7 +52,7 @@ type Token struct {
    Refresh_Token string
 }
 
-func New_Device_Code(c http.Client) (*Device_Code, error) {
+func New_Device_Code() (*Device_Code, error) {
    body := url.Values{
       "client_id": {client_ID},
       "scope": {"https://www.googleapis.com/auth/youtube"},
@@ -65,7 +65,7 @@ func New_Device_Code(c http.Client) (*Device_Code, error) {
       return nil, err
    }
    req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-   res, err := c.Do(req)
+   res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
    }
@@ -77,7 +77,7 @@ func New_Device_Code(c http.Client) (*Device_Code, error) {
    return code, nil
 }
 
-func (t *Token) Refresh(c http.Client) error {
+func (t *Token) Refresh() error {
    body := url.Values{
       "client_id": {client_ID},
       "client_secret": {client_secret},
@@ -91,7 +91,7 @@ func (t *Token) Refresh(c http.Client) error {
       return err
    }
    req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-   res, err := c.Do(req)
+   res, err := http.Default_Client.Do(req)
    if err != nil {
       return err
    }
@@ -99,7 +99,7 @@ func (t *Token) Refresh(c http.Client) error {
    return json.NewDecoder(res.Body).Decode(t)
 }
 
-func (d Device_Code) Token(c http.Client) (*Token, error) {
+func (d Device_Code) Token() (*Token, error) {
    body := url.Values{
       "client_id": {client_ID},
       "client_secret": {client_secret},
@@ -113,7 +113,7 @@ func (d Device_Code) Token(c http.Client) (*Token, error) {
       return nil, err
    }
    req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-   res, err := c.Do(req)
+   res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
    }

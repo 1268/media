@@ -10,7 +10,6 @@ import (
 type flags struct {
    audio string
    height int
-   http.Client
    info bool
    refresh bool
    request int
@@ -18,7 +17,7 @@ type flags struct {
 }
 
 func main() {
-   f := flags{Client: http.Default_Client}
+   var f flags
    // a
    flag.Func("a", "address", func(s string) error {
       return youtube.Video_ID(s, &f.video_ID)
@@ -32,7 +31,10 @@ func main() {
    // i
    flag.BoolVar(&f.info, "i", false, "information")
    // log
-   flag.IntVar(&f.Log_Level, "log", f.Log_Level, "log level")
+   flag.IntVar(
+      &http.Default_Client.Log_Level, "log",
+      http.Default_Client.Log_Level, "log level",
+   )
    // r
    var buf strings.Builder
    buf.WriteString("0: Android\n")
