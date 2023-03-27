@@ -17,8 +17,6 @@ func (i invalid_type) Error() string {
    return string(b)
 }
 
-var Client = http.Default_Client
-
 type Params struct {
    A_ID int
    I_ID int
@@ -26,7 +24,11 @@ type Params struct {
 }
 
 func New_Params(ref string) (*Params, error) {
-   res, err := Client.Get(ref)
+   req, err := http.NewRequest("GET", ref, nil)
+   if err != nil {
+      return nil, err
+   }
+   res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
    }
@@ -83,7 +85,7 @@ func new_band(id int) (*Band, error) {
       return nil, err
    }
    req.URL.RawQuery = "band_id=" + strconv.Itoa(id)
-   res, err := Client.Do(req)
+   res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
    }
@@ -199,7 +201,7 @@ func new_tralbum(typ byte, id int) (*Tralbum, error) {
       "tralbum_id": {strconv.Itoa(id)},
       "tralbum_type": {string(typ)},
    }.Encode()
-   res, err := Client.Do(req)
+   res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
    }

@@ -2,7 +2,7 @@ package main
 
 import (
    "2a.pages.dev/mech"
-   "2a.pages.dev/mech/amc"
+   "2a.pages.dev/rosso/http"
    "flag"
    "os"
    "path/filepath"
@@ -14,7 +14,6 @@ type flags struct {
    email string
    mech.Stream
    password string
-   verbose bool
 }
 
 func main() {
@@ -37,14 +36,14 @@ func main() {
    // k
    f.Private_Key = filepath.Join(home, "mech/private_key.pem")
    flag.StringVar(&f.Private_Key, "k", f.Private_Key, "private key")
+   // log
+   flag.IntVar(
+      &http.Default_Client.Log_Level, "log",
+      http.Default_Client.Log_Level, "log level",
+   )
    // p
    flag.StringVar(&f.password, "p", "", "password")
-   // v
-   flag.BoolVar(&f.verbose, "v", false, "verbose")
    flag.Parse()
-   if f.verbose {
-      amc.Client.Log_Level = 2
-   }
    if f.email != "" {
       err := f.login()
       if err != nil {

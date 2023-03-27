@@ -1,10 +1,10 @@
 package amc
 
 import (
+   "2a.pages.dev/rosso/http"
    "bytes"
    "encoding/json"
    "fmt"
-   "net/http"
    "net/url"
    "os"
    "strings"
@@ -48,7 +48,7 @@ func (a Auth) Playback(ref string) (*Playback, error) {
       "X-Amcn-Tenant": {"amcn"},
       "X-Ccpa-Do-Not-Sell": {"doNotPassData"},
    }
-   res, err := Client.Do(req)
+   res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
    }
@@ -85,7 +85,7 @@ func (a Auth) Content(raw_ref string) (*Content, error) {
       "X-Amcn-Network": {"amcplus"},
       "X-Amcn-Tenant": {"amcn"},
    }
-   res, err := Client.Do(req)
+   res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
    }
@@ -131,7 +131,7 @@ func Unauth() (*Auth, error) {
       "X-Amcn-Platform": {"web"},
       "X-Amcn-Tenant": {"amcn"},
    }
-   res, err := Client.Do(req)
+   res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
    }
@@ -171,7 +171,7 @@ func (a *Auth) Login(email, password string) error {
       "X-Amcn-Tenant": {"amcn"},
       "X-Ccpa-Do-Not-Sell": {"doNotPassData"},
    }
-   res, err := Client.Do(req)
+   res, err := http.Default_Client.Do(req)
    if err != nil {
       return err
    }
@@ -189,7 +189,7 @@ func (a *Auth) Refresh() error {
       return err
    }
    req.Header.Set("Authorization", "Bearer " + a.Data.Refresh_Token)
-   res, err := Client.Do(req)
+   res, err := http.Default_Client.Do(req)
    if err != nil {
       return err
    }

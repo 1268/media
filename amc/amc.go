@@ -111,5 +111,3 @@ func (c Content) Video_Player() (*Video_Player, error) {
    }
    return nil, errors.New("video-player-ap not present")
 }
-
-var Client = http.Default_Client
