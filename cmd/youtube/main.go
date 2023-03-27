@@ -2,6 +2,7 @@ package main
 
 import (
    "2a.pages.dev/mech/youtube"
+   "2a.pages.dev/rosso/http"
    "flag"
    "strings"
 )
@@ -9,15 +10,15 @@ import (
 type flags struct {
    audio string
    height int
+   http.Client
    info bool
    refresh bool
    request int
-   verbose bool
    video_ID string
 }
 
 func main() {
-   var f flags
+   f := flags{Client: http.Default_Client}
    // a
    flag.Func("a", "address", func(s string) error {
       return youtube.Video_ID(s, &f.video_ID)
@@ -30,6 +31,8 @@ func main() {
    flag.StringVar(&f.audio, "g", "AUDIO_QUALITY_MEDIUM", "target audio")
    // i
    flag.BoolVar(&f.info, "i", false, "information")
+   // log
+   flag.IntVar(&f.Log_Level, "log", f.Log_Level, "log level")
    // r
    var buf strings.Builder
    buf.WriteString("0: Android\n")
@@ -38,14 +41,9 @@ func main() {
    flag.IntVar(&f.request, "r", 0, buf.String())
    // refresh
    flag.BoolVar(&f.refresh, "refresh", false, "create OAuth refresh token")
-   // v
-   flag.BoolVar(&f.verbose, "v", false, "verbose")
    flag.Parse()
-   if f.verbose {
-      youtube.HTTP_Client.Log_Level = 2
-   }
    if f.refresh {
-      err := refresh()
+      err := f.do_refresh()
       if err != nil {
          panic(err)
       }

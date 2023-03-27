@@ -1,7 +1,6 @@
 package youtube
 
 import (
-   "2a.pages.dev/rosso/http"
    "net/url"
    "path"
 )
@@ -50,8 +49,6 @@ const (
       ".apps.googleusercontent.com"
    client_secret = "SboVhoG9s0rNafixCSGGKXAT"
 )
-
-var HTTP_Client = http.Default_Client
 
 func Video_ID(data string, v *string) error {
    ref, err := url.Parse(data)

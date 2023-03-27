@@ -7,55 +7,6 @@ import (
    "os"
 )
 
-func (f flags) download() error {
-   play, err := f.player()
-   if err != nil {
-      return err
-   }
-   forms := play.Streaming_Data.Adaptive_Formats
-   if f.info {
-      fmt.Println(play)
-   } else {
-      fmt.Println(play.Playability_Status)
-      if f.audio != "" {
-         form, ok := forms.Audio(f.audio)
-         if ok {
-            err := download(form, play.Name())
-            if err != nil {
-               return err
-            }
-         }
-      }
-      if f.height >= 1 {
-         form, ok := forms.Video(f.height)
-         if ok {
-            err := download(form, play.Name())
-            if err != nil {
-               return err
-            }
-         }
-      }
-   }
-   return nil
-}
-
-func refresh() error {
-   code, err := youtube.New_Code()
-   if err != nil {
-      return err
-   }
-   fmt.Println(code)
-   fmt.Scanln()
-   token, err := code.Token()
-   if err != nil {
-      return err
-   }
-   home, err := os.UserHomeDir()
-   if err != nil {
-      return err
-   }
-   return token.Create(home + "/mech/youtube.json")
-}
 func (f flags) player() (*youtube.Player, error) {
    var (
       req youtube.Request
@@ -76,14 +27,14 @@ func (f flags) player() (*youtube.Player, error) {
       if err != nil {
          return nil, err
       }
-      if err := token.Refresh(); err != nil {
+      if err := token.Refresh(f.Client); err != nil {
          return nil, err
       }
    }
-   return req.Player(f.video_ID, token)
+   return req.Player(f.Client, f.video_ID, token)
 }
 
-func download(form *youtube.Format, name string) error {
+func (f flags) encode(form *youtube.Format, name string) error {
    ext, err := form.Ext()
    if err != nil {
       return err
@@ -94,5 +45,56 @@ func download(form *youtube.Format, name string) error {
       return err
    }
    defer file.Close()
-   return form.Encode(file)
+   return form.Encode(file, f.Client)
 }
+
+func (f flags) download() error {
+   play, err := f.player()
+   if err != nil {
+      return err
+   }
+   forms := play.Streaming_Data.Adaptive_Formats
+   if f.info {
+      fmt.Println(play)
+   } else {
+      fmt.Println(play.Playability_Status)
+      if f.audio != "" {
+         form, ok := forms.Audio(f.audio)
+         if ok {
+            err := f.encode(form, play.Name())
+            if err != nil {
+               return err
+            }
+         }
+      }
+      if f.height >= 1 {
+         form, ok := forms.Video(f.height)
+         if ok {
+            err := f.encode(form, play.Name())
+            if err != nil {
+               return err
+            }
+         }
+      }
+   }
+   return nil
+}
+
+func (f flags) do_refresh() error {
+   code, err := youtube.New_Device_Code(f.Client)
+   if err != nil {
+      return err
+   }
+   fmt.Println(code)
+   fmt.Scanln()
+   token, err := code.Token(f.Client)
+   if err != nil {
+      return err
+   }
+   home, err := os.UserHomeDir()
+   if err != nil {
+      return err
+   }
+   return token.Create(home + "/mech/youtube.json")
+}
+

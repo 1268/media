@@ -1,24 +1,24 @@
 package youtube
 
 import (
+   "2a.pages.dev/rosso/http"
    "encoding/json"
-   "net/http"
    "net/url"
    "os"
    "strings"
 )
 
-func (c Code) String() string {
+func (d Device_Code) String() string {
    var b strings.Builder
    b.WriteString("1. Go to\n")
-   b.WriteString(c.Verification_URL)
+   b.WriteString(d.Verification_URL)
    b.WriteString("\n\n2. Enter this code\n")
-   b.WriteString(c.User_Code)
+   b.WriteString(d.User_Code)
    b.WriteString("\n\n3. Press Enter to continue")
    return b.String()
 }
 
-type Code struct {
+type Device_Code struct {
    Device_Code string
    User_Code string
    Verification_URL string
@@ -30,11 +30,11 @@ func Open_Token(name string) (*Token, error) {
       return nil, err
    }
    defer file.Close()
-   tok := new(Token)
-   if err := json.NewDecoder(file).Decode(tok); err != nil {
+   t := new(Token)
+   if err := json.NewDecoder(file).Decode(t); err != nil {
       return nil, err
    }
-   return tok, nil
+   return t, nil
 }
 
 func (t Token) Create(name string) error {
@@ -52,7 +52,7 @@ type Token struct {
    Refresh_Token string
 }
 
-func New_Code() (*Code, error) {
+func New_Device_Code(c http.Client) (*Device_Code, error) {
    body := url.Values{
       "client_id": {client_ID},
       "scope": {"https://www.googleapis.com/auth/youtube"},
@@ -65,19 +65,19 @@ func New_Code() (*Code, error) {
       return nil, err
    }
    req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-   res, err := HTTP_Client.Do(req)
+   res, err := c.Do(req)
    if err != nil {
       return nil, err
    }
    defer res.Body.Close()
-   c := new(Code)
-   if err := json.NewDecoder(res.Body).Decode(c); err != nil {
+   code := new(Device_Code)
+   if err := json.NewDecoder(res.Body).Decode(code); err != nil {
       return nil, err
    }
-   return c, nil
+   return code, nil
 }
 
-func (t *Token) Refresh() error {
+func (t *Token) Refresh(c http.Client) error {
    body := url.Values{
       "client_id": {client_ID},
       "client_secret": {client_secret},
@@ -91,7 +91,7 @@ func (t *Token) Refresh() error {
       return err
    }
    req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-   res, err := HTTP_Client.Do(req)
+   res, err := c.Do(req)
    if err != nil {
       return err
    }
@@ -99,11 +99,11 @@ func (t *Token) Refresh() error {
    return json.NewDecoder(res.Body).Decode(t)
 }
 
-func (c Code) Token() (*Token, error) {
+func (d Device_Code) Token(c http.Client) (*Token, error) {
    body := url.Values{
       "client_id": {client_ID},
       "client_secret": {client_secret},
-      "device_code": {c.Device_Code},
+      "device_code": {d.Device_Code},
       "grant_type":  {"urn:ietf:params:oauth:grant-type:device_code"},
    }.Encode()
    req, err := http.NewRequest(
@@ -113,14 +113,14 @@ func (c Code) Token() (*Token, error) {
       return nil, err
    }
    req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-   res, err := HTTP_Client.Do(req)
+   res, err := c.Do(req)
    if err != nil {
       return nil, err
    }
    defer res.Body.Close()
-   tok := new(Token)
-   if err := json.NewDecoder(res.Body).Decode(tok); err != nil {
+   t := new(Token)
+   if err := json.NewDecoder(res.Body).Decode(t); err != nil {
       return nil, err
    }
-   return tok, nil
+   return t, nil
 }

@@ -1,10 +1,39 @@
 package youtube
 
 import (
+   "2a.pages.dev/rosso/http"
    "bytes"
    "encoding/json"
-   "net/http"
 )
+
+func (r Request) Player(c http.Client, id string, t *Token) (*Player, error) {
+   r.Video_ID = id
+   buf, err := json.MarshalIndent(r, "", " ")
+   if err != nil {
+      return nil, err
+   }
+   req, err := http.NewRequest(
+      "POST", origin + "/youtubei/v1/player", bytes.NewReader(buf),
+   )
+   if err != nil {
+      return nil, err
+   }
+   if t != nil {
+      req.Header.Set("Authorization", "Bearer " + t.Access_Token)
+   } else {
+      req.Header.Set("X-Goog-API-Key", api_key)
+   }
+   res, err := c.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   play := new(Player)
+   if err := json.NewDecoder(res.Body).Decode(play); err != nil {
+      return nil, err
+   }
+   return play, nil
+}
 
 const (
    // com.google.android.youtube
@@ -45,7 +74,21 @@ func Android_Embed() Request {
    return r
 }
 
-func (r Request) Search(query string) (*Search, error) {
+type Request struct {
+   Content_Check_OK bool `json:"contentCheckOk,omitempty"`
+   Context struct {
+      Client struct {
+         Name string `json:"clientName"`
+         Version string `json:"clientVersion"`
+      } `json:"client"`
+   } `json:"context"`
+   Params []byte `json:"params,omitempty"`
+   Query string `json:"query,omitempty"`
+   Racy_Check_OK bool `json:"racyCheckOk,omitempty"`
+   Video_ID string `json:"videoId,omitempty"`
+}
+
+func (r Request) Search(c http.Client, query string) (*Search, error) {
    filter := New_Filters()
    filter.Type(Type["Video"])
    r.Params = filter.Marshal()
@@ -61,7 +104,7 @@ func (r Request) Search(query string) (*Search, error) {
       return nil, err
    }
    req.Header.Set("X-Goog-API-Key", api_key)
-   res, err := HTTP_Client.Do(req)
+   res, err := c.Do(req)
    if err != nil {
       return nil, err
    }
@@ -71,47 +114,4 @@ func (r Request) Search(query string) (*Search, error) {
       return nil, err
    }
    return search, nil
-}
-
-type Request struct {
-   Content_Check_OK bool `json:"contentCheckOk,omitempty"`
-   Context struct {
-      Client struct {
-         Name string `json:"clientName"`
-         Version string `json:"clientVersion"`
-      } `json:"client"`
-   } `json:"context"`
-   Params []byte `json:"params,omitempty"`
-   Query string `json:"query,omitempty"`
-   Racy_Check_OK bool `json:"racyCheckOk,omitempty"`
-   Video_ID string `json:"videoId,omitempty"`
-}
-
-func (r Request) Player(id string, tok *Token) (*Player, error) {
-   r.Video_ID = id
-   buf, err := json.MarshalIndent(r, "", " ")
-   if err != nil {
-      return nil, err
-   }
-   req, err := http.NewRequest(
-      "POST", origin + "/youtubei/v1/player", bytes.NewReader(buf),
-   )
-   if err != nil {
-      return nil, err
-   }
-   if tok != nil {
-      req.Header.Set("Authorization", "Bearer " + tok.Access_Token)
-   } else {
-      req.Header.Set("X-Goog-API-Key", api_key)
-   }
-   res, err := HTTP_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   play := new(Player)
-   if err := json.NewDecoder(res.Body).Decode(play); err != nil {
-      return nil, err
-   }
-   return play, nil
 }

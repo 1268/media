@@ -1,6 +1,7 @@
 package youtube
 
 import (
+   "2a.pages.dev/rosso/http"
    "fmt"
    "testing"
    "time"
@@ -14,14 +15,14 @@ const prompt = `1. Go to
 `
 
 func Test_Code(t *testing.T) {
-   code, err := New_Code()
+   code, err := New_Device_Code(http.Default_Client)
    if err != nil {
       t.Fatal(err)
    }
    fmt.Printf(prompt, code.Verification_URL, code.User_Code)
    for range [9]bool{} {
       time.Sleep(9 * time.Second)
-      tok, err := code.Token()
+      tok, err := code.Token(http.Default_Client)
       if err != nil {
          t.Fatal(err)
       }

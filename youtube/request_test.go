@@ -1,6 +1,7 @@
 package youtube
 
 import (
+   "2a.pages.dev/rosso/http"
    "encoding/json"
    "fmt"
    "os"
@@ -8,6 +9,18 @@ import (
    "time"
 )
 
+func Test_Android_Embed(t *testing.T) {
+   for _, embed := range android_embeds {
+      play, err := Android_Embed().Player(http.Default_Client, embed, nil)
+      if err != nil {
+         t.Fatal(err)
+      }
+      if play.Playability_Status.Status != "OK" {
+         t.Fatal(play)
+      }
+      time.Sleep(time.Second)
+   }
+}
 var androids = []string{
    "H1BuwMTrtLQ", // content check
    "zv9NimPx3Es",
@@ -15,7 +28,7 @@ var androids = []string{
 
 func Test_Android(t *testing.T) {
    for _, android := range androids {
-      play, err := Android().Player(android, nil)
+      play, err := Android().Player(http.Default_Client, android, nil)
       if err != nil {
          t.Fatal(err)
       }
@@ -46,7 +59,7 @@ func Test_Android_Check(t *testing.T) {
       t.Fatal(err)
    }
    for _, check := range android_checks {
-      play, err := req.Player(check, tok)
+      play, err := req.Player(http.Default_Client, check, tok)
       if err != nil {
          t.Fatal(err)
       }
@@ -58,8 +71,9 @@ func Test_Android_Check(t *testing.T) {
 }
 
 func Test_Search(t *testing.T) {
-   HTTP_Client.Log_Level = 2
-   search, err := Mobile_Web().Search("oneohtrix point never along")
+   search, err := Mobile_Web().Search(
+      http.Default_Client, "oneohtrix point never along",
+   )
    if err != nil {
       t.Fatal(err)
    }
@@ -78,15 +92,3 @@ var android_embeds = []string{
    "WaOKSUlf4TM",
 }
 
-func Test_Android_Embed(t *testing.T) {
-   for _, embed := range android_embeds {
-      play, err := Android_Embed().Player(embed, nil)
-      if err != nil {
-         t.Fatal(err)
-      }
-      if play.Playability_Status.Status != "OK" {
-         t.Fatal(play)
-      }
-      time.Sleep(time.Second)
-   }
-}
