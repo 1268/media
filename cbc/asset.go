@@ -1,10 +1,31 @@
 package cbc
 
 import (
+   "2a.pages.dev/rosso/http"
    "encoding/json"
    "strconv"
    "strings"
 )
+
+func New_Asset(id string) (*Asset, error) {
+   var b strings.Builder
+   b.WriteString("https://services.radio-canada.ca/ott/cbc-api/v2/assets/")
+   b.WriteString(id)
+   req, err := http.NewRequest("GET", b.String(), nil)
+   if err != nil {
+      return nil, err
+   }
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   a := new(Asset)
+   if err := json.NewDecoder(res.Body).Decode(a); err != nil {
+      return nil, err
+   }
+   return a, nil
+}
 
 func (a Asset) Name() string {
    var b []byte
@@ -35,20 +56,4 @@ type Asset struct {
    Credits struct {
       Release_Date string `json:"releaseDate"`
    }
-}
-
-func New_Asset(id string) (*Asset, error) {
-   var b strings.Builder
-   b.WriteString("https://services.radio-canada.ca/ott/cbc-api/v2/assets/")
-   b.WriteString(id)
-   res, err := Client.Get(b.String())
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   a := new(Asset)
-   if err := json.NewDecoder(res.Body).Decode(a); err != nil {
-      return nil, err
-   }
-   return a, nil
 }

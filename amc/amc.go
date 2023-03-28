@@ -13,7 +13,22 @@ type Content struct {
          Properties json.RawMessage
          Type string
       }
+      Type string
    }
+}
+
+func (c Content) Video_Player() (*Video_Player, error) {
+   for _, child := range c.Data.Children {
+      if child.Type == "video-player-ap" {
+         vid := new(Video_Player)
+         err := json.Unmarshal(child.Properties, vid)
+         if err != nil {
+            return nil, err
+         }
+         return vid, nil
+      }
+   }
+   return nil, errors.New("video-player-ap not present")
 }
 
 type playback_request struct {
@@ -96,18 +111,4 @@ type Video_Player struct {
 func (v Video_Player) Year() string {
    year, _, _ := strings.Cut(v.Current_Video.Meta.Airdate, "-")
    return year
-}
-
-func (c Content) Video_Player() (*Video_Player, error) {
-   for _, child := range c.Data.Children {
-      if child.Type == "video-player-ap" {
-         vid := new(Video_Player)
-         err := json.Unmarshal(child.Properties, vid)
-         if err != nil {
-            return nil, err
-         }
-         return vid, nil
-      }
-   }
-   return nil, errors.New("video-player-ap not present")
 }

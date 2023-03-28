@@ -2,7 +2,7 @@ package main
 
 import (
    "2a.pages.dev/mech"
-   "2a.pages.dev/mech/cbc"
+   "2a.pages.dev/rosso/http"
    "flag"
 )
 
@@ -13,7 +13,6 @@ type flags struct {
    mech.Stream
    name string
    password string
-   verbose bool
 }
 
 func main() {
@@ -23,12 +22,12 @@ func main() {
    flag.Int64Var(&f.bandwidth, "f", 3687532, "video bandwidth")
    flag.StringVar(&f.name, "g", "English", "audio name")
    flag.BoolVar(&f.Info, "i", false, "information")
+   flag.IntVar(
+      &http.Default_Client.Log_Level, "log",
+      http.Default_Client.Log_Level, "log level",
+   )
    flag.StringVar(&f.password, "p", "", "password")
-   flag.BoolVar(&f.verbose, "v", false, "verbose")
    flag.Parse()
-   if f.verbose {
-      cbc.Client.Log_Level = 2
-   }
    if f.email != "" {
       err := f.profile()
       if err != nil {

@@ -19,8 +19,8 @@ com.amcplus.amcfullepisodes
 
 ## TRY 7 DAYS FREE
 
-1. visit https://account.riseup.net/mail/aliases
-2. visit https://amcplus.com
+1. https://account.riseup.net/mail/aliases
+2. https://amcplus.com
 3. click TRY 7 DAY FREE
 4. click CREATE ACCOUNT
 5. click MONTHLY

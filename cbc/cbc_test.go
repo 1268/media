@@ -10,7 +10,6 @@ func Test_Profile(t *testing.T) {
    if err != nil {
       t.Fatal(err)
    }
-   Client.Log_Level = 2
    login, err := New_Login(email, password)
    if err != nil {
       t.Fatal(err)
@@ -31,4 +30,3 @@ func Test_Profile(t *testing.T) {
       t.Fatal(err)
    }
 }
-

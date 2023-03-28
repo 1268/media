@@ -12,8 +12,6 @@ import (
 
 const forwarded_for = "99.224.0.0"
 
-var Client = http.Default_Client
-
 // gem.cbc.ca/media/downton-abbey/s01e05
 func Get_ID(input string) string {
    _, after, found := strings.Cut(input, "/media/")
@@ -37,7 +35,7 @@ func (p Profile) Media(a *Asset) (*Media, error) {
       "X-Claims-Token": {p.Claims_Token},
       "X-Forwarded-For": {forwarded_for},
    }
-   res, err := Client.Do(req)
+   res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
    }
@@ -93,7 +91,7 @@ func (l Login) Web_Token() (*Web_Token, error) {
       "apikey": {api_key},
       "jwtapp": {"jwt"},
    }.Encode()
-   res, err := Client.Do(req)
+   res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
    }
@@ -117,7 +115,7 @@ func (o Over_The_Top) Profile() (*Profile, error) {
       return nil, err
    }
    req.Header.Set("OTT-Access-Token", o.Access_Token)
-   res, err := Client.Do(req)
+   res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
    }
@@ -156,7 +154,7 @@ func New_Login(email, password string) (*Login, error) {
    }
    req.Header.Set("Content-Type", "application/json")
    req.URL.RawQuery = "apiKey=" + api_key
-   res, err := Client.Do(req)
+   res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
    }
@@ -182,7 +180,7 @@ func (w Web_Token) Over_The_Top() (*Over_The_Top, error) {
       return nil, err
    }
    req.Header.Set("Content-Type", "application/json")
-   res, err := Client.Do(req)
+   res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
    }
