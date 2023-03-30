@@ -3,6 +3,7 @@ package main
 import (
    "2a.pages.dev/mech"
    "2a.pages.dev/mech/paramount"
+   "2a.pages.dev/rosso/http"
    "flag"
    "os"
    "path/filepath"
@@ -15,7 +16,6 @@ type flags struct {
    height int64
    lang string
    mech.Stream
-   verbose bool
 }
 
 func main() {
@@ -44,12 +44,12 @@ func main() {
    // k
    f.Private_Key = filepath.Join(home, "mech/private_key.pem")
    flag.StringVar(&f.Private_Key, "k", f.Private_Key, "private key")
-   // v
-   flag.BoolVar(&f.verbose, "v", false, "verbose")
+   // log
+   flag.IntVar(
+      &http.Default_Client.Log_Level, "log",
+      http.Default_Client.Log_Level, "log level",
+   )
    flag.Parse()
-   if f.verbose {
-      paramount.Client.Log_Level = 2
-   }
    if f.guid != "" {
       preview, err := paramount.New_Preview(f.guid)
       if err != nil {

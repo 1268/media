@@ -14,7 +14,6 @@ type flags struct {
    codec string
    id string
    mech.Stream
-   verbose bool
 }
 
 func main() {

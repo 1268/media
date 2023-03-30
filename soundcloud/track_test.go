@@ -7,7 +7,7 @@ import (
 )
 
 type item_type struct {
-   id int64
+   id int
    address string
 }
 

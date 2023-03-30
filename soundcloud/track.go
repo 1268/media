@@ -9,6 +9,49 @@ import (
    "time"
 )
 
+type Track struct {
+   ID int64
+   Display_Date string // 2021-04-12T07:00:01Z
+   User struct {
+      Username string
+      Avatar_URL string
+   }
+   Title string
+   Artwork_URL string
+   Media struct {
+      Transcodings []struct {
+         Format struct {
+            Protocol string
+         }
+         URL string
+      }
+   }
+}
+
+// We can also paginate, but for now this is good enough.
+func User_Tracks(id int64) ([]Track, error) {
+   req := http.Get()
+   req.URL.Host = "api-v2.soundcloud.com"
+   req.URL.Path = "/users/" + strconv.FormatInt(id, 10) + "/tracks"
+   req.URL.RawQuery = url.Values{
+      "client_id": {client_ID},
+      "limit": {"999"},
+   }.Encode()
+   req.URL.Scheme = "https"
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   var user struct {
+      Collection []Track
+   }
+   if err := json.NewDecoder(res.Body).Decode(&user); err != nil {
+      return nil, err
+   }
+   return user.Collection, nil
+}
+
 func Resolve(ref string) ([]Track, error) {
    req := http.Get()
    req.URL.Host = "api-v2.soundcloud.com"
@@ -36,28 +79,22 @@ func Resolve(ref string) ([]Track, error) {
    return User_Tracks(solve.ID)
 }
 
-// We can also paginate, but for now this is good enough.
-func User_Tracks(id int) ([]Track, error) {
+func New_Track(id int) (*Track, error) {
    req := http.Get()
    req.URL.Host = "api-v2.soundcloud.com"
-   req.URL.Path = "/users/" + strconv.Itoa(id) + "/tracks"
-   req.URL.RawQuery = url.Values{
-      "client_id": {client_ID},
-      "limit": {"999"},
-   }.Encode()
+   req.URL.Path = "/tracks/" + strconv.Itoa(id)
+   req.URL.RawQuery = "client_id=" + client_ID
    req.URL.Scheme = "https"
    res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
    }
    defer res.Body.Close()
-   var user struct {
-      Collection []Track
-   }
-   if err := json.NewDecoder(res.Body).Decode(&user); err != nil {
+   tra := new(Track)
+   if err := json.NewDecoder(res.Body).Decode(tra); err != nil {
       return nil, err
    }
-   return user.Collection, nil
+   return tra, nil
 }
 
 // i1.sndcdn.com/artworks-000308141235-7ep8lo-large.jpg
@@ -126,42 +163,5 @@ func (t Track) Progressive() (*Media, error) {
       return nil, err
    }
    return med, nil
-}
-
-type Track struct {
-   ID int64
-   Display_Date string // 2021-04-12T07:00:01Z
-   User struct {
-      Username string
-      Avatar_URL string
-   }
-   Title string
-   Artwork_URL string
-   Media struct {
-      Transcodings []struct {
-         Format struct {
-            Protocol string
-         }
-         URL string
-      }
-   }
-}
-
-func New_Track(id int) (*Track, error) {
-   req := http.Get()
-   req.URL.Host = "api-v2.soundcloud.com"
-   req.URL.Path = "/tracks/" + strconv.Itoa(id)
-   req.URL.RawQuery = "client_id=" + client_ID
-   req.URL.Scheme = "https"
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   tra := new(Track)
-   if err := json.NewDecoder(res.Body).Decode(tra); err != nil {
-      return nil, err
-   }
-   return tra, nil
 }
 

@@ -9,7 +9,6 @@ type flags struct {
    bandwidth int64
    guid int64
    mech.Stream
-   verbose bool
 }
 
 func (f flags) download() error {

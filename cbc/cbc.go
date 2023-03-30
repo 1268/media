@@ -9,6 +9,34 @@ import (
    "strings"
 )
 
+func New_Login(email, password string) (*Login, error) {
+   auth := map[string]string{
+      "email": email,
+      "password": password,
+   }
+   body, err := json.MarshalIndent(auth, "", " ")
+   if err != nil {
+      return nil, err
+   }
+   req := http.Post()
+   req.Body_Bytes(body)
+   req.Header.Set("Content-Type", "application/json")
+   req.URL.Host = "api.loginradius.com"
+   req.URL.Path = "/identity/v2/auth/login"
+   req.URL.RawQuery = "apiKey=" + api_key
+   req.URL.Scheme = "https"
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   login := new(Login)
+   if err := json.NewDecoder(res.Body).Decode(login); err != nil {
+      return nil, err
+   }
+   return login, nil
+}
+
 func (w Web_Token) Over_The_Top() (*Over_The_Top, error) {
    token := map[string]string{"jwt": w.Signature}
    body, err := json.MarshalIndent(token, "", " ")
@@ -153,32 +181,5 @@ type Profile struct {
 
 type Web_Token struct {
    Signature string
-}
-
-func New_Login(email, password string) (*Login, error) {
-   auth := map[string]string{
-      "email": email,
-      "password": password,
-   }
-   body, err := json.MarshalIndent(auth, "", " ")
-   if err != nil {
-      return nil, err
-   }
-   req := http.Post(body)
-   req.Header.Set("Content-Type", "application/json")
-   req.URL.Host = "api.loginradius.com"
-   req.URL.Path = "/identity/v2/auth/login"
-   req.URL.RawQuery = "apiKey=" + api_key
-   req.URL.Scheme = "https"
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   login := new(Login)
-   if err := json.NewDecoder(res.Body).Decode(login); err != nil {
-      return nil, err
-   }
-   return login, nil
 }
 
