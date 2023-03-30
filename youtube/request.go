@@ -6,20 +6,18 @@ import (
    "encoding/json"
 )
 
-func (r Request) Player(id string, t *Token) (*Player, error) {
+func (r Request) Player(id string, tok *Token) (*Player, error) {
    r.Video_ID = id
-   buf, err := json.MarshalIndent(r, "", " ")
+   body, err := json.MarshalIndent(r, "", " ")
    if err != nil {
       return nil, err
    }
-   req, err := http.NewRequest(
-      "POST", origin + "/youtubei/v1/player", bytes.NewReader(buf),
-   )
-   if err != nil {
-      return nil, err
-   }
-   if t != nil {
-      req.Header.Set("Authorization", "Bearer " + t.Access_Token)
+   req := http.Post(body)
+   req.URL.Scheme = "https"
+   req.URL.Host = "www.youtube.com"
+   req.URL.Path = "/youtubei/v1/player"
+   if tok != nil {
+      req.Header.Set("Authorization", "Bearer " + tok.Access_Token)
    } else {
       req.Header.Set("X-Goog-API-Key", api_key)
    }

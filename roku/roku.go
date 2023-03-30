@@ -10,6 +10,46 @@ import (
    "time"
 )
 
+func (c Cross_Site) Playback(id string) (*Playback, error) {
+   body, err := json.MarshalIndent(map[string]string{
+      "mediaFormat": "mpeg-dash",
+      "providerId": "rokuavod",
+      "rokuId": id,
+   }, "", " ")
+   if err != nil {
+      return nil, err
+   }
+   req := http.Post(body)
+   req.AddCookie(c.cookie)
+   req.Header = http.Header{
+      "CSRF-Token": {c.token},
+      "Content-Type": {"application/json"},
+   }
+   req.URL.Host = "therokuchannel.roku.com"
+   req.URL.Path = "/api/v3/playback"
+   req.URL.Scheme = "https"
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   play := new(Playback)
+   if err := json.NewDecoder(res.Body).Decode(play); err != nil {
+      return nil, err
+   }
+   return play, nil
+}
+
+func (c Content) DASH() *Video {
+   for _, opt := range c.View_Options {
+      for _, vid := range opt.Media.Videos {
+         if vid.Video_Type == "DASH" {
+            return &vid
+         }
+      }
+   }
+   return nil
+}
 func (c Content) Name() string {
    var b strings.Builder
    if c.Meta.Media_Type == "episode" {
@@ -141,8 +181,6 @@ func (Playback) Response_Body(buf []byte) ([]byte, error) {
    return buf, nil
 }
 
-var Client = http.Default_Client
-
 type Cross_Site struct {
    cookie *http.Cookie // has own String method
    token string
@@ -175,46 +213,3 @@ func New_Cross_Site() (*Cross_Site, error) {
    return &site, nil
 }
 
-func (c Cross_Site) Playback(id string) (*Playback, error) {
-   buf, err := json.MarshalIndent(map[string]string{
-      "mediaFormat": "mpeg-dash",
-      "providerId": "rokuavod",
-      "rokuId": id,
-   }, "", " ")
-   if err != nil {
-      return nil, err
-   }
-   req, err := http.NewRequest(
-      "POST", "https://therokuchannel.roku.com/api/v3/playback",
-      bytes.NewReader(buf),
-   )
-   if err != nil {
-      return nil, err
-   }
-   req.Header = http.Header{
-      "CSRF-Token": {c.token},
-      "Content-Type": {"application/json"},
-   }
-   req.AddCookie(c.cookie)
-   res, err := Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   play := new(Playback)
-   if err := json.NewDecoder(res.Body).Decode(play); err != nil {
-      return nil, err
-   }
-   return play, nil
-}
-
-func (c Content) DASH() *Video {
-   for _, opt := range c.View_Options {
-      for _, vid := range opt.Media.Videos {
-         if vid.Video_Type == "DASH" {
-            return &vid
-         }
-      }
-   }
-   return nil
-}
