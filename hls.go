@@ -8,25 +8,6 @@ import (
    "os"
 )
 
-func (s Stream) HLS_Streams(items hls.Streams, index int) error {
-   return hls_get(s, items, index)
-}
-
-func (s Stream) HLS_Media(items hls.Media, index int) error {
-   return hls_get(s, items, index)
-}
-
-func (s *Stream) HLS(ref string) (*hls.Master, error) {
-   res, err := client.Redirect(nil).Get(ref)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   s.Name = Clean(s.Name)
-   s.base = res.Request.URL
-   return hls.New_Scanner(res.Body).Master()
-}
-
 func hls_get[T hls.Mixed](str Stream, items []T, index int) error {
    if str.Info {
       for i, item := range items {
@@ -43,12 +24,12 @@ func hls_get[T hls.Mixed](str Stream, items []T, index int) error {
       return err
    }
    defer file.Close()
-   req, err := http.NewRequest("GET", item.URI(), nil)
+   req := http.Get()
+   req.URL, err = str.base.Parse(item.URI())
    if err != nil {
       return err
    }
-   req.URL = str.base.ResolveReference(req.URL)
-   res, err := client.Do(req)
+   res, err := http.Default_Client.Do(req)
    if err != nil {
       return err
    }
@@ -59,7 +40,7 @@ func hls_get[T hls.Mixed](str Stream, items []T, index int) error {
    }
    var block *hls.Block
    if seg.Key != "" {
-      res, err := client.Get(seg.Key)
+      res, err := http.Default_Client.Get(seg.Key)
       if err != nil {
          return err
       }
@@ -74,13 +55,15 @@ func hls_get[T hls.Mixed](str Stream, items []T, index int) error {
       }
    }
    pro := http.Progress_Chunks(file, len(seg.URI))
+   client := http.Default_Client
+   client.CheckRedirect = nil
+   client.Log_Level = 0
    for _, ref := range seg.URI {
-      req, err := http.NewRequest("GET", ref, nil)
+      req.URL, err = res.Request.URL.Parse(ref)
       if err != nil {
          return err
       }
-      req.URL = res.Request.URL.ResolveReference(req.URL)
-      res, err := client.Level(0).Redirect(nil).Do(req)
+      res, err := client.Do(req)
       if err != nil {
          return err
       }
@@ -106,3 +89,25 @@ func hls_get[T hls.Mixed](str Stream, items []T, index int) error {
    }
    return nil
 }
+func (s Stream) HLS_Streams(items hls.Streams, index int) error {
+   return hls_get(s, items, index)
+}
+
+func (s Stream) HLS_Media(items hls.Media, index int) error {
+   return hls_get(s, items, index)
+}
+
+
+func (s *Stream) HLS(ref string) (*hls.Master, error) {
+   client := http.Default_Client
+   client.CheckRedirect = nil
+   res, err := client.Get(ref)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   s.Name = Clean(s.Name)
+   s.base = res.Request.URL
+   return hls.New_Scanner(res.Body).Master()
+}
+

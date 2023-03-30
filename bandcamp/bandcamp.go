@@ -10,25 +10,8 @@ import (
    "time"
 )
 
-func (i invalid_type) Error() string {
-   var b []byte
-   b = append(b, "invalid type "...)
-   b = strconv.AppendQuote(b, i.value)
-   return string(b)
-}
-
-type Params struct {
-   A_ID int
-   I_ID int
-   I_Type string
-}
-
 func New_Params(ref string) (*Params, error) {
-   req, err := http.NewRequest("GET", ref, nil)
-   if err != nil {
-      return nil, err
-   }
-   res, err := http.Default_Client.Do(req)
+   res, err := http.Default_Client.Get(ref)
    if err != nil {
       return nil, err
    }
@@ -219,5 +202,18 @@ func (t Tralbum) Date() time.Time {
 
 type invalid_type struct {
    value string
+}
+
+func (i invalid_type) Error() string {
+   var b []byte
+   b = append(b, "invalid type "...)
+   b = strconv.AppendQuote(b, i.value)
+   return string(b)
+}
+
+type Params struct {
+   A_ID int
+   I_ID int
+   I_Type string
 }
 

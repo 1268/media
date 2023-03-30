@@ -29,12 +29,14 @@ func (s Stream) DASH_Get(items dash.Representations, index int) error {
       return err
    }
    defer file.Close()
-   req, err := http.NewRequest("GET", item.Initialization(), nil)
+   client := http.Default_Client
+   client.CheckRedirect = nil
+   req, err := http.Get_URL(item.Initialization())
    if err != nil {
       return err
    }
    req.URL = s.base.ResolveReference(req.URL)
-   res, err := client.Redirect(nil).Do(req)
+   res, err := client.Do(req)
    if err != nil {
       return err
    }
@@ -74,13 +76,13 @@ func (s Stream) DASH_Get(items dash.Representations, index int) error {
          return err
       }
    }
+   client.Log_Level = 0
    for _, ref := range media {
-      req, err := http.NewRequest("GET", ref, nil)
+      req.URL, err = s.base.Parse(ref)
       if err != nil {
          return err
       }
-      req.URL = s.base.ResolveReference(req.URL)
-      res, err := client.Redirect(nil).Level(0).Do(req)
+      res, err := client.Do(req)
       if err != nil {
          return err
       }
@@ -99,7 +101,6 @@ func (s Stream) DASH_Get(items dash.Representations, index int) error {
    }
    return nil
 }
-var client = http.Default_Client
 
 type Stream struct {
    Client_ID string
@@ -111,7 +112,9 @@ type Stream struct {
 }
 
 func (s *Stream) DASH(ref string) (dash.Representations, error) {
-   res, err := client.Redirect(nil).Get(ref)
+   client := http.Default_Client
+   client.CheckRedirect = nil
+   res, err := client.Get(ref)
    if err != nil {
       return nil, err
    }

@@ -8,6 +8,30 @@ import (
    "strings"
 )
 
+func (d Device_Code) Token() (*Token, error) {
+   body := url.Values{
+      "client_id": {client_ID},
+      "client_secret": {client_secret},
+      "device_code": {d.Device_Code},
+      "grant_type":  {"urn:ietf:params:oauth:grant-type:device_code"},
+   }.Encode()
+   req := http.Post_Text(body)
+   req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+   req.URL.Host = "oauth2.googleapis.com"
+   req.URL.Path = "/token"
+   req.URL.Scheme = "https"
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   t := new(Token)
+   if err := json.NewDecoder(res.Body).Decode(t); err != nil {
+      return nil, err
+   }
+   return t, nil
+}
+
 func (d Device_Code) String() string {
    var b strings.Builder
    b.WriteString("1. Go to\n")
@@ -57,14 +81,11 @@ func New_Device_Code() (*Device_Code, error) {
       "client_id": {client_ID},
       "scope": {"https://www.googleapis.com/auth/youtube"},
    }.Encode()
-   req, err := http.NewRequest(
-      "POST", "https://oauth2.googleapis.com/device/code",
-      strings.NewReader(body),
-   )
-   if err != nil {
-      return nil, err
-   }
+   req := http.Post_Text(body)
    req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+   req.URL.Host = "oauth2.googleapis.com"
+   req.URL.Path = "/device/code"
+   req.URL.Scheme = "https"
    res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
@@ -84,13 +105,11 @@ func (t *Token) Refresh() error {
       "grant_type": {"refresh_token"},
       "refresh_token": {t.Refresh_Token},
    }.Encode()
-   req, err := http.NewRequest(
-      "POST", "https://oauth2.googleapis.com/token", strings.NewReader(body),
-   )
-   if err != nil {
-      return err
-   }
+   req := http.Post_Text(body)
    req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+   req.URL.Host = "oauth2.googleapis.com"
+   req.URL.Path = "/token"
+   req.URL.Scheme = "https"
    res, err := http.Default_Client.Do(req)
    if err != nil {
       return err
@@ -99,28 +118,3 @@ func (t *Token) Refresh() error {
    return json.NewDecoder(res.Body).Decode(t)
 }
 
-func (d Device_Code) Token() (*Token, error) {
-   body := url.Values{
-      "client_id": {client_ID},
-      "client_secret": {client_secret},
-      "device_code": {d.Device_Code},
-      "grant_type":  {"urn:ietf:params:oauth:grant-type:device_code"},
-   }.Encode()
-   req, err := http.NewRequest(
-      "POST", "https://oauth2.googleapis.com/token", strings.NewReader(body),
-   )
-   if err != nil {
-      return nil, err
-   }
-   req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   t := new(Token)
-   if err := json.NewDecoder(res.Body).Decode(t); err != nil {
-      return nil, err
-   }
-   return t, nil
-}

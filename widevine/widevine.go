@@ -3,7 +3,6 @@ package widevine
 import (
    "2a.pages.dev/rosso/http"
    "2a.pages.dev/rosso/protobuf"
-   "bytes"
    "crypto/rsa"
    "crypto/x509"
    "encoding/hex"
@@ -32,8 +31,6 @@ func New_Module(private_key, client_ID, pssh []byte) (*Module, error) {
    }.Marshal()
    return &mod, nil
 }
-
-var Client = http.Default_Client
 
 func unpad(buf []byte) []byte {
    if len(buf) >= 1 {
@@ -79,16 +76,14 @@ func (m Module) Post(post Poster) (Containers, error) {
    if err != nil {
       return nil, err
    }
-   req, err := http.NewRequest(
-      "POST", post.Request_URL(), bytes.NewReader(body),
-   )
+   req, err := http.Post_URL(post.Request_URL(), body)
    if err != nil {
       return nil, err
    }
    if head := post.Request_Header(); head != nil {
       req.Header = head
    }
-   res, err := Client.Do(req)
+   res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
    }
