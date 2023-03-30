@@ -10,6 +10,99 @@ import (
    "time"
 )
 
+func new_tralbum(typ byte, id int) (*Tralbum, error) {
+   req := http.Get()
+   req.URL.Host = "bandcamp.com"
+   req.URL.Path = "/api/mobile/24/tralbum_details"
+   req.URL.RawQuery = url.Values{
+      "band_id": {"1"},
+      "tralbum_id": {strconv.Itoa(id)},
+      "tralbum_type": {string(typ)},
+   }.Encode()
+   req.URL.Scheme = "http"
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   tralb := new(Tralbum)
+   if err := json.NewDecoder(res.Body).Decode(tralb); err != nil {
+      return nil, err
+   }
+   return tralb, nil
+}
+
+func (t Tralbum) Date() time.Time {
+   return time.Unix(t.Release_Date, 0)
+}
+
+type invalid_type struct {
+   value string
+}
+
+func (i invalid_type) Error() string {
+   var b []byte
+   b = append(b, "invalid type "...)
+   b = strconv.AppendQuote(b, i.value)
+   return string(b)
+}
+
+type Params struct {
+   A_ID int
+   I_ID int
+   I_Type string
+}
+
+func New_Params(ref string) (*Params, error) {
+   res, err := http.Default_Client.Get(ref)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   var scan xml.Scanner
+   scan.Data, err = io.ReadAll(res.Body)
+   if err != nil {
+      return nil, err
+   }
+   scan.Sep = []byte(`<p id="report-account-vm"`)
+   scan.Scan()
+   var p struct {
+      Report_Params []byte `xml:"data-tou-report-params,attr"`
+   }
+   if err := scan.Decode(&p); err != nil {
+      return nil, err
+   }
+   param := new(Params)
+   if err := json.Unmarshal(p.Report_Params, param); err != nil {
+      return nil, err
+   }
+   return param, nil
+}
+
+func (p Params) Band() (*Band, error) {
+   return new_band(p.A_ID)
+}
+
+func (p Params) Tralbum() (*Tralbum, error) {
+   switch p.I_Type {
+   case "a":
+      return new_tralbum('a', p.I_ID)
+   case "t":
+      return new_tralbum('t', p.I_ID)
+   }
+   return nil, invalid_type{p.I_Type}
+}
+
+const (
+   JPEG = iota
+   PNG
+)
+
+type Band struct {
+   Name string
+   Discography []Item
+}
+
 func new_band(id int) (*Band, error) {
    req := http.Get()
    req.URL.Host = "bandcamp.com"
@@ -118,100 +211,5 @@ type Tralbum struct {
    Title string
    Tralbum_Artist string
    Tracks []Track
-}
-
-func new_tralbum(typ byte, id int) (*Tralbum, error) {
-   req, err := http.NewRequest(
-      "GET", "http://bandcamp.com/api/mobile/24/tralbum_details", nil,
-   )
-   if err != nil {
-      return nil, err
-   }
-   req.URL.RawQuery = url.Values{
-      "band_id": {"1"},
-      "tralbum_id": {strconv.Itoa(id)},
-      "tralbum_type": {string(typ)},
-   }.Encode()
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   tralb := new(Tralbum)
-   if err := json.NewDecoder(res.Body).Decode(tralb); err != nil {
-      return nil, err
-   }
-   return tralb, nil
-}
-
-func (t Tralbum) Date() time.Time {
-   return time.Unix(t.Release_Date, 0)
-}
-
-type invalid_type struct {
-   value string
-}
-
-func (i invalid_type) Error() string {
-   var b []byte
-   b = append(b, "invalid type "...)
-   b = strconv.AppendQuote(b, i.value)
-   return string(b)
-}
-
-type Params struct {
-   A_ID int
-   I_ID int
-   I_Type string
-}
-
-func New_Params(ref string) (*Params, error) {
-   res, err := http.Default_Client.Get(ref)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   var scan xml.Scanner
-   scan.Data, err = io.ReadAll(res.Body)
-   if err != nil {
-      return nil, err
-   }
-   scan.Sep = []byte(`<p id="report-account-vm"`)
-   scan.Scan()
-   var p struct {
-      Report_Params []byte `xml:"data-tou-report-params,attr"`
-   }
-   if err := scan.Decode(&p); err != nil {
-      return nil, err
-   }
-   param := new(Params)
-   if err := json.Unmarshal(p.Report_Params, param); err != nil {
-      return nil, err
-   }
-   return param, nil
-}
-
-func (p Params) Band() (*Band, error) {
-   return new_band(p.A_ID)
-}
-
-func (p Params) Tralbum() (*Tralbum, error) {
-   switch p.I_Type {
-   case "a":
-      return new_tralbum('a', p.I_ID)
-   case "t":
-      return new_tralbum('t', p.I_ID)
-   }
-   return nil, invalid_type{p.I_Type}
-}
-
-const (
-   JPEG = iota
-   PNG
-)
-
-type Band struct {
-   Name string
-   Discography []Item
 }
 

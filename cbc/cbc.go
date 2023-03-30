@@ -2,7 +2,6 @@ package cbc
 
 import (
    "2a.pages.dev/rosso/http"
-   "bytes"
    "encoding/json"
    "errors"
    "net/url"

@@ -1,44 +1,24 @@
 package soundcloud
 
 import (
+   "2a.pages.dev/rosso/http"
    "encoding/json"
-   "net/http"
    "net/url"
    "strconv"
    "strings"
    "time"
 )
 
-func New_Track(id int) (*Track, error) {
+func Resolve(ref string) ([]Track, error) {
    req := http.Get()
    req.URL.Host = "api-v2.soundcloud.com"
-   req.URL.Path = "/tracks/" + strconv.Itoa(id)
-   req.URL.RawQuery = "client_id=" + client_ID
-   req.URL.Scheme = "https"
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   tra := new(Track)
-   if err := json.NewDecoder(res.Body).Decode(tra); err != nil {
-      return nil, err
-   }
-   return tra, nil
-}
-
-func Resolve(ref string) ([]Track, error) {
-   req, err := http.NewRequest(
-      "GET", "https://api-v2.soundcloud.com/resolve", nil,
-   )
-   if err != nil {
-      return nil, err
-   }
+   req.URL.Path = "/resolve"
    req.URL.RawQuery = url.Values{
       "client_id": {client_ID},
       "url": {ref},
    }.Encode()
-   res, err := Client.Do(req)
+   req.URL.Scheme = "https"
+   res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
    }
@@ -167,5 +147,23 @@ type Track struct {
          URL string
       }
    }
+}
+
+func New_Track(id int) (*Track, error) {
+   req := http.Get()
+   req.URL.Host = "api-v2.soundcloud.com"
+   req.URL.Path = "/tracks/" + strconv.Itoa(id)
+   req.URL.RawQuery = "client_id=" + client_ID
+   req.URL.Scheme = "https"
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   tra := new(Track)
+   if err := json.NewDecoder(res.Body).Decode(tra); err != nil {
+      return nil, err
+   }
+   return tra, nil
 }
 
