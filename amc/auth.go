@@ -11,26 +11,22 @@ import (
 )
 
 // This accepts full URL or path only.
-func (a Auth) Content(raw_ref string) (*Content, error) {
-   ref, err := url.Parse(raw_ref)
+func (a Auth) Content(ref string) (*Content, error) {
+   a, err := url.Parse(ref)
    if err != nil {
       return nil, err
    }
    var b strings.Builder
-   b.WriteString("https://gw.cds.amcn.com")
    b.WriteString("/content-compiler-cr/api/v1/content/amcn/amcplus/path")
    // If trial is active you must add `/watch` here. If trial has expired, you
    // will get `.data.type` of `redirect`. You can remove the `/watch` to
    // resolve this, but the resultant response will still be missing
    // `video-player-ap`.
-   if strings.HasPrefix(ref.Path, "/movies/") {
+   if strings.HasPrefix(a.Path, "/movies/") {
       b.WriteString("/watch")
    }
-   b.WriteString(ref.Path)
-   req, err := http.NewRequest("GET", b.String(), nil)
-   if err != nil {
-      return nil, err
-   }
+   b.WriteString(a.Path)
+   req := http.Get()
    // If you request once with headers, you can request again without any
    // headers for 10 minutes, but then headers are required again
    req.Header = http.Header{
@@ -38,6 +34,9 @@ func (a Auth) Content(raw_ref string) (*Content, error) {
       "X-Amcn-Network": {"amcplus"},
       "X-Amcn-Tenant": {"amcn"},
    }
+   req.URL.Host = "gw.cds.amcn.com"
+   req.URL.Path = b.String()
+   req.URL.Scheme = "https"
    res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err

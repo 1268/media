@@ -9,16 +9,13 @@ import (
    "time"
 )
 
-func New_Track(id int64) (*Track, error) {
-   var b []byte
-   b = append(b, "https://api-v2.soundcloud.com/tracks/"...)
-   b = strconv.AppendInt(b, id, 10)
-   req, err := http.NewRequest("GET", string(b), nil)
-   if err != nil {
-      return nil, err
-   }
+func New_Track(id int) (*Track, error) {
+   req := http.Get()
+   req.URL.Host = "api-v2.soundcloud.com"
+   req.URL.Path = "/tracks/" + strconv.Itoa(id)
    req.URL.RawQuery = "client_id=" + client_ID
-   res, err := Client.Do(req)
+   req.URL.Scheme = "https"
+   res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
    }

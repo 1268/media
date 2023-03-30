@@ -82,7 +82,10 @@ type Cross_Site struct {
 
 func New_Cross_Site() (*Cross_Site, error) {
    // this has smaller body than www.roku.com
-   res, err := Client.Get("https://therokuchannel.roku.com")
+   req := http.Get()
+   req.URL.Scheme = "https"
+   req.URL.Host = "therokuchannel.roku.com"
+   res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
    }
