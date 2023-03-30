@@ -3,12 +3,109 @@ package roku
 import (
    "2a.pages.dev/rosso/http"
    "2a.pages.dev/rosso/json"
-   "bytes"
    "io"
    "net/url"
    "strings"
    "time"
 )
+
+func New_Content(id string) (*Content, error) {
+   include := []string{
+      "episodeNumber",
+      "releaseDate",
+      "runTimeSeconds",
+      "seasonNumber",
+      // this needs to be exactly as is, otherwise size blows up
+      "series.seasons.episodes.viewOptions\u2008",
+      "series.title",
+      "title",
+      "viewOptions",
+   }
+   var expand url.URL
+   expand.Scheme = "https"
+   expand.Host = "content.sr.roku.com"
+   expand.Path = "/content/v1/roku-trc/" + id
+   expand.RawQuery = url.Values{
+      "expand": {"series"},
+      "include": {strings.Join(include, ",")},
+   }.Encode()
+   var home strings.Builder
+   home.WriteString("https://therokuchannel.roku.com")
+   home.WriteString("/api/v2/homescreen/content/")
+   home.WriteString(url.PathEscape(expand.String()))
+   res, err := http.Default_Client.Get(home.String())
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   screen := new(Content)
+   if err := json.NewDecoder(res.Body).Decode(screen); err != nil {
+      return nil, err
+   }
+   return screen, nil
+}
+
+type Video struct {
+   DRM_Authentication *struct{} `json:"drmAuthentication"`
+   URL string
+   Video_Type string `json:"videoType"`
+}
+
+type Playback struct {
+   DRM struct {
+      Widevine struct {
+         License_Server string `json:"licenseServer"`
+      }
+   }
+}
+
+func (p Playback) Request_URL() string {
+   return p.DRM.Widevine.License_Server
+}
+
+func (Playback) Request_Header() http.Header {
+   return nil
+}
+
+func (Playback) Request_Body(buf []byte) ([]byte, error) {
+   return buf, nil
+}
+
+func (Playback) Response_Body(buf []byte) ([]byte, error) {
+   return buf, nil
+}
+
+type Cross_Site struct {
+   cookie *http.Cookie // has own String method
+   token string
+}
+
+func New_Cross_Site() (*Cross_Site, error) {
+   // this has smaller body than www.roku.com
+   res, err := Client.Get("https://therokuchannel.roku.com")
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   var site Cross_Site
+   for _, cook := range res.Cookies() {
+      if cook.Name == "_csrf" {
+         site.cookie = cook
+      }
+   }
+   var scan json.Scanner
+   scan.Data, err = io.ReadAll(res.Body)
+   if err != nil {
+      return nil, err
+   }
+   scan.Sep = []byte("\tcsrf:")
+   scan.Scan()
+   scan.Sep = nil
+   if err := scan.Decode(&site.token); err != nil {
+      return nil, err
+   }
+   return &site, nil
+}
 
 func (c Cross_Site) Playback(id string) (*Playback, error) {
    body, err := json.MarshalIndent(map[string]string{
@@ -113,103 +210,5 @@ type Content struct {
          Videos []Video
       }
    } `json:"viewOptions"`
-}
-
-func New_Content(id string) (*Content, error) {
-   include := []string{
-      "episodeNumber",
-      "releaseDate",
-      "runTimeSeconds",
-      "seasonNumber",
-      // this needs to be exactly as is, otherwise size blows up
-      "series.seasons.episodes.viewOptions\u2008",
-      "series.title",
-      "title",
-      "viewOptions",
-   }
-   var expand url.URL
-   expand.Scheme = "https"
-   expand.Host = "content.sr.roku.com"
-   expand.Path = "/content/v1/roku-trc/" + id
-   expand.RawQuery = url.Values{
-      "expand": {"series"},
-      "include": {strings.Join(include, ",")},
-   }.Encode()
-   var home strings.Builder
-   home.WriteString("https://therokuchannel.roku.com")
-   home.WriteString("/api/v2/homescreen/content/")
-   home.WriteString(url.PathEscape(expand.String()))
-   res, err := Client.Get(home.String())
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   screen := new(Content)
-   if err := json.NewDecoder(res.Body).Decode(screen); err != nil {
-      return nil, err
-   }
-   return screen, nil
-}
-
-type Video struct {
-   DRM_Authentication *struct{} `json:"drmAuthentication"`
-   URL string
-   Video_Type string `json:"videoType"`
-}
-
-type Playback struct {
-   DRM struct {
-      Widevine struct {
-         License_Server string `json:"licenseServer"`
-      }
-   }
-}
-
-func (p Playback) Request_URL() string {
-   return p.DRM.Widevine.License_Server
-}
-
-func (Playback) Request_Header() http.Header {
-   return nil
-}
-
-func (Playback) Request_Body(buf []byte) ([]byte, error) {
-   return buf, nil
-}
-
-func (Playback) Response_Body(buf []byte) ([]byte, error) {
-   return buf, nil
-}
-
-type Cross_Site struct {
-   cookie *http.Cookie // has own String method
-   token string
-}
-
-func New_Cross_Site() (*Cross_Site, error) {
-   // this has smaller body than www.roku.com
-   res, err := Client.Get("https://therokuchannel.roku.com")
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   var site Cross_Site
-   for _, cook := range res.Cookies() {
-      if cook.Name == "_csrf" {
-         site.cookie = cook
-      }
-   }
-   var scan json.Scanner
-   scan.Data, err = io.ReadAll(res.Body)
-   if err != nil {
-      return nil, err
-   }
-   scan.Sep = []byte("\tcsrf:")
-   scan.Scan()
-   scan.Sep = nil
-   if err := scan.Decode(&site.token); err != nil {
-      return nil, err
-   }
-   return &site, nil
 }
 

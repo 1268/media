@@ -28,7 +28,7 @@ func (f Format) Encode(w io.Writer) error {
       b = strconv.AppendInt(b, pos+chunk-1, 10)
       val.Set("range", string(b))
       req.URL.RawQuery = val.Encode()
-      res, err := client.Level(0).Do(req)
+      res, err := client.Do(req)
       if err != nil {
          return err
       }

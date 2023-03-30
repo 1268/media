@@ -13,28 +13,6 @@ import (
    "time"
 )
 
-var secret_key = []byte("2b84a073ede61c766e4c0b3f1e656f7f")
-
-func authorization() string {
-   now := strconv.FormatInt(time.Now().UnixMilli(), 10)
-   b := new(strings.Builder)
-   b.WriteString("NBC-Security key=android_nbcuniversal,version=2.4")
-   b.WriteString(",time=")
-   b.WriteString(now)
-   b.WriteString(",hash=")
-   mac := hmac.New(sha256.New, secret_key)
-   io.WriteString(mac, now)
-   hex.NewEncoder(b).Write(mac.Sum(nil))
-   return b.String()
-}
-
-type Metadata struct {
-   MPX_Account_ID string `json:"mpxAccountId"`
-   MPX_GUID string `json:"mpxGuid"`
-   Series_Short_Title string `json:"seriesShortTitle"`
-   Secondary_Title string `json:"secondaryTitle"`
-}
-
 func New_Metadata(guid int64) (*Metadata, error) {
    var p page_request
    p.Query = graphQL_compact(query)
@@ -47,14 +25,12 @@ func New_Metadata(guid int64) (*Metadata, error) {
    if err != nil {
       return nil, err
    }
-   req, err := http.NewRequest(
-      "POST", "https://friendship.nbc.co/v2/graphql", bytes.NewReader(body),
-   )
-   if err != nil {
-      return nil, err
-   }
+   req := http.Post(body)
    req.Header.Set("Content-Type", "application/json")
-   res, err := Client.Do(req)
+   req.URL.Host = "friendship.nbc.co"
+   req.URL.Path = "/v2/graphql"
+   req.URL.Scheme = "https"
+   res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
    }
@@ -113,3 +89,25 @@ func (m Metadata) Video() (*Video, error) {
    }
    return vid, nil
 }
+var secret_key = []byte("2b84a073ede61c766e4c0b3f1e656f7f")
+
+func authorization() string {
+   now := strconv.FormatInt(time.Now().UnixMilli(), 10)
+   b := new(strings.Builder)
+   b.WriteString("NBC-Security key=android_nbcuniversal,version=2.4")
+   b.WriteString(",time=")
+   b.WriteString(now)
+   b.WriteString(",hash=")
+   mac := hmac.New(sha256.New, secret_key)
+   io.WriteString(mac, now)
+   hex.NewEncoder(b).Write(mac.Sum(nil))
+   return b.String()
+}
+
+type Metadata struct {
+   MPX_Account_ID string `json:"mpxAccountId"`
+   MPX_GUID string `json:"mpxGuid"`
+   Series_Short_Title string `json:"seriesShortTitle"`
+   Secondary_Title string `json:"secondaryTitle"`
+}
+

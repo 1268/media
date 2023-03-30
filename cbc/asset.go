@@ -8,13 +8,10 @@ import (
 )
 
 func New_Asset(id string) (*Asset, error) {
-   var b strings.Builder
-   b.WriteString("https://services.radio-canada.ca/ott/cbc-api/v2/assets/")
-   b.WriteString(id)
-   req, err := http.NewRequest("GET", b.String(), nil)
-   if err != nil {
-      return nil, err
-   }
+   req := http.Get()
+   req.URL.Host = "services.radio-canada.ca"
+   req.URL.Path = "/ott/cbc-api/v2/assets/" + id
+   req.URL.Scheme = "https"
    res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
