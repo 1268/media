@@ -4,7 +4,6 @@ import (
    "2a.pages.dev/rosso/http"
    "encoding/json"
    "strconv"
-   "strings"
 )
 
 func New_Asset(id string) (*Asset, error) {

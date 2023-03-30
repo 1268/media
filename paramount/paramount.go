@@ -9,24 +9,13 @@ import (
    "time"
 )
 
-func media(guid string) string {
-   var b []byte
-   b = append(b, "http://link.theplatform.com/s/"...)
-   b = append(b, sid...)
-   b = append(b, "/media/guid/"...)
-   b = strconv.AppendInt(b, aid, 10)
-   b = append(b, '/')
-   b = append(b, guid...)
-   return string(b)
-}
-
 func New_Preview(guid string) (*Preview, error) {
-   req, err := http.NewRequest("GET", media(guid), nil)
+   req, err := http.Get_URL(media(guid))
    if err != nil {
       return nil, err
    }
    req.URL.RawQuery = "format=preview"
-   res, err := Client.Do(req)
+   res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
    }
@@ -109,4 +98,15 @@ const (
    aid = 2198311517
    sid = "dJ5BDC"
 )
+
+func media(guid string) string {
+   var b []byte
+   b = append(b, "http://link.theplatform.com/s/"...)
+   b = append(b, sid...)
+   b = append(b, "/media/guid/"...)
+   b = strconv.AppendInt(b, aid, 10)
+   b = append(b, '/')
+   b = append(b, guid...)
+   return string(b)
+}
 

@@ -10,105 +10,17 @@ import (
    "strings"
 )
 
-func (l Login) Web_Token() (*Web_Token, error) {
-   req := http.Get()
-   req.URL.Host = "cloud-api.loginradius.com"
-   req.URL.Path = "/sso/jwt/api/token"
-   req.URL.RawQuery = url.Values{
-      "access_token": {l.Access_Token},
-      "apikey": {api_key},
-      "jwtapp": {"jwt"},
-   }.Encode()
-   req.URL.Scheme = "https"
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   web := new(Web_Token)
-   if err := json.NewDecoder(res.Body).Decode(web); err != nil {
-      return nil, err
-   }
-   return web, nil
-}
-
-type Over_The_Top struct {
-   Access_Token string `json:"accessToken"`
-}
-
-func (o Over_The_Top) Profile() (*Profile, error) {
-   req, err := http.NewRequest(
-      "GET", "https://services.radio-canada.ca/ott/cbc-api/v2/profile", nil,
-   )
-   if err != nil {
-      return nil, err
-   }
-   req.Header.Set("OTT-Access-Token", o.Access_Token)
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   pro := new(Profile)
-   if err := json.NewDecoder(res.Body).Decode(pro); err != nil {
-      return nil, err
-   }
-   return pro, nil
-}
-
-type Profile struct {
-   Tier string
-   Claims_Token string `json:"claimsToken"`
-}
-
-type Web_Token struct {
-   Signature string
-}
-
-func New_Login(email, password string) (*Login, error) {
-   auth := map[string]string{
-      "email": email,
-      "password": password,
-   }
-   raw_auth, err := json.MarshalIndent(auth, "", " ")
-   if err != nil {
-      return nil, err
-   }
-   req, err := http.NewRequest(
-      "POST", "https://api.loginradius.com/identity/v2/auth/login",
-      bytes.NewReader(raw_auth),
-   )
-   if err != nil {
-      return nil, err
-   }
-   req.Header.Set("Content-Type", "application/json")
-   req.URL.RawQuery = "apiKey=" + api_key
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   login := new(Login)
-   if err := json.NewDecoder(res.Body).Decode(login); err != nil {
-      return nil, err
-   }
-   return login, nil
-}
-
 func (w Web_Token) Over_The_Top() (*Over_The_Top, error) {
    token := map[string]string{"jwt": w.Signature}
-   raw_token, err := json.MarshalIndent(token, "", " ")
+   body, err := json.MarshalIndent(token, "", " ")
    if err != nil {
       return nil, err
    }
-   req, err := http.NewRequest(
-      "POST", "https://services.radio-canada.ca/ott/cbc-api/v2/token",
-      bytes.NewReader(raw_token),
-   )
-   if err != nil {
-      return nil, err
-   }
+   req := http.Post(body)
    req.Header.Set("Content-Type", "application/json")
+   req.URL.Host = "services.radio-canada.ca"
+   req.URL.Path = "/ott/cbc-api/v2/token"
+   req.URL.Scheme = "https"
    res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
@@ -120,6 +32,7 @@ func (w Web_Token) Over_The_Top() (*Over_The_Top, error) {
    }
    return top, nil
 }
+
 const forwarded_for = "99.224.0.0"
 
 // gem.cbc.ca/media/downton-abbey/s01e05
@@ -187,5 +100,85 @@ const api_key = "3f4beddd-2061-49b0-ae80-6f1f2ed65b37"
 type Login struct {
    Access_Token string
    Expires_In string
+}
+
+func (l Login) Web_Token() (*Web_Token, error) {
+   req := http.Get()
+   req.URL.Host = "cloud-api.loginradius.com"
+   req.URL.Path = "/sso/jwt/api/token"
+   req.URL.RawQuery = url.Values{
+      "access_token": {l.Access_Token},
+      "apikey": {api_key},
+      "jwtapp": {"jwt"},
+   }.Encode()
+   req.URL.Scheme = "https"
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   web := new(Web_Token)
+   if err := json.NewDecoder(res.Body).Decode(web); err != nil {
+      return nil, err
+   }
+   return web, nil
+}
+
+type Over_The_Top struct {
+   Access_Token string `json:"accessToken"`
+}
+
+func (o Over_The_Top) Profile() (*Profile, error) {
+   req := http.Get()
+   req.Header.Set("OTT-Access-Token", o.Access_Token)
+   req.URL.Host = "services.radio-canada.ca"
+   req.URL.Path = "/ott/cbc-api/v2/profile"
+   req.URL.Scheme = "https"
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   pro := new(Profile)
+   if err := json.NewDecoder(res.Body).Decode(pro); err != nil {
+      return nil, err
+   }
+   return pro, nil
+}
+
+type Profile struct {
+   Tier string
+   Claims_Token string `json:"claimsToken"`
+}
+
+type Web_Token struct {
+   Signature string
+}
+
+func New_Login(email, password string) (*Login, error) {
+   auth := map[string]string{
+      "email": email,
+      "password": password,
+   }
+   body, err := json.MarshalIndent(auth, "", " ")
+   if err != nil {
+      return nil, err
+   }
+   req := http.Post(body)
+   req.Header.Set("Content-Type", "application/json")
+   req.URL.Host = "api.loginradius.com"
+   req.URL.Path = "/identity/v2/auth/login"
+   req.URL.RawQuery = "apiKey=" + api_key
+   req.URL.Scheme = "https"
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   login := new(Login)
+   if err := json.NewDecoder(res.Body).Decode(login); err != nil {
+      return nil, err
+   }
+   return login, nil
 }
 

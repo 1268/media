@@ -11,8 +11,8 @@ import (
 )
 
 // This accepts full URL or path only.
-func (a Auth) Content(ref string) (*Content, error) {
-   a, err := url.Parse(ref)
+func (a Auth) Content(raw_ref string) (*Content, error) {
+   ref, err := url.Parse(raw_ref)
    if err != nil {
       return nil, err
    }
@@ -22,10 +22,10 @@ func (a Auth) Content(ref string) (*Content, error) {
    // will get `.data.type` of `redirect`. You can remove the `/watch` to
    // resolve this, but the resultant response will still be missing
    // `video-player-ap`.
-   if strings.HasPrefix(a.Path, "/movies/") {
+   if strings.HasPrefix(ref.Path, "/movies/") {
       b.WriteString("/watch")
    }
-   b.WriteString(a.Path)
+   b.WriteString(ref.Path)
    req := http.Get()
    // If you request once with headers, you can request again without any
    // headers for 10 minutes, but then headers are required again
