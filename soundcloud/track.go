@@ -37,20 +37,16 @@ func Resolve(ref string) ([]Track, error) {
 }
 
 // We can also paginate, but for now this is good enough.
-func User_Tracks(id int64) ([]Track, error) {
-   var b []byte
-   b = append(b, "https://api-v2.soundcloud.com/users/"...)
-   b = strconv.AppendInt(b, id, 10)
-   b = append(b, "/tracks"...)
-   req, err := http.NewRequest("GET", string(b), nil)
-   if err != nil {
-      return nil, err
-   }
+func User_Tracks(id int) ([]Track, error) {
+   req := http.Get()
+   req.URL.Host = "api-v2.soundcloud.com"
+   req.URL.Path = "/users/" + strconv.Itoa(id) + "/tracks"
    req.URL.RawQuery = url.Values{
       "client_id": {client_ID},
       "limit": {"999"},
    }.Encode()
-   res, err := Client.Do(req)
+   req.URL.Scheme = "https"
+   res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
    }
@@ -104,6 +100,8 @@ func (t Track) String() string {
 func (t Track) Time() (time.Time, error) {
    return time.Parse(time.RFC3339, t.Display_Date)
 }
+
+
 // Also available is "hls", but all transcodings are quality "sq".
 // Same for "api-mobile.soundcloud.com".
 func (t Track) Progressive() (*Media, error) {
@@ -113,12 +111,12 @@ func (t Track) Progressive() (*Media, error) {
          ref = code.URL
       }
    }
-   req, err := http.NewRequest("GET", ref, nil)
+   req, err := http.Get_URL(ref)
    if err != nil {
       return nil, err
    }
    req.URL.RawQuery = "client_id=" + client_ID
-   res, err := Client.Do(req)
+   res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
    }

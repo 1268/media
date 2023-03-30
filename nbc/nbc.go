@@ -1,9 +1,6 @@
 package nbc
 
-import (
-   "2a.pages.dev/rosso/http"
-   "strings"
-)
+import "strings"
 
 const query = `
 query bonanzaPage(
@@ -33,8 +30,6 @@ query bonanzaPage(
    }
 }
 `
-
-var Client = http.Default_Client
 
 func graphQL_compact(s string) string {
    old_new := []string{

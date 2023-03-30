@@ -1,7 +1,6 @@
 package soundcloud
 
 import (
-   "2a.pages.dev/rosso/http"
    "net/url"
    "path"
 )
@@ -19,8 +18,6 @@ func (m Media) Ext() (string, error) {
 }
 
 const client_ID = "iZIs9mchVcX5lhVRyQGGAYlNPVldzAoX"
-
-var Client = http.Default_Client
 
 type Image struct {
    Size string

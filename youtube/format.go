@@ -9,7 +9,7 @@ import (
 )
 
 func (f Format) Encode(w io.Writer) error {
-   req, err := http.NewRequest("GET", f.URL, nil)
+   req, err := http.Get_URL(f.URL)
    if err != nil {
       return err
    }
