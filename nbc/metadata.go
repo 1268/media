@@ -12,6 +12,50 @@ import (
    "time"
 )
 
+func New_Metadata(guid int64) (*Metadata, error) {
+   var p page_request
+   p.Query = graphQL_compact(query)
+   p.Variables.App = "nbc"
+   p.Variables.Name = strconv.FormatInt(guid, 10)
+   p.Variables.One_App = true
+   p.Variables.Platform = "android"
+   p.Variables.Type = "VIDEO"
+   body, err := json.MarshalIndent(p, "", " ")
+   if err != nil {
+      return nil, err
+   }
+   req := http.Post()
+   req.Body_Bytes(body)
+   req.Header.Set("Content-Type", "application/json")
+   req.URL.Host = "friendship.nbc.co"
+   req.URL.Path = "/v2/graphql"
+   req.URL.Scheme = "https"
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   var page struct {
+      Data struct {
+         Bonanza_Page struct {
+            Metadata Metadata
+         } `json:"bonanzaPage"`
+      }
+   }
+   if err := json.NewDecoder(res.Body).Decode(&page); err != nil {
+      return nil, err
+   }
+   return &page.Data.Bonanza_Page.Metadata, nil
+}
+
+func (m Metadata) Name() string {
+   var b strings.Builder
+   b.WriteString(m.Series_Short_Title)
+   b.WriteByte('-')
+   b.WriteString(m.Secondary_Title)
+   return b.String()
+}
+
 func (m Metadata) Video() (*Video, error) {
    var v video_request
    v.Device = "android"
@@ -22,7 +66,8 @@ func (m Metadata) Video() (*Video, error) {
    if err != nil {
       return nil, err
    }
-   req := http.Post(body)
+   req := http.Post()
+   req.Body_Bytes(body)
    req.Header = http.Header{
       "Authorization": {authorization()},
       "Content-Type": {"application/json"},
@@ -61,48 +106,5 @@ type Metadata struct {
    MPX_GUID string `json:"mpxGuid"`
    Series_Short_Title string `json:"seriesShortTitle"`
    Secondary_Title string `json:"secondaryTitle"`
-}
-
-func New_Metadata(guid int64) (*Metadata, error) {
-   var p page_request
-   p.Query = graphQL_compact(query)
-   p.Variables.App = "nbc"
-   p.Variables.Name = strconv.FormatInt(guid, 10)
-   p.Variables.One_App = true
-   p.Variables.Platform = "android"
-   p.Variables.Type = "VIDEO"
-   body, err := json.MarshalIndent(p, "", " ")
-   if err != nil {
-      return nil, err
-   }
-   req := http.Post(body)
-   req.Header.Set("Content-Type", "application/json")
-   req.URL.Host = "friendship.nbc.co"
-   req.URL.Path = "/v2/graphql"
-   req.URL.Scheme = "https"
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   var page struct {
-      Data struct {
-         Bonanza_Page struct {
-            Metadata Metadata
-         } `json:"bonanzaPage"`
-      }
-   }
-   if err := json.NewDecoder(res.Body).Decode(&page); err != nil {
-      return nil, err
-   }
-   return &page.Data.Bonanza_Page.Metadata, nil
-}
-
-func (m Metadata) Name() string {
-   var b strings.Builder
-   b.WriteString(m.Series_Short_Title)
-   b.WriteByte('-')
-   b.WriteString(m.Secondary_Title)
-   return b.String()
 }
 
