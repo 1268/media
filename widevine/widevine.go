@@ -10,6 +10,51 @@ import (
    "io"
 )
 
+func (m Module) Post(post Poster) (Containers, error) {
+   signed_request, err := m.signed_request()
+   if err != nil {
+      return nil, err
+   }
+   body, err := post.Request_Body(signed_request)
+   if err != nil {
+      return nil, err
+   }
+   req, err := http.Post_URL(post.Request_URL())
+   if err != nil {
+      return nil, err
+   }
+   req.Body_Bytes(body)
+   if head := post.Request_Header(); head != nil {
+      req.Header = head
+   }
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   body, err = io.ReadAll(res.Body)
+   if err != nil {
+      return nil, err
+   }
+   body, err = post.Response_Body(body)
+   if err != nil {
+      return nil, err
+   }
+   return m.signed_response(body)
+}
+
+type Poster interface {
+   Request_URL() string
+   Request_Header() http.Header
+   Request_Body([]byte) ([]byte, error)
+   Response_Body([]byte) ([]byte, error)
+}
+
+type no_operation struct{}
+
+func (no_operation) Read(buf []byte) (int, error) {
+   return len(buf), nil
+}
 // some videos require key_id and content_id, so entire PSSH is needed
 func New_Module(private_key, client_ID, pssh []byte) (*Module, error) {
    block, _ := pem.Decode(private_key)
@@ -67,47 +112,4 @@ type Module struct {
    private_key *rsa.PrivateKey
 }
 
-func (m Module) Post(post Poster) (Containers, error) {
-   signed_request, err := m.signed_request()
-   if err != nil {
-      return nil, err
-   }
-   body, err := post.Request_Body(signed_request)
-   if err != nil {
-      return nil, err
-   }
-   req, err := http.Post_URL(post.Request_URL(), body)
-   if err != nil {
-      return nil, err
-   }
-   if head := post.Request_Header(); head != nil {
-      req.Header = head
-   }
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   body, err = io.ReadAll(res.Body)
-   if err != nil {
-      return nil, err
-   }
-   body, err = post.Response_Body(body)
-   if err != nil {
-      return nil, err
-   }
-   return m.signed_response(body)
-}
 
-type Poster interface {
-   Request_URL() string
-   Request_Header() http.Header
-   Request_Body([]byte) ([]byte, error)
-   Response_Body([]byte) ([]byte, error)
-}
-
-type no_operation struct{}
-
-func (no_operation) Read(buf []byte) (int, error) {
-   return len(buf), nil
-}
