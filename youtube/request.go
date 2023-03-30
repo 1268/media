@@ -5,46 +5,22 @@ import (
    "encoding/json"
 )
 
-func (r Request) Search(query string) (*Search, error) {
-   filter := New_Filters()
-   filter.Type(Type["Video"])
-   r.Params = filter.Marshal()
-   r.Query = query
-   body, err := json.MarshalIndent(r, "", " ")
-   if err != nil {
-      return nil, err
-   }
-   req := http.Post(body)
-   req.Header.Set("X-Goog-API-Key", api_key)
-   req.URL.Host = "www.youtube.com"
-   req.URL.Path = "/youtubei/v1/search"
-   req.URL.Scheme = "https"
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   search := new(Search)
-   if err := json.NewDecoder(res.Body).Decode(search); err != nil {
-      return nil, err
-   }
-   return search, nil
-}
 func (r Request) Player(id string, tok *Token) (*Player, error) {
    r.Video_ID = id
    body, err := json.MarshalIndent(r, "", " ")
    if err != nil {
       return nil, err
    }
-   req := http.Post(body)
-   req.URL.Scheme = "https"
-   req.URL.Host = "www.youtube.com"
-   req.URL.Path = "/youtubei/v1/player"
+   req := http.Post()
+   req.Body_Bytes(body)
    if tok != nil {
       req.Header.Set("Authorization", "Bearer " + tok.Access_Token)
    } else {
       req.Header.Set("X-Goog-API-Key", api_key)
    }
+   req.URL.Scheme = "https"
+   req.URL.Host = "www.youtube.com"
+   req.URL.Path = "/youtubei/v1/player"
    res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
@@ -109,4 +85,31 @@ type Request struct {
    Racy_Check_OK bool `json:"racyCheckOk,omitempty"`
    Video_ID string `json:"videoId,omitempty"`
 }
+
+func (r Request) Search(query string) (*Search, error) {
+   filter := New_Filters()
+   filter.Type(Type["Video"])
+   r.Params = filter.Marshal()
+   r.Query = query
+   body, err := json.MarshalIndent(r, "", " ")
+   if err != nil {
+      return nil, err
+   }
+   req := http.Post(body)
+   req.Header.Set("X-Goog-API-Key", api_key)
+   req.URL.Host = "www.youtube.com"
+   req.URL.Path = "/youtubei/v1/search"
+   req.URL.Scheme = "https"
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   search := new(Search)
+   if err := json.NewDecoder(res.Body).Decode(search); err != nil {
+      return nil, err
+   }
+   return search, nil
+}
+
 
