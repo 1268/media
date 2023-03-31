@@ -6,14 +6,6 @@ import (
    "time"
 )
 
-const (
-   dash_cenc = iota
-   episode
-   hls_clear
-   movie
-   stream_pack
-)
-
 var tests = map[key]struct{
    guid string
    key string
@@ -44,3 +36,11 @@ func Test_Preview(t *testing.T) {
       time.Sleep(time.Second)
    }
 }
+
+const (
+   dash_cenc = iota
+   episode
+   hls_clear
+   movie
+   stream_pack
+)

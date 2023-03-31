@@ -23,7 +23,7 @@ func Test_Session(t *testing.T) {
          if err := enc.Encode(sess); err != nil {
             t.Fatal(err)
          }
-         time.Sleep(time.Second)
+         time.Sleep(99 * time.Millisecond)
       }
    }
 }
