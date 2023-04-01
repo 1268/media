@@ -9,53 +9,36 @@ import (
    "time"
 )
 
-func New_Preview(guid string) (*Preview, error) {
-   req, err := http.Get_URL(media(guid))
-   if err != nil {
-      return nil, err
-   }
-   req.URL.RawQuery = "format=preview"
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   prev := new(Preview)
-   if err := json.NewDecoder(res.Body).Decode(prev); err != nil {
-      return nil, err
-   }
-   return prev, nil
-}
-
 func DASH(guid string) string {
-   var buf strings.Builder
-   buf.WriteString(media(guid))
-   buf.WriteByte('?')
-   buf.WriteString("assetTypes=DASH_CENC")
-   buf.WriteByte('&')
-   buf.WriteString("formats=MPEG-DASH")
-   return buf.String()
+   var b strings.Builder
+   b.WriteString(media(guid))
+   b.WriteByte('?')
+   b.WriteString("assetTypes=DASH_CENC")
+   b.WriteByte('&')
+   b.WriteString("formats=MPEG-DASH")
+   return b.String()
 }
 
 func HLS_Clear(guid string) string {
-   var buf strings.Builder
-   buf.WriteString(media(guid))
-   buf.WriteByte('?')
-   buf.WriteString("assetTypes=HLS_CLEAR")
-   buf.WriteByte('&')
-   buf.WriteString("formats=MPEG4,M3U")
-   return buf.String()
+   var b strings.Builder
+   b.WriteString(media(guid))
+   b.WriteByte('?')
+   b.WriteString("assetTypes=HLS_CLEAR")
+   b.WriteByte('&')
+   b.WriteString("formats=MPEG4,M3U")
+   return b.String()
 }
 
 func Stream_Pack(guid string) string {
-   var buf strings.Builder
-   buf.WriteString(media(guid))
-   buf.WriteByte('?')
-   buf.WriteString("assetTypes=StreamPack")
-   buf.WriteByte('&')
-   buf.WriteString("formats=MPEG4,M3U")
-   return buf.String()
+   var b strings.Builder
+   b.WriteString(media(guid))
+   b.WriteByte('?')
+   b.WriteString("assetTypes=StreamPack")
+   b.WriteByte('&')
+   b.WriteString("formats=MPEG4,M3U")
+   return b.String()
 }
+
 func (p Preview) Name() string {
    var b []byte
    b = append(b, p.Title...)
@@ -96,7 +79,6 @@ const (
    aid = 2198311517
    sid = "dJ5BDC"
 )
-
 func media(guid string) string {
    var b []byte
    b = append(b, "http://link.theplatform.com/s/"...)
@@ -108,3 +90,20 @@ func media(guid string) string {
    return string(b)
 }
 
+func New_Preview(guid string) (*Preview, error) {
+   req, err := http.Get_URL(media(guid))
+   if err != nil {
+      return nil, err
+   }
+   req.URL.RawQuery = "format=preview"
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   prev := new(Preview)
+   if err := json.NewDecoder(res.Body).Decode(prev); err != nil {
+      return nil, err
+   }
+   return prev, nil
+}
