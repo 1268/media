@@ -14,7 +14,7 @@ import (
 var tests = []struct{
    asset func(string)string // Downloadable
    content int // Movie
-   guid string
+   content_ID string
    key string
    pssh string
 }{
@@ -23,7 +23,7 @@ var tests = []struct{
       // SEAL Team Season 1 Episode 1: Tip of the Spear
       asset: DASH_CENC,
       content: episode,
-      guid: "rn1zyirVOPjCl8rxopWrhUmJEIs3GcKW",
+      content_ID: "rn1zyirVOPjCl8rxopWrhUmJEIs3GcKW",
       key: "f335e480e47739dbcaae7b48faffc002",
       pssh: "AAAAWHBzc2gAAAAA7e+LqXnWSs6jyCfc1R0h7QAAADgIARIQD3gqa9LyRm65UzN2yiD/XyIgcm4xenlpclZPUGpDbDhyeG9wV3JoVW1KRUlzM0djS1c4AQ==",
    }, {
@@ -31,20 +31,20 @@ var tests = []struct{
       // The SpongeBob Movie: Sponge on the Run
       asset: DASH_CENC,
       content: movie,
-      guid: "tQk_Qooh5wUlxQqzj_4LiBO2m4iMrcPD",
+      content_ID: "tQk_Qooh5wUlxQqzj_4LiBO2m4iMrcPD",
    }, {
       // paramountplus.com/shows/video/YxlqOUdP1zZaIs7FGXCaS1dJi7gGzxG_
       // 60 Minutes Season 55 Episode 18: 1/15/2023: Star Power, Hide and Seek,
       // The Guru
       asset: Downloadable,
       content: episode,
-      guid: "YxlqOUdP1zZaIs7FGXCaS1dJi7gGzxG_",
+      content_ID: "YxlqOUdP1zZaIs7FGXCaS1dJi7gGzxG_",
    },
 }
 
 func Test_Preview(t *testing.T) {
    for _, test := range tests {
-      prev, err := New_Preview(test.guid)
+      prev, err := New_Preview(test.content_ID)
       if err != nil {
          t.Fatal(err)
       }
@@ -55,7 +55,7 @@ func Test_Preview(t *testing.T) {
 
 func Test_Media(t *testing.T) {
    for _, test := range tests {
-      ref := test.asset(test.guid)
+      ref := test.asset(test.content_ID)
       fmt.Println(ref)
       res, err := http.Get(ref)
       if err != nil {
@@ -98,7 +98,7 @@ func Test_Post(t *testing.T) {
    if err != nil {
       t.Fatal(err)
    }
-   sess, err := New_Session(test.guid)
+   sess, err := New_Session(test.content_ID)
    if err != nil {
       t.Fatal(err)
    }
@@ -110,6 +110,7 @@ func Test_Post(t *testing.T) {
       t.Fatal(keys)
    }
 }
+
 func Test_Session(t *testing.T) {
    test := tests[0]
    enc := json.NewEncoder(os.Stdout)
@@ -117,7 +118,7 @@ func Test_Session(t *testing.T) {
    enc.SetEscapeHTML(false)
    for version, secret := range app_secrets {
       if secret != "" {
-         sess, err := session_secret(test.guid, secret)
+         sess, err := session_secret(test.content_ID, secret)
          if err != nil {
             t.Fatal(version, err)
          }
