@@ -33,12 +33,6 @@ and this is still a valid ID:
 change user agent:
 
 ~~~
-general.useragent.override
-~~~
-
-to:
-
-~~~
 Mozilla/5.0 (Macintosh; Intel Mac OS X 13_3) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.4 Safari/605.1.15
 ~~~
 
