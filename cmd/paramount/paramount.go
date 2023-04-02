@@ -3,10 +3,15 @@ package main
 import (
    "2a.pages.dev/mech/paramount"
    "2a.pages.dev/rosso/dash"
-   "2a.pages.dev/rosso/hls"
+   "fmt"
    "strings"
-   "strconv"
 )
+
+func (f flags) downloadable(preview *paramount.Preview) error {
+   fmt.Println(paramount.Downloadable(f.guid))
+   fmt.Println(preview.Name())
+   return nil
+}
 
 func (f flags) dash(preview *paramount.Preview) error {
    var err error
@@ -15,7 +20,7 @@ func (f flags) dash(preview *paramount.Preview) error {
       return err
    }
    f.Name = preview.Name()
-   reps, err := f.Stream.DASH(paramount.DASH(f.guid))
+   reps, err := f.Stream.DASH(paramount.DASH_CENC(f.guid))
    if err != nil {
       return err
    }
@@ -45,34 +50,4 @@ func (f flags) dash(preview *paramount.Preview) error {
       return b.Height == f.height
    })
    return f.DASH_Get(video, index)
-}
-
-func (f flags) stream_pack(preview *paramount.Preview) error {
-   f.Name = preview.Name()
-   master, err := f.Stream.HLS(paramount.Stream_Pack(f.guid))
-   if err != nil {
-      return err
-   }
-   streams := master.Streams.Filter(func(s hls.Stream) bool {
-      return s.Resolution != ""
-   })
-   index := streams.Index(func(a, b hls.Stream) bool {
-      return strings.HasSuffix(b.Resolution, strconv.FormatInt(f.height, 10))
-   })
-   return f.HLS_Streams(streams, index)
-}
-
-func (f flags) hls_clear(preview *paramount.Preview) error {
-   f.Name = preview.Name()
-   master, err := f.Stream.HLS(paramount.HLS_Clear(f.guid))
-   if err != nil {
-      return err
-   }
-   streams := master.Streams.Filter(func(s hls.Stream) bool {
-      return s.Resolution != ""
-   })
-   index := streams.Index(func(a, b hls.Stream) bool {
-      return strings.HasSuffix(b.Resolution, strconv.FormatInt(f.height, 10))
-   })
-   return f.HLS_Streams(streams, index)
 }

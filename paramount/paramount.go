@@ -9,36 +9,6 @@ import (
    "time"
 )
 
-func DASH(guid string) string {
-   var b strings.Builder
-   b.WriteString(media(guid))
-   b.WriteByte('?')
-   b.WriteString("assetTypes=DASH_CENC")
-   b.WriteByte('&')
-   b.WriteString("formats=MPEG-DASH")
-   return b.String()
-}
-
-func HLS_Clear(guid string) string {
-   var b strings.Builder
-   b.WriteString(media(guid))
-   b.WriteByte('?')
-   b.WriteString("assetTypes=HLS_CLEAR")
-   b.WriteByte('&')
-   b.WriteString("formats=MPEG4,M3U")
-   return b.String()
-}
-
-func Stream_Pack(guid string) string {
-   var b strings.Builder
-   b.WriteString(media(guid))
-   b.WriteByte('?')
-   b.WriteString("assetTypes=StreamPack")
-   b.WriteByte('&')
-   b.WriteString("formats=MPEG4,M3U")
-   return b.String()
-}
-
 func (p Preview) Name() string {
    var b []byte
    b = append(b, p.Title...)
@@ -79,16 +49,6 @@ const (
    aid = 2198311517
    sid = "dJ5BDC"
 )
-func media(guid string) string {
-   var b []byte
-   b = append(b, "http://link.theplatform.com/s/"...)
-   b = append(b, sid...)
-   b = append(b, "/media/guid/"...)
-   b = strconv.AppendInt(b, aid, 10)
-   b = append(b, '/')
-   b = append(b, guid...)
-   return string(b)
-}
 
 func New_Preview(guid string) (*Preview, error) {
    req, err := http.Get_URL(media(guid))
@@ -106,4 +66,35 @@ func New_Preview(guid string) (*Preview, error) {
       return nil, err
    }
    return prev, nil
+}
+
+func media(guid string) string {
+   var b []byte
+   b = append(b, "http://link.theplatform.com/s/"...)
+   b = append(b, sid...)
+   b = append(b, "/media/guid/"...)
+   b = strconv.AppendInt(b, aid, 10)
+   b = append(b, '/')
+   b = append(b, guid...)
+   return string(b)
+}
+
+func DASH_CENC(guid string) string {
+   var b strings.Builder
+   b.WriteString(media(guid))
+   b.WriteByte('?')
+   b.WriteString("assetTypes=DASH_CENC")
+   b.WriteByte('&')
+   b.WriteString("formats=MPEG-DASH")
+   return b.String()
+}
+
+func Downloadable(guid string) string {
+   var b strings.Builder
+   b.WriteString(media(guid))
+   b.WriteByte('?')
+   b.WriteString("assetTypes=Downloadable")
+   b.WriteByte('&')
+   b.WriteString("formats=MPEG4")
+   return b.String()
 }

@@ -25,9 +25,8 @@ func main() {
    }
    var f flags
    // a
-   flag.IntVar(&f.asset_type, "a", 0, `0 StreamPack
-1 HLS_CLEAR
-2 DASH_CENC`)
+   flag.IntVar(&f.asset_type, "a", 0, `0 Downloadable
+1 DASH_CENC`)
    // b
    flag.StringVar(&f.guid, "b", "", "GUID")
    // c
@@ -57,16 +56,11 @@ func main() {
       }
       switch f.asset_type {
       case 0:
-         err := f.stream_pack(preview)
+         err := f.downloadable(preview)
          if err != nil {
             panic(err)
          }
       case 1:
-         err := f.hls_clear(preview)
-         if err != nil {
-            panic(err)
-         }
-      case 2:
          err := f.dash(preview)
          if err != nil {
             panic(err)
