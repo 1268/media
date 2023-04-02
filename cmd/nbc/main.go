@@ -8,7 +8,7 @@ import (
 func main() {
    var f flags
    flag.Int64Var(&f.guid, "b", 0, "GUID")
-   flag.Int64Var(&f.bandwidth, "f", 3_000_000, "target bandwidth")
+   flag.Int64Var(&f.bandwidth, "f", 5429000, "target bandwidth")
    flag.BoolVar(&f.Info, "i", false, "information")
    flag.IntVar(
       &http.Default_Client.Log_Level, "log",

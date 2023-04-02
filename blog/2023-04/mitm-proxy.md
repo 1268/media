@@ -22,14 +22,21 @@ https://example.com. To disable compression:
 set anticomp true
 ~~~
 
-## Geo block
+## Blocklist
+
+Press `O` to enter options. Move to `block_list` and press Enter. Then press
+`a` to add a new entry. Press Esc when finished, then `q`.
+
+~~~
+/~u tag.js/444
+~~~
+
+https://docs.mitmproxy.org/stable/overview-features#blocklist
+
+## Modify Headers
 
 Press `O` to enter options. Move to `modify_headers` and press Enter. Then press
 `a` to add a new entry. Press Esc when finished, then `q`.
-
-- <https://github.com/firehol/blocklist-ipsets/blob/master/geolite2_country/country_ca.netset>
-- https://calculator.net/ip-subnet-calculator.html
-- https://docs.mitmproxy.org/stable/overview-features
 
 Canada:
 
@@ -49,3 +56,7 @@ Norway:
 ~~~
 /~q/X-Forwarded-For/84.208.0.0
 ~~~
+
+- <https://github.com/firehol/blocklist-ipsets/blob/master/geolite2_country/country_ca.netset>
+- https://calculator.net/ip-subnet-calculator.html
+- https://docs.mitmproxy.org/stable/overview-features#modify-headers
