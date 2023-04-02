@@ -8,6 +8,15 @@ import (
 )
 
 func (f flags) downloadable(preview *paramount.Preview) error {
+   /*
+   client := http.Default_Client
+   client.CheckRedirect = nil
+   res, err := client.Get(paramount.Downloadable(f.guid))
+   if err != nil {
+      return err
+   }
+   defer res.Body.Close()
+   */
    fmt.Println(paramount.Downloadable(f.guid))
    fmt.Println(preview.Name())
    return nil

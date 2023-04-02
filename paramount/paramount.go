@@ -1,6 +1,7 @@
 package paramount
 
 import (
+   "2a.pages.dev/mech"
    "2a.pages.dev/rosso/http"
    "crypto/aes"
    "encoding/json"
@@ -11,11 +12,11 @@ import (
 
 func (p Preview) Name() string {
    var b []byte
-   b = append(b, p.Title...)
+   b = append(b, mech.Clean(p.Title)...)
    if p.Season_Number >= 1 {
-      b = append(b, '-')
+      b = append(b, "-s"...)
       b = strconv.AppendInt(b, p.Season_Number, 10)
-      b = append(b, '-')
+      b = append(b, "e"...)
       b = append(b, p.Episode_Number...)
    }
    b = append(b, '-')
