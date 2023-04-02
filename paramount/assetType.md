@@ -1,4 +1,4 @@
-# Paramount+
+# assetType
 
 We know that `Downloadable` is a valid value for `assetTypes`:
 
@@ -127,3 +127,58 @@ domain: {
    }
 },
 ~~~
+
+so we can try again with the `domain=prod`:
+
+- <https://can-services.cbs.com/canServices/playerService/video/search.xml?contentId=YxlqOUdP1zZaIs7FGXCaS1dJi7gGzxG_&partner=pp_us_lcp_desktop&showEncodes=true&st=1&domain=prod>
+- <https://can-services.cbs.com/canServices/playerService/video/search.xml?pid=4D_TMl1QG_vO&partner=pp_us_lcp_desktop&domain=prod>
+
+and `domain=player-services.cbs.com`:
+
+- <https://can-services.cbs.com/canServices/playerService/video/search.xml?contentId=YxlqOUdP1zZaIs7FGXCaS1dJi7gGzxG_&partner=pp_us_lcp_desktop&showEncodes=true&st=1&domain=player-services.cbs.com>
+- <https://can-services.cbs.com/canServices/playerService/video/search.xml?pid=4D_TMl1QG_vO&partner=pp_us_lcp_desktop&domain=player-services.cbs.com>
+
+but still empty response. If we search the logged in HTML response of the
+public URL:
+
+<https://paramountplus.com/shows/video/YxlqOUdP1zZaIs7FGXCaS1dJi7gGzxG_>
+
+we find some `assetType` values:
+
+~~~
+"assetType":"DASH_CENC"
+"assetType":"ThumbSheet"
+"assetType":"Thumbnail"
+~~~
+
+but not all, since `Downloadable` is missing. We can download the APK and
+extract:
+
+~~~
+googleplay -d com.cbs.app -v 211204029
+jadx com.cbs.app-211204029.apk
+~~~
+
+searching `playerservice` returns no results. searching `assettype` returns
+nothing interesting. We can then start the APK:
+
+~~~
+adb shell am start -a android.intent.action.VIEW `
+-d https://www.paramountplus.com/shows/video/YxlqOUdP1zZaIs7FGXCaS1dJi7gGzxG_/
+~~~
+
+searching `[pP]layerService` returns no results. Searching `assetType` returns
+this request:
+
+https://www.paramountplus.com/apps-api/v2.0/androidphone/video/cid/YxlqOUdP1zZaIs7FGXCaS1dJi7gGzxG_.json?locale=en-us&at=ABDXaI84LZDFGjCtn56%2F6e72mswXRbGsgOoBYKTRIIBnpzVXj4y%2BrbihkUg%2BTw7RO2k%3D
+
+but again, not all `assetType` values are returned:
+
+~~~
+"assetType": "DASH_CENC_PRECON",
+"assetType": "Thumbnail",
+"assetType": "ThumbSheet",
+~~~
+
+So it seems no method is currently available to enumerate all available
+`assetType` values, with some being hidden.
