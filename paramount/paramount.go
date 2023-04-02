@@ -14,6 +14,14 @@ import (
    "time"
 )
 
+type Preview struct {
+   Series_Title string `json:"cbs$SeriesTitle"`
+   Season_Number int64 `json:"cbs$SeasonNumber"`
+   Episode_Number string `json:"cbs$EpisodeNumber"`
+   Title string
+   Pub_Date int64 `json:"pubDate"`
+}
+
 func session_secret(guid, secret string) (*Session, error) {
    token, err := new_token(secret)
    if err != nil {
@@ -132,13 +140,6 @@ var app_secrets = map[string]string{
    "08.0.00": "5d1d865f929d3daa",
    "07.3.58": "4be3d46aecbcd26d",
    "04.8.06": "a958002817953588",
-}
-type Preview struct {
-   Series_Title string `json:"cbs$SeriesTitle"`
-   Season_Number int64 `json:"cbs$SeasonNumber"`
-   Episode_Number string `json:"cbs$EpisodeNumber"`
-   Title string
-   Pub_Date int64 `json:"pubDate"`
 }
 
 func (p Preview) Name() string {
