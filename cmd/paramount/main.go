@@ -10,9 +10,9 @@ import (
 )
 
 type flags struct {
-   asset_type int
    codecs string
-   guid string
+   content_ID string
+   dash_cenc bool
    height int64
    lang string
    mech.Stream
@@ -24,14 +24,13 @@ func main() {
       panic(err)
    }
    var f flags
-   // a
-   flag.IntVar(&f.asset_type, "a", 0, `0 Downloadable
-1 DASH_CENC`)
    // b
-   flag.StringVar(&f.guid, "b", "", "GUID")
+   flag.StringVar(&f.content_ID, "b", "", "content ID")
    // c
    f.Client_ID = filepath.Join(home, "mech/client_id.bin")
    flag.StringVar(&f.Client_ID, "c", f.Client_ID, "client ID")
+   // d
+   flag.BoolVar(&f.dash_cenc, "d", false, "DASH_CENC")
    // f
    flag.Int64Var(&f.height, "f", 720, "video height")
    // g
@@ -49,22 +48,18 @@ func main() {
       http.Default_Client.Log_Level, "log level",
    )
    flag.Parse()
-   if f.guid != "" {
-      preview, err := paramount.New_Preview(f.guid)
+   if f.content_ID != "" {
+      token, err := paramount.New_App_Token()
       if err != nil {
          panic(err)
       }
-      switch f.asset_type {
-      case 0:
-         err := f.downloadable(preview)
-         if err != nil {
-            panic(err)
-         }
-      case 1:
-         err := f.dash(preview)
-         if err != nil {
-            panic(err)
-         }
+      if f.dash_cenc {
+         err = f.dash(token)
+      } else {
+         err = f.downloadable(token)
+      }
+      if err != nil {
+         panic(err)
       }
    } else {
       flag.Usage()

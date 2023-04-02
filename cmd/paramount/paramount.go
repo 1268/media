@@ -3,33 +3,61 @@ package main
 import (
    "2a.pages.dev/mech/paramount"
    "2a.pages.dev/rosso/dash"
+   "2a.pages.dev/rosso/http"
    "fmt"
+   "io"
+   "os"
    "strings"
 )
 
-func (f flags) downloadable(preview *paramount.Preview) error {
-   /*
+func (f flags) downloadable(token *paramount.App_Token) error {
+   item, err := token.Item(f.content_ID)
+   if err != nil {
+      return err
+   }
+   ref := paramount.Downloadable(f.content_ID)
+   if f.Info {
+      fmt.Println(item)
+      fmt.Println(ref)
+      return nil
+   }
+   name, err := item.Name()
+   if err != nil {
+      return err
+   }
    client := http.Default_Client
    client.CheckRedirect = nil
-   res, err := client.Get(paramount.Downloadable(f.guid))
+   res, err := client.Get(ref)
    if err != nil {
       return err
    }
    defer res.Body.Close()
-   */
-   fmt.Println(paramount.Downloadable(f.guid))
-   fmt.Println(preview.Name())
-   return nil
-}
-
-func (f flags) dash(preview *paramount.Preview) error {
-   var err error
-   f.Poster, err = paramount.New_Session(f.guid)
+   file, err := os.Create(name + ".mp4")
    if err != nil {
       return err
    }
-   f.Name = preview.Name()
-   reps, err := f.Stream.DASH(paramount.DASH_CENC(f.guid))
+   defer file.Close()
+   pro := http.Progress_Bytes(file, res.ContentLength)
+   if _, err := io.Copy(pro, res.Body); err != nil {
+      return err
+   }
+   return nil
+}
+
+func (f flags) dash(token *paramount.App_Token) error {
+   item, err := token.Item(f.content_ID)
+   if err != nil {
+      return err
+   }
+   f.Poster, err = token.Session(f.content_ID)
+   if err != nil {
+      return err
+   }
+   f.Name, err = item.Name()
+   if err != nil {
+      return err
+   }
+   reps, err := f.Stream.DASH(paramount.DASH_CENC(f.content_ID))
    if err != nil {
       return err
    }

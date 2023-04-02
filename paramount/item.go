@@ -9,11 +9,68 @@ import (
    "strings"
 )
 
-func (at app_token) item(content_ID string) (*item, error) {
+func (i Item) String() string {
+   var b strings.Builder
+   if i.Media_Type == "Full Episode" {
+      b.WriteString("series title: ")
+      b.WriteString(i.Series_Title)
+      b.WriteString("\nseason num: ")
+      b.WriteString(i.Season_Num)
+      b.WriteString("\nepisode num: ")
+      b.WriteString(i.Episode_Num)
+      b.WriteByte('\n')
+   }
+   b.WriteString("label: ")
+   b.WriteString(i.Label)
+   b.WriteString("\nmedia available date: ")
+   b.WriteString(i.Media_Available_Date)
+   return b.String()
+}
+
+type Item struct {
+   Episode_Num string `json:"episodeNum"`
+   Label string
+   // 2023-01-15T19:00:00-0800
+   Media_Available_Date string `json:"mediaAvailableDate"`
+   Media_Type string `json:"mediaType"`
+   Season_Num string `json:"seasonNum"`
+   Series_Title string `json:"seriesTitle"`
+}
+
+const (
+   sep_big = " - "
+   sep_small = ' '
+)
+
+func (i Item) Name() (string, error) {
+   var b strings.Builder
+   if i.Media_Type == "Full Episode" {
+      b.WriteString(i.Series_Title)
+      b.WriteString(sep_big)
+      b.WriteByte('S')
+      b.WriteString(i.Season_Num)
+      b.WriteByte(sep_small)
+      b.WriteByte('E')
+      b.WriteString(i.Episode_Num)
+      b.WriteString(sep_big)
+   }
+   b.WriteString(mech.Clean(i.Label))
+   if i.Media_Type == "Movie" {
+      year, _, found := strings.Cut(i.Media_Available_Date, "-")
+      if !found {
+         return "", errors.New("year not found")
+      }
+      b.WriteString(sep_big)
+      b.WriteString(year)
+   }
+   return b.String(), nil
+}
+
+func (at App_Token) Item(content_ID string) (*Item, error) {
    req := http.Get()
    req.URL.Host = "www.paramountplus.com"
    req.URL.Path = "/apps-api/v2.0/androidphone/video/cid/" + content_ID + ".json"
-   req.URL.RawQuery = "at=" + url.QueryEscape(at.at)
+   req.URL.RawQuery = "at=" + url.QueryEscape(at.value)
    req.URL.Scheme = "https"
    res, err := http.Default_Client.Do(req)
    if err != nil {
@@ -21,7 +78,7 @@ func (at app_token) item(content_ID string) (*item, error) {
    }
    defer res.Body.Close()
    var video struct {
-      Item_List []item `json:"itemList"`
+      Item_List []Item `json:"itemList"`
    }
    if err := json.NewDecoder(res.Body).Decode(&video); err != nil {
       return nil, err
@@ -30,32 +87,4 @@ func (at app_token) item(content_ID string) (*item, error) {
       return nil, errors.New("Item_List length is zero")
    }
    return &video.Item_List[0], nil
-}
-
-func (i item) Name() (string, bool) {
-   var b strings.Builder
-   if i.Media_Type == "Full Episode" {
-      b.WriteString("-s")
-      b.WriteString(i.Season_Num)
-      b.WriteByte('e')
-      b.WriteString(i.Episode_Num)
-   }
-   b.WriteString(mech.Clean(i.Label))
-   year, _, ok := strings.Cut(i.Media_Available_Date, "-")
-   if !ok {
-      return "", false
-   }
-   b.WriteByte('-')
-   b.WriteString(year)
-   return b.String(), true
-}
-
-type item struct {
-   Series_Title string `json:"seriesTitle"`
-   Season_Num string `json:"seasonNum"`
-   Episode_Num string `json:"episodeNum"`
-   Label string
-   // 2023-01-15T19:00:00-0800
-   Media_Available_Date string `json:"mediaAvailableDate"`
-   Media_Type string `json:"mediaType"`
 }

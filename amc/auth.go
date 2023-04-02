@@ -9,6 +9,43 @@ import (
    "strings"
 )
 
+// This accepts full URL or path only.
+func (a Auth) Content(ref string) (*Content, error) {
+   href, err := url.Parse(ref)
+   if err != nil {
+      return nil, err
+   }
+   req := http.Get()
+   // If you request once with headers, you can request again without any
+   // headers for 10 minutes, but then headers are required again
+   req.Header = http.Header{
+      "Authorization": {"Bearer " + a.Data.Access_Token},
+      "X-Amcn-Network": {"amcplus"},
+      "X-Amcn-Tenant": {"amcn"},
+   }
+   req.URL.Host = "gw.cds.amcn.com"
+   req.URL.Path = "/content-compiler-cr/api/v1/content/amcn/amcplus/path"
+   // If trial is active you must add `/watch` here. If trial has expired, you
+   // will get `.data.type` of `redirect`. You can remove the `/watch` to
+   // resolve this, but the resultant response will still be missing
+   // `video-player-ap`.
+   if strings.HasPrefix(href.Path, "/movies/") {
+      req.URL.Path += "/watch"
+   }
+   req.URL.Path += href.Path
+   req.URL.Scheme = "https"
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   con := new(Content)
+   if err := json.NewDecoder(res.Body).Decode(con); err != nil {
+      return nil, err
+   }
+   return con, nil
+}
+
 func (a *Auth) Refresh() error {
    req := http.Post()
    req.Header.Set("Authorization", "Bearer " + a.Data.Refresh_Token)
@@ -21,45 +58,6 @@ func (a *Auth) Refresh() error {
    }
    defer res.Body.Close()
    return json.NewDecoder(res.Body).Decode(a)
-}
-
-// This accepts full URL or path only.
-func (a Auth) Content(raw_ref string) (*Content, error) {
-   ref, err := url.Parse(raw_ref)
-   if err != nil {
-      return nil, err
-   }
-   var b strings.Builder
-   b.WriteString("/content-compiler-cr/api/v1/content/amcn/amcplus/path")
-   // If trial is active you must add `/watch` here. If trial has expired, you
-   // will get `.data.type` of `redirect`. You can remove the `/watch` to
-   // resolve this, but the resultant response will still be missing
-   // `video-player-ap`.
-   if strings.HasPrefix(ref.Path, "/movies/") {
-      b.WriteString("/watch")
-   }
-   b.WriteString(ref.Path)
-   req := http.Get()
-   // If you request once with headers, you can request again without any
-   // headers for 10 minutes, but then headers are required again
-   req.Header = http.Header{
-      "Authorization": {"Bearer " + a.Data.Access_Token},
-      "X-Amcn-Network": {"amcplus"},
-      "X-Amcn-Tenant": {"amcn"},
-   }
-   req.URL.Host = "gw.cds.amcn.com"
-   req.URL.Path = b.String()
-   req.URL.Scheme = "https"
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   con := new(Content)
-   if err := json.NewDecoder(res.Body).Decode(con); err != nil {
-      return nil, err
-   }
-   return con, nil
 }
 
 func (a Auth) Create(name string) error {

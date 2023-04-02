@@ -1,13 +1,11 @@
 package mech
 
-import (
-   "strings"
-)
+import "strings"
 
 func Clean(path string) string {
    mapping := func(r rune) rune {
       if strings.ContainsRune(`"*/:<>?\|`, r) {
-         return -1
+         return '.'
       }
       return r
    }

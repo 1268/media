@@ -12,6 +12,10 @@ import (
    "strings"
 )
 
+func New_App_Token() (*App_Token, error) {
+   return app_token_with(app_secrets["12.0.40"])
+}
+
 const secret_key = "302a6a0d70a7e9b967f91d39fef3e387816e3095925ae4537bce96063311f9c5"
 
 func pad(b []byte) []byte {
@@ -68,11 +72,11 @@ var app_secrets = map[string]string{
    "04.8.06": "a958002817953588",
 }
 
-type app_token struct {
-   at string
+type App_Token struct {
+   value string
 }
 
-func app_token_with(app_secret string) (*app_token, error) {
+func app_token_with(app_secret string) (*App_Token, error) {
    key, err := hex.DecodeString(secret_key)
    if err != nil {
       return nil, err
@@ -91,13 +95,9 @@ func app_token_with(app_secret string) (*app_token, error) {
    dst = append(dst, 0, aes.BlockSize)
    dst = append(dst, iv[:]...)
    dst = append(dst, src...)
-   var token app_token
-   token.at = base64.StdEncoding.EncodeToString(dst)
+   var token App_Token
+   token.value = base64.StdEncoding.EncodeToString(dst)
    return &token, nil
-}
-
-func new_app_token() (*app_token, error) {
-   return app_token_with(app_secrets["12.0.40"])
 }
 
 type Session struct {
@@ -159,13 +159,13 @@ func Downloadable(content_ID string) string {
    return b.String()
 }
 
-func (at app_token) session(content_ID string) (*Session, error) {
+func (at App_Token) Session(content_ID string) (*Session, error) {
    req := http.Get()
    req.URL = &url.URL{
       Scheme: "https",
       Host: "www.paramountplus.com",
       Path: "/apps-api/v3.0/androidphone/irdeto-control/anonymous-session-token.json",
-      RawQuery: "at=" + url.QueryEscape(at.at),
+      RawQuery: "at=" + url.QueryEscape(at.value),
    }
    res, err := http.Default_Client.Do(req)
    if err != nil {
