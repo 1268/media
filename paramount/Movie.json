@@ -1,0 +1,132 @@
+{
+  "action": "queryVideoFeed",
+  "itemList": [
+    {
+      "genre": "Kids",
+      "status": "PREMIUM",
+      "_firstIngestDate": "10/13/21 16:22 EDT",
+      "expired": false,
+      "showPageUrl": "movies/spongebob-movie-sponge-on-the-run",
+      "cbsShowId": -1,
+      "primaryCategory": "1840599107915",
+      "primaryCategoryName": "AA Movies/Movies/Paramount",
+      "editDate": 1634163703000,
+      "_editDate": "10/13/21 18:21 EDT",
+      "_lastModifiedDate": "02/08/23 18:16 EST",
+      "ingestDate": 1634156553000,
+      "airDate": 1614834000000,
+      "description": "SpongeBob SquarePants, his best friend Patrick, and the Bikini Bottom gang star in their most epic adventure movie yet! When SpongeBob's beloved pet snail Gary goes missing, a path of clues leads SpongeBob and Patrick to the powerful King Poseidon, who has Gary held captive in the Lost City of Atlantic City. On their mission to save Gary, SpongeBob and his pals team up for a heroic and hilarious journey where they discover nothing is stronger than the power of friendship. Stay after the credits for an all-new mini-movie! Available in 4K Ultra HD, HDR10+, and Dolby Vision on select devices.",
+      "shortDescription": "SpongeBob SquarePants, his best friend Patrick and the Bikini Bottom gang star in their most epic adventure movie yet! Stay after the credits for an all-new mini-movie! Now available in 4k HDR and Dolby Vision on selected devices.",
+      "pubDate": 1634156553000,
+      "label": "The SpongeBob Movie: Sponge On The Run",
+      "url": "movies/spongebob-movie-sponge-on-the-run/tQk_Qooh5wUlxQqzj_4LiBO2m4iMrcPD",
+      "assetType": "DASH_CENC_HDR10",
+      "firstIngestDate": 1634156553000,
+      "category": "",
+      "topLevelCategory": "Entertainment",
+      "fullEpisode": true,
+      "exclusive": true,
+      "contentId": "tQk_Qooh5wUlxQqzj_4LiBO2m4iMrcPD",
+      "title": "The SpongeBob Movie: Sponge On The Run",
+      "_ingestDate": "10/13/21 18:21 EDT",
+      "episodeNum": "",
+      "_pubDate": "10/13/21 16:22 EDT",
+      "seasonNum": "",
+      "brand": "Paramount",
+      "childContentId": "1XgiTT4O_SPg1Co3DFFLymlr33ZnuAMZ",
+      "seriesTitle": "Paramount+ Movies",
+      "_airDate": "03/04/21 00:00 EST",
+      "duration": 5490,
+      "lastModifiedDate": 1675898215000,
+      "rating": "pg",
+      "deviceType": "PC",
+      "thumbnail": "https://thumbnails.cbsig.net/CBS_Production_Entertainment_VMS/2021/01/14/1844375107549/AA_10894_SOTR_ShowPg_THM_16.9_1920x1080_HOB_638107_1920x1080.jpg",
+      "amazonESTURL": "",
+      "itunesESTURL": "",
+      "_pubDateISO": "2021-10-13T13:22:33-07:00",
+      "_airDateISO": "2021-03-03T21:00:00-08:00",
+      "subscriptionLevel": "PAID",
+      "mediaAvailableDate": "2021-03-03T21:00:00-0800",
+      "mediaAvailableDateEpoch": 1614834000000,
+      "isLive": false,
+      "cmsAccountId": "dJ5BDC",
+      "appleWatchListShowKey": "SHOW_-1_Paramount+-Movies",
+      "isProtected": true,
+      "mediaType": "Movie",
+      "excludeNielsenTracking": true,
+      "endCreditsChapterTime": "1:23:05",
+      "thumbnailSet": [
+        {
+          "height": 2100,
+          "width": 1400,
+          "assetType": "PosterArt",
+          "url": "https://thumbnails.cbsig.net/CBS_Production_Entertainment_VMS/AA_10894_SOTR_ShowPg_1400x2100_HOB_Bttm.jpg"
+        },
+        {
+          "height": 1080,
+          "width": 1920,
+          "assetType": "Thumbnail",
+          "url": "https://thumbnails.cbsig.net/CBS_Production_Entertainment_VMS/2021/01/14/1844375107549/AA_10894_SOTR_ShowPg_THM_16.9_1920x1080_HOB_638107_1920x1080.jpg"
+        }
+      ],
+      "downloadCountrySet": [
+        {
+          "code": "US",
+          "downloadable": true
+        }
+      ],
+      "regionalRatings": [
+        {
+          "region": "US",
+          "rating": "PG",
+          "disclaimer": null,
+          "secondaryDescriptors": null,
+          "subratings": null,
+          "consumerAdvice": null,
+          "ratingIcon": null
+        }
+      ],
+      "premiumFeatures": [
+        "HDR10",
+        "4kUHD",
+        "Atmos",
+        "5.1",
+        "DVS Audio",
+        "Dolby Vision"
+      ],
+      "videoProperties": [
+        "Kids"
+      ],
+      "availableForProfileTypes": [
+        "ADULT",
+        "KIDS"
+      ],
+      "playbackEvents": {
+        "endCreditChapterTimeMs": 4985000,
+        "previewStartTimeMs": null,
+        "previewEndTimeMs": null,
+        "openCreditEndTimeMs": null,
+        "openCreditStartTime": null
+      },
+      "embeddable": "false",
+      "copyright": "CBS, Inc.",
+      "addOns": [],
+      "isContentAccessibleInCAN": false,
+      "tmsprogramID": "MV009794420000",
+      "tmsseriesID": "",
+      "thumbnailSheetSet": [
+        {
+          "height": 126,
+          "width": 40992,
+          "assetType": "ThumbSheet",
+          "url": "https://thumbnails.cbsig.net/CBS_Production_Entertainment_VMS/2021/01/14/1844375107549/PARAMOUNT_Spongebob_Movie_The_Sponge_On_The_Run_36369_FTR_R_930747_vr_cs_224x126_30_183.jpg"
+        }
+      ],
+      "__FOR_TRACKING_ONLY_MEDIA_ID": 1857614403521
+    }
+  ],
+  "success": true,
+  "errors": null,
+  "itemCount": 1,
+  "resultSize": 1
+}
