@@ -14,6 +14,7 @@ import (
 const secret_key = "302a6a0d70a7e9b967f91d39fef3e387816e3095925ae4537bce96063311f9c5"
 
 var app_secrets = map[string]string{
+   "12.0.44": "7297a39a244189d6",
    "12.0.40": "2c160dbae70b337f",
    "12.0.36": "a674920042c954d9",
    "12.0.34": "843970cb0df053ba",

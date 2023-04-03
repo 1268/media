@@ -106,6 +106,7 @@ type Format struct {
    URL string
    Width int
 }
+
 func (f Format) String() string {
    var b []byte
    b = append(b, "quality: "...)
@@ -124,4 +125,3 @@ func (f Format) String() string {
    b = append(b, f.MIME_Type...)
    return string(b)
 }
-

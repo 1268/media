@@ -1,11 +1,23 @@
 package main
 
 import (
-   "2a.pages.dev/mech"
    "2a.pages.dev/mech/youtube"
    "fmt"
    "os"
 )
+
+func (f flags) encode(form *youtube.Format, name string) error {
+   ext, err := form.Ext()
+   if err != nil {
+      return err
+   }
+   file, err := os.Create(name + ext)
+   if err != nil {
+      return err
+   }
+   defer file.Close()
+   return form.Encode(file)
+}
 
 func (f flags) player() (*youtube.Player, error) {
    var (
@@ -32,20 +44,6 @@ func (f flags) player() (*youtube.Player, error) {
       }
    }
    return req.Player(f.video_ID, token)
-}
-
-func (f flags) encode(form *youtube.Format, name string) error {
-   ext, err := form.Ext()
-   if err != nil {
-      return err
-   }
-   name = mech.Clean(name)
-   file, err := os.Create(name + ext)
-   if err != nil {
-      return err
-   }
-   defer file.Close()
-   return form.Encode(file)
 }
 
 func (f flags) download() error {

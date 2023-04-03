@@ -8,22 +8,6 @@ import (
    "strings"
 )
 
-const (
-   aid = 2198311517
-   sid = "dJ5BDC"
-)
-
-func media(content_ID string) string {
-   var b []byte
-   b = append(b, "http://link.theplatform.com/s/"...)
-   b = append(b, sid...)
-   b = append(b, "/media/guid/"...)
-   b = strconv.AppendInt(b, aid, 10)
-   b = append(b, '/')
-   b = append(b, content_ID...)
-   return string(b)
-}
-
 type Session struct {
    URL string
    LS_Session string
@@ -65,16 +49,6 @@ func (i Item) String() string {
    return b.String()
 }
 
-type Item struct {
-   Episode_Num string `json:"episodeNum"`
-   Label string
-   // 2023-01-15T19:00:00-0800
-   Media_Available_Date string `json:"mediaAvailableDate"`
-   Media_Type string `json:"mediaType"`
-   Season_Num string `json:"seasonNum"`
-   Series_Title string `json:"seriesTitle"`
-}
-
 const (
    sep_big = " - "
    sep_small = ' '
@@ -102,6 +76,33 @@ func (i Item) Name() (string, error) {
       b.WriteString(year)
    }
    return b.String(), nil
+}
+
+type Item struct {
+   Episode_Num string `json:"episodeNum"`
+   Label string
+   // 2023-01-15T19:00:00-0800
+   Media_Available_Date string `json:"mediaAvailableDate"`
+   Season_Num string `json:"seasonNum"`
+   Series_Title string `json:"seriesTitle"`
+   Media_Type string `json:"mediaType"`
+   CMS_Account_ID string `json:"cmsAccountId"`
+}
+
+const (
+   aid = 2198311517
+   sid = "dJ5BDC"
+)
+
+func media(content_ID string) string {
+   var b []byte
+   b = append(b, "http://link.theplatform.com/s/"...)
+   b = append(b, sid...)
+   b = append(b, "/media/guid/"...)
+   b = strconv.AppendInt(b, aid, 10)
+   b = append(b, '/')
+   b = append(b, content_ID...)
+   return string(b)
 }
 
 func DASH_CENC(content_ID string) string {

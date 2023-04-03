@@ -1,10 +1,21 @@
 package youtube
 
 import (
+   "2a.pages.dev/mech"
    "strconv"
    "strings"
    "time"
 )
+
+const sep_big = " - "
+
+func (p Player) Name() string {
+   var b strings.Builder
+   b.WriteString(p.Video_Details.Author)
+   b.WriteString(sep_big)
+   b.WriteString(mech.Clean(p.Video_Details.Title))
+   return b.String()
+}
 
 func (p Status) String() string {
    var b strings.Builder
@@ -51,14 +62,6 @@ func (p Player) Duration() time.Duration {
 
 func (p Player) Publish_Date() string {
    return p.Microformat.Player_Microformat_Renderer.Publish_Date
-}
-
-func (p Player) Name() string {
-   var buf strings.Builder
-   buf.WriteString(p.Video_Details.Author)
-   buf.WriteByte('-')
-   buf.WriteString(p.Video_Details.Title)
-   return buf.String()
 }
 
 type Status struct {
