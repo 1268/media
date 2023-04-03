@@ -3,7 +3,6 @@ package paramount
 import (
    "2a.pages.dev/mech/widevine"
    "encoding/base64"
-   "encoding/json"
    "fmt"
    "net/http"
    "os"
@@ -11,24 +10,23 @@ import (
    "time"
 )
 
-func Test_Session(t *testing.T) {
-   test := tests[0]
-   enc := json.NewEncoder(os.Stdout)
-   enc.SetIndent("", " ")
-   enc.SetEscapeHTML(false)
-   for _, secret := range app_secrets {
-      token, err := app_token_with(secret)
+func Test_Item(t *testing.T) {
+   token, err := New_App_Token()
+   if err != nil {
+      t.Fatal(err)
+   }
+   for _, test := range tests {
+      item, err := token.Item(test.content_ID)
       if err != nil {
          t.Fatal(err)
       }
-      sess, err := token.Session(test.content_ID)
+      fmt.Println(item)
+      name, err := item.Name()
       if err != nil {
          t.Fatal(err)
       }
-      if err := enc.Encode(sess); err != nil {
-         t.Fatal(err)
-      }
-      time.Sleep(99 * time.Millisecond)
+      fmt.Println(name)
+      time.Sleep(time.Second)
    }
 }
 
