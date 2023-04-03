@@ -2,23 +2,6 @@
 
 https://play.google.com/store/apps/details?id=com.cbs.app
 
-## How to get aid/sid?
-
-Create device with Android API 23. Install user certificate. Start video. After
-the commercial you might get an error, try again. For `sid`, you should see a
-request like this:
-
-~~~
-GET /s/dJ5BDC/fNsRH_fjko5T?format=SMIL&Tracking=true&sig=006229620e7f3db019fc0...
-Host: link.theplatform.com
-~~~
-
-For `aid`, the response body should contain something like this:
-
-~~~xml
-<param name="trackingData" value="aid=2198311517|b=1000|bc=CBSI-NEW|ci=1|cid=1...
-~~~
-
 ## CBS
 
 212,360 titles:
@@ -32,22 +15,6 @@ https://justwatch.com/us
 3,183 titles:
 
 https://justwatch.com/us/provider/paramount-plus
-
-## How to get app\_secret?
-
-~~~
-com\cbs\app\dagger\DataLayerModule.java
-dataSourceConfiguration.setCbsAppSecret("6c70b33080758409");
-~~~
-
-https://github.com/matthuisman/slyguy.addons/issues/136
-
-## How to get secret\_key?
-
-~~~
-com\cbs\app\androiddata\retrofit\util\RetrofitUtil.java
-SecretKeySpec secretKeySpec = new SecretKeySpec(b("302a6a0d70a7e9b967f91d39fef3e387816e3095925ae4537bce96063311f9c5"), "AES");
-~~~
 
 ## TRY PARAMOUNT+
 
@@ -69,3 +36,34 @@ SecretKeySpec secretKeySpec = new SecretKeySpec(b("302a6a0d70a7e9b967f91d39fef3e
 16. click YES, CANCEL
 17. click the first option
 18. click COMPLETE CANCELLATION
+
+## How to get app\_secret?
+
+~~~
+com\cbs\app\dagger\DataLayerModule.java
+dataSourceConfiguration.setCbsAppSecret("6c70b33080758409");
+~~~
+
+## How to get secret\_key?
+
+~~~
+com\cbs\app\androiddata\retrofit\util\RetrofitUtil.java
+SecretKeySpec secretKeySpec = new SecretKeySpec(b("302a6a0d70a7e9b967f91d39fef3e387816e3095925ae4537bce96063311f9c5"), "AES");
+~~~
+
+## How to get aid/sid?
+
+Create device with Android API 23. Install user certificate. Start video. After
+the commercial you might get an error, try again. For `sid`, you should see a
+request like this:
+
+~~~
+GET /s/dJ5BDC/fNsRH_fjko5T?format=SMIL&Tracking=true&sig=006229620e7f3db019fc0...
+Host: link.theplatform.com
+~~~
+
+For `aid`, the response body should contain something like this:
+
+~~~xml
+<param name="trackingData" value="aid=2198311517|b=1000|bc=CBSI-NEW|ci=1|cid=1...
+~~~
