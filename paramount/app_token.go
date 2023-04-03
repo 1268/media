@@ -11,42 +11,7 @@ import (
    "net/url"
 )
 
-func (at App_Token) Item(content_ID string) (*Item, error) {
-   req := http.Get()
-   req.URL.Host = "www.paramountplus.com"
-   req.URL.Path = "/apps-api/v2.0/androidphone/video/cid/" + content_ID + ".json"
-   req.URL.RawQuery = "at=" + url.QueryEscape(at.value)
-   req.URL.Scheme = "https"
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   var video struct {
-      Item_List []Item `json:"itemList"`
-   }
-   if err := json.NewDecoder(res.Body).Decode(&video); err != nil {
-      return nil, err
-   }
-   if len(video.Item_List) == 0 {
-      return nil, errors.New("Item_List length is zero")
-   }
-   return &video.Item_List[0], nil
-}
-
-func New_App_Token() (*App_Token, error) {
-   return app_token_with(app_secrets["12.0.40"])
-}
-
 const secret_key = "302a6a0d70a7e9b967f91d39fef3e387816e3095925ae4537bce96063311f9c5"
-
-func pad(b []byte) []byte {
-   length := aes.BlockSize - len(b) % aes.BlockSize
-   for high := byte(length); length >= 1; length-- {
-      b = append(b, high)
-   }
-   return b
-}
 
 var app_secrets = map[string]string{
    "12.0.40": "2c160dbae70b337f",
@@ -94,8 +59,20 @@ var app_secrets = map[string]string{
    "04.8.06": "a958002817953588",
 }
 
+func pad(b []byte) []byte {
+   length := aes.BlockSize - len(b) % aes.BlockSize
+   for high := byte(length); length >= 1; length-- {
+      b = append(b, high)
+   }
+   return b
+}
+
 type App_Token struct {
    value string
+}
+
+func New_App_Token() (*App_Token, error) {
+   return app_token_with(app_secrets["12.0.40"])
 }
 
 func app_token_with(app_secret string) (*App_Token, error) {
@@ -120,6 +97,29 @@ func app_token_with(app_secret string) (*App_Token, error) {
    var token App_Token
    token.value = base64.StdEncoding.EncodeToString(dst)
    return &token, nil
+}
+
+func (at App_Token) Item(content_ID string) (*Item, error) {
+   req := http.Get()
+   req.URL.Host = "www.paramountplus.com"
+   req.URL.Path = "/apps-api/v2.0/androidphone/video/cid/" + content_ID + ".json"
+   req.URL.RawQuery = "at=" + url.QueryEscape(at.value)
+   req.URL.Scheme = "https"
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   var video struct {
+      Item_List []Item `json:"itemList"`
+   }
+   if err := json.NewDecoder(res.Body).Decode(&video); err != nil {
+      return nil, err
+   }
+   if len(video.Item_List) == 0 {
+      return nil, errors.New("Item_List length is zero")
+   }
+   return &video.Item_List[0], nil
 }
 
 func (at App_Token) Session(content_ID string) (*Session, error) {

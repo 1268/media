@@ -8,6 +8,22 @@ import (
    "strings"
 )
 
+const (
+   aid = 2198311517
+   sid = "dJ5BDC"
+)
+
+func media(content_ID string) string {
+   var b []byte
+   b = append(b, "http://link.theplatform.com/s/"...)
+   b = append(b, sid...)
+   b = append(b, "/media/guid/"...)
+   b = strconv.AppendInt(b, aid, 10)
+   b = append(b, '/')
+   b = append(b, content_ID...)
+   return string(b)
+}
+
 type Session struct {
    URL string
    LS_Session string
@@ -30,6 +46,7 @@ func (Session) Request_Body(buf []byte) ([]byte, error) {
 func (Session) Response_Body(buf []byte) ([]byte, error) {
    return buf, nil
 }
+
 func (i Item) String() string {
    var b strings.Builder
    if i.Media_Type == "Full Episode" {
@@ -85,22 +102,6 @@ func (i Item) Name() (string, error) {
       b.WriteString(year)
    }
    return b.String(), nil
-}
-
-const (
-   aid = 2198311517
-   sid = "dJ5BDC"
-)
-
-func media(content_ID string) string {
-   var b []byte
-   b = append(b, "http://link.theplatform.com/s/"...)
-   b = append(b, sid...)
-   b = append(b, "/media/guid/"...)
-   b = strconv.AppendInt(b, aid, 10)
-   b = append(b, '/')
-   b = append(b, content_ID...)
-   return string(b)
 }
 
 func DASH_CENC(content_ID string) string {

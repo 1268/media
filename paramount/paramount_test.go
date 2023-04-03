@@ -10,25 +10,10 @@ import (
    "time"
 )
 
-func Test_Item(t *testing.T) {
-   token, err := New_App_Token()
-   if err != nil {
-      t.Fatal(err)
-   }
-   for _, test := range tests {
-      item, err := token.Item(test.content_ID)
-      if err != nil {
-         t.Fatal(err)
-      }
-      fmt.Println(item)
-      name, err := item.Name()
-      if err != nil {
-         t.Fatal(err)
-      }
-      fmt.Println(name)
-      time.Sleep(time.Second)
-   }
-}
+const (
+   episode = iota
+   movie
+)
 
 var tests = []struct{
    asset func(string)string // Downloadable
@@ -61,6 +46,26 @@ var tests = []struct{
    },
 }
 
+func Test_Item(t *testing.T) {
+   token, err := New_App_Token()
+   if err != nil {
+      t.Fatal(err)
+   }
+   for _, test := range tests {
+      item, err := token.Item(test.content_ID)
+      if err != nil {
+         t.Fatal(err)
+      }
+      fmt.Println(item)
+      name, err := item.Name()
+      if err != nil {
+         t.Fatal(err)
+      }
+      fmt.Println(name)
+      time.Sleep(time.Second)
+   }
+}
+
 func Test_Media(t *testing.T) {
    for _, test := range tests {
       ref := test.asset(test.content_ID)
@@ -78,11 +83,6 @@ func Test_Media(t *testing.T) {
       time.Sleep(time.Second)
    }
 }
-
-const (
-   episode = iota
-   movie
-)
 
 func Test_Post(t *testing.T) {
    home, err := os.UserHomeDir()
