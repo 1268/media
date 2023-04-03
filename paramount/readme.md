@@ -1,11 +1,12 @@
 # Paramount+
 
-## How to get aid/sid?
-
 https://play.google.com/store/apps/details?id=com.cbs.app
 
-Install user certificate and Start video. For `sid`, you should see a request
-like this:
+## How to get aid/sid?
+
+Create device with Android API 23. Install user certificate. Start video. After
+the commercial you might get an error, try again. For `sid`, you should see a
+request like this:
 
 ~~~
 GET /s/dJ5BDC/fNsRH_fjko5T?format=SMIL&Tracking=true&sig=006229620e7f3db019fc0...
@@ -17,15 +18,6 @@ For `aid`, the response body should contain something like this:
 ~~~xml
 <param name="trackingData" value="aid=2198311517|b=1000|bc=CBSI-NEW|ci=1|cid=1...
 ~~~
-
-## Android client
-
-~~~
-com.cbs.app
-~~~
-
-Create device with Android API 23. Install user certificate. After the
-commercial you might get an error, try again.
 
 ## CBS
 
