@@ -66,7 +66,6 @@ const (
    android_version = "18.07.34"
    api_key = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
    mweb_version = "2.20230106.01.00"
-   origin = "https://www.youtube.com"
 )
 
 func Android() Request {
