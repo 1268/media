@@ -59,4 +59,7 @@ appendQueryParameter("formats", "MPEG-DASH").
 appendQueryParameter("format", "smil").build().toString();
 ~~~
 
-the last version using it is 12.0.28 (211202876).
+the last version using it is 12.0.28 (211202876). Or, if you already have a
+`pid`, you can get it like this:
+
+<http://link.theplatform.com/s/dJ5BDC/i_iqDzG1odu1?format=SMIL&Tracking=true>

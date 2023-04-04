@@ -32,7 +32,10 @@ func (f flags) download() error {
    if err != nil {
       return err
    }
-   f.Name = video_play.Name()
+   f.Name, err = video_play.Name()
+   if err != nil {
+      return err
+   }
    reps, err := f.DASH(play.Source().Src)
    if err != nil {
       return err

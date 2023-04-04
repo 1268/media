@@ -13,6 +13,23 @@ import (
    "os"
 )
 
+func (s *Stream) DASH(ref string) (dash.Representations, error) {
+   client := http.Default_Client
+   client.CheckRedirect = nil
+   res, err := client.Get(ref)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   var pres dash.Presentation
+   if err := xml.NewDecoder(res.Body).Decode(&pres); err != nil {
+      return nil, err
+   }
+   s.Name = Clean(s.Name)
+   s.base = res.Request.URL
+   return pres.Representation(), nil
+}
+
 func (s Stream) DASH_Get(items dash.Representations, index int) error {
    if s.Info {
       for i, item := range items {
@@ -109,21 +126,4 @@ type Stream struct {
    Poster widevine.Poster
    Name string
    base *url.URL
-}
-
-func (s *Stream) DASH(ref string) (dash.Representations, error) {
-   client := http.Default_Client
-   client.CheckRedirect = nil
-   res, err := client.Get(ref)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   var pres dash.Presentation
-   if err := xml.NewDecoder(res.Body).Decode(&pres); err != nil {
-      return nil, err
-   }
-   s.Name = Clean(s.Name)
-   s.base = res.Request.URL
-   return pres.Representation(), nil
 }

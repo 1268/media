@@ -7,6 +7,20 @@ import (
    "strings"
 )
 
+const sep_big = " = "
+
+func (v Video_Player) Name() (string, error) {
+   year, _, found := strings.Cut(v.Current_Video.Meta.Airdate, "-")
+   if !found {
+      return "", errors.New("year not found")
+   }
+   var b strings.Builder
+   b.WriteString(v.Current_Video.Meta.Title)
+   b.WriteString(sep_big)
+   b.WriteString(year)
+   return b.String(), nil
+}
+
 type Content struct {
    Data	struct {
       Children []struct {
@@ -52,12 +66,12 @@ type Source struct {
    Type string
 }
 
-func (Playback) Request_Body(buf []byte) ([]byte, error) {
-   return buf, nil
+func (Playback) Request_Body(b []byte) ([]byte, error) {
+   return b, nil
 }
 
-func (Playback) Response_Body(buf []byte) ([]byte, error) {
-   return buf, nil
+func (Playback) Response_Body(b []byte) ([]byte, error) {
+   return b, nil
 }
 
 func (p Playback) Request_Header() http.Header {
@@ -91,14 +105,6 @@ func (p Playback) Request_URL() string {
    return p.Source().Key_Systems.Widevine.License_URL
 }
 
-func (v Video_Player) Name() string {
-   var b strings.Builder
-   b.WriteString(v.Current_Video.Meta.Title)
-   b.WriteByte('-')
-   b.WriteString(v.Year())
-   return b.String()
-}
-
 type Video_Player struct {
    Current_Video struct {
       Meta struct {
@@ -108,7 +114,3 @@ type Video_Player struct {
    } `json:"currentVideo"`
 }
 
-func (v Video_Player) Year() string {
-   year, _, _ := strings.Cut(v.Current_Video.Meta.Airdate, "-")
-   return year
-}
