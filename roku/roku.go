@@ -18,6 +18,7 @@ func (c Content) DASH() *Video {
    }
    return nil
 }
+
 func (c Content) Name() string {
    var b strings.Builder
    if c.Meta.Media_Type == "episode" {

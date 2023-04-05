@@ -6,6 +6,44 @@ import (
    "io"
 )
 
+func (c Cross_Site) Playback(id string) (*Playback, error) {
+   body := map[string]string{
+      "mediaFormat": "mpeg-dash",
+      "providerId": "rokuavod",
+      "rokuId": id,
+   }
+   raw, err := json.MarshalIndent(body, "", " ")
+   if err != nil {
+      return nil, err
+   }
+   req := http.Post()
+   req.Body_Bytes(raw)
+   // we could use Request.AddCookie, but we would need to call it after this,
+   // otherwise it would be clobbered
+   req.Header = http.Header{
+      "CSRF-Token": {c.token},
+      "Content-Type": {"application/json"},
+      "Cookie": {c.cookie.Raw},
+   }
+   req.URL.Host = "therokuchannel.roku.com"
+   req.URL.Path = "/api/v3/playback"
+   req.URL.Scheme = "https"
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   play := new(Playback)
+   if err := json.NewDecoder(res.Body).Decode(play); err != nil {
+      return nil, err
+   }
+   return play, nil
+}
+
+type Cross_Site struct {
+   cookie *http.Cookie // has own String method
+   token string
+}
 func New_Cross_Site() (*Cross_Site, error) {
    // this has smaller body than www.roku.com
    req := http.Get()
@@ -33,39 +71,4 @@ func New_Cross_Site() (*Cross_Site, error) {
    return &site, nil
 }
 
-func (c Cross_Site) Playback(id string) (*Playback, error) {
-   body := map[string]string{
-      "mediaFormat": "mpeg-dash",
-      "providerId": "rokuavod",
-      "rokuId": id,
-   }
-   raw, err := json.MarshalIndent(body, "", " ")
-   if err != nil {
-      return nil, err
-   }
-   req := http.Post()
-   req.AddCookie(c.cookie)
-   req.Body_Bytes(raw)
-   req.Header = http.Header{
-      "CSRF-Token": {c.token},
-      "Content-Type": {"application/json"},
-   }
-   req.URL.Host = "therokuchannel.roku.com"
-   req.URL.Path = "/api/v3/playback"
-   req.URL.Scheme = "https"
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   play := new(Playback)
-   if err := json.NewDecoder(res.Body).Decode(play); err != nil {
-      return nil, err
-   }
-   return play, nil
-}
 
-type Cross_Site struct {
-   cookie *http.Cookie // has own String method
-   token string
-}

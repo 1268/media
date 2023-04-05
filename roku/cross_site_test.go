@@ -3,6 +3,7 @@ package roku
 import (
    "fmt"
    "testing"
+   "time"
 )
 
 func Test_Playback(t *testing.T) {
@@ -16,5 +17,6 @@ func Test_Playback(t *testing.T) {
          t.Fatal(err)
       }
       fmt.Printf("%+v\n", play)
+      time.Sleep(time.Second)
    }
 }
