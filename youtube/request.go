@@ -2,8 +2,37 @@ package youtube
 
 import (
    "2a.pages.dev/rosso/http"
-   "encoding/json"
+   "2a.pages.dev/rosso/json"
+   "io"
 )
+
+type config struct {
+   Innertube_API_Key string
+   Innertube_Client_Name string
+   Innertube_Client_Version string
+}
+
+func new_config() (*config, error) {
+   req := http.Get()
+   req.URL.Scheme = "https"
+   req.URL.Host = "m.youtube.com"
+   req.Header.Set("User-Agent", "iPad")
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   data, err := io.ReadAll(res.Body)
+   if err != nil {
+      return nil, err
+   }
+   sep := []byte("\nytcfg.set(")
+   con := new(config)
+   if err := json.Cut(data, sep, con); err != nil {
+      return nil, err
+   }
+   return con, nil
+}
 
 func (r Request) Search(query string) (*Search, error) {
    filter := New_Filters()
@@ -61,13 +90,6 @@ func (r Request) Player(id string, tok *Token) (*Player, error) {
    return play, nil
 }
 
-const (
-   // com.google.android.youtube
-   android_version = "18.07.34"
-   api_key = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
-   mweb_version = "2.20230106.01.00"
-)
-
 func Android() Request {
    var r Request
    r.Content_Check_OK = true
@@ -113,3 +135,9 @@ type Request struct {
    Video_ID string `json:"videoId,omitempty"`
 }
 
+const (
+   // com.google.android.youtube
+   android_version = "18.12.35"
+   api_key = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+   mweb_version = "2.20230405.01.00"
+)

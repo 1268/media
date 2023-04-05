@@ -26,14 +26,14 @@ are missing the `pid`:
 unless we request with cookie:
 
 ~~~
-GET https://www.paramountplus.com/apps-api/v2.0/androidphone/video/cid/YxlqOUdP1zZaIs7FGXCaS1dJi7gGzxG_.json?at=ABAFzPkMhOzTnRSPIU8SHvxC3JgwGZ8eTCYf3NSJx3wm6fhNd5vz%2FfLw3TlCcaKYC%2Bc%3D HTTP/2.0
+GET https://www.paramountplus.com/apps-api/v2.0/androidphone/video/cid/YxlqOUdP1zZaIs7FGXCaS1dJi7gGzxG_.json?at=ABAFzPkMhOzTnRSPIU8SHvxC3JgwGZ8eTCYf3NSJx3wm6fhNd5vz%2FfLw3TlCcaKYC%2Bc%3D HTTP/1.1
 cookie: CBS_COM=N0EwMjY0MDVENTU3MzJCNzJBMEQzMkIyMDQ0MjQyQUU6MTcxMjA5OTQwMTg2OT...
 ~~~
 
 which we can get like this:
 
 ~~~
-POST https://www.paramountplus.com/apps-api/v2.0/androidphone/auth/login.json?at=ABDFhCKlU... HTTP/2.0
+POST https://www.paramountplus.com/apps-api/v2.0/androidphone/auth/login.json?at=ABDFhCKlU... HTTP/1.1
 content-type: application/x-www-form-urlencoded
 
 j_username=EMAIL&j_password=PASSWORD

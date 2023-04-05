@@ -8,6 +8,16 @@ import (
    "time"
 )
 
+func Test_Config(t *testing.T) {
+   con, err := new_config()
+   if err != nil {
+      t.Fatal(err)
+   }
+   enc := json.NewEncoder(os.Stdout)
+   enc.SetIndent("", " ")
+   enc.Encode(con)
+}
+
 func Test_Android_Embed(t *testing.T) {
    for _, embed := range android_embeds {
       play, err := Android_Embed().Player(embed, nil)

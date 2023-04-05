@@ -25,7 +25,7 @@ So you must install system certificate.
 First, make a request like this:
 
 ~~~
-GET / HTTP/2
+GET / HTTP/1.1
 Host: m.soundcloud.com
 ~~~
 
