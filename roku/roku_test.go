@@ -54,19 +54,6 @@ func Test_Video(t *testing.T) {
    fmt.Printf("%+v\n", con.DASH())
 }
 
-func Test_Playback(t *testing.T) {
-   site, err := New_Cross_Site()
-   if err != nil {
-      t.Fatal(err)
-   }
-   for _, test := range tests {
-      play, err := site.Playback(test.playback_ID)
-      if err != nil {
-         t.Fatal(err)
-      }
-      fmt.Printf("%+v\n", play)
-   }
-}
 func Test_Post(t *testing.T) {
    home, err := os.UserHomeDir()
    if err != nil {
