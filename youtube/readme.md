@@ -18,6 +18,30 @@ https://android.stackexchange.com/a/245551
 - https://datatracker.ietf.org/doc/html/rfc8628
 - https://developers.google.com/identity/sign-in/devices
 
+## Image
+
+Is `maxres1` always available? No:
+
+- <http://i.ytimg.com/vi_webp/hq2KgzKETBw/maxres1.webp>
+- http://i.ytimg.com/vi/hq2KgzKETBw/maxres1.jpg
+
+Is `sd1` always available? No:
+
+- <http://i.ytimg.com/vi_webp/hq2KgzKETBw/sd1.webp>
+- http://i.ytimg.com/vi/hq2KgzKETBw/sd1.jpg
+
+If `hq1` always available? Yes:
+
+http://i.ytimg.com/vi/hq2KgzKETBw/hq1.jpg
+
+---
+
+## MWEB client
+
+~~~
+curl -A iPad https://m.youtube.com
+~~~
+
 ## How to get X-Goog-API-Key
 
 Make a request like this:
@@ -64,25 +88,3 @@ Host: www.youtube.com
 ~~~
 
 1. <https://github.com/youtube/cobalt/blob/master/src/cobalt/browser/user_agent_string.cc>
-
-## Image
-
-Is `maxres1` always available? No:
-
-- <http://i.ytimg.com/vi_webp/hq2KgzKETBw/maxres1.webp>
-- http://i.ytimg.com/vi/hq2KgzKETBw/maxres1.jpg
-
-Is `sd1` always available? No:
-
-- <http://i.ytimg.com/vi_webp/hq2KgzKETBw/sd1.webp>
-- http://i.ytimg.com/vi/hq2KgzKETBw/sd1.jpg
-
-If `hq1` always available? Yes:
-
-http://i.ytimg.com/vi/hq2KgzKETBw/hq1.jpg
-
-## MWEB client
-
-~~~
-curl -A iPad https://m.youtube.com
-~~~
