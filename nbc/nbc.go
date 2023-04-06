@@ -2,6 +2,12 @@ package nbc
 
 import "strings"
 
+// this is better than strings.Replace and strings.ReplaceAll
+func graphQL_compact(s string) string {
+   f := strings.Fields(s)
+   return strings.Join(f, " ")
+}
+
 const query = `
 query bonanzaPage(
    $app: NBCUBrands!
@@ -30,17 +36,6 @@ query bonanzaPage(
    }
 }
 `
-
-func graphQL_compact(s string) string {
-   old_new := []string{
-      "\n", "",
-      strings.Repeat(" ", 12), " ",
-      strings.Repeat(" ", 9), " ",
-      strings.Repeat(" ", 6), " ",
-      strings.Repeat(" ", 3), " ",
-   }
-   return strings.NewReplacer(old_new...).Replace(s)
-}
 
 type Video struct {
    // this is only valid for one minute

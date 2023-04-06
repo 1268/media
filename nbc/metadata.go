@@ -107,4 +107,3 @@ type Metadata struct {
    Series_Short_Title string `json:"seriesShortTitle"`
    Secondary_Title string `json:"secondaryTitle"`
 }
-

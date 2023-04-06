@@ -111,5 +111,3 @@ type Module struct {
    license_request []byte
    private_key *rsa.PrivateKey
 }
-
-
