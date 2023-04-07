@@ -114,8 +114,6 @@ func (t Track) Progressive() (*Media, error) {
    return med, nil
 }
 
-//////////////////////////////////////////////////////////////
-
 func (t Track) String() string {
    var b []byte
    b = append(b, "ID: "...)
@@ -140,6 +138,7 @@ func (t Track) String() string {
    }
    return string(b)
 }
+
 type Media struct {
    URL string // cf-media.sndcdn.com/QaV7QR1lxpc6.128.mp3
 }

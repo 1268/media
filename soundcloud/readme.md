@@ -20,25 +20,6 @@ The APK failed to install.<br/> Error: INSTALL_FAILED_OLDER_SDK
 
 So you must install system certificate.
 
-## How to get `client_id`
-
-First, make a request like this:
-
-~~~
-GET / HTTP/1.1
-Host: m.soundcloud.com
-~~~
-
-In the HTML response, you should see something like this:
-
-~~~
-"clientId":"iZIs9mchVcX5lhVRyQGGAYlNPVldzAoX"
-~~~
-
-The `client_id` seems to last at least a year:
-
-https://github.com/rrosajp/soundcloud-archive/commit/c02809dc
-
 ## Image
 
 artworks:
