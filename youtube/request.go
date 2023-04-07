@@ -6,6 +6,14 @@ import (
    "io"
 )
 
+const (
+   // com.google.android.youtube
+   // all versions should be valid starting with 16
+   android_version = "18.12.35"
+   api_key = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+   mweb_version = "2.20230405.01.00"
+)
+
 type config struct {
    Innertube_API_Key string
    Innertube_Client_Name string
@@ -134,10 +142,3 @@ type Request struct {
    Racy_Check_OK bool `json:"racyCheckOk,omitempty"`
    Video_ID string `json:"videoId,omitempty"`
 }
-
-const (
-   // com.google.android.youtube
-   android_version = "18.12.35"
-   api_key = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
-   mweb_version = "2.20230405.01.00"
-)
