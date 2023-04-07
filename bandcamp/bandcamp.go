@@ -10,6 +10,30 @@ import (
    "time"
 )
 
+func New_Params(ref string) (*Params, error) {
+   res, err := http.Default_Client.Get(ref)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   data, err := io.ReadAll(res.Body)
+   if err != nil {
+      return nil, err
+   }
+   sep := []byte(`<p id="report-account-vm"`)
+   var p struct {
+      Report_Params []byte `xml:"data-tou-report-params,attr"`
+   }
+   if err := xml.Cut_Before(data, sep, &p); err != nil {
+      return nil, err
+   }
+   param := new(Params)
+   if err := json.Unmarshal(p.Report_Params, param); err != nil {
+      return nil, err
+   }
+   return param, nil
+}
+
 func new_tralbum(typ byte, id int) (*Tralbum, error) {
    req := http.Get()
    req.URL.Host = "bandcamp.com"
@@ -51,32 +75,6 @@ type Params struct {
    A_ID int
    I_ID int
    I_Type string
-}
-
-func New_Params(ref string) (*Params, error) {
-   res, err := http.Default_Client.Get(ref)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   var scan xml.Scanner
-   scan.Data, err = io.ReadAll(res.Body)
-   if err != nil {
-      return nil, err
-   }
-   scan.Sep = []byte(`<p id="report-account-vm"`)
-   scan.Scan()
-   var p struct {
-      Report_Params []byte `xml:"data-tou-report-params,attr"`
-   }
-   if err := scan.Decode(&p); err != nil {
-      return nil, err
-   }
-   param := new(Params)
-   if err := json.Unmarshal(p.Report_Params, param); err != nil {
-      return nil, err
-   }
-   return param, nil
 }
 
 func (p Params) Band() (*Band, error) {

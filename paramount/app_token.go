@@ -11,20 +11,6 @@ import (
    "net/url"
 )
 
-const secret_key = "302a6a0d70a7e9b967f91d39fef3e387816e3095925ae4537bce96063311f9c5"
-
-func pad(b []byte) []byte {
-   length := aes.BlockSize - len(b) % aes.BlockSize
-   for high := byte(length); length >= 1; length-- {
-      b = append(b, high)
-   }
-   return b
-}
-
-type App_Token struct {
-   value string
-}
-
 func app_token_with(app_secret string) (*App_Token, error) {
    key, err := hex.DecodeString(secret_key)
    if err != nil {
@@ -47,6 +33,20 @@ func app_token_with(app_secret string) (*App_Token, error) {
    var token App_Token
    token.value = base64.StdEncoding.EncodeToString(dst)
    return &token, nil
+}
+
+const secret_key = "302a6a0d70a7e9b967f91d39fef3e387816e3095925ae4537bce96063311f9c5"
+
+func pad(b []byte) []byte {
+   length := aes.BlockSize - len(b) % aes.BlockSize
+   for high := byte(length); length >= 1; length-- {
+      b = append(b, high)
+   }
+   return b
+}
+
+type App_Token struct {
+   value string
 }
 
 func (at App_Token) Item(content_ID string) (*Item, error) {
