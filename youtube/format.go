@@ -8,6 +8,17 @@ import (
    "strconv"
 )
 
+type Format struct {
+   Audio_Quality string `json:"audioQuality"`
+   Bitrate int64
+   Content_Length int64 `json:"contentLength,string"`
+   Height int
+   MIME_Type string `json:"mimeType"`
+   Quality_Label string `json:"qualityLabel"`
+   URL string
+   Width int
+}
+
 func (f Format) Encode(w io.Writer) error {
    req, err := http.Get_URL(f.URL)
    if err != nil {
@@ -94,17 +105,6 @@ func (f Formats) Video(height int) (*Format, bool) {
       }
    }
    return output, ok
-}
-
-type Format struct {
-   Audio_Quality string `json:"audioQuality"`
-   Bitrate int64
-   Content_Length int64 `json:"contentLength,string"`
-   Height int
-   MIME_Type string `json:"mimeType"`
-   Quality_Label string `json:"qualityLabel"`
-   URL string
-   Width int
 }
 
 func (f Format) String() string {

@@ -76,9 +76,6 @@ type Player struct {
       } `json:"playerMicroformatRenderer"`
    }
    Playability_Status Status `json:"playabilityStatus"`
-   Streaming_Data struct {
-      Adaptive_Formats Formats `json:"adaptiveFormats"`
-   } `json:"streamingData"`
    Video_Details struct {
       Author string
       Length_Seconds int64 `json:"lengthSeconds,string"`
@@ -87,4 +84,7 @@ type Player struct {
       Video_ID string `json:"videoId"`
       View_Count int64 `json:"viewCount,string"`
    } `json:"videoDetails"`
+   Streaming_Data struct {
+      Adaptive_Formats Formats `json:"adaptiveFormats"`
+   } `json:"streamingData"`
 }
