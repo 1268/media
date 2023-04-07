@@ -1,23 +1,148 @@
 package soundcloud
 
 import (
+   "2a.pages.dev/rosso/http"
+   "encoding/json"
    "net/url"
-   "path"
+   "strconv"
+   "strings"
+   "time"
 )
 
+const (
+   // web
+   client_ID = "iZIs9mchVcX5lhVRyQGGAYlNPVldzAoX"
+   // android
+   client_ID_android = "dbdsA8b6V6Lw7wzu1x0T4CLxt58yd4Bf"
+)
+
+type Track struct {
+   ID int64
+   Display_Date string // 2021-04-12T07:00:01Z
+   User struct {
+      Username string
+      Avatar_URL string
+   }
+   Title string
+   Artwork_URL string
+   Media struct {
+      Transcodings []struct {
+         Format struct {
+            Protocol string
+         }
+         URL string
+      }
+   }
+}
+
+func Resolve(ref string) (*Track, error) {
+   req := http.Get()
+   req.URL.Host = "api-v2.soundcloud.com"
+   req.URL.Path = "/resolve"
+   req.URL.RawQuery = url.Values{
+      "client_id": {client_ID},
+      "url": {ref},
+   }.Encode()
+   req.URL.Scheme = "https"
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   var solve struct {
+      Track
+   }
+   if err := json.NewDecoder(res.Body).Decode(&solve); err != nil {
+      return nil, err
+   }
+   return &solve.Track, nil
+}
+
+func New_Track(id int) (*Track, error) {
+   req := http.Get()
+   req.URL.Host = "api-v2.soundcloud.com"
+   req.URL.Path = "/tracks/" + strconv.Itoa(id)
+   req.URL.RawQuery = "client_id=" + client_ID
+   req.URL.Scheme = "https"
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   tra := new(Track)
+   if err := json.NewDecoder(res.Body).Decode(tra); err != nil {
+      return nil, err
+   }
+   return tra, nil
+}
+
+// i1.sndcdn.com/artworks-000308141235-7ep8lo-large.jpg
+func (t Track) Artwork() string {
+   if t.Artwork_URL == "" {
+      t.Artwork_URL = t.User.Avatar_URL
+   }
+   return strings.Replace(t.Artwork_URL, "large", "t500x500", 1)
+}
+
+func (t Track) Time() (time.Time, error) {
+   return time.Parse(time.RFC3339, t.Display_Date)
+}
+
+// Also available is "hls", but all transcodings are quality "sq".
+// Same for "api-mobile.soundcloud.com".
+func (t Track) Progressive() (*Media, error) {
+   var ref string
+   for _, code := range t.Media.Transcodings {
+      if code.Format.Protocol == "progressive" {
+         ref = code.URL
+      }
+   }
+   req, err := http.Get_URL(ref)
+   if err != nil {
+      return nil, err
+   }
+   req.URL.RawQuery = "client_id=" + client_ID
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   med := new(Media)
+   if err := json.NewDecoder(res.Body).Decode(med); err != nil {
+      return nil, err
+   }
+   return med, nil
+}
+
+//////////////////////////////////////////////////////////////
+
+func (t Track) String() string {
+   var b []byte
+   b = append(b, "ID: "...)
+   b = strconv.AppendInt(b, t.ID, 10)
+   b = append(b, "\ndisplay date: "...)
+   b = append(b, t.Display_Date...)
+   b = append(b, "\nusername: "...)
+   b = append(b, t.User.Username...)
+   b = append(b, "\navatar: "...)
+   b = append(b, t.User.Avatar_URL...)
+   b = append(b, "\ntitle: "...)
+   b = append(b, t.Title...)
+   if t.Artwork_URL != "" {
+      b = append(b, "\nartwork: "...)
+      b = append(b, t.Artwork_URL...)
+   }
+   for _, coding := range t.Media.Transcodings {
+      b = append(b, "\n\nformat: "...)
+      b = append(b, coding.Format.Protocol...)
+      b = append(b, "\nURL: "...)
+      b = append(b, coding.URL...)
+   }
+   return string(b)
+}
 type Media struct {
    URL string // cf-media.sndcdn.com/QaV7QR1lxpc6.128.mp3
 }
-
-func (m Media) Ext() (string, error) {
-   ref, err := url.Parse(m.URL)
-   if err != nil {
-      return "", err
-   }
-   return path.Ext(ref.Path), nil
-}
-
-const client_ID = "iZIs9mchVcX5lhVRyQGGAYlNPVldzAoX"
 
 type Image struct {
    Size string
