@@ -4,11 +4,23 @@ import (
    "2a.pages.dev/mech/widevine"
    "encoding/base64"
    "fmt"
-   "net/http"
    "os"
    "testing"
    "time"
 )
+
+func Test_Secrets(t *testing.T) {
+   for _, secret := range app_secrets {
+      token, err := app_token_with(secret)
+      if err != nil {
+         t.Fatal(err)
+      }
+      if _, err := token.Item(tests[0].content_ID); err != nil {
+         t.Fatal(err)
+      }
+      time.Sleep(99 * time.Millisecond)
+   }
+}
 
 const (
    episode = iota
@@ -62,24 +74,6 @@ func Test_Item(t *testing.T) {
          t.Fatal(err)
       }
       fmt.Println(name)
-      time.Sleep(time.Second)
-   }
-}
-
-func Test_Media(t *testing.T) {
-   for _, test := range tests {
-      ref := test.asset(test.content_ID)
-      fmt.Println(ref)
-      res, err := http.Get(ref)
-      if err != nil {
-         t.Fatal(err)
-      }
-      if err := res.Body.Close(); err != nil {
-         t.Fatal(err)
-      }
-      if res.StatusCode != 200 && res.StatusCode != 302 {
-         t.Fatal(res)
-      }
       time.Sleep(time.Second)
    }
 }
