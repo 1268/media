@@ -8,6 +8,17 @@ import (
    "strings"
 )
 
+func media(content_ID string) string {
+   var b []byte
+   b = append(b, "http://link.theplatform.com/s/"...)
+   b = append(b, cms_account_id...)
+   b = append(b, "/media/guid/"...)
+   b = strconv.AppendInt(b, aid, 10)
+   b = append(b, '/')
+   b = append(b, content_ID...)
+   return string(b)
+}
+
 const (
    aid = 2198311517
    cms_account_id = "dJ5BDC"
@@ -33,17 +44,6 @@ func Downloadable(content_ID string) string {
    b.WriteByte('&')
    b.WriteString("formats=MPEG4")
    return b.String()
-}
-
-func media(content_ID string) string {
-   var b []byte
-   b = append(b, "http://link.theplatform.com/s/"...)
-   b = append(b, cms_account_id...)
-   b = append(b, "/media/guid/"...)
-   b = strconv.AppendInt(b, aid, 10)
-   b = append(b, '/')
-   b = append(b, content_ID...)
-   return string(b)
 }
 
 type Item struct {
