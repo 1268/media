@@ -5,6 +5,11 @@ import (
    "strings"
 )
 
+const (
+   aid = 2198311517
+   cms_account_id = "dJ5BDC"
+)
+
 func media(content_ID string) string {
    var b []byte
    b = append(b, "http://link.theplatform.com/s/"...)
@@ -15,11 +20,6 @@ func media(content_ID string) string {
    b = append(b, content_ID...)
    return string(b)
 }
-
-const (
-   aid = 2198311517
-   cms_account_id = "dJ5BDC"
-)
 
 func DASH_CENC(content_ID string) string {
    var b strings.Builder
