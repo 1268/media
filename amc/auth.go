@@ -4,16 +4,24 @@ import (
    "2a.pages.dev/rosso/http"
    "encoding/json"
    "fmt"
-   "net/url"
    "os"
    "strings"
 )
 
-// This accepts full URL or path only.
-func (a Auth) Content(ref string) (*Content, error) {
-   href, err := url.Parse(ref)
-   if err != nil {
-      return nil, err
+// this expects a path such as: /movies/jerry-maguire--1054053
+func (a Auth) Content(path string) (*Content, error) {
+   // If trial is active you must add `/watch` here. If trial has expired, you
+   // will get `.data.type` of `redirect`. You can remove the `/watch` to
+   // resolve this, but the resultant response will still be missing
+   // `video-player-ap`.
+   url_path := func() string {
+      var b strings.Builder
+      b.WriteString("/content-compiler-cr/api/v1/content/amcn/amcplus/path")
+      if strings.HasPrefix(path, "/movies/") {
+         b.WriteString("/watch")
+      }
+      b.WriteString(path)
+      return b.String()
    }
    req := http.Get()
    // If you request once with headers, you can request again without any
@@ -24,15 +32,7 @@ func (a Auth) Content(ref string) (*Content, error) {
       "X-Amcn-Tenant": {"amcn"},
    }
    req.URL.Host = "gw.cds.amcn.com"
-   req.URL.Path = "/content-compiler-cr/api/v1/content/amcn/amcplus/path"
-   // If trial is active you must add `/watch` here. If trial has expired, you
-   // will get `.data.type` of `redirect`. You can remove the `/watch` to
-   // resolve this, but the resultant response will still be missing
-   // `video-player-ap`.
-   if strings.HasPrefix(href.Path, "/movies/") {
-      req.URL.Path += "/watch"
-   }
-   req.URL.Path += href.Path
+   req.URL.Path = url_path()
    req.URL.Scheme = "https"
    res, err := http.Default_Client.Do(req)
    if err != nil {

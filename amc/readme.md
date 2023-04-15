@@ -22,12 +22,13 @@ com.amcplus.amcfullepisodes
 1. https://mailsac.com
 2. https://amcplus.com
 3. click TRY 7 DAY FREE
-4. click CREATE ACCOUNT
-5. click MONTHLY
-6. click START FREE TRIAL
-7. click START WATCHING NOW
-8. click SETTINGS
-9. click Subscription
-10. click CANCEL
-11. click NO THANKS, CANCEL AMC+
-12. Forget About This Site
+4. uncheck Yes! I would like to receive updates
+5. click CREATE ACCOUNT
+6. click MONTHLY
+7. click START FREE TRIAL
+8. click START WATCHING NOW
+9. click SETTINGS
+10. click Subscription
+11. click CANCEL
+12. click NO THANKS, CANCEL AMC+
+13. Forget About This Site

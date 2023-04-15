@@ -7,15 +7,17 @@ import (
 )
 
 func (f flags) DASH(content *roku.Content) error {
-   site, err := roku.New_Cross_Site()
-   if err != nil {
-      return err
+   if !f.info {
+      site, err := roku.New_Cross_Site()
+      if err != nil {
+         return err
+      }
+      f.Poster, err = site.Playback(f.id)
+      if err != nil {
+         return err
+      }
+      f.Name = content.Name()
    }
-   f.Poster, err = site.Playback(f.id)
-   if err != nil {
-      return err
-   }
-   f.Name = content.Name()
    reps, err := f.Stream.DASH(content.DASH().URL)
    if err != nil {
       return err

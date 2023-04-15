@@ -14,6 +14,7 @@ type flags struct {
    content_ID string
    dash_cenc bool
    height int64
+   info bool
    lang string
    mech.Stream
 }
@@ -38,7 +39,7 @@ func main() {
    // h
    flag.StringVar(&f.lang, "h", "en", "audio lang")
    // i
-   flag.BoolVar(&f.Info, "i", false, "information")
+   flag.BoolVar(&f.info, "i", false, "information")
    // k
    f.Private_Key = filepath.Join(home, "mech/private_key.pem")
    flag.StringVar(&f.Private_Key, "k", f.Private_Key, "private key")

@@ -20,19 +20,21 @@ func (f flags) download() error {
    if err := auth.Create(home + "/mech/amc.json"); err != nil {
       return err
    }
-   content, err := auth.Content(f.address)
-   if err != nil {
-      return err
-   }
-   video_play, err := content.Video_Player()
-   if err != nil {
-      return err
+   if !f.info {
+      content, err := auth.Content(f.address)
+      if err != nil {
+         return err
+      }
+      video_play, err := content.Video_Player()
+      if err != nil {
+         return err
+      }
+      f.Name, err = video_play.Name()
+      if err != nil {
+         return err
+      }
    }
    play, err := auth.Playback(f.address)
-   if err != nil {
-      return err
-   }
-   f.Name, err = video_play.Name()
    if err != nil {
       return err
    }

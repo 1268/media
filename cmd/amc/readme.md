@@ -1,6 +1,23 @@
 # AMC
 
+search:
+
 ~~~
-go run . -a /movies/jerry-maguire--1054053
-go run . -a /shows/orphan-black/episodes/season-1-instinct--1011152
+site:amcplus.com/movies
+~~~
+
+login:
+
+~~~
+go run . -e EMAIL -p PASSWORD
+~~~
+
+run:
+
+~~~
+go run . `
+-a http://amcplus.com/movies/nocebo--1061554
+
+go run . `
+-a http://amcplus.com/shows/orphan-black/episodes/season-1-instinct--1011152
 ~~~

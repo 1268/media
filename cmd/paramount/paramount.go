@@ -11,17 +11,19 @@ import (
 )
 
 func (f flags) dash(token *paramount.App_Token) error {
-   item, err := token.Item(f.content_ID)
-   if err != nil {
-      return err
-   }
-   f.Poster, err = token.Session(f.content_ID)
-   if err != nil {
-      return err
-   }
-   f.Name, err = item.Name()
-   if err != nil {
-      return err
+   if !f.info {
+      item, err := token.Item(f.content_ID)
+      if err != nil {
+         return err
+      }
+      f.Name, err = item.Name()
+      if err != nil {
+         return err
+      }
+      f.Poster, err = token.Session(f.content_ID)
+      if err != nil {
+         return err
+      }
    }
    ref, err := paramount.DASH_CENC(f.content_ID)
    if err != nil {
@@ -68,7 +70,7 @@ func (f flags) downloadable(token *paramount.App_Token) error {
    if err != nil {
       return err
    }
-   if f.Info {
+   if f.info {
       fmt.Println(item)
       fmt.Println(ref)
       return nil
