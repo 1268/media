@@ -9,12 +9,7 @@ import (
    "time"
 )
 
-const (
-   // web
-   client_ID = "iZIs9mchVcX5lhVRyQGGAYlNPVldzAoX"
-   // android
-   client_ID_android = "dbdsA8b6V6Lw7wzu1x0T4CLxt58yd4Bf"
-)
+const client_ID = "iZIs9mchVcX5lhVRyQGGAYlNPVldzAoX"
 
 type Track struct {
    ID int64

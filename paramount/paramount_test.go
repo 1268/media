@@ -9,26 +9,8 @@ import (
    "time"
 )
 
-func Test_Secrets(t *testing.T) {
-   for _, secret := range app_secrets {
-      token, err := app_token_with(secret)
-      if err != nil {
-         t.Fatal(err)
-      }
-      if _, err := token.Item(tests[0].content_ID); err != nil {
-         t.Fatal(err)
-      }
-      time.Sleep(99 * time.Millisecond)
-   }
-}
-
-const (
-   episode = iota
-   movie
-)
-
 var tests = []struct{
-   asset func(string)string // Downloadable
+   asset func(string)(string,error) // Downloadable
    content int // Movie
    content_ID string
    key string
@@ -117,3 +99,20 @@ func Test_Post(t *testing.T) {
    }
 }
 
+func Test_Secrets(t *testing.T) {
+   for _, secret := range app_secrets {
+      token, err := app_token_with(secret)
+      if err != nil {
+         t.Fatal(err)
+      }
+      if _, err := token.Item(tests[0].content_ID); err != nil {
+         t.Fatal(err)
+      }
+      time.Sleep(99 * time.Millisecond)
+   }
+}
+
+const (
+   episode = iota
+   movie
+)

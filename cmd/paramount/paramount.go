@@ -10,40 +10,6 @@ import (
    "strings"
 )
 
-func (f flags) downloadable(token *paramount.App_Token) error {
-   item, err := token.Item(f.content_ID)
-   if err != nil {
-      return err
-   }
-   ref := paramount.Downloadable(f.content_ID)
-   if f.Info {
-      fmt.Println(item)
-      fmt.Println(ref)
-      return nil
-   }
-   name, err := item.Name()
-   if err != nil {
-      return err
-   }
-   client := http.Default_Client
-   client.CheckRedirect = nil
-   res, err := client.Get(ref)
-   if err != nil {
-      return err
-   }
-   defer res.Body.Close()
-   file, err := os.Create(name + ".mp4")
-   if err != nil {
-      return err
-   }
-   defer file.Close()
-   pro := http.Progress_Bytes(file, res.ContentLength)
-   if _, err := io.Copy(pro, res.Body); err != nil {
-      return err
-   }
-   return nil
-}
-
 func (f flags) dash(token *paramount.App_Token) error {
    item, err := token.Item(f.content_ID)
    if err != nil {
@@ -57,7 +23,11 @@ func (f flags) dash(token *paramount.App_Token) error {
    if err != nil {
       return err
    }
-   reps, err := f.Stream.DASH(paramount.DASH_CENC(f.content_ID))
+   ref, err := paramount.DASH_CENC(f.content_ID)
+   if err != nil {
+      return err
+   }
+   reps, err := f.Stream.DASH(ref)
    if err != nil {
       return err
    }
@@ -88,3 +58,41 @@ func (f flags) dash(token *paramount.App_Token) error {
    })
    return f.DASH_Get(video, index)
 }
+
+func (f flags) downloadable(token *paramount.App_Token) error {
+   item, err := token.Item(f.content_ID)
+   if err != nil {
+      return err
+   }
+   ref, err := paramount.Downloadable(f.content_ID)
+   if err != nil {
+      return err
+   }
+   if f.Info {
+      fmt.Println(item)
+      fmt.Println(ref)
+      return nil
+   }
+   name, err := item.Name()
+   if err != nil {
+      return err
+   }
+   client := http.Default_Client
+   client.CheckRedirect = nil
+   res, err := client.Get(ref)
+   if err != nil {
+      return err
+   }
+   defer res.Body.Close()
+   file, err := os.Create(name + ".mp4")
+   if err != nil {
+      return err
+   }
+   defer file.Close()
+   pro := http.Progress_Bytes(file, res.ContentLength)
+   if _, err := io.Copy(pro, res.Body); err != nil {
+      return err
+   }
+   return nil
+}
+

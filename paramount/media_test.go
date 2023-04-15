@@ -9,7 +9,10 @@ import (
 
 func Test_Media(t *testing.T) {
    for _, test := range tests {
-      ref := test.asset(test.content_ID)
+      ref, err := test.asset(test.content_ID)
+      if err != nil {
+         t.Fatal(err)
+      }
       fmt.Println(ref)
       res, err := http.Get(ref)
       if err != nil {
@@ -18,8 +21,10 @@ func Test_Media(t *testing.T) {
       if err := res.Body.Close(); err != nil {
          t.Fatal(err)
       }
-      if res.StatusCode != 200 && res.StatusCode != 302 {
-         t.Fatal(res)
+      if res.StatusCode != http.StatusOK {
+         if res.StatusCode != http.StatusFound {
+            t.Fatal(res)
+         }
       }
       time.Sleep(time.Second)
    }
