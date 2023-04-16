@@ -3,25 +3,29 @@ package amc
 import (
    "2a.pages.dev/rosso/http"
    "encoding/json"
-   "fmt"
+   "errors"
+   "net/url"
    "os"
    "strings"
 )
 
-// this expects a path such as: /movies/jerry-maguire--1054053
-func (a Auth) Content(path string) (*Content, error) {
+// This accepts full URL or path only.
+func (a Auth) Content(ref string) (*Content, error) {
    // If trial is active you must add `/watch` here. If trial has expired, you
    // will get `.data.type` of `redirect`. You can remove the `/watch` to
    // resolve this, but the resultant response will still be missing
    // `video-player-ap`.
-   url_path := func() string {
-      var b strings.Builder
-      b.WriteString("/content-compiler-cr/api/v1/content/amcn/amcplus/path")
-      if strings.HasPrefix(path, "/movies/") {
-         b.WriteString("/watch")
+   url_path := func(r *http.Request) error {
+      p, err := url.Parse(ref)
+      if err != nil {
+         return err
       }
-      b.WriteString(path)
-      return b.String()
+      r.URL.Path = "/content-compiler-cr/api/v1/content/amcn/amcplus/path"
+      if strings.HasPrefix(p.Path, "/movies/") {
+         r.URL.Path += "/watch"
+      }
+      r.URL.Path += p.Path
+      return nil
    }
    req := http.Get()
    // If you request once with headers, you can request again without any
@@ -32,7 +36,10 @@ func (a Auth) Content(path string) (*Content, error) {
       "X-Amcn-Tenant": {"amcn"},
    }
    req.URL.Host = "gw.cds.amcn.com"
-   req.URL.Path = url_path()
+   err := url_path(req)
+   if err != nil {
+      return nil, err
+   }
    req.URL.Scheme = "https"
    res, err := http.Default_Client.Do(req)
    if err != nil {
@@ -46,32 +53,10 @@ func (a Auth) Content(path string) (*Content, error) {
    return con, nil
 }
 
-func (a *Auth) Refresh() error {
-   req := http.Post()
-   req.Header.Set("Authorization", "Bearer " + a.Data.Refresh_Token)
-   req.URL.Host = "gw.cds.amcn.com"
-   req.URL.Path = "/auth-orchestration-id/api/v1/refresh"
-   req.URL.Scheme = "https"
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return err
-   }
-   defer res.Body.Close()
-   return json.NewDecoder(res.Body).Decode(a)
-}
-
-func (a Auth) Create(name string) error {
-   indent, err := json.MarshalIndent(a, "", " ")
-   if err != nil {
-      return err
-   }
-   return os.WriteFile(name, indent, os.ModePerm)
-}
-
 func (a Auth) Playback(ref string) (*Playback, error) {
    _, nID, found := strings.Cut(ref, "--")
    if !found {
-      return nil, fmt.Errorf("%q invalid", ref)
+      return nil, errors.New("nid not found")
    }
    var p playback_request
    p.Ad_Tags.Mode = "on-demand"
@@ -187,3 +172,24 @@ func (a *Auth) Login(email, password string) error {
    return json.NewDecoder(res.Body).Decode(a)
 }
 
+func (a *Auth) Refresh() error {
+   req := http.Post()
+   req.Header.Set("Authorization", "Bearer " + a.Data.Refresh_Token)
+   req.URL.Host = "gw.cds.amcn.com"
+   req.URL.Path = "/auth-orchestration-id/api/v1/refresh"
+   req.URL.Scheme = "https"
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return err
+   }
+   defer res.Body.Close()
+   return json.NewDecoder(res.Body).Decode(a)
+}
+
+func (a Auth) Create(name string) error {
+   indent, err := json.MarshalIndent(a, "", " ")
+   if err != nil {
+      return err
+   }
+   return os.WriteFile(name, indent, os.ModePerm)
+}

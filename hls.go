@@ -9,7 +9,7 @@ import (
 )
 
 func hls_get[T hls.Mixed](str Stream, items []T, index int) error {
-   if str.Name == "" {
+   if str.Info {
       for i, item := range items {
          if i == index {
             fmt.Print("!")

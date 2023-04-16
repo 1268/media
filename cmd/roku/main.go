@@ -13,7 +13,6 @@ type flags struct {
    bandwidth int64
    codec string
    id string
-   info bool
    mech.Stream
 }
 
@@ -33,7 +32,7 @@ func main() {
    // g
    flag.StringVar(&f.codec, "g", "mp4a", "audio codec")
    // i
-   flag.BoolVar(&f.info, "i", false, "information")
+   flag.BoolVar(&f.Info, "i", false, "information")
    // k
    f.Private_Key = filepath.Join(home, "mech/private_key.pem")
    flag.StringVar(&f.Private_Key, "k", f.Private_Key, "private key")

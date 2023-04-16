@@ -32,14 +32,15 @@ func (s *Stream) DASH(ref string) (dash.Representations, error) {
 
 type Stream struct {
    Client_ID string
-   Private_Key string
-   Poster widevine.Poster
+   Info bool
    Name string
+   Poster widevine.Poster
+   Private_Key string
    base *url.URL
 }
 
 func (s Stream) DASH_Get(items dash.Representations, index int) error {
-   if s.Name == "" {
+   if s.Info {
       for i, item := range items {
          if i == index {
             fmt.Print("!")

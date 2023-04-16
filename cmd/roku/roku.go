@@ -7,7 +7,7 @@ import (
 )
 
 func (f flags) DASH(content *roku.Content) error {
-   if !f.info {
+   if !f.Info {
       site, err := roku.New_Cross_Site()
       if err != nil {
          return err

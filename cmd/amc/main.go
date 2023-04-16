@@ -12,7 +12,6 @@ type flags struct {
    address string
    bandwidth int64
    email string
-   info bool
    mech.Stream
    password string
 }
@@ -33,7 +32,7 @@ func main() {
    // f
    flag.Int64Var(&f.bandwidth, "f", 2_532_000, "video bandwidth")
    // i
-   flag.BoolVar(&f.info, "i", false, "information")
+   flag.BoolVar(&f.Info, "i", false, "information")
    // k
    f.Private_Key = filepath.Join(home, "mech/private_key.pem")
    flag.StringVar(&f.Private_Key, "k", f.Private_Key, "private key")

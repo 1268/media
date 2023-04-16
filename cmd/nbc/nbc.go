@@ -16,11 +16,11 @@ func (f flags) download() error {
    if err != nil {
       return err
    }
+   f.Name = meta.Name()
    video, err := meta.Video()
    if err != nil {
       return err
    }
-   f.Name = meta.Name()
    master, err := f.HLS(video.Manifest_Path)
    if err != nil {
       return err

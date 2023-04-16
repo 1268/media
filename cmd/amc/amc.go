@@ -20,7 +20,7 @@ func (f flags) download() error {
    if err := auth.Create(home + "/mech/amc.json"); err != nil {
       return err
    }
-   if !f.info {
+   if !f.Info {
       content, err := auth.Content(f.address)
       if err != nil {
          return err

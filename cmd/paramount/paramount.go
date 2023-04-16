@@ -11,7 +11,7 @@ import (
 )
 
 func (f flags) dash(token *paramount.App_Token) error {
-   if !f.info {
+   if !f.Info {
       item, err := token.Item(f.content_ID)
       if err != nil {
          return err
@@ -70,7 +70,7 @@ func (f flags) downloadable(token *paramount.App_Token) error {
    if err != nil {
       return err
    }
-   if f.info {
+   if f.Info {
       fmt.Println(item)
       fmt.Println(ref)
       return nil
