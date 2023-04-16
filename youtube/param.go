@@ -2,10 +2,6 @@ package youtube
 
 import "2a.pages.dev/rosso/protobuf"
 
-type Filters struct {
-   protobuf.Message
-}
-
 var Upload_Date = map[string]protobuf.Varint{
    "Last hour": 1,
    "Today": 2,
@@ -48,29 +44,33 @@ var Features = map[string]protobuf.Number{
    "VR180": 26,
 }
 
-func (f Filters) Sort_By(value protobuf.Varint) {
-   f.Message[1] = value
+type Params struct {
+   protobuf.Message
 }
 
-func (f Filters) Upload_Date(value protobuf.Varint) {
-   f.Get(2)[1] = value
+func (p Params) Sort_By(value protobuf.Varint) {
+   p.Message[1] = value
 }
 
-func (f Filters) Type(value protobuf.Varint) {
-   f.Get(2)[2] = value
+func (p Params) Upload_Date(value protobuf.Varint) {
+   p.Get(2)[1] = value
 }
 
-func (f Filters) Duration(value protobuf.Varint) {
-   f.Get(2)[3] = value
+func (p Params) Type(value protobuf.Varint) {
+   p.Get(2)[2] = value
 }
 
-func (f Filters) Features(num protobuf.Number) {
-   f.Get(2)[num] = protobuf.Varint(1)
+func (p Params) Duration(value protobuf.Varint) {
+   p.Get(2)[3] = value
 }
 
-func New_Filters() Filters {
-   var f Filters
-   f.Message = make(protobuf.Message)
-   f.Message[2] = make(protobuf.Message)
-   return f
+func (p Params) Features(num protobuf.Number) {
+   p.Get(2)[num] = protobuf.Varint(1)
+}
+
+func New_Params() Params {
+   var p Params
+   p.Message = make(protobuf.Message)
+   p.Message[2] = make(protobuf.Message)
+   return p
 }

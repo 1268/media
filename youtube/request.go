@@ -9,7 +9,7 @@ import (
 const (
    // com.google.android.youtube
    // all versions should be valid starting with 16
-   android_version = "18.12.35"
+   android_version = "18.14.40"
    api_key = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
    mweb_version = "2.20230405.01.00"
 )
@@ -43,9 +43,9 @@ func new_config() (*config, error) {
 }
 
 func (r Request) Search(query string) (*Search, error) {
-   filter := New_Filters()
-   filter.Type(Type["Video"])
-   r.Params = filter.Marshal()
+   param := New_Params()
+   param.Type(Type["Video"])
+   r.Params = param.Marshal()
    r.Query = query
    body, err := json.MarshalIndent(r, "", " ")
    if err != nil {
