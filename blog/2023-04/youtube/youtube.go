@@ -90,86 +90,6 @@ const req_body = `
          },
          "clientScreen": "WATCH_FULL_SCREEN"
       },
-      "user": {
-         "lockedSafetyMode": false
-      },
-      "request": {
-         "useSsl": true,
-         "internalExperimentFlags": [],
-         "consistencyTokenJars": []
-      },
-      "adSignalsInfo": {
-         "params": [
-            {
-               "key": "dt",
-               "value": "1681671982116"
-            },
-            {
-               "key": "flash",
-               "value": "0"
-            },
-            {
-               "key": "frm",
-               "value": "0"
-            },
-            {
-               "key": "u_tz",
-               "value": "-300"
-            },
-            {
-               "key": "u_his",
-               "value": "1"
-            },
-            {
-               "key": "u_h",
-               "value": "864"
-            },
-            {
-               "key": "u_w",
-               "value": "1536"
-            },
-            {
-               "key": "u_ah",
-               "value": "824"
-            },
-            {
-               "key": "u_aw",
-               "value": "1536"
-            },
-            {
-               "key": "u_cd",
-               "value": "24"
-            },
-            {
-               "key": "bc",
-               "value": "31"
-            },
-            {
-               "key": "bih",
-               "value": "626"
-            },
-            {
-               "key": "biw",
-               "value": "800"
-            },
-            {
-               "key": "brdim",
-               "value": "132,31,132,31,1536,0,1226,776,817,626"
-            },
-            {
-               "key": "vis",
-               "value": "1"
-            },
-            {
-               "key": "wgl",
-               "value": "true"
-            },
-            {
-               "key": "ca_type",
-               "value": "image"
-            }
-         ]
-      },
       "clickTracking": {
          "clickTrackingParams": "CAAQu2kiEwiYg8OojK_-AhW2huUHHW_yANw="
       },
@@ -178,26 +98,6 @@ const req_body = `
             "playerContextParams": "Q0FFU0FnZ0I="
          }
       ]
-   },
-   "playbackContext": {
-      "contentPlaybackContext": {
-         "html5Preference": "HTML5_PREF_WANTS",
-         "lactMilliseconds": "111",
-         "referer": "https://www.youtube.com/watch?v=3UNsV5H7xxc",
-         "signatureTimestamp": 19459,
-         "autonavState": "STATE_OFF",
-         "autoCaptionsDefaultOn": false,
-         "mdxContext": {},
-         "playerWidthPixels": 343,
-         "playerHeightPixels": 193
-      }
-   },
-   "cpn": "KnhBJLIExSai1kLU",
-   "captionParams": {
-      "deviceCaptionsOn": true
-   },
-   "attestationRequest": {
-      "omitBotguardData": true
    }
 }
 `
