@@ -41,12 +41,6 @@ func main() {
 
 var req_body = strings.NewReader(`
 {
-   "attestationRequest": {
-      "omitBotguardData": true
-   },
-   "captionParams": {
-      "deviceCaptionsOn": true
-   },
    "context": {
       "client": {
          "hl": "en",
@@ -88,107 +82,13 @@ var req_body = strings.NewReader(`
          },
          "clientScreen": "WATCH_FULL_SCREEN"
       },
-      "user": {
-         "lockedSafetyMode": false
-      },
       "request": {
          "useSsl": true,
          "internalExperimentFlags": [],
          "consistencyTokenJars": []
       },
-      "adSignalsInfo": {
-         "params": [
-            {
-               "key": "dt",
-               "value": "1681665012262"
-            },
-            {
-               "key": "flash",
-               "value": "0"
-            },
-            {
-               "key": "frm",
-               "value": "0"
-            },
-            {
-               "key": "u_tz",
-               "value": "-300"
-            },
-            {
-               "key": "u_his",
-               "value": "1"
-            },
-            {
-               "key": "u_h",
-               "value": "864"
-            },
-            {
-               "key": "u_w",
-               "value": "1536"
-            },
-            {
-               "key": "u_ah",
-               "value": "824"
-            },
-            {
-               "key": "u_aw",
-               "value": "1536"
-            },
-            {
-               "key": "u_cd",
-               "value": "24"
-            },
-            {
-               "key": "bc",
-               "value": "31"
-            },
-            {
-               "key": "bih",
-               "value": "626"
-            },
-            {
-               "key": "biw",
-               "value": "1195"
-            },
-            {
-               "key": "brdim",
-               "value": "131,25,131,25,1536,0,1226,776,1212,626"
-            },
-            {
-               "key": "vis",
-               "value": "1"
-            },
-            {
-               "key": "wgl",
-               "value": "true"
-            },
-            {
-               "key": "ca_type",
-               "value": "image"
-            }
-         ]
-      },
-      "clickTracking": {
-         "clickTrackingParams": "CAAQu2kiEwjh4JWs8q7-AhUxmeUHHQNqCks="
-      },
-      "activePlayers": [
-         {
-            "playerContextParams": "Q0FFU0FnZ0I="
-         }
-      ]
-   },
-   "cpn": "vRmorm6o1or4GgZL",
-   "playbackContext": {
-      "contentPlaybackContext": {
-         "html5Preference": "HTML5_PREF_WANTS",
-         "lactMilliseconds": "65",
-         "referer": "https://www.youtube.com/watch?v=k5dX9sjXYVk",
-         "signatureTimestamp": 19459,
-         "autonavState": "STATE_OFF",
-         "autoCaptionsDefaultOn": false,
-         "mdxContext": {},
-         "playerWidthPixels": 738,
-         "playerHeightPixels": 415
+      "user": {
+         "lockedSafetyMode": false
       }
    },
    "videoId": "k5dX9sjXYVk"
