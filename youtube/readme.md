@@ -7,7 +7,7 @@
 >
 > [U2 - Bad (1984)](//youtube.com/watch?v=0s30qw4XV_E)
 
-## Android client
+## Android Studio
 
 Must use Android API 31 or higher.
 
@@ -18,21 +18,58 @@ https://android.stackexchange.com/a/245551
 - https://datatracker.ietf.org/doc/html/rfc8628
 - https://developers.google.com/identity/sign-in/devices
 
-## Image
+## GenyMotion
 
-Is `maxres1` always available? No:
+https://genymotion.com/download
 
-- <http://i.ytimg.com/vi_webp/hq2KgzKETBw/maxres1.webp>
-- http://i.ytimg.com/vi/hq2KgzKETBw/maxres1.jpg
+When installing VirtualBox, unselect Python. This fails:
 
-Is `sd1` always available? No:
+~~~
+> adb install com.google.android.youtube-1537082816.apk
+Failure [INSTALL_FAILED_OLDER_SDK]
+~~~
 
-- <http://i.ytimg.com/vi_webp/hq2KgzKETBw/sd1.webp>
-- http://i.ytimg.com/vi/hq2KgzKETBw/sd1.jpg
+because of this:
 
-If `hq1` always available? Yes:
+~~~
+sdkVersion:'26'
+~~~
 
-http://i.ytimg.com/vi/hq2KgzKETBw/hq1.jpg
+which means we need to use at least API Level 26 (Android 8). If you try to run
+YouTube on a base image, it will just crash, so Install Open GApps. Then click
+Restart now. If you have trouble at this point, you might need to End task:
+
+~~~
+C:\Program Files\Genymobile\Genymotion\tools\adb.exe
+~~~
+
+Download YouTube:
+
+https://play.google.com/store/apps/details?id=com.google.android.youtube
+
+I tried installing YouTube by dragging APK to home screen, but it would just
+crash when starting.
+
+~~~
+adb shell am start -a android.intent.action.VIEW `
+-d https://www.youtube.com/watch?v=k5dX9sjXYVk
+~~~
+
+Then install system certificate. Then start proxy:
+
+~~~
+mitmproxy
+~~~
+
+then set proxy:
+
+~~~
+adb shell settings put global http_proxy 192.168.56.1:8080
+~~~
+
+Note if you restart the device, you need to install system certificate again.
+
+https://support.genymotion.com/hc/articles/360002778137-How-to-connect
 
 ## How to get `client_id` and `client_secret`
 
@@ -63,6 +100,22 @@ Host: www.youtube.com
 ~~~
 
 1. <https://github.com/youtube/cobalt/blob/master/src/cobalt/browser/user_agent_string.cc>
+
+## Image
+
+Is `maxres1` always available? No:
+
+- <http://i.ytimg.com/vi_webp/hq2KgzKETBw/maxres1.webp>
+- http://i.ytimg.com/vi/hq2KgzKETBw/maxres1.jpg
+
+Is `sd1` always available? No:
+
+- <http://i.ytimg.com/vi_webp/hq2KgzKETBw/sd1.webp>
+- http://i.ytimg.com/vi/hq2KgzKETBw/sd1.jpg
+
+If `hq1` always available? Yes:
+
+http://i.ytimg.com/vi/hq2KgzKETBw/hq1.jpg
 
 ## X-Goog-API-Key
 
