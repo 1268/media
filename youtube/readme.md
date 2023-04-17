@@ -50,11 +50,6 @@ https://play.google.com/store/apps/details?id=com.google.android.youtube
 I tried installing YouTube by dragging APK to home screen, but it would just
 crash when starting.
 
-~~~
-adb shell am start -a android.intent.action.VIEW `
--d https://www.youtube.com/watch?v=k5dX9sjXYVk
-~~~
-
 Then install system certificate. Then start proxy:
 
 ~~~
@@ -68,6 +63,11 @@ adb shell settings put global http_proxy 192.168.56.1:8080
 ~~~
 
 Note if you restart the device, you need to install system certificate again.
+
+~~~
+adb shell am start -a android.intent.action.VIEW `
+-d https://www.youtube.com/watch?v=k5dX9sjXYVk
+~~~
 
 https://support.genymotion.com/hc/articles/360002778137-How-to-connect
 
