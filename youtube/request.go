@@ -8,10 +8,22 @@ import (
 )
 
 func (r Request) Player(id string, tok *Token) (*Player, error) {
-   // 8AEB
-   // fails randomly without this
+   // fails randomly without this. you can change the inner varint, any value
+   // seems to work, examples:
+   // 0 CgIQAA==
+   // 1 CgIQAQ==
+   // 2 CgIQAg==
+   // 3 CgIQAw==
+   // 4 CgIQBA==
+   // 5 CgIQBQ==
+   // 6 CgIQBg== github.com/TeamNewPipe/NewPipe/issues/9038
+   // 7 CgIQBw==
+   // 8 CgIQCA==
+   // 9 CgIQCQ==
    r.Params = protobuf.Message{
-      30: protobuf.Varint(1),
+      1: protobuf.Message{
+         2: protobuf.Varint(0),
+      },
    }.Marshal()
    r.Video_ID = id
    body, err := json.MarshalIndent(r, "", " ")
@@ -25,9 +37,9 @@ func (r Request) Player(id string, tok *Token) (*Player, error) {
    } else {
       req.Header.Set("X-Goog-API-Key", api_key)
    }
-   req.URL.Scheme = "https"
    req.URL.Host = "www.youtube.com"
    req.URL.Path = "/youtubei/v1/player"
+   req.URL.Scheme = "https"
    res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
