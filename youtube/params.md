@@ -203,7 +203,12 @@ original request:
 "params": "YAHIAQE%3D"
 ~~~
 
-fails randomly as well. Note I also found this interesting comment:
+fails randomly as well. Note some projects are using a value of `8AEB`:
+
+<https://github.com/yt-dlp/yt-dlp/blob/ab29e470/yt_dlp/extractor/youtube.py#L3516>
+
+this appears to have a side effect of removing `viewCount` from the response.
+Note I also found this interesting comment:
 
 > the required parameter is field number 12 in the protobuf (very long base64
 > string), the JSON name is "params" -- it seems to be some kind of ad token?
