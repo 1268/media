@@ -7,6 +7,7 @@ import (
    "io"
    "net/http"
    "net/url"
+   "time"
 )
 
 func main() {
@@ -29,21 +30,32 @@ func main() {
    val["t"] = []string{"7y62ibh9WJRM"}
    req.URL.RawQuery = val.Encode()
    req.URL.Scheme = "https"
-   req.Body = io.NopCloser(bytes.NewReader(req_mes.Marshal()))
-   res, err := new(http.Transport).RoundTrip(&req)
-   if err != nil {
-      panic(err)
+   req_body := req_mes.Marshal()
+   for range [16]struct{}{} {
+      req.Body = io.NopCloser(bytes.NewReader(req_body))
+      res, err := new(http.Transport).RoundTrip(&req)
+      if err != nil {
+         panic(err)
+      }
+      res_body, err := io.ReadAll(res.Body)
+      if err != nil {
+         panic(err)
+      }
+      if err := res.Body.Close(); err != nil {
+         panic(err)
+      }
+      res_mes, err := protobuf.Unmarshal(res_body)
+      if err != nil {
+         panic(err)
+      }
+      view_count, err := res_mes.Get(11).Get_String(32)
+      if err != nil {
+         panic(err)
+      }
+      adaptive_formats := res_mes.Get(4).Get_Messages(3)
+      fmt.Println(view_count, len(adaptive_formats))
+      time.Sleep(time.Second)
    }
-   defer res.Body.Close()
-   body, err := io.ReadAll(res.Body)
-   if err != nil {
-      panic(err)
-   }
-   res_mes, err := protobuf.Unmarshal(body)
-   if err != nil {
-      panic(err)
-   }
-   fmt.Printf("%#v\n", res_mes)
 }
 
 var req_mes = protobuf.Message{
