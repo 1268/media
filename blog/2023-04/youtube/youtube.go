@@ -3,19 +3,16 @@ package main
 import (
    "2a.pages.dev/rosso/protobuf"
    "bytes"
+   "fmt"
    "io"
    "net/http"
-   "net/http/httputil"
    "net/url"
-   "os"
 )
 
 func main() {
    var req http.Request
-   req.Body = io.NopCloser(bytes.NewReader(mes.Marshal()))
    req.Header = make(http.Header)
    req.Header["Accept-Encoding"] = []string{"identity"}
-   req.Header["Content-Length"] = []string{"1114"}
    req.Header["Content-Type"] = []string{"application/x-protobuf"}
    req.Header["User-Agent"] = []string{"com.google.android.youtube/18.14.40(Linux; U; Android 8.0.0; en_US; Phone Build/OPR6.170623.017) gzip"}
    req.Header["X-Goog-Api-Format-Version"] = []string{"2"}
@@ -26,26 +23,30 @@ func main() {
    req.URL = new(url.URL)
    req.URL.Host = "youtubei.googleapis.com"
    req.URL.Path = "/youtubei/v1/player"
-   req.URL.RawPath = ""
    val := make(url.Values)
    val["id"] = []string{"Xxk-ryO6J2I"}
    val["key"] = []string{"AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w"}
    val["t"] = []string{"7y62ibh9WJRM"}
    req.URL.RawQuery = val.Encode()
    req.URL.Scheme = "https"
+   req.Body = io.NopCloser(bytes.NewReader(req_mes.Marshal()))
    res, err := new(http.Transport).RoundTrip(&req)
    if err != nil {
       panic(err)
    }
    defer res.Body.Close()
-   res_body, err := httputil.DumpResponse(res, true)
+   body, err := io.ReadAll(res.Body)
    if err != nil {
       panic(err)
    }
-   os.Stdout.Write(res_body)
+   res_mes, err := protobuf.Unmarshal(body)
+   if err != nil {
+      panic(err)
+   }
+   fmt.Printf("%#v\n", res_mes)
 }
 
-var mes = protobuf.Message{
+var req_mes = protobuf.Message{
  4: protobuf.Raw{
   Bytes:  []byte{0xa, 0x52, 0x1a, 0xe, 0x61, 0x6e, 0x64, 0x72, 0x6f, 0x69, 0x64, 0x2d, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x20, 0x0, 0x28, 0xf0, 0x3, 0x30, 0x0, 0x38, 0x3, 0x40, 0x0, 0x50, 0x0, 0x58, 0x0, 0x62, 0x20, 0x73, 0x64, 0x6b, 0x76, 0x3d, 0x61, 0x2e, 0x31, 0x38, 0x2e, 0x31, 0x34, 0x2e, 0x34, 0x30, 0x26, 0x6f, 0x75, 0x74, 0x70, 0x75, 0x74, 0x3d, 0x78, 0x6d, 0x6c, 0x5f, 0x76, 0x61, 0x73, 0x74, 0x32, 0xe8, 0x1, 0x0, 0xfa, 0x1, 0x2, 0x3a, 0x0, 0xa8, 0x2, 0x0, 0xb0, 0x2, 0x0, 0xc8, 0x2, 0x0},
   String: "\nR~1a~0eandroid-google ~00(~f0~030~008~03@~00P~00X~00b sdkv=a.18.14.40&output=xml_vast2~e8~01~00~fa~01~02:~00~a8~02~00~b0~02~00~c8~02~00",
