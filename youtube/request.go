@@ -3,35 +3,52 @@ package youtube
 import (
    "2a.pages.dev/rosso/http"
    "2a.pages.dev/rosso/json"
-   "2a.pages.dev/rosso/protobuf"
    "io"
 )
 
-const (
-   // com.google.android.youtube
-   // all versions should be valid starting with 16
-   android_version = "18.15.35"
-   api_key = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
-   mweb_version = "2.20230405.01.00"
-)
-
-func (r Request) Player(id string, tok *Token) (*Player, error) {
-   r.Params = protobuf.Message{
-      1: protobuf.Message{
-         2: protobuf.Varint(0),
-      },
-   }.Marshal()
-   r.Video_ID = id
+func (r Request) Search(query string) (*Search, error) {
+   param := New_Params()
+   param.Type(Type["Video"])
+   r.Params = param.Marshal()
+   r.Query = query
    body, err := json.MarshalIndent(r, "", " ")
    if err != nil {
       return nil, err
    }
    req := http.Post()
    req.Body_Bytes(body)
+   req.Header.Set("X-Goog-API-Key", api_key)
+   req.URL.Host = "www.youtube.com"
+   req.URL.Path = "/youtubei/v1/search"
+   req.URL.Scheme = "https"
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   search := new(Search)
+   if err := json.NewDecoder(res.Body).Decode(search); err != nil {
+      return nil, err
+   }
+   return search, nil
+}
+
+// current low is 16.43.00
+const android_version = "18.19.99"
+
+func (r Request) Player(id string, tok *Token) (*Player, error) {
+   // valid values 21 - 0x7FFF_FFFF
+   r.Context.Client.Android_SDK_Version = 99
+   r.Video_ID = id
+   body, err := json.MarshalIndent(r, "", " ")
+   if err != nil {
+      return nil, err
+   }
+   req := http.Post()
+   req.Header.Set("User-Agent", user_agent + android_version)
+   req.Body_Bytes(body)
    if tok != nil {
       req.Header.Set("Authorization", "Bearer " + tok.Access_Token)
-   } else {
-      req.Header.Set("X-Goog-API-Key", api_key)
    }
    req.URL.Host = "www.youtube.com"
    req.URL.Path = "/youtubei/v1/player"
@@ -46,6 +63,23 @@ func (r Request) Player(id string, tok *Token) (*Player, error) {
       return nil, err
    }
    return play, nil
+}
+
+const user_agent = "com.google.android.youtube/"
+
+type Request struct {
+   Content_Check_OK bool `json:"contentCheckOk,omitempty"`
+   Context struct {
+      Client struct {
+         Android_SDK_Version int `json:"androidSdkVersion,omitempty"`
+         Name string `json:"clientName"`
+         Version string `json:"clientVersion"`
+      } `json:"client"`
+   } `json:"context"`
+   Params []byte `json:"params,omitempty"`
+   Query string `json:"query,omitempty"`
+   Racy_Check_OK bool `json:"racyCheckOk,omitempty"`
+   Video_ID string `json:"videoId,omitempty"`
 }
 
 func Android() Request {
@@ -79,20 +113,6 @@ func Android_Embed() Request {
    return r
 }
 
-type Request struct {
-   Content_Check_OK bool `json:"contentCheckOk,omitempty"`
-   Context struct {
-      Client struct {
-         Name string `json:"clientName"`
-         Version string `json:"clientVersion"`
-      } `json:"client"`
-   } `json:"context"`
-   Params []byte `json:"params,omitempty"`
-   Query string `json:"query,omitempty"`
-   Racy_Check_OK bool `json:"racyCheckOk,omitempty"`
-   Video_ID string `json:"videoId,omitempty"`
-}
-
 type config struct {
    Innertube_API_Key string
    Innertube_Client_Name string
@@ -121,29 +141,7 @@ func new_config() (*config, error) {
    return con, nil
 }
 
-func (r Request) Search(query string) (*Search, error) {
-   param := New_Params()
-   param.Type(Type["Video"])
-   r.Params = param.Marshal()
-   r.Query = query
-   body, err := json.MarshalIndent(r, "", " ")
-   if err != nil {
-      return nil, err
-   }
-   req := http.Post()
-   req.Body_Bytes(body)
-   req.Header.Set("X-Goog-API-Key", api_key)
-   req.URL.Host = "www.youtube.com"
-   req.URL.Path = "/youtubei/v1/search"
-   req.URL.Scheme = "https"
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   search := new(Search)
-   if err := json.NewDecoder(res.Body).Decode(search); err != nil {
-      return nil, err
-   }
-   return search, nil
-}
+const (
+   api_key = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+   mweb_version = "2.20230405.01.00"
+)

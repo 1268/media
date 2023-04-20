@@ -1,12 +1,29 @@
 package youtube
 
 import (
+   "2a.pages.dev/rosso/http"
    "encoding/json"
    "fmt"
    "os"
    "testing"
    "time"
 )
+
+func Test_Search(t *testing.T) {
+   http.Default_Client.Log_Level = 2
+   search, err := Mobile_Web().Search("oneohtrix point never along")
+   if err != nil {
+      t.Fatal(err)
+   }
+   enc := json.NewEncoder(os.Stdout)
+   enc.SetIndent("", " ")
+   if err := enc.Encode(search); err != nil {
+      t.Fatal(err)
+   }
+   for _, item := range search.Items() {
+      fmt.Println(item.Video_With_Context_Renderer)
+   }
+}
 
 func Test_Config(t *testing.T) {
    con, err := new_config()
@@ -77,21 +94,6 @@ func Test_Android_Check(t *testing.T) {
          t.Fatal(play)
       }
       time.Sleep(time.Second)
-   }
-}
-
-func Test_Search(t *testing.T) {
-   search, err := Mobile_Web().Search("oneohtrix point never along")
-   if err != nil {
-      t.Fatal(err)
-   }
-   enc := json.NewEncoder(os.Stdout)
-   enc.SetIndent("", " ")
-   if err := enc.Encode(search); err != nil {
-      t.Fatal(err)
-   }
-   for _, item := range search.Items() {
-      fmt.Println(item.Video_With_Context_Renderer)
    }
 }
 
