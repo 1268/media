@@ -15,21 +15,21 @@ func main() {
    req.Header = make(http.Header)
    req.URL = new(url.URL)
    req.Header["Content-Type"] = []string{"application/x-protobuf"}
-   req.Header["X-Goog-Visitor-Id"] = []string{"Cgtkb0NEOGQzRTNiayi5wvyhBg=="}
    req.Method = "POST"
    req.URL.Host = "youtubei.googleapis.com"
    req.URL.Path = "/youtubei/v1/player"
    req.URL.Scheme = "https"
    req_body := protobuf.Message{
-      2: protobuf.String("Xxk-ryO6J2I"), // videoId
-      1:protobuf.Message{ // context
-         1:protobuf.Message{ // client
+      2: protobuf.String("Xxk-ryO6J2I"),
+      1: protobuf.Message{
+         1: protobuf.Message{
             16: protobuf.Varint(3),
-            17: protobuf.String("18.14.40"), // clientVersion
-            18: protobuf.String("Android"), // clientName
+            17: protobuf.String("18.14.40"),
+            64: protobuf.Varint(26),
          },
       },
    }.Marshal()
+   req.Header["User-Agent"] = []string{"com.google.android.youtube/18.14.40"}
    for range [16]struct{}{} {
       req.Body = io.NopCloser(bytes.NewReader(req_body))
       res, err := new(http.Transport).RoundTrip(&req)
@@ -56,3 +56,4 @@ func main() {
       time.Sleep(time.Second)
    }
 }
+
