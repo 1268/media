@@ -3,35 +3,32 @@ package youtube
 import (
    "2a.pages.dev/rosso/http"
    "2a.pages.dev/rosso/json"
-   "2a.pages.dev/rosso/protobuf"
    "io"
 )
 
 const (
-   // com.google.android.youtube
-   // all versions should be valid starting with 16
-   android_version = "18.15.35"
    api_key = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
    mweb_version = "2.20230405.01.00"
 )
 
+const (
+   // all versions should be valid starting with 16
+   android_version = "18.15.35"
+   user_agent = "com.google.android.youtube/"
+)
+
 func (r Request) Player(id string, tok *Token) (*Player, error) {
-   r.Params = protobuf.Message{
-      1: protobuf.Message{
-         2: protobuf.Varint(0),
-      },
-   }.Marshal()
+   r.Context.Client.Android_SDK_Version = 26
    r.Video_ID = id
    body, err := json.MarshalIndent(r, "", " ")
    if err != nil {
       return nil, err
    }
    req := http.Post()
+   req.Header.Set("User-Agent", user_agent + android_version)
    req.Body_Bytes(body)
    if tok != nil {
       req.Header.Set("Authorization", "Bearer " + tok.Access_Token)
-   } else {
-      req.Header.Set("X-Goog-API-Key", api_key)
    }
    req.URL.Host = "www.youtube.com"
    req.URL.Path = "/youtubei/v1/player"
@@ -46,6 +43,21 @@ func (r Request) Player(id string, tok *Token) (*Player, error) {
       return nil, err
    }
    return play, nil
+}
+
+type Request struct {
+   Content_Check_OK bool `json:"contentCheckOk,omitempty"`
+   Context struct {
+      Client struct {
+         Android_SDK_Version int `json:"androidSdkVersion"`
+         Name string `json:"clientName"`
+         Version string `json:"clientVersion"`
+      } `json:"client"`
+   } `json:"context"`
+   Params []byte `json:"params,omitempty"`
+   Query string `json:"query,omitempty"`
+   Racy_Check_OK bool `json:"racyCheckOk,omitempty"`
+   Video_ID string `json:"videoId,omitempty"`
 }
 
 func Android() Request {
@@ -77,20 +89,6 @@ func Android_Embed() Request {
    r.Context.Client.Name = "ANDROID_EMBEDDED_PLAYER"
    r.Context.Client.Version = android_version
    return r
-}
-
-type Request struct {
-   Content_Check_OK bool `json:"contentCheckOk,omitempty"`
-   Context struct {
-      Client struct {
-         Name string `json:"clientName"`
-         Version string `json:"clientVersion"`
-      } `json:"client"`
-   } `json:"context"`
-   Params []byte `json:"params,omitempty"`
-   Query string `json:"query,omitempty"`
-   Racy_Check_OK bool `json:"racyCheckOk,omitempty"`
-   Video_ID string `json:"videoId,omitempty"`
 }
 
 type config struct {
