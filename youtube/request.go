@@ -7,19 +7,15 @@ import (
    "io"
 )
 
+const (
+   // com.google.android.youtube
+   // all versions should be valid starting with 16
+   android_version = "18.15.35"
+   api_key = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+   mweb_version = "2.20230405.01.00"
+)
+
 func (r Request) Player(id string, tok *Token) (*Player, error) {
-   // fails randomly without this. you can change the inner varint, any value
-   // seems to work, examples:
-   // 0 CgIQAA==
-   // 1 CgIQAQ==
-   // 2 CgIQAg==
-   // 3 CgIQAw==
-   // 4 CgIQBA==
-   // 5 CgIQBQ==
-   // 6 CgIQBg== github.com/TeamNewPipe/NewPipe/issues/9038
-   // 7 CgIQBw==
-   // 8 CgIQCA==
-   // 9 CgIQCQ==
    r.Params = protobuf.Message{
       1: protobuf.Message{
          2: protobuf.Varint(0),
@@ -96,13 +92,6 @@ type Request struct {
    Racy_Check_OK bool `json:"racyCheckOk,omitempty"`
    Video_ID string `json:"videoId,omitempty"`
 }
-const (
-   // com.google.android.youtube
-   // all versions should be valid starting with 16
-   android_version = "18.14.40"
-   api_key = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
-   mweb_version = "2.20230405.01.00"
-)
 
 type config struct {
    Innertube_API_Key string
