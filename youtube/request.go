@@ -6,38 +6,23 @@ import (
    "io"
 )
 
-func (r Request) Search(query string) (*Search, error) {
-   param := New_Params()
-   param.Type(Type["Video"])
-   r.Params = param.Marshal()
-   r.Query = query
-   body, err := json.MarshalIndent(r, "", " ")
-   if err != nil {
-      return nil, err
-   }
-   req := http.Post()
-   req.Body_Bytes(body)
-   req.Header.Set("X-Goog-API-Key", api_key)
-   req.URL.Host = "www.youtube.com"
-   req.URL.Path = "/youtubei/v1/search"
-   req.URL.Scheme = "https"
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   search := new(Search)
-   if err := json.NewDecoder(res.Body).Decode(search); err != nil {
-      return nil, err
-   }
-   return search, nil
+type Request struct {
+   Content_Check_OK bool `json:"contentCheckOk,omitempty"`
+   Context struct {
+      Client struct {
+         Android_SDK_Version int32 `json:"androidSdkVersion,omitempty"`
+         Name string `json:"clientName"`
+         Version string `json:"clientVersion"`
+      } `json:"client"`
+   } `json:"context"`
+   Params []byte `json:"params,omitempty"`
+   Query string `json:"query,omitempty"`
+   Racy_Check_OK bool `json:"racyCheckOk,omitempty"`
+   Video_ID string `json:"videoId,omitempty"`
 }
 
-// current low is 16.43.00
-const android_version = "18.19.99"
-
 func (r Request) Player(id string, tok *Token) (*Player, error) {
-   // valid values 21 - 0x7FFF_FFFF
+   // current minimum 21
    r.Context.Client.Android_SDK_Version = 99
    r.Video_ID = id
    body, err := json.MarshalIndent(r, "", " ")
@@ -66,21 +51,6 @@ func (r Request) Player(id string, tok *Token) (*Player, error) {
 }
 
 const user_agent = "com.google.android.youtube/"
-
-type Request struct {
-   Content_Check_OK bool `json:"contentCheckOk,omitempty"`
-   Context struct {
-      Client struct {
-         Android_SDK_Version int `json:"androidSdkVersion,omitempty"`
-         Name string `json:"clientName"`
-         Version string `json:"clientVersion"`
-      } `json:"client"`
-   } `json:"context"`
-   Params []byte `json:"params,omitempty"`
-   Query string `json:"query,omitempty"`
-   Racy_Check_OK bool `json:"racyCheckOk,omitempty"`
-   Video_ID string `json:"videoId,omitempty"`
-}
 
 func Android() Request {
    var r Request
@@ -145,3 +115,33 @@ const (
    api_key = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
    mweb_version = "2.20230405.01.00"
 )
+func (r Request) Search(query string) (*Search, error) {
+   param := New_Params()
+   param.Type(Type["Video"])
+   r.Params = param.Marshal()
+   r.Query = query
+   body, err := json.MarshalIndent(r, "", " ")
+   if err != nil {
+      return nil, err
+   }
+   req := http.Post()
+   req.Body_Bytes(body)
+   req.Header.Set("X-Goog-API-Key", api_key)
+   req.URL.Host = "www.youtube.com"
+   req.URL.Path = "/youtubei/v1/search"
+   req.URL.Scheme = "https"
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   search := new(Search)
+   if err := json.NewDecoder(res.Body).Decode(search); err != nil {
+      return nil, err
+   }
+   return search, nil
+}
+
+// current low is 16.43.00
+const android_version = "18.19.99"
+
