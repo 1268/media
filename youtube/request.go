@@ -6,6 +6,9 @@ import (
    "io"
 )
 
+// current low is 16.43.00
+const android_version = "18.20.99"
+
 type Request struct {
    Content_Check_OK bool `json:"contentCheckOk,omitempty"`
    Context struct {
@@ -115,6 +118,7 @@ const (
    api_key = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
    mweb_version = "2.20230405.01.00"
 )
+
 func (r Request) Search(query string) (*Search, error) {
    param := New_Params()
    param.Type(Type["Video"])
@@ -141,7 +145,3 @@ func (r Request) Search(query string) (*Search, error) {
    }
    return search, nil
 }
-
-// current low is 16.43.00
-const android_version = "18.19.99"
-
