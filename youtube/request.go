@@ -6,22 +6,17 @@ import (
    "io"
 )
 
-// current low is 16.43.00
-const android_version = "18.20.99"
+const (
+   max_android = "18.20.99"
+   min_android = "16.43.00"
+)
 
-type Request struct {
-   Content_Check_OK bool `json:"contentCheckOk,omitempty"`
-   Context struct {
-      Client struct {
-         Android_SDK_Version int32 `json:"androidSdkVersion,omitempty"`
-         Name string `json:"clientName"`
-         Version string `json:"clientVersion"`
-      } `json:"client"`
-   } `json:"context"`
-   Params []byte `json:"params,omitempty"`
-   Query string `json:"query,omitempty"`
-   Racy_Check_OK bool `json:"racyCheckOk,omitempty"`
-   Video_ID string `json:"videoId,omitempty"`
+func Android() Request {
+   var r Request
+   r.Content_Check_OK = true
+   r.Context.Client.Name = "ANDROID"
+   r.Context.Client.Version = max_android
+   return r
 }
 
 func (r Request) Player(id string, tok *Token) (*Player, error) {
@@ -33,7 +28,7 @@ func (r Request) Player(id string, tok *Token) (*Player, error) {
       return nil, err
    }
    req := http.Post()
-   req.Header.Set("User-Agent", user_agent + android_version)
+   req.Header.Set("User-Agent", user_agent + r.Context.Client.Version)
    req.Body_Bytes(body)
    if tok != nil {
       req.Header.Set("Authorization", "Bearer " + tok.Access_Token)
@@ -53,21 +48,28 @@ func (r Request) Player(id string, tok *Token) (*Player, error) {
    return play, nil
 }
 
-const user_agent = "com.google.android.youtube/"
-
-func Android() Request {
-   var r Request
-   r.Content_Check_OK = true
-   r.Context.Client.Name = "ANDROID"
-   r.Context.Client.Version = android_version
-   return r
+type Request struct {
+   Content_Check_OK bool `json:"contentCheckOk,omitempty"`
+   Context struct {
+      Client struct {
+         Android_SDK_Version int32 `json:"androidSdkVersion,omitempty"`
+         Name string `json:"clientName"`
+         Version string `json:"clientVersion"`
+      } `json:"client"`
+   } `json:"context"`
+   Params []byte `json:"params,omitempty"`
+   Query string `json:"query,omitempty"`
+   Racy_Check_OK bool `json:"racyCheckOk,omitempty"`
+   Video_ID string `json:"videoId,omitempty"`
 }
+
+const user_agent = "com.google.android.youtube/"
 
 func Android_Check() Request {
    var r Request
    r.Content_Check_OK = true
    r.Context.Client.Name = "ANDROID"
-   r.Context.Client.Version = android_version
+   r.Context.Client.Version = max_android
    r.Racy_Check_OK = true
    return r
 }
@@ -82,7 +84,7 @@ func Mobile_Web() Request {
 func Android_Embed() Request {
    var r Request
    r.Context.Client.Name = "ANDROID_EMBEDDED_PLAYER"
-   r.Context.Client.Version = android_version
+   r.Context.Client.Version = max_android
    return r
 }
 
