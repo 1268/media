@@ -97,4 +97,3 @@ func (f flags) downloadable(token *paramount.App_Token) error {
    }
    return nil
 }
-
