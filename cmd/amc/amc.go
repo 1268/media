@@ -38,16 +38,19 @@ func (f flags) download() error {
    if err != nil {
       return err
    }
+   f.Poster = play
    reps, err := f.DASH(play.Source().Src)
    if err != nil {
       return err
    }
-   f.Poster = play
-   if err := f.DASH_Get(reps.Audio(), 0); err != nil {
-      return err
+   {
+      reps := reps.Video()
+      err := f.DASH_Get(reps, reps.Bandwidth(f.bandwidth))
+      if err != nil {
+         return err
+      }
    }
-   video := reps.Video()
-   return f.DASH_Get(video, video.Bandwidth(f.bandwidth))
+   return f.DASH_Get(reps.Audio(), 0)
 }
 
 func (f flags) login() error {

@@ -22,13 +22,31 @@ func (f flags) DASH(content *roku.Content) error {
    if err != nil {
       return err
    }
-   audio := reps.Audio()
-   index := audio.Index(func(a, b dash.Representation) bool {
+   {
+      reps := reps.Video()
+      var index int
+      for index < len(reps) {
+         if reps[index].Height == f.height {
+            break
+         }
+         index++
+      }
+      err := f.DASH_Get(reps, index)
+      if err != nil {
+         return err
+      }
+   }
+   reps = reps.Filter(func(r dash.Representation) bool {
+      if r.MIME_Type != "audio/mp4" {
+         return false
+      }
+      if !strings.HasPrefix(r.Adaptation.Lang, f.lang) {
+         return false
+      }
+      return true
+   })
+   index := reps.Index(func(a, b dash.Representation) bool {
       return strings.Contains(b.Codecs, f.codec)
    })
-   if err := f.DASH_Get(audio, index); err != nil {
-      return err
-   }
-   video := reps.Video()
-   return f.DASH_Get(video, video.Bandwidth(f.bandwidth))
+   return f.DASH_Get(reps, index)
 }

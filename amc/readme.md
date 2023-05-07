@@ -25,10 +25,15 @@ com.amcplus.amcfullepisodes
 4. uncheck Yes! I would like to receive updates
 5. click CREATE ACCOUNT
 6. click MONTHLY
-7. click START FREE TRIAL
-8. click START WATCHING NOW
-9. click SETTINGS
-10. click Subscription
-11. click CANCEL
-12. click NO THANKS, CANCEL AMC+
-13. Forget About This Site
+7. enter Name ON CARD
+8. enter CARD NUMBER
+9. enter EXPIRATION DATE
+10. enter CVC
+11. enter POSTAL CODE
+12. click START FREE TRIAL
+13. click START WATCHING NOW
+14. click SETTINGS
+15. click Subscription
+16. click CANCEL
+17. click NO THANKS, CANCEL AMC+
+18. Forget About This Site

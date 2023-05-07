@@ -33,7 +33,17 @@ func (f flags) dash(token *paramount.App_Token) error {
    if err != nil {
       return err
    }
-   audio := reps.Filter(func(r dash.Representation) bool {
+   {
+      reps := reps.Video()
+      index := reps.Index(func(a, b dash.Representation) bool {
+         return b.Height == f.height
+      })
+      err := f.DASH_Get(reps, index)
+      if err != nil {
+         return err
+      }
+   }
+   reps = reps.Filter(func(r dash.Representation) bool {
       if r.MIME_Type != "audio/mp4" {
          return false
       }
@@ -42,7 +52,7 @@ func (f flags) dash(token *paramount.App_Token) error {
       }
       return true
    })
-   index := audio.Index(func(a, b dash.Representation) bool {
+   index := reps.Index(func(a, b dash.Representation) bool {
       if !strings.HasPrefix(b.Adaptation.Lang, f.lang) {
          return false
       }
@@ -51,14 +61,7 @@ func (f flags) dash(token *paramount.App_Token) error {
       }
       return true
    })
-   if err := f.DASH_Get(audio, index); err != nil {
-      return err
-   }
-   video := reps.Video()
-   index = video.Index(func(a, b dash.Representation) bool {
-      return b.Height == f.height
-   })
-   return f.DASH_Get(video, index)
+   return f.DASH_Get(reps, index)
 }
 
 func (f flags) downloadable(token *paramount.App_Token) error {

@@ -1,19 +1,17 @@
 # Roku
 
-~~~
-go run . -b 12cdc6139bb858f4a597a1aa51a1e37d
-~~~
-
-https://therokuchannel.roku.com/watch/12cdc6139bb858f4a597a1aa51a1e37d
+## en-US
 
 ~~~
-go run . -b 105c41ea75775968b670fbb26978ed76
+go run . -b 661f1d769a8f5f418e6ae9f503dd6ea9 -i
 ~~~
 
-https://therokuchannel.roku.com/watch/105c41ea75775968b670fbb26978ed76
+https://therokuchannel.roku.com/details/661f1d769a8f5f418e6ae9f503dd6ea9
+
+## eng
 
 ~~~
-go run . -b 597a64a4a25c5bf6af4a8c7053049a6f
+go run . -b 40903238e8045f29b3b7ab94df5c2668 -i
 ~~~
 
-https://therokuchannel.roku.com/watch/597a64a4a25c5bf6af4a8c7053049a6f
+https://therokuchannel.roku.com/details/40903238e8045f29b3b7ab94df5c2668
