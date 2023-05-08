@@ -44,10 +44,11 @@ type Cross_Site struct {
    cookie *http.Cookie // has own String method
    token string
 }
+
 func New_Cross_Site() (*Cross_Site, error) {
-   // this has smaller body than www.roku.com
    req := http.Get()
    req.URL.Scheme = "https"
+   // this has smaller body than www.roku.com
    req.URL.Host = "therokuchannel.roku.com"
    res, err := http.Default_Client.Do(req)
    if err != nil {
@@ -70,5 +71,3 @@ func New_Cross_Site() (*Cross_Site, error) {
    }
    return &site, nil
 }
-
-
