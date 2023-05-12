@@ -6,10 +6,7 @@ import (
    "io"
 )
 
-const (
-   max_android = "18.20.99"
-   min_android = "16.43.00"
-)
+const max_android = "18.22.99"
 
 func Android() Request {
    var r Request
@@ -20,7 +17,6 @@ func Android() Request {
 }
 
 func (r Request) Player(id string, tok *Token) (*Player, error) {
-   // current minimum 21
    r.Context.Client.Android_SDK_Version = 99
    r.Video_ID = id
    body, err := json.MarshalIndent(r, "", " ")

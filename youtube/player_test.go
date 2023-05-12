@@ -14,31 +14,15 @@ func Test_Player(t *testing.T) {
    video_ID := androids[0]
    for range [16]struct{}{} {
       req.Context.Client.Version = max_android
-      {
-         p, err := req.Player(video_ID, nil)
-         if err != nil {
-            t.Fatal(err)
-         }
-         if len(p.Streaming_Data.Adaptive_Formats) == 0 {
-            t.Fatal(p)
-         }
-         if p.Video_Details.View_Count == 0 {
-            t.Fatal(p)
-         }
+      p, err := req.Player(video_ID, nil)
+      if err != nil {
+         t.Fatal(err)
       }
-      time.Sleep(time.Second)
-      req.Context.Client.Version = min_android
-      {
-         p, err := req.Player(video_ID, nil)
-         if err != nil {
-            t.Fatal(err)
-         }
-         if len(p.Streaming_Data.Adaptive_Formats) == 0 {
-            t.Fatal(p)
-         }
-         if p.Video_Details.View_Count == 0 {
-            t.Fatal(p)
-         }
+      if len(p.Streaming_Data.Adaptive_Formats) == 0 {
+         t.Fatal(p)
+      }
+      if p.Video_Details.View_Count == 0 {
+         t.Fatal(p)
       }
       time.Sleep(time.Second)
    }
