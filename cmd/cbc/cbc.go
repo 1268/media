@@ -6,45 +6,16 @@ import (
    "os"
 )
 
-func (f *flags) master() (*hls.Master, error) {
-   home, err := os.UserHomeDir()
-   if err != nil {
-      return nil, err
-   }
-   profile, err := cbc.Read_Profile(home + "/mech/cbc.json")
-   if err != nil {
-      return nil, err
-   }
-   asset, err := cbc.New_Asset(f.id)
-   if err != nil {
-      return nil, err
-   }
-   media, err := profile.Media(asset)
-   if err != nil {
-      return nil, err
-   }
-   f.Name = asset.Name()
-   return f.HLS(*media.URL)
-}
-
 func (f flags) profile() error {
    home, err := os.UserHomeDir()
    if err != nil {
       return err
    }
-   login, err := cbc.New_Login(f.email, f.password)
+   login, err := cbc.New_Token(f.email, f.password)
    if err != nil {
       return err
    }
-   web, err := login.Web_Token()
-   if err != nil {
-      return err
-   }
-   top, err := web.Over_The_Top()
-   if err != nil {
-      return err
-   }
-   profile, err := top.Profile()
+   profile, err := login.Profile()
    if err != nil {
       return err
    }
@@ -72,4 +43,25 @@ func (f flags) download() error {
       return b.Name == f.name
    })
    return f.HLS_Media(media, index)
+}
+
+func (f *flags) master() (*hls.Master, error) {
+   home, err := os.UserHomeDir()
+   if err != nil {
+      return nil, err
+   }
+   profile, err := cbc.Read_Profile(home + "/mech/cbc.json")
+   if err != nil {
+      return nil, err
+   }
+   asset, err := cbc.New_Asset(f.id)
+   if err != nil {
+      return nil, err
+   }
+   media, err := profile.Media(asset)
+   if err != nil {
+      return nil, err
+   }
+   f.Name = asset.Name()
+   return f.HLS(*media.URL)
 }
