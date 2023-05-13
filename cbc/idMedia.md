@@ -29,12 +29,9 @@ response contains `idMedia`, but is missing `title`:
 
 and this request:
 
-~~~
-GET /ott/catalog/v2/gem/show/the-fall/s02e03?device=web HTTP/1.1
-Host: services.radio-canada.ca
-~~~
+https://services.radio-canada.ca/ott/catalog/v2/gem/show/the-fall/s02e03?device=web
 
-but the `idMedia` is buried:
+but the `idMedia` is buried under 7 keys:
 
 ~~~
 content	
@@ -52,10 +49,10 @@ and this request:
 GET https://gem.cbc.ca/_next/data/WDfYZ6y6xkdFmrbKb5BJy/the-fall/s02e03.json?show=the-fall&content=s02e03 HTTP/2.0
 ~~~
 
-but the `idMedia` is buried:
+but the `idMedia` is buried under 9 keys:
 
 ~~~
-pageProps	
+pageProps
 data	
 content	
 0	
@@ -72,7 +69,7 @@ and this request:
 GET https://gem.cbc.ca/the-fall/s02e03 HTTP/2.0
 ~~~
 
-but the `idMedia` is buried:
+but the `idMedia` is buried under 10 keys:
 
 ~~~
 props	
@@ -96,7 +93,4 @@ Host: services.radio-canada.ca
 
 and this same request:
 
-~~~
-GET /ott/catalog/v2/gem/show/the-fall/s02e03?Tier=STANDARD&device=phone_android HTTP/1.1
-Host: services.radio-canada.ca
-~~~
+<https://services.radio-canada.ca/ott/catalog/v2/gem/show/the-fall/s02e03?device=phone_android>
