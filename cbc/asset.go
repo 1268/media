@@ -61,4 +61,3 @@ type Asset struct {
       Release_Date string `json:"releaseDate"`
    }
 }
-

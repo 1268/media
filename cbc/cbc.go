@@ -9,6 +9,76 @@ import (
    "strings"
 )
 
+func (o Over_The_Top) Profile() (*Profile, error) {
+   req := http.Get()
+   req.Header.Set("OTT-Access-Token", o.Access_Token)
+   req.URL.Host = "services.radio-canada.ca"
+   req.URL.Path = "/ott/cbc-api/v2/profile"
+   req.URL.Scheme = "https"
+   client := http.Default_Client
+   client.Status = 426
+   res, err := client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   pro := new(Profile)
+   if err := json.NewDecoder(res.Body).Decode(pro); err != nil {
+      return nil, err
+   }
+   return pro, nil
+}
+
+func (w Web_Token) Over_The_Top() (*Over_The_Top, error) {
+   token := map[string]string{"jwt": w.Signature}
+   body, err := json.MarshalIndent(token, "", " ")
+   if err != nil {
+      return nil, err
+   }
+   req := http.Post()
+   req.Body_Bytes(body)
+   req.Header.Set("Content-Type", "application/json")
+   req.URL.Host = "services.radio-canada.ca"
+   req.URL.Path = "/ott/cbc-api/v2/token"
+   req.URL.Scheme = "https"
+   client := http.Default_Client
+   client.Status = 426
+   res, err := client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   top := new(Over_The_Top)
+   if err := json.NewDecoder(res.Body).Decode(top); err != nil {
+      return nil, err
+   }
+   return top, nil
+}
+
+func (p Profile) Media(a *Asset) (*Media, error) {
+   req, err := http.Get_URL(a.Play_Session.URL)
+   if err != nil {
+      return nil, err
+   }
+   req.Header = http.Header{
+      "X-Claims-Token": {p.Claims_Token},
+      "X-Forwarded-For": {forwarded_for},
+   }
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   med := new(Media)
+   if err := json.NewDecoder(res.Body).Decode(med); err != nil {
+      return nil, err
+   }
+   if med.Message != nil {
+      return nil, errors.New(*med.Message)
+   }
+   return med, nil
+}
+
 func New_Login(email, password string) (*Login, error) {
    auth := map[string]string{
       "email": email,
@@ -37,30 +107,6 @@ func New_Login(email, password string) (*Login, error) {
    return login, nil
 }
 
-func (w Web_Token) Over_The_Top() (*Over_The_Top, error) {
-   token := map[string]string{"jwt": w.Signature}
-   body, err := json.MarshalIndent(token, "", " ")
-   if err != nil {
-      return nil, err
-   }
-   req := http.Post()
-   req.Body_Bytes(body)
-   req.Header.Set("Content-Type", "application/json")
-   req.URL.Host = "services.radio-canada.ca"
-   req.URL.Path = "/ott/cbc-api/v2/token"
-   req.URL.Scheme = "https"
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   top := new(Over_The_Top)
-   if err := json.NewDecoder(res.Body).Decode(top); err != nil {
-      return nil, err
-   }
-   return top, nil
-}
-
 const forwarded_for = "99.224.0.0"
 
 // gem.cbc.ca/media/downton-abbey/s01e05
@@ -75,30 +121,6 @@ func Get_ID(input string) string {
 type Media struct {
    Message *string
    URL *string
-}
-
-func (p Profile) Media(a *Asset) (*Media, error) {
-   req, err := http.Get_URL(a.Play_Session.URL)
-   if err != nil {
-      return nil, err
-   }
-   req.Header = http.Header{
-      "X-Claims-Token": {p.Claims_Token},
-      "X-Forwarded-For": {forwarded_for},
-   }
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   med := new(Media)
-   if err := json.NewDecoder(res.Body).Decode(med); err != nil {
-      return nil, err
-   }
-   if med.Message != nil {
-      return nil, errors.New(*med.Message)
-   }
-   return med, nil
 }
 
 func Read_Profile(name string) (*Profile, error) {
@@ -152,24 +174,6 @@ func (l Login) Web_Token() (*Web_Token, error) {
 
 type Over_The_Top struct {
    Access_Token string `json:"accessToken"`
-}
-
-func (o Over_The_Top) Profile() (*Profile, error) {
-   req := http.Get()
-   req.Header.Set("OTT-Access-Token", o.Access_Token)
-   req.URL.Host = "services.radio-canada.ca"
-   req.URL.Path = "/ott/cbc-api/v2/profile"
-   req.URL.Scheme = "https"
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   pro := new(Profile)
-   if err := json.NewDecoder(res.Body).Decode(pro); err != nil {
-      return nil, err
-   }
-   return pro, nil
 }
 
 type Profile struct {
