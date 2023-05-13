@@ -190,5 +190,5 @@ func (a Auth) Write_File(name string) error {
    if err != nil {
       return err
    }
-   return os.WriteFile(name, indent, os.ModePerm)
+   return os.WriteFile(name, indent, 0666)
 }

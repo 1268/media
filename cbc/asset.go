@@ -8,10 +8,12 @@ import (
 
 func New_Asset(id string) (*Asset, error) {
    req := http.Get()
+   req.URL.Scheme = "https"
    req.URL.Host = "services.radio-canada.ca"
    req.URL.Path = "/ott/cbc-api/v2/assets/" + id
-   req.URL.Scheme = "https"
-   res, err := http.Default_Client.Do(req)
+   client := http.Default_Client
+   client.Status = 426
+   res, err := client.Do(req)
    if err != nil {
       return nil, err
    }
@@ -23,19 +25,25 @@ func New_Asset(id string) (*Asset, error) {
    return a, nil
 }
 
+const (
+   sep_big = " - "
+   sep_small = ' '
+)
+
 func (a Asset) Name() string {
    var b []byte
    b = append(b, a.Series...)
    if a.Episode >= 1 {
-      b = append(b, '-')
-      b = append(b, a.Title...)
-      b = append(b, "-s"...)
+      b = append(b, sep_big...)
+      b = append(b, 'S')
       b = strconv.AppendInt(b, a.Season, 10)
-      b = append(b, 'e')
+      b = append(b, sep_small)
+      b = append(b, 'E')
       b = strconv.AppendInt(b, a.Episode, 10)
-   }
-   if a.Credits.Release_Date != "" {
-      b = append(b, '-')
+      b = append(b, sep_big...)
+      b = append(b, a.Title...)
+   } else {
+      b = append(b, sep_big...)
       b = append(b, a.Credits.Release_Date...)
    }
    return string(b)
@@ -53,3 +61,4 @@ type Asset struct {
       Release_Date string `json:"releaseDate"`
    }
 }
+

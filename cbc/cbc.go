@@ -118,7 +118,7 @@ func (p Profile) Write_File(name string) error {
    if err != nil {
       return err
    }
-   return os.WriteFile(name, data, os.ModePerm)
+   return os.WriteFile(name, data, 0666)
 }
 
 const api_key = "3f4beddd-2061-49b0-ae80-6f1f2ed65b37"

@@ -6,26 +6,6 @@ import (
    "os"
 )
 
-func (f flags) download() error {
-   master, err := f.master()
-   if err != nil {
-      return err
-   }
-   media := master.Media.Filter(func(m hls.Medium) bool {
-      return m.Type == "AUDIO"
-   })
-   index := media.Index(func(a, b hls.Medium) bool {
-      return b.Name == f.name
-   })
-   if err := f.HLS_Media(media, index); err != nil {
-      return err
-   }
-   streams := master.Streams.Filter(func(s hls.Stream) bool {
-      return s.Resolution != ""
-   })
-   return f.HLS_Streams(streams, streams.Bandwidth(f.bandwidth))
-}
-
 func (f *flags) master() (*hls.Master, error) {
    home, err := os.UserHomeDir()
    if err != nil {
@@ -45,6 +25,26 @@ func (f *flags) master() (*hls.Master, error) {
    }
    f.Name = asset.Name()
    return f.HLS(*media.URL)
+}
+
+func (f flags) download() error {
+   master, err := f.master()
+   if err != nil {
+      return err
+   }
+   media := master.Media.Filter(func(m hls.Medium) bool {
+      return m.Type == "AUDIO"
+   })
+   index := media.Index(func(a, b hls.Medium) bool {
+      return b.Name == f.name
+   })
+   if err := f.HLS_Media(media, index); err != nil {
+      return err
+   }
+   streams := master.Streams.Filter(func(s hls.Stream) bool {
+      return s.Resolution != ""
+   })
+   return f.HLS_Streams(streams, streams.Bandwidth(f.bandwidth))
 }
 
 func (f flags) profile() error {

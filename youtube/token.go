@@ -110,7 +110,7 @@ func (t Token) Write_File(name string) error {
    if err != nil {
       return err
    }
-   return os.WriteFile(name, data, os.ModePerm)
+   return os.WriteFile(name, data, 0666)
 }
 
 type Token struct {
