@@ -29,7 +29,7 @@ func Test_Media(t *testing.T) {
    if err != nil {
       t.Fatal(err)
    }
-   profile, err := Open_Profile(home + "/mech/cbc.json")
+   profile, err := Read_Profile(home + "/mech/cbc.json")
    if err != nil {
       t.Fatal(err)
    }

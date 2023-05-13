@@ -185,7 +185,7 @@ func (a *Auth) Refresh() error {
    return json.NewDecoder(res.Body).Decode(a)
 }
 
-func (a Auth) Create(name string) error {
+func (a Auth) Write_File(name string) error {
    indent, err := json.MarshalIndent(a, "", " ")
    if err != nil {
       return err

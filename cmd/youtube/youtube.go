@@ -35,7 +35,7 @@ func (f flags) player() (*youtube.Player, error) {
       if err != nil {
          return nil, err
       }
-      token, err = youtube.Open_Token(home + "/mech/youtube.json")
+      token, err = youtube.Read_Token(home + "/mech/youtube.json")
       if err != nil {
          return nil, err
       }
@@ -93,6 +93,6 @@ func (f flags) do_refresh() error {
    if err != nil {
       return err
    }
-   return token.Create(home + "/mech/youtube.json")
+   return token.Write_File(home + "/mech/youtube.json")
 }
 

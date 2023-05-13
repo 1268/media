@@ -17,7 +17,7 @@ func Test_Login(t *testing.T) {
    if err != nil {
       t.Fatal(err)
    }
-   if err := auth.Create(home + "/mech/amc.json"); err != nil {
+   if err := auth.Write_File(home + "/mech/amc.json"); err != nil {
       t.Fatal(err)
    }
 }
@@ -27,14 +27,14 @@ func Test_Refresh(t *testing.T) {
    if err != nil {
       t.Fatal(err)
    }
-   auth, err := Open_Auth(home + "/mech/amc.json")
+   auth, err := Read_Auth(home + "/mech/amc.json")
    if err != nil {
       t.Fatal(err)
    }
    if err := auth.Refresh(); err != nil {
       t.Fatal(err)
    }
-   if err := auth.Create(home + "/mech/amc.json"); err != nil {
+   if err := auth.Write_File(home + "/mech/amc.json"); err != nil {
       t.Fatal(err)
    }
 }

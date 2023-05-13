@@ -10,14 +10,14 @@ func (f flags) download() error {
    if err != nil {
       return err
    }
-   auth, err := amc.Open_Auth(home + "/mech/amc.json")
+   auth, err := amc.Read_Auth(home + "/mech/amc.json")
    if err != nil {
       return err
    }
    if err := auth.Refresh(); err != nil {
       return err
    }
-   if err := auth.Create(home + "/mech/amc.json"); err != nil {
+   if err := auth.Write_File(home + "/mech/amc.json"); err != nil {
       return err
    }
    if !f.Info {
@@ -65,5 +65,5 @@ func (f flags) login() error {
    if err != nil {
       return err
    }
-   return auth.Create(home + "/mech/amc.json")
+   return auth.Write_File(home + "/mech/amc.json")
 }

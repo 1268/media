@@ -14,7 +14,7 @@ func Test_Content(t *testing.T) {
    if err != nil {
       t.Fatal(err)
    }
-   auth, err := Open_Auth(home + "/mech/amc.json")
+   auth, err := Read_Auth(home + "/mech/amc.json")
    if err != nil {
       t.Fatal(err)
    }
@@ -78,7 +78,7 @@ func Test_Post(t *testing.T) {
    if err != nil {
       t.Fatal(err)
    }
-   auth, err := Open_Auth(home + "/mech/amc.json")
+   auth, err := Read_Auth(home + "/mech/amc.json")
    if err != nil {
       t.Fatal(err)
    }

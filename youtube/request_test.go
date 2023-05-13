@@ -81,7 +81,7 @@ func Test_Android_Check(t *testing.T) {
       t.Fatal(err)
    }
    req := Android_Check()
-   tok, err := Open_Token(home + "/mech/youtube.json")
+   tok, err := Read_Token(home + "/mech/youtube.json")
    if err != nil {
       t.Fatal(err)
    }

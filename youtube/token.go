@@ -93,7 +93,7 @@ type Device_Code struct {
    Verification_URL string
 }
 
-func Open_Token(name string) (*Token, error) {
+func Read_Token(name string) (*Token, error) {
    data, err := os.ReadFile(name)
    if err != nil {
       return nil, err
@@ -105,7 +105,7 @@ func Open_Token(name string) (*Token, error) {
    return tok, nil
 }
 
-func (t Token) Write(name string) error {
+func (t Token) Write_File(name string) error {
    data, err := json.Marshal(t)
    if err != nil {
       return err

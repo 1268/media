@@ -31,7 +31,7 @@ func (f *flags) master() (*hls.Master, error) {
    if err != nil {
       return nil, err
    }
-   profile, err := cbc.Open_Profile(home + "/mech/cbc.json")
+   profile, err := cbc.Read_Profile(home + "/mech/cbc.json")
    if err != nil {
       return nil, err
    }
@@ -68,5 +68,5 @@ func (f flags) profile() error {
    if err != nil {
       return err
    }
-   return profile.Create(home + "/mech/cbc.json")
+   return profile.Write_File(home + "/mech/cbc.json")
 }

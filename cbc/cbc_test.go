@@ -26,7 +26,7 @@ func Test_Profile(t *testing.T) {
    if err != nil {
       t.Fatal(err)
    }
-   if err := profile.Create(home + "/mech/cbc.json"); err != nil {
+   if err := profile.Write_File(home + "/mech/cbc.json"); err != nil {
       t.Fatal(err)
    }
 }
