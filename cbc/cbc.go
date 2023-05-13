@@ -9,6 +9,56 @@ import (
    "strings"
 )
 
+func New_Login(email, password string) (*Login, error) {
+   auth := map[string]string{
+      "email": email,
+      "password": password,
+   }
+   body, err := json.MarshalIndent(auth, "", " ")
+   if err != nil {
+      return nil, err
+   }
+   req := http.Post()
+   req.Body_Bytes(body)
+   req.Header.Set("Content-Type", "application/json")
+   req.URL.Host = "api.loginradius.com"
+   req.URL.Path = "/identity/v2/auth/login"
+   req.URL.RawQuery = "apiKey=" + api_key
+   req.URL.Scheme = "https"
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   login := new(Login)
+   if err := json.NewDecoder(res.Body).Decode(login); err != nil {
+      return nil, err
+   }
+   return login, nil
+}
+
+func (l Login) Web_Token() (*Web_Token, error) {
+   req := http.Get()
+   req.URL.Host = "cloud-api.loginradius.com"
+   req.URL.Path = "/sso/jwt/api/token"
+   req.URL.RawQuery = url.Values{
+      "access_token": {l.Access_Token},
+      "apikey": {api_key},
+      "jwtapp": {"jwt"},
+   }.Encode()
+   req.URL.Scheme = "https"
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   web := new(Web_Token)
+   if err := json.NewDecoder(res.Body).Decode(web); err != nil {
+      return nil, err
+   }
+   return web, nil
+}
+
 func (w Web_Token) Over_The_Top() (*Over_The_Top, error) {
    client := http.Default_Client
    client.Status = 426
@@ -79,34 +129,6 @@ func (p Profile) Media(a *Asset) (*Media, error) {
    return med, nil
 }
 
-func New_Login(email, password string) (*Login, error) {
-   auth := map[string]string{
-      "email": email,
-      "password": password,
-   }
-   body, err := json.MarshalIndent(auth, "", " ")
-   if err != nil {
-      return nil, err
-   }
-   req := http.Post()
-   req.Body_Bytes(body)
-   req.Header.Set("Content-Type", "application/json")
-   req.URL.Host = "api.loginradius.com"
-   req.URL.Path = "/identity/v2/auth/login"
-   req.URL.RawQuery = "apiKey=" + api_key
-   req.URL.Scheme = "https"
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   login := new(Login)
-   if err := json.NewDecoder(res.Body).Decode(login); err != nil {
-      return nil, err
-   }
-   return login, nil
-}
-
 const forwarded_for = "99.224.0.0"
 
 // gem.cbc.ca/media/downton-abbey/s01e05
@@ -148,28 +170,6 @@ const api_key = "3f4beddd-2061-49b0-ae80-6f1f2ed65b37"
 type Login struct {
    Access_Token string
    Expires_In string
-}
-
-func (l Login) Web_Token() (*Web_Token, error) {
-   req := http.Get()
-   req.URL.Host = "cloud-api.loginradius.com"
-   req.URL.Path = "/sso/jwt/api/token"
-   req.URL.RawQuery = url.Values{
-      "access_token": {l.Access_Token},
-      "apikey": {api_key},
-      "jwtapp": {"jwt"},
-   }.Encode()
-   req.URL.Scheme = "https"
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   web := new(Web_Token)
-   if err := json.NewDecoder(res.Body).Decode(web); err != nil {
-      return nil, err
-   }
-   return web, nil
 }
 
 type Over_The_Top struct {
