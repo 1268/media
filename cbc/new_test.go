@@ -8,10 +8,6 @@ import (
 )
 
 func Test_Profile(t *testing.T) {
-   profile()
-}
-
-func Test_Token(t *testing.T) {
    home, err := os.UserHomeDir()
    if err != nil {
       t.Fatal(err)
@@ -24,7 +20,11 @@ func Test_Token(t *testing.T) {
    if err != nil {
       t.Fatal(err)
    }
-   fmt.Printf("%+v\n", tok)
+   pro, err := tok.profile()
+   if err != nil {
+      t.Fatal(err)
+   }
+   fmt.Printf("%+v\n", pro)
 }
 
 func sign_in(name string) ([]string, error) {

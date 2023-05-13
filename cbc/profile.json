@@ -1,0 +1,29 @@
+{
+  "tier": "Member",
+  "hasHD": false,
+  "hasAds": true,
+  "statsMetas": {
+    "rc.acces": "anonyme",
+    "rc.telco": "aucun",
+    "rc.plan": "ppid:null;dppid:null",
+    "rc.forfait": "aucun"
+  },
+  "maxStream": 5,
+  "claimsToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJIYXNIRCI6IkZhbHNlI...",
+  "eligiblePromos": [
+    {
+      "promo": "FirstMonthFree"
+    }
+  ],
+  "callToAction": {
+    "action": "Subscribe",
+    "text": "Subscribe",
+    "isExternal": false
+  },
+  "user": {
+    "rcId": "fa87c540-04e7-4461-977a-c8bd470d140a",
+    "loginRadiusId": "0f650f8d220d412baaa578d5c50b96ed",
+    "cbcPlusId": "3ec109d2-ce98-40b6-85aa-b1525ae5dfe4",
+    "ppid": "4ed2e21da24f985c8682b22ea402245028478142035faf5c69634e5abde5d23a"
+  }
+}
