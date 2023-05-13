@@ -94,25 +94,23 @@ type Device_Code struct {
 }
 
 func Open_Token(name string) (*Token, error) {
-   file, err := os.Open(name)
+   data, err := os.ReadFile(name)
    if err != nil {
       return nil, err
    }
-   defer file.Close()
-   t := new(Token)
-   if err := json.NewDecoder(file).Decode(t); err != nil {
+   tok := new(Token)
+   if err := json.Unmarshal(data, tok); err != nil {
       return nil, err
    }
-   return t, nil
+   return tok, nil
 }
 
-func (t Token) Create(name string) error {
-   file, err := os.Create(name)
+func (t Token) Write(name string) error {
+   data, err := json.Marshal(t)
    if err != nil {
       return err
    }
-   defer file.Close()
-   return json.NewEncoder(file).Encode(t)
+   return os.WriteFile(name, data, os.ModePerm)
 }
 
 type Token struct {
@@ -120,4 +118,3 @@ type Token struct {
    Error string
    Refresh_Token string
 }
-
