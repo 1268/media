@@ -9,6 +9,32 @@ import (
    "strings"
 )
 
+func (w Web_Token) Over_The_Top() (*Over_The_Top, error) {
+   client := http.Default_Client
+   client.Status = 426
+   token := map[string]string{"jwt": w.Signature}
+   body, err := json.MarshalIndent(token, "", " ")
+   if err != nil {
+      return nil, err
+   }
+   req := http.Post()
+   req.Body_Bytes(body)
+   req.URL.Scheme = "https"
+   req.URL.Host = "services.radio-canada.ca"
+   req.URL.Path = "/ott/cbc-api/v2/token"
+   req.Header.Set("Content-Type", "application/json")
+   res, err := client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   top := new(Over_The_Top)
+   if err := json.NewDecoder(res.Body).Decode(top); err != nil {
+      return nil, err
+   }
+   return top, nil
+}
+
 func (o Over_The_Top) Profile() (*Profile, error) {
    req := http.Get()
    req.Header.Set("OTT-Access-Token", o.Access_Token)
@@ -27,32 +53,6 @@ func (o Over_The_Top) Profile() (*Profile, error) {
       return nil, err
    }
    return pro, nil
-}
-
-func (w Web_Token) Over_The_Top() (*Over_The_Top, error) {
-   token := map[string]string{"jwt": w.Signature}
-   body, err := json.MarshalIndent(token, "", " ")
-   if err != nil {
-      return nil, err
-   }
-   req := http.Post()
-   req.Body_Bytes(body)
-   req.Header.Set("Content-Type", "application/json")
-   req.URL.Host = "services.radio-canada.ca"
-   req.URL.Path = "/ott/cbc-api/v2/token"
-   req.URL.Scheme = "https"
-   client := http.Default_Client
-   client.Status = 426
-   res, err := client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   top := new(Over_The_Top)
-   if err := json.NewDecoder(res.Body).Decode(top); err != nil {
-      return nil, err
-   }
-   return top, nil
 }
 
 func (p Profile) Media(a *Asset) (*Media, error) {
@@ -184,4 +184,3 @@ type Profile struct {
 type Web_Token struct {
    Signature string
 }
-

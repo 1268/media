@@ -48,3 +48,11 @@ Sec-Fetch-Mode: cors
 Sec-Fetch-Site: cross-site
 content-length: 0
 ~~~
+
+here is what we need:
+
+~~~
+GET /media/validation/v2?appCode=gem&idMedia=958273&manifestType=desktop&output=json&tech=hls HTTP/1.1
+Host: services.radio-canada.ca
+X-Forwarded-For: 99.224.0.0
+~~~

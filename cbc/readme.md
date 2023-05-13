@@ -8,6 +8,11 @@ https://play.google.com/store/apps/details?id=ca.cbc.android.cbctv
 
 Create Android device API 23. Install user certificate.
 
+~~~
+adb shell am start -a android.intent.action.VIEW `
+-d https://gem.cbc.ca/the-fall/s02e03
+~~~
+
 ## How to create account?
 
 Use Android client
