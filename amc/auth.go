@@ -101,17 +101,16 @@ type Auth struct {
    }
 }
 
-func Open_Auth(name string) (*Auth, error) {
-   file, err := os.Open(name)
+func Read_Auth(name string) (*Auth, error) {
+   data, err := os.ReadFile(name)
    if err != nil {
       return nil, err
    }
-   defer file.Close()
-   auth := new(Auth)
-   if err := json.NewDecoder(file).Decode(auth); err != nil {
+   a := new(Auth)
+   if err := json.Unmarshal(data, a); err != nil {
       return nil, err
    }
-   return auth, nil
+   return a, nil
 }
 
 func Unauth() (*Auth, error) {

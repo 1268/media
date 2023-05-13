@@ -4,16 +4,48 @@ import (
    "2a.pages.dev/rosso/http"
    "2a.pages.dev/rosso/json"
    "io"
+   "strconv"
 )
 
-const max_android = "18.22.99"
+type version struct {
+   major int64
+   minor int64
+   patch int64
+}
+
+var max_android = version{18, 22, 99}
 
 func Android() Request {
    var r Request
    r.Content_Check_OK = true
    r.Context.Client.Name = "ANDROID"
-   r.Context.Client.Version = max_android
+   r.Context.Client.Version = max_android.String()
    return r
+}
+
+type Request struct {
+   Content_Check_OK bool `json:"contentCheckOk,omitempty"`
+   Context struct {
+      Client struct {
+         Android_SDK_Version int32 `json:"androidSdkVersion,omitempty"`
+         Name string `json:"clientName"`
+         Version string `json:"clientVersion"`
+      } `json:"client"`
+   } `json:"context"`
+   Params []byte `json:"params,omitempty"`
+   Query string `json:"query,omitempty"`
+   Racy_Check_OK bool `json:"racyCheckOk,omitempty"`
+   Video_ID string `json:"videoId,omitempty"`
+}
+
+func (v version) String() string {
+   var b []byte
+   b = strconv.AppendInt(b, v.major, 10)
+   b = append(b, '.')
+   b = strconv.AppendInt(b, v.minor, 10)
+   b = append(b, '.')
+   b = strconv.AppendInt(b, v.patch, 10)
+   return string(b)
 }
 
 func (r Request) Player(id string, tok *Token) (*Player, error) {
@@ -44,28 +76,13 @@ func (r Request) Player(id string, tok *Token) (*Player, error) {
    return play, nil
 }
 
-type Request struct {
-   Content_Check_OK bool `json:"contentCheckOk,omitempty"`
-   Context struct {
-      Client struct {
-         Android_SDK_Version int32 `json:"androidSdkVersion,omitempty"`
-         Name string `json:"clientName"`
-         Version string `json:"clientVersion"`
-      } `json:"client"`
-   } `json:"context"`
-   Params []byte `json:"params,omitempty"`
-   Query string `json:"query,omitempty"`
-   Racy_Check_OK bool `json:"racyCheckOk,omitempty"`
-   Video_ID string `json:"videoId,omitempty"`
-}
-
 const user_agent = "com.google.android.youtube/"
 
 func Android_Check() Request {
    var r Request
    r.Content_Check_OK = true
    r.Context.Client.Name = "ANDROID"
-   r.Context.Client.Version = max_android
+   r.Context.Client.Version = max_android.String()
    r.Racy_Check_OK = true
    return r
 }
@@ -80,7 +97,7 @@ func Mobile_Web() Request {
 func Android_Embed() Request {
    var r Request
    r.Context.Client.Name = "ANDROID_EMBEDDED_PLAYER"
-   r.Context.Client.Version = max_android
+   r.Context.Client.Version = max_android.String()
    return r
 }
 
