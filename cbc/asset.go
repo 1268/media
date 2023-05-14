@@ -6,6 +6,38 @@ import (
    "strconv"
 )
 
+type Asset struct {
+   Series string
+   Season int64
+   Episode int64
+   Title string
+   Credits struct {
+      Release_Date string `json:"releaseDate"`
+   }
+   Play_Session struct {
+      URL string
+   } `json:"playSession"`
+}
+
+func (a Asset) Name() string {
+   var b []byte
+   b = append(b, a.Series...)
+   if a.Episode >= 1 {
+      b = append(b, sep_big...)
+      b = append(b, 'S')
+      b = strconv.AppendInt(b, a.Season, 10)
+      b = append(b, sep_small)
+      b = append(b, 'E')
+      b = strconv.AppendInt(b, a.Episode, 10)
+      b = append(b, sep_big...)
+      b = append(b, a.Title...)
+   } else {
+      b = append(b, sep_big...)
+      b = append(b, a.Credits.Release_Date...)
+   }
+   return string(b)
+}
+
 func New_Asset(id string) (*Asset, error) {
    req := http.Get()
    req.URL.Scheme = "https"
@@ -29,35 +61,3 @@ const (
    sep_big = " - "
    sep_small = ' '
 )
-
-func (a Asset) Name() string {
-   var b []byte
-   b = append(b, a.Series...)
-   if a.Episode >= 1 {
-      b = append(b, sep_big...)
-      b = append(b, 'S')
-      b = strconv.AppendInt(b, a.Season, 10)
-      b = append(b, sep_small)
-      b = append(b, 'E')
-      b = strconv.AppendInt(b, a.Episode, 10)
-      b = append(b, sep_big...)
-      b = append(b, a.Title...)
-   } else {
-      b = append(b, sep_big...)
-      b = append(b, a.Credits.Release_Date...)
-   }
-   return string(b)
-}
-
-type Asset struct {
-   Play_Session struct {
-      URL string
-   } `json:"playSession"`
-   Series string
-   Title string
-   Season int64
-   Episode int64
-   Credits struct {
-      Release_Date string `json:"releaseDate"`
-   }
-}

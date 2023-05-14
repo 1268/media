@@ -1,20 +1,30 @@
 package cbc
 
 import (
-   "io"
+   "encoding/json"
    "os"
    "testing"
+   "time"
 )
 
+var links = []string{
+   // gem.cbc.ca/the-fall/s02e03
+   "the-fall/s02e03",
+   // gem.cbc.ca/the-witch
+   "the-witch",
+}
+
 func Test_Gem(t *testing.T) {
-   res, err := gem("the-fall/s02e03")
-   if err != nil {
-      t.Fatal(err)
+   enc := json.NewEncoder(os.Stdout)
+   enc.SetIndent("", " ")
+   for _, link := range links {
+      gem, err := new_catalog_gem(link)
+      if err != nil {
+         t.Fatal(err)
+      }
+      if err := enc.Encode(gem); err != nil {
+         t.Fatal(err)
+      }
+      time.Sleep(time.Second)
    }
-   defer res.Body.Close()
-   data, err := io.ReadAll(res.Body)
-   if err != nil {
-      t.Fatal(err)
-   }
-   os.WriteFile("gem.json", data, 0666)
 }

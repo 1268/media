@@ -791,6 +791,25 @@
  ],
  "contentType": "Season",
  "description": "THE FALL examines the lives of two hunters: one a serial killer that stalks his victims (Jamie Dornan) and the other a high-powered detective superintendent brought in to catch him (Gillian Anderson).",
+ "htmlMeta": {
+  "apple-itunes-app": "app-id=422191503, app-argument=https://cbc.gem.ca",
+  "apple-media-service-subscription-v2": {
+   "expires": 31536000,
+   "type": {
+    "availabilityType": "Free",
+    "tiers": "basic"
+   }
+  },
+  "description": "THE FALL examines the lives of two hunters: one a serial killer that stalks his victims (Jamie Dornan) and the other a high-powered detective superintendent brought in to catch him (Gillian Anderson).",
+  "og:description": "THE FALL examines the lives of two hunters: one a serial killer that stalks his victims (Jamie Dornan) and the other a high-powered detective superintendent brought in to catch him (Gillian Anderson).",
+  "og:image": "https://images.gem.cbc.ca/v1/synps-cbc/show/perso/cbc_thefall_ott_program_v02.jpg?impolicy=ott&im=Resize=(_Size_)&quality=75",
+  "og:image.height": 630,
+  "og:image.width": 1200,
+  "og:title": "Beauty Hath Strange Power 3 | The Fall | CBC Gem",
+  "og:type": "video.tv_show",
+  "og:url": "https://gem.cbc.ca/the-fall",
+  "title": "Beauty Hath Strange Power 3 | The Fall | CBC Gem"
+ },
  "images": {
   "background": {
    "size": "Normal",
@@ -860,50 +879,6 @@
     "url": "noughts-crosses"
    },
    {
-    "description": "This action-packed series follows Guns and Gangs detective, Samantha (MacNeill) and Narcotics detective, Kelly (Moore), who by day are true action heroes in their own particular way.",
-    "images": {
-     "background": {
-      "size": "Normal",
-      "url": "https://images.gem.cbc.ca/v1/synps-cbc/show/perso/cbc_prettyhardcases_ott_background_v03.jpg?impolicy=ott&im=Resize=(_Size_)&quality=75"
-     },
-     "card": {
-      "size": "Normal",
-      "url": "https://images.gem.cbc.ca/v1/synps-cbc/show/perso/cbc_prettyhardcases_ott_program_v03.jpg?impolicy=ott&im=Resize=(_Size_)&quality=75"
-     },
-     "logo": {
-      "size": "Bigger",
-      "url": "https://images.gem.cbc.ca/v1/synps-cbc/show/perso/cbc_prettyhardcases_ott_logo_v01.png?impolicy=ott&im=Resize=(_Size_)&quality=75"
-     }
-    },
-    "infoTitle": "Dark Comedy | 3 seasons",
-    "tier": "Standard",
-    "title": "Pretty Hard Cases",
-    "type": "Show",
-    "url": "pretty-hard-cases"
-   },
-   {
-    "description": "Bump is a half-hour comedy-drama about an ambitious teenage girl who has a surprise baby and the complications that ensue for two families.",
-    "images": {
-     "background": {
-      "size": "Normal",
-      "url": "https://images.gem.cbc.ca/v1/synps-cbc/show/perso/cbc_bump_ott_background_v03.jpg?impolicy=ott&im=Resize=(_Size_)&quality=75"
-     },
-     "card": {
-      "size": "Normal",
-      "url": "https://images.gem.cbc.ca/v1/synps-cbc/show/perso/cbc_bump_ott_program_v03.jpg?impolicy=ott&im=Resize=(_Size_)&quality=75"
-     },
-     "logo": {
-      "size": "Normal",
-      "url": "https://images.gem.cbc.ca/v1/synps-cbc/show/perso/cbc_bump_ott_logo_v01.png?impolicy=ott&im=Resize=(_Size_)&quality=75"
-     }
-    },
-    "infoTitle": "Coming of age | 3 seasons",
-    "tier": "Standard",
-    "title": "Bump",
-    "type": "Show",
-    "url": "bump"
-   },
-   {
     "description": "A headstrong young girl in Afghanistan disguises herself as a boy in order to provide for her family.",
     "images": {
      "background": {
@@ -920,10 +895,173 @@
     "title": "The Breadwinner",
     "type": "Show",
     "url": "the-breadwinner"
+   },
+   {
+    "description": "A socially awkward ethologist's single-minded focus on the subject he loves amuses, annoys, and ultimately inspires and changes the people around him.",
+    "images": {
+     "background": {
+      "size": "Normal",
+      "url": "https://images.gem.cbc.ca/v1/synps-cbc/show/perso/cbc_miracles_ott_background_v02.jpg?impolicy=ott&im=Resize=(_Size_)&quality=75"
+     },
+     "card": {
+      "size": "Normal",
+      "url": "https://images.gem.cbc.ca/v1/synps-cbc/show/perso/cbc_miracles_ott_program_v02.jpg?impolicy=ott&im=Resize=(_Size_)&quality=75"
+     },
+     "logo": {
+      "size": "Normal",
+      "url": "https://images.gem.cbc.ca/v1/synps-cbc/show/perso/cbc_miracles_ott_logo_v01.png?impolicy=ott&im=Resize=(_Size_)&quality=75"
+     }
+    },
+    "infoTitle": "Drama | 1 season",
+    "tier": "Standard",
+    "title": "Miracles",
+    "type": "Show",
+    "url": "miracles"
+   },
+   {
+    "description": "The streets of Whitechapel are the haunt of Detective Inspector Edmund Reid and his team of officers, who aim to maintain law and order in a place once terrorized by Jack the Ripper.",
+    "images": {
+     "background": {
+      "size": "Normal",
+      "url": "https://images.gem.cbc.ca/v1/synps-cbc/show/perso/cbc_ripper_street_ott_background_v02.jpg?impolicy=ott&im=Resize=(_Size_)&quality=75"
+     },
+     "card": {
+      "size": "Normal",
+      "url": "https://images.gem.cbc.ca/v1/synps-cbc/show/perso/cbc_ripper_street_ott_program_v02.jpg?impolicy=ott&im=Resize=(_Size_)&quality=75"
+     }
+    },
+    "infoTitle": "Period drama | 5 seasons",
+    "tier": "Standard",
+    "title": "Ripper Street",
+    "type": "Show",
+    "url": "ripper-street"
    }
   ]
  },
  "requestedType": "Media",
  "selectedUrl": "the-fall/s02e03",
+ "structuredMetadata": {
+  "@context": "http://schema.org",
+  "@type": "TVEpisode",
+  "abstract": "With the killer’s identity now known to the police, Gibson focuses her efforts into tracking down Paul Spector, putting his family under surveillance and lying in wait.",
+  "actor": [
+   {
+    "@context": "http://schema.org",
+    "@type": "Person",
+    "name": "Gillian Anderson"
+   },
+   {
+    "@context": "http://schema.org",
+    "@type": "Person",
+    "name": "Jamie Dornan"
+   },
+   {
+    "@context": "http://schema.org",
+    "@type": "Person",
+    "name": "John Lynch"
+   },
+   {
+    "@context": "http://schema.org",
+    "@type": "Person",
+    "name": "Aisling Franciosi"
+   },
+   {
+    "@context": "http://schema.org",
+    "@type": "Person",
+    "name": "Niamh McGrady"
+   },
+   {
+    "@context": "http://schema.org",
+    "@type": "Person",
+    "name": "Bronagh Waugh"
+   }
+  ],
+  "contentRating": "14+",
+  "countryOfOrigin": {
+   "@context": "http://schema.org",
+   "@type": "Country",
+   "name": "United Kingdom"
+  },
+  "dateCreated": "2014-01-01T00:00:00",
+  "datePublished": "2023-02-15T05:00:00Z",
+  "duration": "PT0H59M",
+  "episodeNumber": 3,
+  "genre": [
+   "Drame"
+  ],
+  "inLanguage": "en-CA",
+  "name": "Beauty Hath Strange Power",
+  "partofSeason": {
+   "@context": "http://schema.org",
+   "@type": "CreativeWorkSeason",
+   "abstract": "THE FALL examines the lives of two hunters: one a serial killer (Jamie Dornan) that stalks his victims and the other a high-powered detective superintendent (Gillian Anderson) brought in to catch him.",
+   "actor": [
+    {
+     "@context": "http://schema.org",
+     "@type": "Person",
+     "name": "Gillian Anderson"
+    },
+    {
+     "@context": "http://schema.org",
+     "@type": "Person",
+     "name": "Jamie Dornan"
+    },
+    {
+     "@context": "http://schema.org",
+     "@type": "Person",
+     "name": "John Lynch"
+    },
+    {
+     "@context": "http://schema.org",
+     "@type": "Person",
+     "name": "Aisling Franciosi"
+    },
+    {
+     "@context": "http://schema.org",
+     "@type": "Person",
+     "name": "Niamh McGrady"
+    },
+    {
+     "@context": "http://schema.org",
+     "@type": "Person",
+     "name": "Bronagh Waugh"
+    }
+   ],
+   "author": [],
+   "contentRating": "14+",
+   "datePublished": "2023-02-15T14:00:00Z",
+   "director": [],
+   "image": "https://images.gem.cbc.ca/v1/synps-cbc/season/perso/cbc_thefall_s02_ott_background_v01.jpg?impolicy=ott&im=Resize=(_Size_)&quality=75",
+   "inLanguage": "en-CA",
+   "name": "Season 2",
+   "numberOfEpisodes": 6,
+   "seasonNumber": 2,
+   "startDate": "2023-02-15T14:00:00Z",
+   "url": "https://gem.cbc.ca/the-fall/s02"
+  },
+  "partofSeries": {
+   "@context": "http://schema.org",
+   "@type": "CreativeWorkSeries",
+   "abstract": "THE FALL examines the lives of two hunters: one a serial killer that stalks his victims (Jamie Dornan) and the other a high-powered detective superintendent brought in to catch him (Gillian Anderson).",
+   "author": [],
+   "contentRating": "14+",
+   "datePublished": "2023-02-15T14:00:00Z",
+   "genre": [
+    "Drame"
+   ],
+   "image": "https://images.gem.cbc.ca/v1/synps-cbc/show/perso/cbc_thefall_ott_background_v02.jpg?impolicy=ott&im=Resize=(_Size_)&quality=75",
+   "inLanguage": "en-CA",
+   "name": "The Fall",
+   "startDate": "2023-02-15T14:00:00Z",
+   "url": "https://gem.cbc.ca/the-fall"
+  },
+  "producer": [
+   {
+    "@context": "http://schema.org",
+    "@type": "Organization",
+    "name": ""
+   }
+  ]
+ },
  "title": "The Fall"
 }
