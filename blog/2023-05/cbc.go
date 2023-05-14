@@ -5,23 +5,44 @@ import (
    "encoding/json"
 )
 
-type catalog_gem struct {
-   Content []struct {
-      Lineups []struct {
-         Items []struct {
-            ID_Media int `json:"idMedia"`
+func (c catalog_gem) item() *item {
+   for _, content := range c.Content {
+      for _, lineup := range content.Lineups {
+         for _, item := range lineup.Items {
+            if item.URL == c.Selected_URL {
+               return &item
+            }
          }
       }
    }
-   Structured_Metadata struct {
-      Date_Created string `json:"dateCreated"`
-      Episode_Number *int `json:"episodeNumber"`
+   return nil
+}
+
+type catalog_gem struct {
+   Selected_URL string `json:"selectedUrl"`
+   Content []struct {
+      Lineups []struct {
+         Items []item
+      }
+   }
+   Structured_Metadata metadata `json:"structuredMetadata"`
+}
+
+type item struct {
+   URL string
+   ID_Media int `json:"idMedia"`
+}
+
+type metadata struct {
+   Part_Of_Series *struct {
       Name string
-      Part_Of_Season *struct {
-         Season_Number int `json:"seasonNumber"`
-      } `json:"partofSeason"`
-   } `json:"structuredMetadata"`
-   Title string
+   }
+   Part_Of_Season *struct {
+      Season_Number int `json:"seasonNumber"`
+   } `json:"partofSeason"`
+   Episode_Number *int `json:"episodeNumber"`
+   Name string
+   Date_Created string `json:"dateCreated"`
 }
 
 func new_catalog_gem(link string) (*catalog_gem, error) {
