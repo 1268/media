@@ -57,7 +57,7 @@ func (s Stream) DASH_Get(items dash.Representations, index int) error {
    defer file.Close()
    client := http.Default_Client
    client.CheckRedirect = nil
-   req, err := http.Get_URL(item.Initialization())
+   req, err := http.Get_Parse(item.Initialization())
    if err != nil {
       return err
    }

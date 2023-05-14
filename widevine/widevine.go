@@ -19,7 +19,7 @@ func (m Module) Post(post Poster) (Containers, error) {
    if err != nil {
       return nil, err
    }
-   req, err := http.Post_URL(post.Request_URL())
+   req, err := http.Post_Parse(post.Request_URL())
    if err != nil {
       return nil, err
    }

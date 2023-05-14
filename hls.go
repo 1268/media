@@ -24,11 +24,11 @@ func hls_get[T hls.Mixed](str Stream, items []T, index int) error {
       return err
    }
    defer file.Close()
-   req := http.Get()
-   req.URL, err = str.base.Parse(item.URI())
+   ref, err := str.base.Parse(item.URI())
    if err != nil {
       return err
    }
+   req := http.Get(ref)
    res, err := http.Default_Client.Do(req)
    if err != nil {
       return err
@@ -89,6 +89,7 @@ func hls_get[T hls.Mixed](str Stream, items []T, index int) error {
    }
    return nil
 }
+
 func (s Stream) HLS_Streams(items hls.Streams, index int) error {
    return hls_get(s, items, index)
 }
@@ -96,7 +97,6 @@ func (s Stream) HLS_Streams(items hls.Streams, index int) error {
 func (s Stream) HLS_Media(items hls.Media, index int) error {
    return hls_get(s, items, index)
 }
-
 
 func (s *Stream) HLS(ref string) (*hls.Master, error) {
    client := http.Default_Client
@@ -110,4 +110,3 @@ func (s *Stream) HLS(ref string) (*hls.Master, error) {
    s.base = res.Request.URL
    return hls.New_Scanner(res.Body).Master()
 }
-
