@@ -9,26 +9,6 @@ import (
    "strings"
 )
 
-func (p Profile) Write_File(name string) error {
-   data, err := json.MarshalIndent(p, "", " ")
-   if err != nil {
-      return err
-   }
-   return os.WriteFile(name, data, 0666)
-}
-
-func Read_Profile(name string) (*Profile, error) {
-   data, err := os.ReadFile(name)
-   if err != nil {
-      return nil, err
-   }
-   pro := new(Profile)
-   if err := json.Unmarshal(data, pro); err != nil {
-      return nil, err
-   }
-   return pro, nil
-}
-
 func (p Profile) Media(a *Asset) (*Media, error) {
    req, err := http.Get_URL(a.Play_Session.URL)
    if err != nil {
@@ -51,6 +31,31 @@ func (p Profile) Media(a *Asset) (*Media, error) {
       return nil, errors.New(*med.Message)
    }
    return med, nil
+}
+
+type Media struct {
+   Message *string
+   URL *string
+}
+
+func (p Profile) Write_File(name string) error {
+   data, err := json.MarshalIndent(p, "", " ")
+   if err != nil {
+      return err
+   }
+   return os.WriteFile(name, data, 0666)
+}
+
+func Read_Profile(name string) (*Profile, error) {
+   data, err := os.ReadFile(name)
+   if err != nil {
+      return nil, err
+   }
+   pro := new(Profile)
+   if err := json.Unmarshal(data, pro); err != nil {
+      return nil, err
+   }
+   return pro, nil
 }
 
 type Profile struct {
@@ -119,9 +124,4 @@ func Get_ID(input string) string {
       return after
    }
    return input
-}
-
-type Media struct {
-   Message *string
-   URL *string
 }

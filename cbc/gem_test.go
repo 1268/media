@@ -2,6 +2,7 @@ package cbc
 
 import (
    "encoding/json"
+   "fmt"
    "os"
    "testing"
    "time"
@@ -25,6 +26,7 @@ func Test_Gem(t *testing.T) {
       if err := enc.Encode(gem); err != nil {
          t.Fatal(err)
       }
+      fmt.Printf("%+v\n", gem.item())
       time.Sleep(time.Second)
    }
 }

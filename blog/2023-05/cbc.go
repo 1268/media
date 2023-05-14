@@ -1,66 +1,35 @@
-package cbc
+package main
 
 import (
-   "2a.pages.dev/rosso/http"
-   "encoding/json"
+   "net/http"
+   "net/http/httputil"
+   "net/url"
+   "os"
 )
 
-func (c catalog_gem) item() *item {
-   for _, content := range c.Content {
-      for _, lineup := range content.Lineups {
-         for _, item := range lineup.Items {
-            if item.URL == c.Selected_URL {
-               return &item
-            }
-         }
-      }
-   }
-   return nil
-}
-
-type catalog_gem struct {
-   Selected_URL string `json:"selectedUrl"`
-   Content []struct {
-      Lineups []struct {
-         Items []item
-      }
-   }
-   Structured_Metadata metadata `json:"structuredMetadata"`
-}
-
-type item struct {
-   URL string
-   ID_Media int `json:"idMedia"`
-}
-
-type metadata struct {
-   Part_Of_Series *struct {
-      Name string
-   }
-   Part_Of_Season *struct {
-      Season_Number int `json:"seasonNumber"`
-   } `json:"partofSeason"`
-   Episode_Number *int `json:"episodeNumber"`
-   Name string
-   Date_Created string `json:"dateCreated"`
-}
-
-func new_catalog_gem(link string) (*catalog_gem, error) {
-   req := http.Get()
-   req.URL.Scheme = "https"
+func main() {
+   var req http.Request
+   req.Header = make(http.Header)
+   req.URL = new(url.URL)
    req.URL.Host = "services.radio-canada.ca"
-   req.URL.Path = "/ott/catalog/v2/gem/show/" + link
-   // you can also use `phone_android`, but it returns combined number and name:
-   // 3. Beauty Hath Strange Power
-   req.URL.RawQuery = "device=web"
-   res, err := http.Default_Client.Do(req)
+   req.URL.Path = "/media/validation/v2"
+   val := make(url.Values)
+   req.URL.Scheme = "https"
+   req.Header["X-Claims-Token"] = []string{"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJIYXNIRCI6IkZhbHNlIiwiVGllciI6Ik1lbWJlciIsIkhhc0FkcyI6IlRydWUiLCJSY0lkIjoiZmE4N2M1NDAtMDRlNy00NDYxLTk3N2EtYzhiZDQ3MGQxNDBhIiwiTWF4aW11bU51bWJlck9mU3RyZWFtcyI6IjUiLCJSY1RlbGNvIjoiYXVjdW4iLCJQcGlkIjoiNGVkMmUyMWRhMjRmOTg1Yzg2ODJiMjJlYTQwMjI0NTAyODQ3ODE0MjAzNWZhZjVjNjk2MzRlNWFiZGU1ZDIzYSIsImV4cCI6MTY4NDEwODE5NX0.u4uuqv9PBlB8DWUzhuXAIJ3pnpGmoyxLtyIDnoBVANQ"}
+   req.Header["X-Forwarded-For"] = []string{"99.224.0.0"}
+   val["idMedia"] = []string{"929078"}
+   val["appCode"] = []string{"gem"}
+   val["manifestType"] = []string{"desktop"}
+   val["output"] = []string{"json"}
+   req.URL.RawQuery = val.Encode()
+   res, err := new(http.Transport).RoundTrip(&req)
    if err != nil {
-      return nil, err
+      panic(err)
    }
    defer res.Body.Close()
-   gem := new(catalog_gem)
-   if err := json.NewDecoder(res.Body).Decode(gem); err != nil {
-      return nil, err
+   res_body, err := httputil.DumpResponse(res, true)
+   if err != nil {
+      panic(err)
    }
-   return gem, nil
+   os.Stdout.Write(res_body)
 }
