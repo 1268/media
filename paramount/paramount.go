@@ -13,6 +13,54 @@ import (
    "strings"
 )
 
+func (at App_Token) Item(content_ID string) (*Item, error) {
+   req := http.Get(&url.URL{
+      Scheme: "https",
+      Host: "www.paramountplus.com",
+      Path: "/apps-api/v2.0/androidphone/video/cid/" + content_ID + ".json",
+      RawQuery: "at=" + url.QueryEscape(at.value),
+   })
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   var video struct {
+      Item_List []Item `json:"itemList"`
+   }
+   if err := json.NewDecoder(res.Body).Decode(&video); err != nil {
+      return nil, err
+   }
+   if len(video.Item_List) == 0 {
+      return nil, errors.New("Item_List length is zero")
+   }
+   return &video.Item_List[0], nil
+}
+
+func (at App_Token) Session(content_ID string) (*Session, error) {
+   req := http.Get(&url.URL{
+      Scheme: "https",
+      Host: "www.paramountplus.com",
+      Path: "/apps-api/v3.0/androidphone/irdeto-control/anonymous-session-token.json",
+      RawQuery: "at=" + url.QueryEscape(at.value),
+   })
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   sess := new(Session)
+   if err := json.NewDecoder(res.Body).Decode(sess); err != nil {
+      return nil, err
+   }
+   sess.URL += content_ID
+   return sess, nil
+}
+
+type app_details struct {
+   version string
+   code int
+}
 const (
    sep_big = " - "
    sep_small = ' '
@@ -183,51 +231,3 @@ type App_Token struct {
    value string
 }
 
-func (at App_Token) Item(content_ID string) (*Item, error) {
-   req := http.Get()
-   req.URL.Host = "www.paramountplus.com"
-   req.URL.Path = "/apps-api/v2.0/androidphone/video/cid/" + content_ID + ".json"
-   req.URL.RawQuery = "at=" + url.QueryEscape(at.value)
-   req.URL.Scheme = "https"
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   var video struct {
-      Item_List []Item `json:"itemList"`
-   }
-   if err := json.NewDecoder(res.Body).Decode(&video); err != nil {
-      return nil, err
-   }
-   if len(video.Item_List) == 0 {
-      return nil, errors.New("Item_List length is zero")
-   }
-   return &video.Item_List[0], nil
-}
-
-func (at App_Token) Session(content_ID string) (*Session, error) {
-   req := http.Get()
-   req.URL = &url.URL{
-      Scheme: "https",
-      Host: "www.paramountplus.com",
-      Path: "/apps-api/v3.0/androidphone/irdeto-control/anonymous-session-token.json",
-      RawQuery: "at=" + url.QueryEscape(at.value),
-   }
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   sess := new(Session)
-   if err := json.NewDecoder(res.Body).Decode(sess); err != nil {
-      return nil, err
-   }
-   sess.URL += content_ID
-   return sess, nil
-}
-
-type app_details struct {
-   version string
-   code int
-}
