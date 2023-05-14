@@ -4,6 +4,7 @@ import (
    "2a.pages.dev/rosso/http"
    "2a.pages.dev/rosso/json"
    "io"
+   "net/url"
 )
 
 type next_data struct {
@@ -13,9 +14,10 @@ type next_data struct {
 }
 
 func new_next_data() (*next_data, error) {
-   req := http.Get()
-   req.URL.Scheme = "https"
-   req.URL.Host = "m.soundcloud.com"
+   req := http.Get(&url.URL{
+      Scheme: "https",
+      Host: "m.soundcloud.com",
+   })
    res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err

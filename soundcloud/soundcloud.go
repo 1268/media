@@ -9,36 +9,13 @@ import (
    "time"
 )
 
-const client_ID = "iZIs9mchVcX5lhVRyQGGAYlNPVldzAoX"
-
-type Track struct {
-   ID int64
-   Display_Date string // 2021-04-12T07:00:01Z
-   User struct {
-      Username string
-      Avatar_URL string
-   }
-   Title string
-   Artwork_URL string
-   Media struct {
-      Transcodings []struct {
-         Format struct {
-            Protocol string
-         }
-         URL string
-      }
-   }
-}
-
 func Resolve(ref string) (*Track, error) {
-   req := http.Get()
-   req.URL.Host = "api-v2.soundcloud.com"
-   req.URL.Path = "/resolve"
-   req.URL.RawQuery = url.Values{
-      "client_id": {client_ID},
-      "url": {ref},
-   }.Encode()
-   req.URL.Scheme = "https"
+   req := http.Get(&url.URL{
+      Scheme: "https",
+      Host: "api-v2.soundcloud.com",
+      Path: "/resolve",
+      RawQuery: "client_id=" + client_ID + "&url=" + ref,
+   })
    res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
@@ -54,11 +31,12 @@ func Resolve(ref string) (*Track, error) {
 }
 
 func New_Track(id int) (*Track, error) {
-   req := http.Get()
-   req.URL.Host = "api-v2.soundcloud.com"
-   req.URL.Path = "/tracks/" + strconv.Itoa(id)
-   req.URL.RawQuery = "client_id=" + client_ID
-   req.URL.Scheme = "https"
+   req := http.Get(&url.URL{
+      Scheme: "https",
+      Host: "api-v2.soundcloud.com",
+      Path: "/tracks/" + strconv.Itoa(id),
+      RawQuery: "client_id=" + client_ID,
+   })
    res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
@@ -92,7 +70,7 @@ func (t Track) Progressive() (*Media, error) {
          ref = code.URL
       }
    }
-   req, err := http.Get_URL(ref)
+   req, err := http.Get_Parse(ref)
    if err != nil {
       return nil, err
    }
@@ -161,4 +139,24 @@ var Images = []Image{
    {Size: "t67x67"},
    {Size: "t80x80"},
    {Size: "tx250"},
+}
+const client_ID = "iZIs9mchVcX5lhVRyQGGAYlNPVldzAoX"
+
+type Track struct {
+   ID int64
+   Display_Date string // 2021-04-12T07:00:01Z
+   User struct {
+      Username string
+      Avatar_URL string
+   }
+   Title string
+   Artwork_URL string
+   Media struct {
+      Transcodings []struct {
+         Format struct {
+            Protocol string
+         }
+         URL string
+      }
+   }
 }
