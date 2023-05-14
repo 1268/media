@@ -9,6 +9,29 @@ import (
    "strings"
 )
 
+func (a *Auth) Refresh() error {
+   req := http.Post(&url.URL{
+      Scheme: "https",
+      Host: "gw.cds.amcn.com",
+      Path: "/auth-orchestration-id/api/v1/refresh",
+   })
+   req.Header.Set("Authorization", "Bearer " + a.Data.Refresh_Token)
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return err
+   }
+   defer res.Body.Close()
+   return json.NewDecoder(res.Body).Decode(a)
+}
+
+func (a Auth) Write_File(name string) error {
+   data, err := json.MarshalIndent(a, "", " ")
+   if err != nil {
+      return err
+   }
+   return os.WriteFile(name, data, 0666)
+}
+
 // This accepts full URL or path only.
 func (a Auth) Content(ref string) (*Content, error) {
    // If trial is active you must add `/watch` here. If trial has expired, you
@@ -171,24 +194,3 @@ func (a *Auth) Login(email, password string) error {
    return json.NewDecoder(res.Body).Decode(a)
 }
 
-func (a *Auth) Refresh() error {
-   req := http.Post()
-   req.Header.Set("Authorization", "Bearer " + a.Data.Refresh_Token)
-   req.URL.Host = "gw.cds.amcn.com"
-   req.URL.Path = "/auth-orchestration-id/api/v1/refresh"
-   req.URL.Scheme = "https"
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return err
-   }
-   defer res.Body.Close()
-   return json.NewDecoder(res.Body).Decode(a)
-}
-
-func (a Auth) Write_File(name string) error {
-   indent, err := json.MarshalIndent(a, "", " ")
-   if err != nil {
-      return err
-   }
-   return os.WriteFile(name, indent, 0666)
-}

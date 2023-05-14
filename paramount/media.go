@@ -6,6 +6,32 @@ import (
    "strconv"
 )
 
+func location(content_ID string, query url.Values) (string, error) {
+   url_path := func(b []byte) string {
+      b = append(b, "/s/"...)
+      b = append(b, cms_account_id...)
+      b = append(b, "/media/guid/"...)
+      b = strconv.AppendInt(b, aid, 10)
+      b = append(b, '/')
+      b = append(b, content_ID...)
+      return string(b)
+   }
+   req := http.Get(&url.URL{
+      Scheme: "http",
+      Host: "link.theplatform.com",
+      Path: url_path(nil),
+      RawQuery: query.Encode(),
+   })
+   client := http.Default_Client
+   client.Status = http.StatusFound
+   res, err := client.Do(req)
+   if err != nil {
+      return "", err
+   }
+   defer res.Body.Close()
+   return res.Header.Get("Location"), nil
+}
+
 const (
    aid = 2198311517
    cms_account_id = "dJ5BDC"
@@ -27,27 +53,3 @@ func Downloadable(content_ID string) (string, error) {
    return location(content_ID, query)
 }
 
-func location(content_ID string, query url.Values) (string, error) {
-   url_path := func(b []byte) string {
-      b = append(b, "/s/"...)
-      b = append(b, cms_account_id...)
-      b = append(b, "/media/guid/"...)
-      b = strconv.AppendInt(b, aid, 10)
-      b = append(b, '/')
-      b = append(b, content_ID...)
-      return string(b)
-   }
-   client := http.Default_Client
-   client.Status = http.StatusFound
-   req := http.Get()
-   req.URL.Scheme = "http"
-   req.URL.Host = "link.theplatform.com"
-   req.URL.Path = url_path(nil)
-   req.URL.RawQuery = query.Encode()
-   res, err := client.Do(req)
-   if err != nil {
-      return "", err
-   }
-   defer res.Body.Close()
-   return res.Header.Get("Location"), nil
-}
