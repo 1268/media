@@ -6,7 +6,7 @@ import (
    "testing"
 )
 
-func sign_in(name string) ([]string, error) {
+func user_info(name string) ([]string, error) {
    data, err := os.ReadFile(name)
    if err != nil {
       return nil, err
@@ -19,7 +19,7 @@ func Test_Login(t *testing.T) {
    if err != nil {
       t.Fatal(err)
    }
-   account, err := sign_in(home + "/mech/amc.txt")
+   user, err := user_info(home + "/mech/amc.txt")
    if err != nil {
       t.Fatal(err)
    }
@@ -27,7 +27,7 @@ func Test_Login(t *testing.T) {
    if err != nil {
       t.Fatal(err)
    }
-   if err := auth.Login(account[0], account[1]); err != nil {
+   if err := auth.Login(user[0], user[1]); err != nil {
       t.Fatal(err)
    }
    if err := auth.Write_File(home + "/mech/amc.json"); err != nil {

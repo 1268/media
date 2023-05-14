@@ -6,6 +6,30 @@ import (
    "net/url"
 )
 
+func (a Asset) Name() string {
+   var b []byte
+   b = append(b, a.Series...)
+   if a.Episode >= 1 {
+      b = append(b, sep_big...)
+      b = append(b, 'S')
+      b = strconv.AppendInt(b, a.Season, 10)
+      b = append(b, sep_small)
+      b = append(b, 'E')
+      b = strconv.AppendInt(b, a.Episode, 10)
+      b = append(b, sep_big...)
+      b = append(b, a.Title...)
+   } else {
+      b = append(b, sep_big...)
+      b = append(b, a.Credits.Release_Date...)
+   }
+   return string(b)
+}
+
+const (
+   sep_big = " - "
+   sep_small = ' '
+)
+
 func new_catalog_gem(link string) (*catalog_gem, error) {
    // you can also use `phone_android`, but it returns combined number and name:
    // 3. Beauty Hath Strange Power

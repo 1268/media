@@ -12,11 +12,11 @@ func Test_New_Profile(t *testing.T) {
    if err != nil {
       t.Fatal(err)
    }
-   account, err := sign_in(home + "/mech/cbc.txt")
+   user, err := user_info(home + "/mech/cbc.txt")
    if err != nil {
       t.Fatal(err)
    }
-   tok, err := New_Token(account[0], account[1])
+   tok, err := New_Token(user[0], user[1])
    if err != nil {
       t.Fatal(err)
    }
@@ -27,7 +27,7 @@ func Test_New_Profile(t *testing.T) {
    fmt.Printf("%+v\n", pro)
 }
 
-func sign_in(name string) ([]string, error) {
+func user_info(name string) ([]string, error) {
    data, err := os.ReadFile(name)
    if err != nil {
       return nil, err
@@ -40,11 +40,11 @@ func Test_Profile(t *testing.T) {
    if err != nil {
       t.Fatal(err)
    }
-   account, err := sign_in(home + "/mech/cbc.txt")
+   user, err := user_info(home + "/mech/cbc.txt")
    if err != nil {
       t.Fatal(err)
    }
-   tok, err := New_Token(account[0], account[1])
+   tok, err := New_Token(user[0], user[1])
    if err != nil {
       t.Fatal(err)
    }
