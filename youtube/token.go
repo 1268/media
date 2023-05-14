@@ -8,6 +8,28 @@ import (
    "strings"
 )
 
+func (t *Token) Refresh() error {
+   body := url.Values{
+      "client_id": {client_ID},
+      "client_secret": {client_secret},
+      "grant_type": {"refresh_token"},
+      "refresh_token": {t.Refresh_Token},
+   }.Encode()
+   req := http.Post(&url.URL{
+      Scheme: "https",
+      Host: "oauth2.googleapis.com",
+      Path: "/token",
+   })
+   req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+   req.Body_String(body)
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return err
+   }
+   defer res.Body.Close()
+   return json.NewDecoder(res.Body).Decode(t)
+}
+
 func (d Device_Code) Token() (*Token, error) {
    body := url.Values{
       "client_id": {client_ID},
@@ -75,6 +97,7 @@ type Token struct {
    Error string
    Refresh_Token string
 }
+
 func New_Device_Code() (*Device_Code, error) {
    body := url.Values{
       "client_id": {client_ID},
@@ -99,23 +122,3 @@ func New_Device_Code() (*Device_Code, error) {
    return code, nil
 }
 
-func (t *Token) Refresh() error {
-   body := url.Values{
-      "client_id": {client_ID},
-      "client_secret": {client_secret},
-      "grant_type": {"refresh_token"},
-      "refresh_token": {t.Refresh_Token},
-   }.Encode()
-   req := http.Post()
-   req.Body_String(body)
-   req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-   req.URL.Host = "oauth2.googleapis.com"
-   req.URL.Path = "/token"
-   req.URL.Scheme = "https"
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return err
-   }
-   defer res.Body.Close()
-   return json.NewDecoder(res.Body).Decode(t)
-}

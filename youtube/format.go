@@ -20,7 +20,7 @@ type Format struct {
 }
 
 func (f Format) Encode(w io.Writer) error {
-   req, err := http.Get_URL(f.URL)
+   req, err := http.Get_Parse(f.URL)
    if err != nil {
       return err
    }
