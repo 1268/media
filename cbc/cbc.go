@@ -9,6 +9,14 @@ import (
    "strings"
 )
 
+func (p Profile) Write_File(name string) error {
+   data, err := json.MarshalIndent(p, "", " ")
+   if err != nil {
+      return err
+   }
+   return os.WriteFile(name, data, 0666)
+}
+
 func Read_Profile(name string) (*Profile, error) {
    data, err := os.ReadFile(name)
    if err != nil {
@@ -43,14 +51,6 @@ func (p Profile) Media(a *Asset) (*Media, error) {
       return nil, errors.New(*med.Message)
    }
    return med, nil
-}
-
-func (p Profile) Write_File(name string) error {
-   data, err := json.Marshal(p)
-   if err != nil {
-      return err
-   }
-   return os.WriteFile(name, data, 0666)
 }
 
 type Profile struct {
