@@ -9,8 +9,51 @@ import (
    "strings"
 )
 
+var scope = []string{
+   "https://rcmnb2cprod.onmicrosoft.com/84593b65-0ef6-4a72-891c-d351ddd50aab/subscriptions.write",
+   "https://rcmnb2cprod.onmicrosoft.com/84593b65-0ef6-4a72-891c-d351ddd50aab/toutv-profiling",
+   "openid",
+}
+
+func New_Token(username, password string) (*Token, error) {
+   body := url.Values{
+      "client_id": {"7f44c935-6542-4ce7-ae05-eb887809741c"},
+      "grant_type": {"password"},
+      "password": {password},
+      "scope": {strings.Join(scope, " ")},
+      "username": {username},
+   }.Encode()
+   req := http.Post(&url.URL{
+      Scheme: "https",
+      Host: "rcmnb2cprod.b2clogin.com",
+      Path: "/rcmnb2cprod.onmicrosoft.com/B2C_1A_ExternalClient_ROPC_Auth/oauth2/v2.0/token",
+   })
+   req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+   req.Body_String(body)
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   tok := new(Token)
+   if err := json.NewDecoder(res.Body).Decode(tok); err != nil {
+      return nil, err
+   }
+   return tok, nil
+}
+
+const forwarded_for = "99.224.0.0"
+
+// gem.cbc.ca/media/downton-abbey/s01e05
+func Get_ID(input string) string {
+   _, after, found := strings.Cut(input, "/media/")
+   if found {
+      return after
+   }
+   return input
+}
 func (p Profile) Media(a *Asset) (*Media, error) {
-   req, err := http.Get_URL(a.Play_Session.URL)
+   req, err := http.Get_Parse(a.Play_Session.URL)
    if err != nil {
       return nil, err
    }
@@ -63,11 +106,12 @@ type Profile struct {
 }
 
 func (t Token) Profile() (*Profile, error) {
-   req := http.Get()
-   req.URL.Host = "services.radio-canada.ca"
-   req.URL.Path = "/ott/subscription/v2/gem/Subscriber/profile"
-   req.URL.Scheme = "https"
-   req.URL.RawQuery = "device=phone_android"
+   req := http.Get(&url.URL{
+      Scheme: "https",
+      Host: "services.radio-canada.ca",
+      Path: "/ott/subscription/v2/gem/Subscriber/profile",
+      RawQuery: "device=phone_android",
+   })
    req.Header.Set("Authorization", "Bearer " + t.Access_Token)
    res, err := http.Default_Client.Do(req)
    if err != nil {
@@ -85,43 +129,3 @@ type Token struct {
    Access_Token string
 }
 
-func New_Token(username, password string) (*Token, error) {
-   body := url.Values{
-      "client_id": {"7f44c935-6542-4ce7-ae05-eb887809741c"},
-      "grant_type": {"password"},
-      "password": {password},
-      "scope": {strings.Join([]string{
-         "https://rcmnb2cprod.onmicrosoft.com/84593b65-0ef6-4a72-891c-d351ddd50aab/subscriptions.write",
-         "https://rcmnb2cprod.onmicrosoft.com/84593b65-0ef6-4a72-891c-d351ddd50aab/toutv-profiling",
-         "openid",
-      }, " ")},
-      "username": {username},
-   }.Encode()
-   req := http.Post()
-   req.URL.Scheme = "https"
-   req.URL.Host = "rcmnb2cprod.b2clogin.com"
-   req.URL.Path = "/rcmnb2cprod.onmicrosoft.com/B2C_1A_ExternalClient_ROPC_Auth/oauth2/v2.0/token"
-   req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-   req.Body_String(body)
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   tok := new(Token)
-   if err := json.NewDecoder(res.Body).Decode(tok); err != nil {
-      return nil, err
-   }
-   return tok, nil
-}
-
-const forwarded_for = "99.224.0.0"
-
-// gem.cbc.ca/media/downton-abbey/s01e05
-func Get_ID(input string) string {
-   _, after, found := strings.Cut(input, "/media/")
-   if found {
-      return after
-   }
-   return input
-}

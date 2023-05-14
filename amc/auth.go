@@ -9,40 +9,23 @@ import (
    "strings"
 )
 
-func Unauth() (*Auth, error) {
-   req := http.Post()
-   req.Header = http.Header{
-      "X-Amcn-Device-ID": {"-"},
-      "X-Amcn-Language": {"en"},
-      "X-Amcn-Network": {"amcplus"},
-      "X-Amcn-Platform": {"web"},
-      "X-Amcn-Tenant": {"amcn"},
-   }
-   req.URL.Host = "gw.cds.amcn.com"
-   req.URL.Path = "/auth-orchestration-id/api/v1/unauth"
-   req.URL.Scheme = "https"
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   auth := new(Auth)
-   if err := json.NewDecoder(res.Body).Decode(auth); err != nil {
-      return nil, err
-   }
-   return auth, nil
-}
-
 func (a *Auth) Login(email, password string) error {
-   body, err := json.Marshal(map[string]string{
-      "email": email,
-      "password": password,
-   })
-   if err != nil {
-      return err
+   body := func(r *http.Request) error {
+      b, err := json.Marshal(map[string]string{
+         "email": email,
+         "password": password,
+      })
+      if err != nil {
+         return err
+      }
+      r.Body_Bytes(b)
+      return nil
    }
-   req := http.Post()
-   req.Body_Bytes(body)
+   req := http.Post(&url.URL{
+      Scheme: "https",
+      Host: "gw.cds.amcn.com",
+      Path: "/auth-orchestration-id/api/v1/login",
+   })
    req.Header = http.Header{
       "Authorization": {"Bearer " + a.Data.Access_Token},
       "Content-Type": {"application/json"},
@@ -56,9 +39,10 @@ func (a *Auth) Login(email, password string) error {
       "X-Amcn-Tenant": {"amcn"},
       "X-Ccpa-Do-Not-Sell": {"doNotPassData"},
    }
-   req.URL.Host = "gw.cds.amcn.com"
-   req.URL.Path = "/auth-orchestration-id/api/v1/login"
-   req.URL.Scheme = "https"
+   err := body(req)
+   if err != nil {
+      return err
+   }
    res, err := http.Default_Client.Do(req)
    if err != nil {
       return err
@@ -202,5 +186,30 @@ func Read_Auth(name string) (*Auth, error) {
       return nil, err
    }
    return a, nil
+}
+
+func Unauth() (*Auth, error) {
+   req := http.Post(&url.URL{
+      Scheme: "https",
+      Host: "gw.cds.amcn.com",
+      Path: "/auth-orchestration-id/api/v1/unauth",
+   })
+   req.Header = http.Header{
+      "X-Amcn-Device-ID": {"-"},
+      "X-Amcn-Language": {"en"},
+      "X-Amcn-Network": {"amcplus"},
+      "X-Amcn-Platform": {"web"},
+      "X-Amcn-Tenant": {"amcn"},
+   }
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   auth := new(Auth)
+   if err := json.NewDecoder(res.Body).Decode(auth); err != nil {
+      return nil, err
+   }
+   return auth, nil
 }
 

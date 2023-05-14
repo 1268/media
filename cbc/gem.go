@@ -3,16 +3,18 @@ package cbc
 import (
    "2a.pages.dev/rosso/http"
    "encoding/json"
+   "net/url"
 )
 
 func new_catalog_gem(link string) (*catalog_gem, error) {
    // you can also use `phone_android`, but it returns combined number and name:
    // 3. Beauty Hath Strange Power
-   req := http.Get()
-   req.URL.Scheme = "https"
-   req.URL.Host = "services.radio-canada.ca"
-   req.URL.Path = "/ott/catalog/v2/gem/show/" + link
-   req.URL.RawQuery = "device=web"
+   req := http.Get(&url.URL{
+      Scheme: "https",
+      Host: "services.radio-canada.ca",
+      Path: "/ott/catalog/v2/gem/show/" + link,
+      RawQuery: "device=web",
+   })
    res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err

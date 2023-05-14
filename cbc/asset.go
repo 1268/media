@@ -3,7 +3,33 @@ package cbc
 import (
    "2a.pages.dev/rosso/http"
    "encoding/json"
+   "net/url"
    "strconv"
+)
+
+func New_Asset(id string) (*Asset, error) {
+   client := http.Default_Client
+   client.Status = 426
+   req := http.Get(&url.URL{
+      Scheme: "https",
+      Host: "services.radio-canada.ca",
+      Path: "/ott/cbc-api/v2/assets/" + id,
+   })
+   res, err := client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   a := new(Asset)
+   if err := json.NewDecoder(res.Body).Decode(a); err != nil {
+      return nil, err
+   }
+   return a, nil
+}
+
+const (
+   sep_big = " - "
+   sep_small = ' '
 )
 
 type Asset struct {
@@ -38,26 +64,3 @@ func (a Asset) Name() string {
    return string(b)
 }
 
-func New_Asset(id string) (*Asset, error) {
-   req := http.Get()
-   req.URL.Scheme = "https"
-   req.URL.Host = "services.radio-canada.ca"
-   req.URL.Path = "/ott/cbc-api/v2/assets/" + id
-   client := http.Default_Client
-   client.Status = 426
-   res, err := client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   a := new(Asset)
-   if err := json.NewDecoder(res.Body).Decode(a); err != nil {
-      return nil, err
-   }
-   return a, nil
-}
-
-const (
-   sep_big = " - "
-   sep_small = ' '
-)
