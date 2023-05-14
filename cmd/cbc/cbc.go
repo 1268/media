@@ -6,6 +6,27 @@ import (
    "os"
 )
 
+func (f *flags) master() (*hls.Master, error) {
+   home, err := os.UserHomeDir()
+   if err != nil {
+      return nil, err
+   }
+   profile, err := cbc.Read_Profile(home + "/mech/cbc.json")
+   if err != nil {
+      return nil, err
+   }
+   asset, err := cbc.New_Asset(f.id)
+   if err != nil {
+      return nil, err
+   }
+   media, err := profile.Media(asset)
+   if err != nil {
+      return nil, err
+   }
+   f.Name = asset.Name()
+   return f.HLS(*media.URL)
+}
+
 func (f flags) profile() error {
    home, err := os.UserHomeDir()
    if err != nil {
@@ -43,25 +64,4 @@ func (f flags) download() error {
       return b.Name == f.name
    })
    return f.HLS_Media(media, index)
-}
-
-func (f *flags) master() (*hls.Master, error) {
-   home, err := os.UserHomeDir()
-   if err != nil {
-      return nil, err
-   }
-   profile, err := cbc.Read_Profile(home + "/mech/cbc.json")
-   if err != nil {
-      return nil, err
-   }
-   asset, err := cbc.New_Asset(f.id)
-   if err != nil {
-      return nil, err
-   }
-   media, err := profile.Media(asset)
-   if err != nil {
-      return nil, err
-   }
-   f.Name = asset.Name()
-   return f.HLS(*media.URL)
 }

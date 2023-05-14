@@ -13,6 +13,30 @@ import (
    "strings"
 )
 
+func (i Item) Name() (string, error) {
+   var b strings.Builder
+   if i.Media_Type == "Full Episode" {
+      b.WriteString(i.Series_Title)
+      b.WriteString(sep_big)
+      b.WriteByte('S')
+      b.WriteString(i.Season_Num)
+      b.WriteByte(sep_small)
+      b.WriteByte('E')
+      b.WriteString(i.Episode_Num)
+      b.WriteString(sep_big)
+   }
+   b.WriteString(mech.Clean(i.Label))
+   if i.Media_Type == "Movie" {
+      year, _, found := strings.Cut(i.Media_Available_Date, "-")
+      if !found {
+         return "", errors.New("year not found")
+      }
+      b.WriteString(sep_big)
+      b.WriteString(year)
+   }
+   return b.String(), nil
+}
+
 func (at App_Token) Item(content_ID string) (*Item, error) {
    req := http.Get(&url.URL{
       Scheme: "https",
@@ -61,34 +85,11 @@ type app_details struct {
    version string
    code int
 }
+
 const (
    sep_big = " - "
    sep_small = ' '
 )
-
-func (i Item) Name() (string, error) {
-   var b strings.Builder
-   if i.Media_Type == "Full Episode" {
-      b.WriteString(i.Series_Title)
-      b.WriteString(sep_big)
-      b.WriteByte('S')
-      b.WriteString(i.Season_Num)
-      b.WriteByte(sep_small)
-      b.WriteByte('E')
-      b.WriteString(i.Episode_Num)
-      b.WriteString(sep_big)
-   }
-   b.WriteString(mech.Clean(i.Label))
-   if i.Media_Type == "Movie" {
-      year, _, found := strings.Cut(i.Media_Available_Date, "-")
-      if !found {
-         return "", errors.New("year not found")
-      }
-      b.WriteString(sep_big)
-      b.WriteString(year)
-   }
-   return b.String(), nil
-}
 
 // com.cbs.app
 var app_secrets = map[app_details]string{

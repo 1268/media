@@ -1,7 +1,6 @@
 package cbc
 
 import (
-   "encoding/json"
    "fmt"
    "os"
    "testing"
@@ -18,18 +17,17 @@ var links = []string{
 }
 
 func Test_Gem(t *testing.T) {
-   enc := json.NewEncoder(os.Stdout)
-   enc.SetIndent("", " ")
    for _, link := range links {
       gem, err := new_catalog_gem(link)
       if err != nil {
          t.Fatal(err)
       }
-      if err := enc.Encode(gem); err != nil {
+      fmt.Printf("%+v\n", gem.item())
+      name, err := gem.Structured_Metadata.name()
+      if err != nil {
          t.Fatal(err)
       }
-      fmt.Printf("%+v\n", gem.item())
-      //fmt.Println(asset.Name())
+      fmt.Println(name)
       time.Sleep(time.Second)
    }
 }
@@ -39,18 +37,17 @@ func Test_Media(t *testing.T) {
    if err != nil {
       t.Fatal(err)
    }
-   profile, err := Read_Profile(home + "/mech/cbc.json")
+   pro, err := Read_Profile(home + "/mech/cbc.json")
    if err != nil {
       t.Fatal(err)
    }
-   asset, err := New_Asset(ids[0])
+   gem, err := new_catalog_gem(links[0])
    if err != nil {
       t.Fatal(err)
    }
-   media, err := profile.Media(asset)
+   media, err := pro.Media(gem.item())
    if err != nil {
       t.Fatal(err)
    }
    fmt.Printf("%+v\n", media)
 }
-
