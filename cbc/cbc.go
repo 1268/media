@@ -9,6 +9,37 @@ import (
    "strings"
 )
 
+func (p Profile) Media(item *lineup_item) (*Media, error) {
+   req := http.Get(&url.URL{
+      Scheme: "https",
+      Host: "services.radio-canada.ca",
+      Path: "/media/validation/v2",
+      RawQuery: url.Values{
+         "appCode": {"gem"},
+         "idMedia": {item.Formatted_ID_Media},
+         "manifestType": {"desktop"},
+         "output": {"json"},
+      }.Encode(),
+   })
+   req.Header = http.Header{
+      "X-Claims-Token": {p.Claims_Token},
+      "X-Forwarded-For": {forwarded_for},
+   }
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   med := new(Media)
+   if err := json.NewDecoder(res.Body).Decode(med); err != nil {
+      return nil, err
+   }
+   if med.Message != nil {
+      return nil, errors.New(*med.Message)
+   }
+   return med, nil
+}
+
 var scope = []string{
    "https://rcmnb2cprod.onmicrosoft.com/84593b65-0ef6-4a72-891c-d351ddd50aab/subscriptions.write",
    "https://rcmnb2cprod.onmicrosoft.com/84593b65-0ef6-4a72-891c-d351ddd50aab/toutv-profiling",
@@ -51,29 +82,6 @@ func Get_ID(input string) string {
       return after
    }
    return input
-}
-func (p Profile) Media(a *Asset) (*Media, error) {
-   req, err := http.Get_Parse(a.Play_Session.URL)
-   if err != nil {
-      return nil, err
-   }
-   req.Header = http.Header{
-      "X-Claims-Token": {p.Claims_Token},
-      "X-Forwarded-For": {forwarded_for},
-   }
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   med := new(Media)
-   if err := json.NewDecoder(res.Body).Decode(med); err != nil {
-      return nil, err
-   }
-   if med.Message != nil {
-      return nil, errors.New(*med.Message)
-   }
-   return med, nil
 }
 
 type Media struct {

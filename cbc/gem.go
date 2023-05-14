@@ -3,32 +3,61 @@ package cbc
 import (
    "2a.pages.dev/rosso/http"
    "encoding/json"
+   "fmt"
    "net/url"
+   "strings"
 )
 
-func (a Asset) Name() string {
-   var b []byte
-   b = append(b, a.Series...)
-   if a.Episode >= 1 {
-      b = append(b, sep_big...)
-      b = append(b, 'S')
-      b = strconv.AppendInt(b, a.Season, 10)
-      b = append(b, sep_small)
-      b = append(b, 'E')
-      b = strconv.AppendInt(b, a.Episode, 10)
-      b = append(b, sep_big...)
-      b = append(b, a.Title...)
-   } else {
-      b = append(b, sep_big...)
-      b = append(b, a.Credits.Release_Date...)
+func (m metadata) name() (string, error) {
+   var s []string
+   if m.Part_Of_Series != nil {
+      s = append(s, m.Part_Of_Series.Name)
    }
-   return string(b)
+   if m.Part_Of_Season != nil {
+      s = append(s, fmt.Sprint("S", m.Part_Of_Season.Season_Number))
+   }
+   if m.Episode_Number != nil {
+      s = append(s, fmt.Sprint("E", *m.Episode_Number))
+      s = append(s, m.Name)
+   } else {
+      s = append(s, m.Name)
+      year, _, found := strings.Cut(m.Date_Created, "-")
+      if !found {
+         return "", fmt.Errorf("invalid dateCreated")
+      }
+      s = append(s, year)
+   }
+   return strings.Join(s, sep_big), nil
 }
 
-const (
-   sep_big = " - "
-   sep_small = ' '
-)
+const sep_big = " - "
+
+type metadata struct {
+   Part_Of_Series *struct {
+      Name string
+   } `json:"partofSeries"`
+   Part_Of_Season *struct {
+      Season_Number int64 `json:"seasonNumber"`
+   } `json:"partofSeason"`
+   Episode_Number *int64 `json:"episodeNumber"`
+   Name string
+   Date_Created string `json:"dateCreated"` // 2015-01-01T00:00:00
+}
+
+type catalog_gem struct {
+   Selected_URL string `json:"selectedUrl"`
+   Content []struct {
+      Lineups []struct {
+         Items []lineup_item
+      }
+   }
+   Structured_Metadata metadata `json:"structuredMetadata"`
+}
+
+type lineup_item struct {
+   URL string
+   Formatted_ID_Media string `json:"formattedIdMedia"`
+}
 
 func new_catalog_gem(link string) (*catalog_gem, error) {
    // you can also use `phone_android`, but it returns combined number and name:
@@ -64,29 +93,3 @@ func (c catalog_gem) item() *lineup_item {
    return nil
 }
 
-type catalog_gem struct {
-   Selected_URL string `json:"selectedUrl"`
-   Content []struct {
-      Lineups []struct {
-         Items []lineup_item
-      }
-   }
-   Structured_Metadata metadata `json:"structuredMetadata"`
-}
-
-type lineup_item struct {
-   URL string
-   ID_Media int `json:"idMedia"`
-}
-
-type metadata struct {
-   Part_Of_Series *struct {
-      Name string
-   } `json:"partofSeries"`
-   Part_Of_Season *struct {
-      Season_Number int `json:"seasonNumber"`
-   } `json:"partofSeason"`
-   Episode_Number *int `json:"episodeNumber"`
-   Name string
-   Date_Created string `json:"dateCreated"`
-}
