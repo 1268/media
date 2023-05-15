@@ -1,20 +1,12 @@
 package cbc
 
 import (
+   "2a.pages.dev/mech"
    "fmt"
    "os"
    "testing"
    "time"
 )
-
-var links = []string{
-   // gem.cbc.ca/media/downton-abbey/s01e05
-   "downton-abbey/s01e05",
-   // gem.cbc.ca/the-fall/s02e03
-   "the-fall/s02e03",
-   // gem.cbc.ca/the-witch
-   "the-witch",
-}
 
 func Test_Gem(t *testing.T) {
    for _, link := range links {
@@ -23,13 +15,22 @@ func Test_Gem(t *testing.T) {
          t.Fatal(err)
       }
       fmt.Printf("%+v\n", gem.item())
-      name, err := gem.Structured_Metadata.name()
+      name, err := mech.Name(gem.Structured_Metadata)
       if err != nil {
          t.Fatal(err)
       }
       fmt.Println(name)
       time.Sleep(time.Second)
    }
+}
+
+var links = []string{
+   // gem.cbc.ca/media/downton-abbey/s01e05
+   "downton-abbey/s01e05",
+   // gem.cbc.ca/the-fall/s02e03
+   "the-fall/s02e03",
+   // gem.cbc.ca/the-witch
+   "the-witch",
 }
 
 func Test_Media(t *testing.T) {

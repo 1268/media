@@ -7,32 +7,6 @@ import (
    "strings"
 )
 
-const sep_big = " - "
-
-func (v Video_Player) Name() (string, error) {
-   year, _, found := strings.Cut(v.Current_Video.Meta.Airdate, "-")
-   if !found {
-      return "", errors.New("year not found")
-   }
-   var b strings.Builder
-   b.WriteString(v.Current_Video.Meta.Title)
-   if v.Content_Type == "movie" {
-      b.WriteString(sep_big)
-      b.WriteString(year)
-   }
-   return b.String(), nil
-}
-
-type Video_Player struct {
-   Content_Type string `json:"contentType"`
-   Current_Video struct {
-      Meta struct {
-         Airdate string // 1996-01-01T00:00:00.000Z
-         Title string
-      }
-   } `json:"currentVideo"`
-}
-
 type playback_request struct {
    Ad_Tags struct {
       Lat int `json:"lat"`
@@ -114,4 +88,30 @@ func (c Content) Video_Player() (*Video_Player, error) {
       }
    }
    return nil, errors.New("video-player-ap not present")
+}
+
+type Video_Player struct {
+   Content_Type string `json:"contentType"`
+   Current_Video struct {
+      Meta struct {
+         Airdate string // 1996-01-01T00:00:00.000Z
+         Title string
+      }
+   } `json:"currentVideo"`
+}
+
+const sep_big = " - "
+
+func (v Video_Player) Name() (string, error) {
+   year, _, found := strings.Cut(v.Current_Video.Meta.Airdate, "-")
+   if !found {
+      return "", errors.New("year not found")
+   }
+   var b strings.Builder
+   b.WriteString(v.Current_Video.Meta.Title)
+   if v.Content_Type == "movie" {
+      b.WriteString(sep_big)
+      b.WriteString(year)
+   }
+   return b.String(), nil
 }
