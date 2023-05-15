@@ -1,0 +1,421 @@
+GET https://gw.cds.amcn.com/content-compiler-cr/api/v1/content/amcn/amcplus/path/movies/nocebo--1061554? HTTP/2.0
+
+HTTP/2.0 200 
+date: Mon, 15 May 2023 23:24:03 GMT
+content-type: application/json; charset=utf-8
+cache-control: public, s-maxage=600, max-age=0
+x-amcn-cache: MISS
+x-amcn-ids: eyJpZCI6IjEwNjE1NTQiLCJyZWxhdGVkSWRzIjpbMTA2MTU1NCwxMDYyMDgzLDEwNjEzMTMsMTA2MjIxNCwxMDUyNTQxLDEwNjIyNDMsMTAyODI1NiwxMDQ0MTM4LDEwMjgxOTUsMTAyNzczOSwxMDYxOTIzLDEwNDQxNTMsMTAyNzg0OCwxMDI4MDc5LDEwMjgyNzAsMTA1MjgzMSwxMDE2MzE3LDEwMjc3NzEsMTA0Mzg5OF19
+x-krakend: Version 2.1.0-ee
+x-krakend-completed: false
+x-powered-by: Express
+x-llid: 9b72c1115b981414263adb5fb2f3e615
+content-length: 7324
+access-control-allow-origin: https://www.amcplus.com
+access-control-expose-headers: Content-Length,Content-Type,X-Amcn-Bc-Jwt
+
+{
+  "data": {
+    "type": "page",
+    "properties": {
+      "pageType": "movie",
+      "ogpType": "video.movie",
+      "schemaType": "Movie",
+      "title": "Watch Nocebo Online | AMC+",
+      "description": "Watch Nocebo online now with AMC+. Sign up for a free trial and start streaming your favorite movies today.",
+      "pageTitle": "Nocebo",
+      "imageDesktop": "https://images.cds.amcn.com/amcn/amcplus/movie_amcn__nocebo__img_wide_16x9.jpg",
+      "videoId": "6319888932112",
+      "videoCategory": "SVOD",
+      "countryCode": "US",
+      "entitlements": [
+        "amcn-auth"
+      ],
+      "id": "1061554",
+      "manifestType": "movie"
+    },
+    "children": [
+      {
+        "type": "image",
+        "properties": {
+          "images": {
+            "mobile": "https://images.cds.amcn.com/amcn/amcplus/movie_amcn__nocebo__img_long_81x100.jpg",
+            "desktop": "https://images.cds.amcn.com/amcn/amcplus/movie_amcn__nocebo__img_wide_16x9.jpg"
+          },
+          "aspectRatio": {
+            "mobile": "2x3",
+            "mobile_landscape": "16x9"
+          },
+          "className": "background-image"
+        }
+      },
+      {
+        "type": "image",
+        "properties": {
+          "images": "https://images.cds.amcn.com/amcn/amcplus/movie_amcn__nocebo__img_movie_logo.png",
+          "aspectRatio": "16x9",
+          "className": "logo",
+          "title": "Nocebo"
+        }
+      },
+      {
+        "type": "container",
+        "properties": {
+          "className": "header-container"
+        },
+        "children": [
+          {
+            "type": "header",
+            "properties": {
+              "mode": "amcplus",
+              "userState": "card-abandoner",
+              "navItems": {
+                "topList": {
+                  "className": "nav-top",
+                  "key": "top-list",
+                  "items": [
+                    {
+                      "icon": {
+                        "iconName": "logo",
+                        "viewBox": "0 0 49 26",
+                        "iconSize": 3
+                      },
+                      "permalink": "/",
+                      "active": false,
+                      "key": "logo",
+                      "cc": "US false",
+                      "analyticsObject": {
+                        "navComponentName": "top_nav"
+                      }
+                    },
+                    {
+                      "className": "button-default button-secondary sign-out",
+                      "text": {
+                        "typography": "button-xs",
+                        "typographyTablet": "button-sm",
+                        "typographyDesktop": "button-sm",
+                        "title": "Sign Out"
+                      },
+                      "permalink": "action://logoutUser",
+                      "active": false,
+                      "key": "sign-out",
+                      "cc": "US false",
+                      "analyticsObject": {
+                        "navComponentName": "top_nav"
+                      }
+                    },
+                    {
+                      "className": "button-default button-primary-guest get-amcplus ",
+                      "text": {
+                        "typography": "button-xs",
+                        "typographyTablet": "button-sm",
+                        "typographyDesktop": "button-sm",
+                        "title": "Get AMC+",
+                        "className": "get-amcplus"
+                      },
+                      "permalink": "/create",
+                      "active": false,
+                      "key": "get-started",
+                      "cc": "US false",
+                      "analyticsObject": {
+                        "navComponentName": "top_nav"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "navigation-ap",
+        "properties": {
+          "type": "tab-bar-vertical",
+          "items": {
+            "topItems": {
+              "className": "tab-bar-vertical",
+              "key": "tab-bar",
+              "items": [
+                {
+                  "text": {
+                    "typography": "display-primary-2",
+                    "typographyDesktop": "display-primary-6",
+                    "typographyTablet": "display-primary-3",
+                    "title": "Info",
+                    "className": "nav-list-text"
+                  },
+                  "permalink": "/movies/nocebo--1061554",
+                  "active": true,
+                  "key": "info",
+                  "analyticsObject": {
+                    "navComponentName": "tab_bar"
+                  }
+                },
+                {
+                  "text": {
+                    "typography": "display-primary-2",
+                    "typographyDesktop": "display-primary-6",
+                    "typographyTablet": "display-primary-3",
+                    "title": "Extras",
+                    "className": "nav-list-text"
+                  },
+                  "permalink": "/movies/nocebo/video-extras--1061554",
+                  "active": false,
+                  "key": "extras",
+                  "analyticsObject": {
+                    "navComponentName": "tab_bar"
+                  }
+                },
+                {
+                  "text": {
+                    "typography": "display-primary-2",
+                    "typographyDesktop": "display-primary-6",
+                    "typographyTablet": "display-primary-3",
+                    "title": "You May Like",
+                    "className": "nav-list-text"
+                  },
+                  "permalink": "/movies/nocebo/related--1061554",
+                  "active": false,
+                  "key": "you-may-like",
+                  "analyticsObject": {
+                    "navComponentName": "tab_bar"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "children": [
+          {
+            "type": "list",
+            "properties": {
+              "itemsPerRow": 1,
+              "mode": "list",
+              "typefaceDesktop": "label-primary-md",
+              "analyticsObject": {
+                "listMode": "list",
+                "contentEpisode": -1,
+                "contentSeason": -1,
+                "contentShow": "none",
+                "contentTitle": "none",
+                "listPosition": 3
+              }
+            },
+            "children": [
+              {
+                "type": "hero-ap",
+                "properties": {
+                  "contentType": "movie",
+                  "layout": "action-hero-ap",
+                  "text": {
+                    "showTitle": "Nocebo",
+                    "description": "A fashion designer (Eva Green) suffers from a mysterious illness that puzzles her doctors and husband until help arrives in the form of a Filipino nanny who uses traditional folk healing to reveal a horrifying truth."
+                  },
+                  "className": "hero-series-details-ap",
+                  "meta": {
+                    "videoCategory": "SVOD",
+                    "nid": 1061554,
+                    "alt": "Watch Nocebo Online | Stream Full Movies",
+                    "title": "Nocebo",
+                    "schemaType": "Movie"
+                  },
+                  "flagType": "default",
+                  "flagCaption": "AMC+ Premiere – New Movies Every Friday",
+                  "buttons": {
+                    "get_app": {
+                      "title": "START WATCHING",
+                      "key": "get_app",
+                      "permalink": "action://setProp?paywall=%7B%22open%22%3Atrue%7D",
+                      "icon": "play"
+                    },
+                    "trailer": {
+                      "title": "trailer",
+                      "permalink": "/movies/nocebo/videos/nocebo-trailer--1062083",
+                      "key": "trailer"
+                    },
+                    "save": {
+                      "unselected": {
+                        "title": "save",
+                        "icon": "plus",
+                        "key": "save"
+                      },
+                      "selected": {
+                        "title": "remove",
+                        "icon": "minus",
+                        "key": "save"
+                      }
+                    }
+                  },
+                  "subheadings": [
+                    {
+                      "type": "icon",
+                      "title": "shudder"
+                    },
+                    {
+                      "type": "text",
+                      "title": "Horror",
+                      "typeface": "body-00",
+                      "typefaceTablet": "body-1",
+                      "typefaceDesktop": "body-1"
+                    },
+                    {
+                      "type": "text",
+                      "title": 2022,
+                      "typeface": "body-00",
+                      "typefaceTablet": "body-1",
+                      "typefaceDesktop": "body-1"
+                    },
+                    {
+                      "type": "badge",
+                      "title": "TV-MA"
+                    }
+                  ],
+                  "headers": {
+                    "x-amcn-account-id": "c60c85ba-51c0-4aa4-8db9-161ffdc528ff",
+                    "x-amcn-cache-hash": "dD1hbWNuO249YW1jcGx1cztwPXdlYjtlPWFtY24tYXV0aDtjPXVzO2w9ZW4tdXM=",
+                    "x-amcn-cache-scope": "audience",
+                    "x-amcn-device-id": "dec4b332-3fd4-4b66-9546-c02e39de7ae2",
+                    "x-amcn-entitlements": "amcn-auth",
+                    "x-amcn-language": "en-us",
+                    "x-amcn-network": "amcplus",
+                    "x-amcn-platform": "web",
+                    "x-amcn-service-group-id": "10",
+                    "x-amcn-service-id": "amcplus",
+                    "x-amcn-tenant": "amcn",
+                    "x-amcn-user-cache-hash": "YT1jNjBjODViYS01MWMwLTRhYTQtOGRiOS0xNjFmZmRjNTI4ZmY7ZD1kZWM0YjMzMi0zZmQ0LTRiNjYtOTU0Ni1jMDJlMzlkZTdhZTI7Yz11cztsPWVuLXVz",
+                    "x-country-code": "us",
+                    "x-forwarded-for": "72.181.23.38"
+                  },
+                  "cardLayout": "amcplus"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "modal",
+        "properties": {
+          "name": "paywall",
+          "open": false,
+          "className": "paywall-modal"
+        },
+        "children": [
+          {
+            "type": "container",
+            "properties": {
+              "className": "paywall-modal-container"
+            },
+            "children": [
+              {
+                "type": "image",
+                "properties": {
+                  "images": "https://images.cds.amcn.com/amcn/amcplus/processed/Swimlane_img_2x3_Nocebo_Feb24.png",
+                  "watermark": {
+                    "mobile": [
+                      "https://cdn.amcnetworks.com/amcplus/scrims/scrim_from-bottom_lg.png,0p,0p,0,0,101"
+                    ],
+                    "mobile_landscape": [
+                      "https://cdn.amcnetworks.com/amcplus/scrims/scrim_from-bottom_lg.png,0p,0p,0,0,101"
+                    ],
+                    "tablet": [
+                      "https://cdn.amcnetworks.com/amcplus/scrims/scrim_from-bottom_lg.png,0p,0p,0,0,101"
+                    ]
+                  },
+                  "className": "paywall-modal-image"
+                }
+              },
+              {
+                "type": "container",
+                "properties": {
+                  "className": "paywall-modal-content"
+                },
+                "children": [
+                  {
+                    "type": "container",
+                    "properties": {
+                      "className": "content-texts"
+                    },
+                    "children": [
+                      {
+                        "type": "text",
+                        "properties": {
+                          "tag": "h1",
+                          "typeface": "label-primary-xl",
+                          "typefaceTablet": "display-secondary-3",
+                          "typefaceDesktop": "display-secondary-3",
+                          "title": "START WATCHING"
+                        }
+                      },
+                      {
+                        "type": "text",
+                        "properties": {
+                          "tag": "p",
+                          "typeface": "body-1",
+                          "typefaceTablet": "body-2",
+                          "typefaceDesktop": "body-2",
+                          "title": "Nocebo"
+                        }
+                      },
+                      {
+                        "type": "text",
+                        "properties": {
+                          "tag": "p",
+                          "typeface": "body-1",
+                          "typefaceTablet": "body-2",
+                          "typefaceDesktop": "body-2",
+                          "title": "A fashion designer (Eva Green) suffers from a mysterious illness that puzzles her doctors and husband until help arrives in the form of a Filipino nanny who uses traditional folk healing to reveal a horrifying truth."
+                        }
+                      },
+                      {
+                        "type": "text",
+                        "properties": {
+                          "tag": "h3",
+                          "typeface": "label-primary-md",
+                          "typefaceTablet": "label-primary-lg",
+                          "typefaceDesktop": "label-primary-lg",
+                          "title": "Plans starting at $6.99/Month"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "container",
+                    "properties": {
+                      "className": "content-actions"
+                    },
+                    "children": [
+                      {
+                        "type": "button",
+                        "properties": {
+                          "permalink": "/create",
+                          "className": "button-pill button-primary button-state-focus",
+                          "size": "medium"
+                        },
+                        "children": [
+                          {
+                            "type": "text",
+                            "properties": {
+                              "title": "GET AMC+",
+                              "typeface": "button-sm",
+                              "typefaceTablet": "button-sm",
+                              "typefaceDesktop": "button-md"
+                            }
+                          }
+                        ]
+                      },
+                      null
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "status": 200,
+  "success": true
+}
