@@ -2,20 +2,19 @@
 
 https://amcplus.com/create
 
-can web client sign up without these:
+if you try to sign up using the web client without these:
 
 ~~~
 google.com
 gstatic.com
 ~~~
 
-If yes, can we automate the web sign up? If no, can we automate the Android app
-sign up? Also, can we see if an error is due to lapsed account, or missing
-media? we could just use an email like this:
+you get this:
 
-~~~
-2023-05-15@mailsac.com
-~~~
+> Please, confirm you are human
+
+can we automate the Android app sign up instead? Also, can we see if an error
+is due to lapsed account, or missing media?
 
 this fails if logged out:
 
@@ -42,9 +41,17 @@ expired account, expired media:
 
 https://amcplus.com/movies/stop-making-sense--1059031
 
+~~~
+expired-account-expired-media.txt
+~~~
+
 active account, active media:
 
 https://amcplus.com/movies/nocebo--1061554
+
+~~~
+active-account-active-media.txt
+~~~
 
 active account, expired media:
 
