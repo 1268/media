@@ -35,6 +35,7 @@ https://amcplus.com/movies/nocebo--1061554
 
 ~~~
 expired-account-active-media.txt
+expired-account-active-media-watch.txt
 ~~~
 
 expired account, expired media:
@@ -56,3 +57,27 @@ active-account-active-media.txt
 active account, expired media:
 
 https://amcplus.com/movies/stop-making-sense--1059031
+
+~~~
+active-account-expired-media.txt
+~~~
+
+I think I have it. For AMC+ expired media, you always get:
+
+```
+HTTP/2.0 404 
+```
+
+For active media, you always get:
+
+```
+HTTP/2.0 200
+```
+
+for active account, you always get:
+
+```
+.data.properties.entitlements[1] = "ob-sub-amcplus"
+```
+
+I will update my tool to better communicate any failures.
