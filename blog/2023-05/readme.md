@@ -41,32 +41,37 @@ For active media, you always get:
 HTTP/2.0 200
 ~~~
 
-for active account, you always get:
-
-~~~
-.data.properties.entitlements[1] = "ob-sub-amcplus"
-~~~
-
 using this:
 
 https://amcplus.com/movies/nocebo--1061554
 
-active account, path/watch:
+with active account and `path/watch`, you get:
 
 ~~~
-active-account-path-watch.txt
+.data.children[1].type = "video-player-ap"
 ~~~
 
-active account, path:
+with active account and `path`, you get:
 
 ~~~
-active-account-path.txt
+.data.children[0].type = "image"
+.data.children[1].type = "image"
+.data.children[2].type = "container"
+.data.children[3].type = "navigation-ap"
 ~~~
 
-expired account, path:
+with expired account and `path`, you get:
 
 ~~~
-expired-account-path.txt
+.data.children[0].type = "image"
+.data.children[1].type = "image"
+.data.children[2].type = "container"
+.data.children[3].type = "navigation-ap"
+.data.children[4].type = "modal"
 ~~~
 
-expired account, path/watch
+with expired account and `path/watch`, you get:
+
+~~~
+.data.type = "redirect"
+~~~
