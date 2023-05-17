@@ -63,5 +63,10 @@ active account, path:
 active-account-path.txt
 ~~~
 
-- expired account, path
-- expired account, path/watch
+expired account, path:
+
+~~~
+expired-account-path.txt
+~~~
+
+expired account, path/watch
