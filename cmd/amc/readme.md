@@ -1,11 +1,5 @@
 # AMC
 
-search:
-
-~~~
-site:amcplus.com/movies
-~~~
-
 login:
 
 ~~~

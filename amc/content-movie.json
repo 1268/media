@@ -5,14 +5,14 @@
     "properties": {
      "contentType": "movie",
      "flagType": "video",
-     "images": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV000489960000_jerry-maguire__img_wide_16x9.jpg",
+     "images": "https://images.cds.amcn.com/amcn/amcplus/movie_amcn__nocebo__img_wide_16x9.jpg",
      "layout": "detail",
      "meta": {
-      "alt": "Watch Jerry Maguire Online | Stream Full Movies",
-      "authPlaybackEnd": 1680321540,
-      "authPlaybackStart": 1675238400,
-      "nid": 1054053,
-      "permalink": "/movies/jerry-maguire--1054053",
+      "alt": "Watch Nocebo Online | Stream Full Movies",
+      "authPlaybackEnd": 2082776399,
+      "authPlaybackStart": 1677214800,
+      "nid": 1061554,
+      "permalink": "/movies/nocebo--1061554",
       "schemaType": "Movie",
       "socials": [
        "facebook",
@@ -20,15 +20,15 @@
        "reddit",
        "envelop"
       ],
-      "title": "Jerry Maguire",
+      "title": "Nocebo",
       "unauthPlaybackEnd": 86400,
       "unauthPlaybackStart": 0,
-      "videoCategory": "Movies-Auth"
+      "videoCategory": "SVOD"
      },
      "text": {
-      "description": "SundanceTV Presents: A successful sports agent, fired for being honorable, fights for his ideals and those who depend on him.",
-      "productionYear": 1996,
-      "title": "Jerry Maguire",
+      "description": "A fashion designer (Eva Green) suffers from a mysterious illness that puzzles her doctors and husband until help arrives in the form of a Filipino nanny who uses traditional folk healing to reveal a horrifying truth.",
+      "productionYear": 2022,
+      "title": "Nocebo",
       "tvContentRating": {
        "title": "TV-MA"
       },
@@ -53,25 +53,25 @@
      },
      "currentVideo": {
       "images": {
-       "desktop": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV000489960000_jerry-maguire__img_wide_16x9.jpg"
+       "desktop": "https://images.cds.amcn.com/amcn/amcplus/movie_amcn__nocebo__img_wide_16x9.jpg"
       },
       "meta": {
-       "airdate": "1996-01-01T00:00:00.000Z",
-       "alt": "Watch Jerry Maguire Online | Stream Full Movies",
-       "authPlaybackEnd": 1680321540,
-       "authPlaybackStart": 1675238400,
+       "airdate": "2022-11-04T00:00:00.000Z",
+       "alt": "Watch Nocebo Online | Stream Full Movies",
+       "authPlaybackEnd": 2082776399,
+       "authPlaybackStart": 1677214800,
        "channel": "amcn",
-       "contentTitle": "Jerry Maguire",
+       "contentTitle": "Nocebo",
        "creditPercent": 95,
-       "nid": 1054053,
-       "permalink": "/movies/jerry-maguire--1054053",
+       "nid": 1061554,
+       "permalink": "/movies/nocebo--1061554",
        "restrictedAds": false,
-       "title": "Jerry Maguire",
+       "title": "Nocebo",
        "tvContentRating": "TV-MA",
        "unauthPlaybackEnd": 86400,
        "unauthPlaybackStart": 0,
-       "videoCategory": "Movies-Auth",
-       "videoId": "6307106869112"
+       "videoCategory": "SVOD",
+       "videoId": "6319888932112"
       },
       "ready_overlay_buttons": {
        "restart_button": {
@@ -82,7 +82,7 @@
        }
       },
       "text": {
-       "description": "SundanceTV Presents: A successful sports agent, fired for being honorable, fights for his ideals and those who depend on him.",
+       "description": "A fashion designer (Eva Green) suffers from a mysterious illness that puzzles her doctors and husband until help arrives in the form of a Filipino nanny who uses traditional folk healing to reveal a horrifying truth.",
        "premiereLogin": {
         "accountLink": "/tve",
         "amcPremiereLink": "https://www.amcplus.com/get-started",
@@ -96,7 +96,7 @@
         "subscriberSignin": "Continue to sign in and watch",
         "title": "AMC+ is the new way to upgrade for exclusives, early access and ad-free."
        },
-       "title": "Jerry Maguire"
+       "title": "Nocebo"
       }
      },
      "defaultOverlay": "downloadapp",
@@ -104,7 +104,7 @@
       "devices": {
        "android": {},
        "ios": {
-        "maybeLaterLink": "/movies/jerry-maguire--1054053"
+        "maybeLaterLink": "/movies/nocebo--1061554"
        }
       },
       "image": "https://cdn.amcnetworks.com/amcplus/logos/app-icon@3x.png",
@@ -128,136 +128,230 @@
        {
         "properties": {
          "analyticsObject": {
-          "clickthroughUrl": "/movies/skinamarink--1061331",
+          "clickthroughUrl": "/movies/from-black--1062214",
           "contentEpisode": -1,
           "contentSeason": -1,
           "contentShow": "none",
           "contentTitle": "none"
          },
          "image": {
-          "images": "https://images.cds.amcn.com/amcn/amcplus/processed/movie_amcn_FTP68709_skinamarink__img_wide_poster_16x9_Feb2.jpg"
+          "images": {
+           "desktop": "https://images.cds.amcn.com/amcn/amcplus/movie_amcn_FTP70254_from-black__img_wide_poster_16x9.jpg",
+           "mobile": "https://images.cds.amcn.com/amcn/amcplus/movie_amcn_FTP70254_from-black__img_poster_2x3.jpg",
+           "tablet": "https://images.cds.amcn.com/amcn/amcplus/movie_amcn_FTP70254_from-black__img_wide_poster_16x9.jpg"
+          }
          },
          "layout": "end-card-player-ap",
-         "wrappedLink": "/movies/skinamarink--1061331"
+         "meta": {
+          "permalink": "/movies/from-black--1062214"
+         }
         },
         "type": "card"
        },
        {
         "properties": {
          "analyticsObject": {
-          "clickthroughUrl": "/movies/vesper--1061074",
+          "clickthroughUrl": "/movies/livid--1052541",
           "contentEpisode": -1,
           "contentSeason": -1,
           "contentShow": "none",
           "contentTitle": "none"
          },
          "image": {
-          "images": "https://images.cds.amcn.com/amcn/amcplus/processed/movie_tms_MV018446160000_vesper_wk1__img_wide_poster_16x9-1.jpg"
+          "images": {
+           "desktop": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV003962820000_livid__img_wide_poster_16x9.jpg",
+           "mobile": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV003962820000_livid__img_poster_2x3.jpg",
+           "tablet": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV003962820000_livid__img_wide_poster_16x9.jpg"
+          }
          },
          "layout": "end-card-player-ap",
-         "wrappedLink": "/movies/vesper--1061074"
+         "meta": {
+          "permalink": "/movies/livid--1052541"
+         }
         },
         "type": "card"
        },
        {
         "properties": {
          "analyticsObject": {
-          "clickthroughUrl": "/movies/god-s-country--1061293",
+          "clickthroughUrl": "/movies/kids-vs-aliens--1062243",
           "contentEpisode": -1,
           "contentSeason": -1,
           "contentShow": "none",
           "contentTitle": "none"
          },
          "image": {
-          "images": "https://images.cds.amcn.com/amcn/amcplus/processed/movie_tms_MV018251990000_gods-country_wk1__img_wide_poster_16x9_Feb3_elqlad.jpg"
+          "images": {
+           "desktop": "https://images.cds.amcn.com/amcn/amcplus/processed/movie_amcn_RLJ244943_kids-vs-aliens__img_wide_poster_16x9.jpg",
+           "mobile": "https://images.cds.amcn.com/amcn/amcplus/processed/movie_amcn_RLJ244943_kids-vs-aliens__img_poster_2x3.jpg",
+           "tablet": "https://images.cds.amcn.com/amcn/amcplus/processed/movie_amcn_RLJ244943_kids-vs-aliens__img_wide_poster_16x9.jpg"
+          }
          },
          "layout": "end-card-player-ap",
-         "wrappedLink": "/movies/god-s-country--1061293"
+         "meta": {
+          "permalink": "/movies/kids-vs-aliens--1062243"
+         }
         },
         "type": "card"
        },
        {
         "properties": {
          "analyticsObject": {
-          "clickthroughUrl": "/movies/old-man--1061091",
+          "clickthroughUrl": "/movies/stay-out-of-the-attic--1028256",
           "contentEpisode": -1,
           "contentSeason": -1,
           "contentShow": "none",
           "contentTitle": "none"
          },
          "image": {
-          "images": "https://images.cds.amcn.com/amcn/amcplus/processed/movie_tms_MV018734370000_old-man_wk1__img_wide_poster_16x9_jan20.jpg"
+          "images": {
+           "desktop": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV016000120000_stay-out-of-the-f***king--attic__img_wide_poster_16x9.jpg",
+           "mobile": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV016000120000_stay-out-of-the-f***king--attic__img_poster_2x3.jpg",
+           "tablet": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV016000120000_stay-out-of-the-f***king--attic__img_wide_poster_16x9.jpg"
+          }
          },
          "layout": "end-card-player-ap",
-         "wrappedLink": "/movies/old-man--1061091"
+         "meta": {
+          "permalink": "/movies/stay-out-of-the-attic--1028256"
+         }
         },
         "type": "card"
        },
        {
         "properties": {
          "analyticsObject": {
-          "clickthroughUrl": "/movies/murder-at-yellowstone-city--1060155",
+          "clickthroughUrl": "/movies/a-bronx-tale--1044138",
           "contentEpisode": -1,
           "contentSeason": -1,
           "contentShow": "none",
           "contentTitle": "none"
          },
          "image": {
-          "images": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV018057710000_murder-at-yellowstone-city_wk1__img_wide_poster_16x9.jpg"
+          "images": {
+           "desktop": "https://images.cds.amcn.com/amcn/amcplus/processed/movie_tms_MV000375080000_bronx-tale__img_wide_poster_16x9.jpg",
+           "mobile": "https://images.cds.amcn.com/amcn/amcplus/processed/movie_tms_MV000375080000_bronx-tale__img_poster_2x3.jpg",
+           "tablet": "https://images.cds.amcn.com/amcn/amcplus/processed/movie_tms_MV000375080000_bronx-tale__img_wide_poster_16x9.jpg"
+          }
          },
          "layout": "end-card-player-ap",
-         "wrappedLink": "/movies/murder-at-yellowstone-city--1060155"
+         "meta": {
+          "permalink": "/movies/a-bronx-tale--1044138"
+         }
         },
         "type": "card"
        },
        {
         "properties": {
          "analyticsObject": {
-          "clickthroughUrl": "/movies/the-salvation--1026727",
+          "clickthroughUrl": "/movies/sam-was-here--1028195",
           "contentEpisode": -1,
           "contentSeason": -1,
           "contentShow": "none",
           "contentTitle": "none"
          },
          "image": {
-          "images": "https://images.cds.amcn.com/amcn/amcplus/processed/movie_tms_MV006485040000_the-salvation__img_wide_poster_16x9.jpg"
+          "images": {
+           "desktop": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV010025650000_sam-was-here__img_wide_poster_16x9.jpg",
+           "mobile": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV010025650000_sam-was-here__img_poster_2x3.jpg",
+           "tablet": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV010025650000_sam-was-here__img_wide_poster_16x9.jpg"
+          }
          },
          "layout": "end-card-player-ap",
-         "wrappedLink": "/movies/the-salvation--1026727"
+         "meta": {
+          "permalink": "/movies/sam-was-here--1028195"
+         }
         },
         "type": "card"
        },
        {
         "properties": {
          "analyticsObject": {
-          "clickthroughUrl": "/movies/sky--1026699",
+          "clickthroughUrl": "/movies/the-beach-house--1027739",
           "contentEpisode": -1,
           "contentSeason": -1,
           "contentShow": "none",
           "contentTitle": "none"
          },
          "image": {
-          "images": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV008666940000_sky__img_wide_poster_16x9.jpg"
+          "images": {
+           "desktop": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV014287430000_beach-house__img_wide_poster_16x9.jpg",
+           "mobile": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV014287430000_beach-house__img_poster_2x3.jpg",
+           "tablet": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV014287430000_beach-house__img_wide_poster_16x9.jpg"
+          }
          },
          "layout": "end-card-player-ap",
-         "wrappedLink": "/movies/sky--1026699"
+         "meta": {
+          "permalink": "/movies/the-beach-house--1027739"
+         }
         },
         "type": "card"
        },
        {
         "properties": {
          "analyticsObject": {
-          "clickthroughUrl": "/movies/sweet-virginia--1026790",
+          "clickthroughUrl": "/movies/leave--1061923",
           "contentEpisode": -1,
           "contentSeason": -1,
           "contentShow": "none",
           "contentTitle": "none"
          },
          "image": {
-          "images": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV010313410000_sweet-virginia__img_wide_poster_16x9.jpg"
+          "images": {
+           "desktop": "https://images.cds.amcn.com/amcn/amcplus/movie_amcn_FTP67839_leave__img_wide_poster_16x9.jpg",
+           "mobile": "https://images.cds.amcn.com/amcn/amcplus/movie_amcn_FTP67839_leave__img_poster_2x3.jpg",
+           "tablet": "https://images.cds.amcn.com/amcn/amcplus/movie_amcn_FTP67839_leave__img_wide_poster_16x9.jpg"
+          }
          },
          "layout": "end-card-player-ap",
-         "wrappedLink": "/movies/sweet-virginia--1026790"
+         "meta": {
+          "permalink": "/movies/leave--1061923"
+         }
+        },
+        "type": "card"
+       },
+       {
+        "properties": {
+         "analyticsObject": {
+          "clickthroughUrl": "/movies/ghostbusters-1984--1044153",
+          "contentEpisode": -1,
+          "contentSeason": -1,
+          "contentShow": "none",
+          "contentTitle": "none"
+         },
+         "image": {
+          "images": {
+           "desktop": "https://images.cds.amcn.com/amcn/amcplus/processed/movie_tms_MV000184850000_ghostbusters__img_wide_poster_16x9.jpg",
+           "mobile": "https://images.cds.amcn.com/amcn/amcplus/processed/movie_tms_MV000184850000_ghostbusters__img_poster_2x3.jpg",
+           "tablet": "https://images.cds.amcn.com/amcn/amcplus/processed/movie_tms_MV000184850000_ghostbusters__img_wide_poster_16x9.jpg"
+          }
+         },
+         "layout": "end-card-player-ap",
+         "meta": {
+          "permalink": "/movies/ghostbusters-1984--1044153"
+         }
+        },
+        "type": "card"
+       },
+       {
+        "properties": {
+         "analyticsObject": {
+          "clickthroughUrl": "/movies/the-dark-and-the-wicked--1027848",
+          "contentEpisode": -1,
+          "contentSeason": -1,
+          "contentShow": "none",
+          "contentTitle": "none"
+         },
+         "image": {
+          "images": {
+           "desktop": "https://images.cds.amcn.com/amcn/amcplus/movies_tms_MV014469030000_dark-and-the-wicked__img_wide_poster_16x9.jpg",
+           "mobile": "https://images.cds.amcn.com/amcn/amcplus/movies_tms_MV014469030000_dark-and-the-wicked__img_poster_2x3.jpg",
+           "tablet": "https://images.cds.amcn.com/amcn/amcplus/movies_tms_MV014469030000_dark-and-the-wicked__img_wide_poster_16x9.jpg"
+          }
+         },
+         "layout": "end-card-player-ap",
+         "meta": {
+          "permalink": "/movies/the-dark-and-the-wicked--1027848"
+         }
         },
         "type": "card"
        },
@@ -271,95 +365,39 @@
           "contentTitle": "none"
          },
          "image": {
-          "images": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV010165930000_mayhem__img_wide_poster_16x9.jpg"
+          "images": {
+           "desktop": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV010165930000_mayhem__img_wide_poster_16x9.jpg",
+           "mobile": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV010165930000_mayhem__img_poster_2x3.jpg",
+           "tablet": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV010165930000_mayhem__img_wide_poster_16x9.jpg"
+          }
          },
          "layout": "end-card-player-ap",
-         "wrappedLink": "/movies/mayhem--1028079"
+         "meta": {
+          "permalink": "/movies/mayhem--1028079"
+         }
         },
         "type": "card"
        },
        {
         "properties": {
          "analyticsObject": {
-          "clickthroughUrl": "/movies/dual--1053795",
+          "clickthroughUrl": "/movies/summer-of-84--1028270",
           "contentEpisode": -1,
           "contentSeason": -1,
           "contentShow": "none",
           "contentTitle": "none"
          },
          "image": {
-          "images": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV017880710000_dual_wk2__img_wide_poster_16x9.jpg"
+          "images": {
+           "desktop": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV011064700000_summer-of-84__img_wide_poster_16x9.jpg",
+           "mobile": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV011064700000_summer-of-84__img_poster_2x3.jpg",
+           "tablet": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV011064700000_summer-of-84__img_wide_poster_16x9.jpg"
+          }
          },
          "layout": "end-card-player-ap",
-         "wrappedLink": "/movies/dual--1053795"
-        },
-        "type": "card"
-       },
-       {
-        "properties": {
-         "analyticsObject": {
-          "clickthroughUrl": "/movies/the-apology--1060656",
-          "contentEpisode": -1,
-          "contentSeason": -1,
-          "contentShow": "none",
-          "contentTitle": "none"
-         },
-         "image": {
-          "images": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV019156420000_apology_wk1__img_wide_poster_16x9.jpg"
-         },
-         "layout": "end-card-player-ap",
-         "wrappedLink": "/movies/the-apology--1060656"
-        },
-        "type": "card"
-       },
-       {
-        "properties": {
-         "analyticsObject": {
-          "clickthroughUrl": "/movies/resurrection--1059496",
-          "contentEpisode": -1,
-          "contentSeason": -1,
-          "contentShow": "none",
-          "contentTitle": "none"
-         },
-         "image": {
-          "images": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV018330220000_resurrection_wk1__img_wide_poster_16x9.jpg"
-         },
-         "layout": "end-card-player-ap",
-         "wrappedLink": "/movies/resurrection--1059496"
-        },
-        "type": "card"
-       },
-       {
-        "properties": {
-         "analyticsObject": {
-          "clickthroughUrl": "/movies/watcher--1055392",
-          "contentEpisode": -1,
-          "contentSeason": -1,
-          "contentShow": "none",
-          "contentTitle": "none"
-         },
-         "image": {
-          "images": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV018028700000_watcher_wk1__img_wide_poster_16x9.jpg"
-         },
-         "layout": "end-card-player-ap",
-         "wrappedLink": "/movies/watcher--1055392"
-        },
-        "type": "card"
-       },
-       {
-        "properties": {
-         "analyticsObject": {
-          "clickthroughUrl": "/movies/rogue-agent--1055365",
-          "contentEpisode": -1,
-          "contentSeason": -1,
-          "contentShow": "none",
-          "contentTitle": "none"
-         },
-         "image": {
-          "images": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV018341070000_rogue-agent_wk1__img_wide_poster_16x9.jpg"
-         },
-         "layout": "end-card-player-ap",
-         "wrappedLink": "/movies/rogue-agent--1055365"
+         "meta": {
+          "permalink": "/movies/summer-of-84--1028270"
+         }
         },
         "type": "card"
        },
@@ -373,95 +411,85 @@
           "contentTitle": "none"
          },
          "image": {
-          "images": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV017089140000_dangerous_v2__img_wide_poster_16x9.jpg"
+          "images": {
+           "desktop": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV017089140000_dangerous_v2__img_wide_poster_16x9.jpg",
+           "mobile": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV017089140000_dangerous_v2__img_poster_2x3.jpg",
+           "tablet": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV017089140000_dangerous_v2__img_wide_poster_16x9.jpg"
+          }
          },
          "layout": "end-card-player-ap",
-         "wrappedLink": "/movies/dangerous--1052831"
+         "meta": {
+          "permalink": "/movies/dangerous--1052831"
+         }
         },
         "type": "card"
        },
        {
         "properties": {
          "analyticsObject": {
-          "clickthroughUrl": "/movies/last-looks--1054588",
+          "clickthroughUrl": "/movies/the-fifth-element--1016317",
           "contentEpisode": -1,
           "contentSeason": -1,
           "contentShow": "none",
           "contentTitle": "none"
          },
          "image": {
-          "images": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV017672970000_last-looks_wk2__img_wide_poster_16x9.jpg"
+          "images": {
+           "desktop": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV000506130000_fifth-element__img_wide_poster_16x9.jpg",
+           "mobile": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV000506130000_fifth-element__img_poster_2x3.jpg",
+           "tablet": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV000506130000_fifth-element__img_wide_poster_16x9.jpg"
+          }
          },
          "layout": "end-card-player-ap",
-         "wrappedLink": "/movies/last-looks--1054588"
+         "meta": {
+          "permalink": "/movies/the-fifth-element--1016317"
+         }
         },
         "type": "card"
        },
        {
         "properties": {
          "analyticsObject": {
-          "clickthroughUrl": "/movies/bar-fight--1060126",
+          "clickthroughUrl": "/movies/blood-vessel--1027771",
           "contentEpisode": -1,
           "contentSeason": -1,
           "contentShow": "none",
           "contentTitle": "none"
          },
          "image": {
-          "images": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV018796870000_bar-fight_wk1__img_wide_poster_16x9.jpg"
+          "images": {
+           "desktop": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV013903140000_blood-vessel__img_wide_poster_16x9.jpg",
+           "mobile": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV013903140000_blood-vessel__img_poster_2x3.jpg",
+           "tablet": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV013903140000_blood-vessel__img_wide_poster_16x9.jpg"
+          }
          },
          "layout": "end-card-player-ap",
-         "wrappedLink": "/movies/bar-fight--1060126"
+         "meta": {
+          "permalink": "/movies/blood-vessel--1027771"
+         }
         },
         "type": "card"
        },
        {
         "properties": {
          "analyticsObject": {
-          "clickthroughUrl": "/movies/spin-me-round--1055394",
+          "clickthroughUrl": "/movies/great-white--1043898",
           "contentEpisode": -1,
           "contentSeason": -1,
           "contentShow": "none",
           "contentTitle": "none"
          },
          "image": {
-          "images": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV018340980000_spin-me-round_wk2__img_wide_poster_16x9.jpg"
+          "images": {
+           "desktop": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV016086380000_great-white__img_wide_poster_16x9.jpg",
+           "mobile": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV016086380000_great-white__img_poster_2x3.jpg",
+           "tablet": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV016086380000_great-white__img_wide_poster_16x9.jpg"
+          }
          },
          "layout": "end-card-player-ap",
-         "wrappedLink": "/movies/spin-me-round--1055394"
-        },
-        "type": "card"
-       },
-       {
-        "properties": {
-         "analyticsObject": {
-          "clickthroughUrl": "/movies/sleeping-with-other-people--1027138",
-          "contentEpisode": -1,
-          "contentSeason": -1,
-          "contentShow": "none",
-          "contentTitle": "none"
-         },
-         "image": {
-          "images": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV007585100000_sleeping-with-other-people__img_wide_poster_16x9.jpg"
-         },
-         "layout": "end-card-player-ap",
-         "wrappedLink": "/movies/sleeping-with-other-people--1027138"
-        },
-        "type": "card"
-       },
-       {
-        "properties": {
-         "analyticsObject": {
-          "clickthroughUrl": "/movies/south-of-heaven--1044102",
-          "contentEpisode": -1,
-          "contentSeason": -1,
-          "contentShow": "none",
-          "contentTitle": "none"
-         },
-         "image": {
-          "images": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV017150300000_south-of-heaven_v2__img_wide_poster_16x9.jpg"
-         },
-         "layout": "end-card-player-ap",
-         "wrappedLink": "/movies/south-of-heaven--1044102"
+         "meta": {
+          "permalink": "/movies/great-white--1043898"
+         }
         },
         "type": "card"
        }
@@ -469,7 +497,7 @@
       "title": "More from AMC+"
      },
      "kindOfCalcRunTime": "duration",
-     "linkCloseButton": "/movies/jerry-maguire--1054053",
+     "linkCloseButton": "/movies/nocebo--1061554",
      "miniScreen": false,
      "mobileApp": true,
      "overlayImageVisible": false,
@@ -945,20 +973,20 @@
   ],
   "properties": {
    "countryCode": "US",
-   "description": "Watch Jerry Maguire online now with AMC+. Sign up for a free trial and start streaming your favorite movies today.",
+   "description": "Watch Nocebo online now with AMC+. Sign up for a free trial and start streaming your favorite movies today.",
    "entitlements": [
     "amcn-auth",
     "ob-sub-amcplus"
    ],
-   "id": "1054053",
-   "imageDesktop": "https://images.cds.amcn.com/amcn/amcplus/movie_tms_MV000489960000_jerry-maguire__img_wide_16x9.jpg",
+   "id": "1061554",
+   "imageDesktop": "https://images.cds.amcn.com/amcn/amcplus/movie_amcn__nocebo__img_wide_16x9.jpg",
    "manifestType": "watch-movies",
-   "pageTitle": "Jerry Maguire",
+   "pageTitle": "Nocebo",
    "pageType": "watch-movies",
    "schemaType": "WebSite",
-   "title": "Watch Jerry Maguire Online | AMC+",
-   "videoCategory": "Movies-Auth",
-   "videoId": "6307106869112"
+   "title": "Watch Nocebo Online | AMC+",
+   "videoCategory": "SVOD",
+   "videoId": "6319888932112"
   },
   "type": "page"
  },
