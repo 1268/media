@@ -19,6 +19,30 @@ com.amcplus.amcfullepisodes
 
 ## TRY 7 DAYS FREE
 
+if you try to sign up using the web client without these:
+
+~~~
+google.com
+gstatic.com
+~~~
+
+you get this:
+
+> Please, confirm you are human
+
+can we automate the Android app sign up instead? For expired media, you always
+get:
+
+~~~
+HTTP/2.0 404 
+~~~
+
+For active media, you always get:
+
+~~~
+HTTP/2.0 200
+~~~
+
 use an email like this:
 
 ~~~
