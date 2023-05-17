@@ -1,0 +1,410 @@
+GET https://gw.cds.amcn.com/content-compiler-cr/api/v1/content/amcn/amcplus/path/movies/nocebo--1061554? HTTP/2.0
+
+HTTP/2.0 200 OK
+Content-Length: 6707
+Access-Control-Allow-Origin: https://www.amcplus.com
+Access-Control-Expose-Headers: Content-Length,Content-Type,X-Amcn-Bc-Jwt
+Age: 80
+Cache-Control: public, s-maxage=600, max-age=0
+Content-Type: application/json; charset=utf-8
+Date: Wed, 17 May 2023 00:00:15 GMT
+Expires: Wed, 17 May 2023 00:08:55 GMT
+X-Amcn-Cache: MISS
+X-Amcn-Ids: eyJpZCI6IjEwNjE1NTQiLCJyZWxhdGVkSWRzIjpbMTA2MTU1NCwxMDYyMDgzLDEwNjIyMTQsMTA1MjU0MSwxMDYyMjQzLDEwMjgyNTYsMTA0NDEzOCwxMDI4MTk1LDEwMjc3MzksMTA2MTkyMywxMDQ0MTUzLDEwMjc4NDgsMTAyODA3OSwxMDI4MjcwLDEwNTI4MzEsMTAxNjMxNywxMDI3NzcxLDEwNDM4OThdfQ==
+X-Krakend: Version 2.1.0-ee
+X-Krakend-Completed: false
+X-Llid: bb623c2e5a0cc3eda7eb7887007b1cef
+X-Powered-By: Express
+
+{
+  "data": {
+    "type": "page",
+    "properties": {
+      "pageType": "movie",
+      "ogpType": "video.movie",
+      "schemaType": "Movie",
+      "title": "Watch Nocebo Online | AMC+",
+      "description": "Watch Nocebo online now with AMC+. Sign up for a free trial and start streaming your favorite movies today.",
+      "pageTitle": "Nocebo",
+      "imageDesktop": "https://images.cds.amcn.com/amcn/amcplus/movie_amcn__nocebo__img_wide_16x9.jpg",
+      "videoId": "6319888932112",
+      "videoCategory": "SVOD",
+      "countryCode": "US",
+      "entitlements": [
+        "amcn-auth",
+        "ob-sub-amcplus"
+      ],
+      "id": "1061554",
+      "manifestType": "movie"
+    },
+    "children": [
+      {
+        "type": "image",
+        "properties": {
+          "images": {
+            "mobile": "https://images.cds.amcn.com/amcn/amcplus/movie_amcn__nocebo__img_long_81x100.jpg",
+            "desktop": "https://images.cds.amcn.com/amcn/amcplus/movie_amcn__nocebo__img_wide_16x9.jpg"
+          },
+          "aspectRatio": {
+            "mobile": "2x3",
+            "mobile_landscape": "16x9"
+          },
+          "className": "background-image"
+        }
+      },
+      {
+        "type": "image",
+        "properties": {
+          "images": "https://images.cds.amcn.com/amcn/amcplus/movie_amcn__nocebo__img_movie_logo.png",
+          "aspectRatio": "16x9",
+          "className": "logo",
+          "title": "Nocebo"
+        }
+      },
+      {
+        "type": "container",
+        "properties": {
+          "className": "header-container"
+        },
+        "children": [
+          {
+            "type": "header",
+            "properties": {
+              "mode": "amcplus",
+              "userState": "member",
+              "navItems": {
+                "topList": {
+                  "className": "nav-top",
+                  "key": "top-list",
+                  "items": [
+                    {
+                      "icon": {
+                        "iconName": "logo",
+                        "viewBox": "0 0 49 26",
+                        "iconSize": 3
+                      },
+                      "permalink": "/foryou",
+                      "key": "logo",
+                      "cc": "US false",
+                      "analyticsObject": {
+                        "navComponentName": "top_nav"
+                      }
+                    }
+                  ]
+                },
+                "middleList": {
+                  "className": "nav-middle",
+                  "key": "middle-list",
+                  "items": [
+                    {
+                      "icon": {
+                        "iconName": "search",
+                        "className": "nav-icon",
+                        "iconSize": 1,
+                        "viewBox": "0 0 17 16"
+                      },
+                      "text": {
+                        "typography": "label-primary-md",
+                        "title": "SEARCH",
+                        "className": "nav-list-text"
+                      },
+                      "permalink": "/search",
+                      "active": false,
+                      "key": "explore",
+                      "cc": "US false",
+                      "analyticsObject": {
+                        "navComponentName": "top_nav"
+                      }
+                    },
+                    {
+                      "icon": {
+                        "iconName": "for_you",
+                        "className": "nav-icon",
+                        "viewBox": "0 0 16 16",
+                        "iconSize": 1
+                      },
+                      "text": {
+                        "typography": "label-primary-md",
+                        "title": "HOME",
+                        "className": "nav-list-text"
+                      },
+                      "permalink": "/foryou",
+                      "active": false,
+                      "key": "for-you",
+                      "cc": "US false",
+                      "analyticsObject": {
+                        "navComponentName": "top_nav"
+                      }
+                    },
+                    {
+                      "icon": {
+                        "iconName": "explore_page",
+                        "className": "nav-icon",
+                        "iconSize": 1,
+                        "viewBox": "0 0 20 16"
+                      },
+                      "text": {
+                        "typography": "label-primary-md",
+                        "title": "EXPLORE",
+                        "className": "nav-list-text"
+                      },
+                      "permalink": "/explore/series",
+                      "active": false,
+                      "key": "explore",
+                      "cc": "US false",
+                      "analyticsObject": {
+                        "navComponentName": "top_nav"
+                      }
+                    },
+                    {
+                      "icon": {
+                        "iconName": "broadcast",
+                        "className": "nav-icon",
+                        "viewBox": "0 0 16 16",
+                        "iconSize": 1
+                      },
+                      "text": {
+                        "typography": "label-primary-md",
+                        "title": "LIVE",
+                        "className": "nav-list-text"
+                      },
+                      "permalink": "/live",
+                      "active": false,
+                      "key": "live",
+                      "cc": "US false",
+                      "analyticsObject": {
+                        "navComponentName": "top_nav"
+                      }
+                    },
+                    {
+                      "icon": {
+                        "iconName": "plus",
+                        "className": "nav-icon",
+                        "viewBox": "0 0 16 16",
+                        "iconSize": 1
+                      },
+                      "text": {
+                        "typography": "label-primary-md",
+                        "title": "MY STUFF",
+                        "className": "nav-list-text"
+                      },
+                      "permalink": "/mystuff",
+                      "active": false,
+                      "key": "my-stuff",
+                      "cc": "US false",
+                      "analyticsObject": {
+                        "navComponentName": "top_nav"
+                      }
+                    }
+                  ]
+                },
+                "bottomList": {
+                  "className": "nav-bottom",
+                  "key": "bottom-list",
+                  "items": [
+                    {
+                      "icon": {
+                        "iconName": "settings",
+                        "className": "nav-icon",
+                        "viewBox": "0 0 16 16",
+                        "iconSize": 1
+                      },
+                      "text": {
+                        "typography": "label-primary-md",
+                        "title": "SETTINGS",
+                        "className": "nav-list-text"
+                      },
+                      "permalink": "/account",
+                      "active": false,
+                      "key": "settings",
+                      "cc": "US false",
+                      "analyticsObject": {
+                        "navComponentName": "top_nav"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "navigation-ap",
+        "properties": {
+          "type": "tab-bar-vertical",
+          "items": {
+            "topItems": {
+              "className": "tab-bar-vertical",
+              "key": "tab-bar",
+              "items": [
+                {
+                  "text": {
+                    "typography": "display-primary-2",
+                    "typographyDesktop": "display-primary-6",
+                    "typographyTablet": "display-primary-3",
+                    "title": "Info",
+                    "className": "nav-list-text"
+                  },
+                  "permalink": "/movies/nocebo--1061554",
+                  "active": true,
+                  "key": "info",
+                  "analyticsObject": {
+                    "navComponentName": "tab_bar"
+                  }
+                },
+                {
+                  "text": {
+                    "typography": "display-primary-2",
+                    "typographyDesktop": "display-primary-6",
+                    "typographyTablet": "display-primary-3",
+                    "title": "Extras",
+                    "className": "nav-list-text"
+                  },
+                  "permalink": "/movies/nocebo/video-extras--1061554",
+                  "active": false,
+                  "key": "extras",
+                  "analyticsObject": {
+                    "navComponentName": "tab_bar"
+                  }
+                },
+                {
+                  "text": {
+                    "typography": "display-primary-2",
+                    "typographyDesktop": "display-primary-6",
+                    "typographyTablet": "display-primary-3",
+                    "title": "You May Like",
+                    "className": "nav-list-text"
+                  },
+                  "permalink": "/movies/nocebo/related--1061554",
+                  "active": false,
+                  "key": "you-may-like",
+                  "analyticsObject": {
+                    "navComponentName": "tab_bar"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "children": [
+          {
+            "type": "list",
+            "properties": {
+              "itemsPerRow": 1,
+              "mode": "list",
+              "typefaceDesktop": "label-primary-md",
+              "analyticsObject": {
+                "listMode": "list",
+                "contentEpisode": -1,
+                "contentSeason": -1,
+                "contentShow": "none",
+                "contentTitle": "none",
+                "listPosition": 3
+              }
+            },
+            "children": [
+              {
+                "type": "hero-ap",
+                "properties": {
+                  "contentType": "movie",
+                  "layout": "action-hero-ap",
+                  "text": {
+                    "showTitle": "Nocebo",
+                    "description": "A fashion designer (Eva Green) suffers from a mysterious illness that puzzles her doctors and husband until help arrives in the form of a Filipino nanny who uses traditional folk healing to reveal a horrifying truth."
+                  },
+                  "className": "hero-series-details-ap",
+                  "meta": {
+                    "videoCategory": "SVOD",
+                    "nid": 1061554,
+                    "alt": "Watch Nocebo Online | Stream Full Movies",
+                    "title": "Nocebo",
+                    "schemaType": "Movie"
+                  },
+                  "flagType": "default",
+                  "flagCaption": "AMC+ Premiere – New Movies Every Friday",
+                  "buttons": {
+                    "play": {
+                      "unselected": {
+                        "title": "Play",
+                        "permalink": "/watch/movies/nocebo--1061554",
+                        "icon": "play",
+                        "key": "play"
+                      },
+                      "selected": {
+                        "title": "Resume",
+                        "permalink": "/watch/movies/nocebo--1061554",
+                        "icon": "play",
+                        "key": "play"
+                      }
+                    },
+                    "trailer": {
+                      "title": "trailer",
+                      "permalink": "/movies/nocebo/videos/nocebo-trailer--1062083",
+                      "key": "trailer"
+                    },
+                    "save": {
+                      "unselected": {
+                        "title": "save",
+                        "icon": "plus",
+                        "key": "save"
+                      },
+                      "selected": {
+                        "title": "remove",
+                        "icon": "minus",
+                        "key": "save"
+                      }
+                    }
+                  },
+                  "subheadings": [
+                    {
+                      "type": "icon",
+                      "title": "shudder"
+                    },
+                    {
+                      "type": "text",
+                      "title": "Horror",
+                      "typeface": "body-00",
+                      "typefaceTablet": "body-1",
+                      "typefaceDesktop": "body-1"
+                    },
+                    {
+                      "type": "text",
+                      "title": 2022,
+                      "typeface": "body-00",
+                      "typefaceTablet": "body-1",
+                      "typefaceDesktop": "body-1"
+                    },
+                    {
+                      "type": "badge",
+                      "title": "TV-MA"
+                    }
+                  ],
+                  "headers": {
+                    "x-amcn-account-id": "77022963-434b-4a99-8f18-b276369efc04",
+                    "x-amcn-cache-hash": "dD1hbWNuO249YW1jcGx1cztwPXdlYjtlPWFtY24tYXV0aCxvYi1zdWItYW1jcGx1cztjPXVzO2w9ZW4tdXM=",
+                    "x-amcn-cache-scope": "audience",
+                    "x-amcn-device-id": "cb5c8468-767c-4828-9546-d5e3f01e1434",
+                    "x-amcn-entitlements": "amcn-auth,ob-sub-amcplus",
+                    "x-amcn-language": "en-us",
+                    "x-amcn-network": "amcplus",
+                    "x-amcn-platform": "web",
+                    "x-amcn-service-group-id": "10",
+                    "x-amcn-service-id": "amcplus",
+                    "x-amcn-tenant": "amcn",
+                    "x-amcn-user-cache-hash": "YT03NzAyMjk2My00MzRiLTRhOTktOGYxOC1iMjc2MzY5ZWZjMDQ7ZD1jYjVjODQ2OC03NjdjLTQ4MjgtOTU0Ni1kNWUzZjAxZTE0MzQ7Yz11cztsPWVuLXVz",
+                    "x-country-code": "us",
+                    "x-forwarded-for": "72.181.23.38"
+                  },
+                  "cardLayout": "amcplus"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "status": 200,
+  "success": true
+}

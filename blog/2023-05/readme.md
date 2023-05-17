@@ -47,10 +47,21 @@ for active account, you always get:
 .data.properties.entitlements[1] = "ob-sub-amcplus"
 ~~~
 
-expired account:
+using this:
 
 https://amcplus.com/movies/nocebo--1061554
 
-active account:
+active account, path/watch:
 
-https://amcplus.com/movies/nocebo--1061554
+~~~
+active-account-path-watch.txt
+~~~
+
+active account, path:
+
+~~~
+active-account-path.txt
+~~~
+
+- expired account, path
+- expired account, path/watch
