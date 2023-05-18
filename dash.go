@@ -25,7 +25,6 @@ func (s *Stream) DASH(ref string) (dash.Representations, error) {
    if err := xml.NewDecoder(res.Body).Decode(&pres); err != nil {
       return nil, err
    }
-   s.Name = Clean(s.Name)
    s.base = res.Request.URL
    return pres.Representation(), nil
 }

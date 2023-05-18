@@ -1,6 +1,7 @@
 package amc
 
 import (
+   "2a.pages.dev/mech"
    "fmt"
    "os"
    "testing"
@@ -36,11 +37,11 @@ func Test_Content(t *testing.T) {
       if err != nil {
          t.Fatal(err)
       }
-      video, err := con.Video_Player()
+      vid, err := con.Video()
       if err != nil {
          t.Fatal(err)
       }
-      name, err := video.Name()
+      name, err := mech.Name(vid)
       if err != nil {
          t.Fatal(err)
       }

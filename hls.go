@@ -106,7 +106,6 @@ func (s *Stream) HLS(ref string) (*hls.Master, error) {
       return nil, err
    }
    defer res.Body.Close()
-   s.Name = Clean(s.Name)
    s.base = res.Request.URL
    return hls.New_Scanner(res.Body).Master()
 }

@@ -1,64 +1,61 @@
 package paramount
 
 import (
-   "2a.pages.dev/mech"
    "2a.pages.dev/rosso/http"
    "crypto/aes"
    "crypto/cipher"
    "encoding/base64"
    "encoding/hex"
    "encoding/json"
-   "errors"
    "net/url"
-   "strings"
+   "strconv"
 )
 
-func (i Item) Name() (string, error) {
-   var b strings.Builder
-   if i.Media_Type == "Full Episode" {
-      b.WriteString(i.Series_Title)
-      b.WriteString(sep_big)
-      b.WriteByte('S')
-      b.WriteString(i.Season_Num)
-      b.WriteByte(sep_small)
-      b.WriteByte('E')
-      b.WriteString(i.Episode_Num)
-      b.WriteString(sep_big)
+func location(content_ID string, query url.Values) (string, error) {
+   url_path := func(b []byte) string {
+      b = append(b, "/s/"...)
+      b = append(b, cms_account_id...)
+      b = append(b, "/media/guid/"...)
+      b = strconv.AppendInt(b, aid, 10)
+      b = append(b, '/')
+      b = append(b, content_ID...)
+      return string(b)
    }
-   b.WriteString(mech.Clean(i.Label))
-   if i.Media_Type == "Movie" {
-      year, _, found := strings.Cut(i.Media_Available_Date, "-")
-      if !found {
-         return "", errors.New("year not found")
-      }
-      b.WriteString(sep_big)
-      b.WriteString(year)
-   }
-   return b.String(), nil
-}
-
-func (at App_Token) Item(content_ID string) (*Item, error) {
    req := http.Get(&url.URL{
-      Scheme: "https",
-      Host: "www.paramountplus.com",
-      Path: "/apps-api/v2.0/androidphone/video/cid/" + content_ID + ".json",
-      RawQuery: "at=" + url.QueryEscape(at.value),
+      Scheme: "http",
+      Host: "link.theplatform.com",
+      Path: url_path(nil),
+      RawQuery: query.Encode(),
    })
-   res, err := http.Default_Client.Do(req)
+   client := http.Default_Client
+   client.Status = http.StatusFound
+   res, err := client.Do(req)
    if err != nil {
-      return nil, err
+      return "", err
    }
    defer res.Body.Close()
-   var video struct {
-      Item_List []Item `json:"itemList"`
+   return res.Header.Get("Location"), nil
+}
+
+const (
+   aid = 2198311517
+   cms_account_id = "dJ5BDC"
+)
+
+func DASH_CENC(content_ID string) (string, error) {
+   query := url.Values{
+      "assetTypes": {"DASH_CENC"},
+      "formats": {"MPEG-DASH"},
    }
-   if err := json.NewDecoder(res.Body).Decode(&video); err != nil {
-      return nil, err
+   return location(content_ID, query)
+}
+
+func Downloadable(content_ID string) (string, error) {
+   query := url.Values{
+      "assetTypes": {"Downloadable"},
+      "formats": {"MPEG4"},
    }
-   if len(video.Item_List) == 0 {
-      return nil, errors.New("Item_List length is zero")
-   }
-   return &video.Item_List[0], nil
+   return location(content_ID, query)
 }
 
 func (at App_Token) Session(content_ID string) (*Session, error) {
@@ -142,34 +139,6 @@ var app_secrets = map[app_details]string{
 func New_App_Token() (*App_Token, error) {
    app := app_details{"12.0.44", 211204450}
    return app_token_with(app_secrets[app])
-}
-
-type Item struct {
-   Episode_Num string `json:"episodeNum"`
-   Label string
-   // 2023-01-15T19:00:00-0800
-   Media_Available_Date string `json:"mediaAvailableDate"`
-   Season_Num string `json:"seasonNum"`
-   Series_Title string `json:"seriesTitle"`
-   Media_Type string `json:"mediaType"`
-}
-
-func (i Item) String() string {
-   var b strings.Builder
-   if i.Media_Type == "Full Episode" {
-      b.WriteString("series title: ")
-      b.WriteString(i.Series_Title)
-      b.WriteString("\nseason num: ")
-      b.WriteString(i.Season_Num)
-      b.WriteString("\nepisode num: ")
-      b.WriteString(i.Episode_Num)
-      b.WriteByte('\n')
-   }
-   b.WriteString("label: ")
-   b.WriteString(i.Label)
-   b.WriteString("\nmedia available date: ")
-   b.WriteString(i.Media_Available_Date)
-   return b.String()
 }
 
 type Session struct {

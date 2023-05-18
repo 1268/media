@@ -1,9 +1,6 @@
 package bandcamp
 
-import (
-   "2a.pages.dev/mech"
-   "strconv"
-)
+import "strconv"
 
 func (t Track) String() string {
    var b []byte
@@ -27,8 +24,4 @@ type Track struct {
    Streaming_URL *struct {
       MP3_128 string `json:"mp3-128"`
    }
-}
-
-func (t Track) Name() string {
-   return t.Band_Name + "-" + mech.Clean(t.Title) + ".mp3"
 }
