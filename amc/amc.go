@@ -95,6 +95,7 @@ type Video_Player struct {
    Current_Video struct {
       Meta struct {
          Show_Title string `json:"showTitle"`
+         
          Title string
          Airdate string // 1996-01-01T00:00:00.000Z
       }

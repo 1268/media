@@ -1,0 +1,195 @@
+{
+ "data": {
+  "adTag": {
+   "key_params_string": "csid=svod_amcplus_web&_fw_did=-&ad_id_type=gauid&prof=amcplus_bc_web&mode=on-demand&caid=PR1949536172668&_fw_is_lat=0&_fw_player_width=0&_fw_player_height=0&_fw_us_privacy=1YY-&_fw_ae=-1&vip=72.181.23.38",
+   "macro_params_string": "csid=svod_amcplus_web&fw_did=-&idtype=gauid&prof=amcplus_bc_web&mode=on-demand&caid=PR1949536172668&islat=0&width=0&height=0&usprivacy=1YY-&ae=-1&ipaddress=72.181.23.38",
+   "params": [
+    {
+     "key": "csid",
+     "macro": "{csid}",
+     "value": "svod_amcplus_web"
+    },
+    {
+     "key": "_fw_did",
+     "macro": "{fw_did}",
+     "value": "-"
+    },
+    {
+     "key": "ad_id_type",
+     "macro": "{idtype}",
+     "value": "gauid"
+    },
+    {
+     "key": "prof",
+     "macro": "{prof}",
+     "value": "amcplus_bc_web"
+    },
+    {
+     "key": "mode",
+     "macro": "{mode}",
+     "value": "on-demand"
+    },
+    {
+     "key": "caid",
+     "macro": "{caid}",
+     "value": "PR1949536172668"
+    },
+    {
+     "key": "_fw_is_lat",
+     "macro": "{islat}",
+     "value": "0"
+    },
+    {
+     "key": "_fw_player_width",
+     "macro": "{width}",
+     "value": "0"
+    },
+    {
+     "key": "_fw_player_height",
+     "macro": "{height}",
+     "value": "0"
+    },
+    {
+     "key": "_fw_us_privacy",
+     "macro": "{usprivacy}",
+     "value": "1YY-"
+    },
+    {
+     "key": "_fw_ae",
+     "macro": "{ae}",
+     "value": "-1"
+    },
+    {
+     "key": "vip",
+     "macro": "{ipaddress}",
+     "value": "72.181.23.38"
+    }
+   ]
+  },
+  "playbackJsonData": {
+   "account_id": "6245817279001",
+   "created_at": "2023-01-11T22:00:36.649Z",
+   "cue_points": [],
+   "custom_fields": {
+    "additional_language_english": "NO",
+    "additional_language_hungarian": "NO",
+    "additional_language_portuguese_br": "NO",
+    "additional_language_spanish": "NO",
+    "advertising_type": "DAI",
+    "amcn_id": "RLA196502",
+    "credits_start": "00:43:31",
+    "episode": "2",
+    "exclude_from_sync": "NO",
+    "genre": "Drama",
+    "intro_end": "00:03:07",
+    "intro_start": "00:02:39",
+    "parent_network": "BBCA",
+    "primary_language": "English",
+    "rating_tv": "TV-14",
+    "recap_end": "00:01:00",
+    "recap_start": "00:00:01",
+    "restricted_ads": "NO",
+    "s3_captions_url": "s3://amcn-eve-parkinglot/EVE-STORE/2023-Q1/Orphan_Black_102.scc",
+    "s3_video_url": "s3://amcn-eve-parkinglot/EVE-STORE/2023-Q1/Orphan_Black_102.mp4",
+    "season": "1",
+    "share_s_and_p_status": "SHARE_SUCCESSFUL",
+    "show": "Orphan Black",
+    "tms_episode_id": "EP016349650002",
+    "tms_series_id": "SH016349650000",
+    "video_category": "TVE-Auth",
+    "video_type": "Full Episode"
+   },
+   "description": "Sarah continues her con, earning ",
+   "duration": 2659541,
+   "economics": "AD_SUPPORTED",
+   "id": "6318527206112",
+   "long_description": "Sarah continues her con, earning ",
+   "name": "Instinct",
+   "offline_enabled": true,
+   "poster": "https://cf-images.us-east-1.prod.boltdns.net/v1/jit/6245817279001/5978efd6-b7f7-4476-bcdb-f56ac700da76/main/1280x720/22m9s770ms/match/image.jpg",
+   "poster_sources": [
+    {
+     "src": "https://cf-images.us-east-1.prod.boltdns.net/v1/jit/6245817279001/5978efd6-b7f7-4476-bcdb-f56ac700da76/main/1280x720/22m9s770ms/match/image.jpg"
+    }
+   ],
+   "published_at": "2023-01-11T22:00:36.646Z",
+   "reference_id": "PR1949536172668",
+   "sources": [
+    {
+     "codecs": "avc1,mp4a",
+     "ext_x_version": "5",
+     "key_systems": {
+      "com.apple.fps.1_0": {
+       "certificate_url": "https://manifest.prod.boltdns.net/license/v1/fairplay_app_cert/6245817279001",
+       "key_request_url": "https://manifest.prod.boltdns.net/license/v1/fairplay/6245817279001/5978efd6-b7f7-4476-bcdb-f56ac700da76/4bdbda74-2fb2-4bfc-a7d1-a6b949c6eb53?fastly_token=NjQ2NWNlYTNfNzA2YTUxODRlMDY2YmM0YjAxZDRhOTZkMzYxN2FmODFmZTA0ZWJlYjgxYWM2OTViMzRlOWIxNGFkMWJhYzhhOQ%3D%3D"
+      }
+     },
+     "src": "http://ssaimanifest.prod.boltdns.net/playback/once/v1/hls/v5/fairplay/6245817279001/74263065-1285-4d00-842d-73a66554716a/5978efd6-b7f7-4476-bcdb-f56ac700da76/master.m3u8?bc_token=NjQ2NWNlYTNfZGJiZDg0NjQxNDM3ZTU0ZGU0NmM2ZDRmM2EzYjFlMTM0MTZjNTA0YWQzZjE0YWZmMzg4MDdkYjc0OTRhNjAzNw%3D%3D",
+     "type": "application/x-mpegURL",
+     "vmap": "http://ssaimanifest.prod.boltdns.net/playback/once/v1/vmap/hls/v5/fairplay/6245817279001/74263065-1285-4d00-842d-73a66554716a/5978efd6-b7f7-4476-bcdb-f56ac700da76/content.vmap?bc_token=NjQ2NWNlYTNfODBkN2YyZjBmNjllNmY2MWViOWQzNGVmMDNjNjA5YzMwMmY1OGZkYjNhOGUzMmZkN2NjY2MwMDBjYmI1ODc0Zg%3D%3D&csid=svod_amcplus_web&fw_did=-&idtype=gauid&prof=amcplus_bc_web&mode=on-demand&caid=PR1949536172668&islat=0&width=0&height=0&usprivacy=1YY-&ae=-1&ipaddress=72.181.23.38"
+    },
+    {
+     "codecs": "avc1,mp4a",
+     "ext_x_version": "5",
+     "key_systems": {
+      "com.apple.fps.1_0": {
+       "certificate_url": "https://manifest.prod.boltdns.net/license/v1/fairplay_app_cert/6245817279001",
+       "key_request_url": "https://manifest.prod.boltdns.net/license/v1/fairplay/6245817279001/5978efd6-b7f7-4476-bcdb-f56ac700da76/4bdbda74-2fb2-4bfc-a7d1-a6b949c6eb53?fastly_token=NjQ2NWNlYTNfNzA2YTUxODRlMDY2YmM0YjAxZDRhOTZkMzYxN2FmODFmZTA0ZWJlYjgxYWM2OTViMzRlOWIxNGFkMWJhYzhhOQ%3D%3D"
+      }
+     },
+     "src": "https://ssaimanifest.prod.boltdns.net/playback/once/v1/hls/v5/fairplay/6245817279001/74263065-1285-4d00-842d-73a66554716a/5978efd6-b7f7-4476-bcdb-f56ac700da76/master.m3u8?bc_token=NjQ2NWNlYTNfZGJiZDg0NjQxNDM3ZTU0ZGU0NmM2ZDRmM2EzYjFlMTM0MTZjNTA0YWQzZjE0YWZmMzg4MDdkYjc0OTRhNjAzNw%3D%3D",
+     "type": "application/x-mpegURL",
+     "vmap": "https://ssaimanifest.prod.boltdns.net/playback/once/v1/vmap/hls/v5/fairplay/6245817279001/74263065-1285-4d00-842d-73a66554716a/5978efd6-b7f7-4476-bcdb-f56ac700da76/content.vmap?bc_token=NjQ2NWNlYTNfODBkN2YyZjBmNjllNmY2MWViOWQzNGVmMDNjNjA5YzMwMmY1OGZkYjNhOGUzMmZkN2NjY2MwMDBjYmI1ODc0Zg%3D%3D&csid=svod_amcplus_web&fw_did=-&idtype=gauid&prof=amcplus_bc_web&mode=on-demand&caid=PR1949536172668&islat=0&width=0&height=0&usprivacy=1YY-&ae=-1&ipaddress=72.181.23.38"
+    },
+    {
+     "codecs": "avc1,mp4a",
+     "key_systems": {
+      "com.microsoft.playready": {
+       "license_url": "https://manifest.prod.boltdns.net/license/v1/cenc/playready/6245817279001/5978efd6-b7f7-4476-bcdb-f56ac700da76/26a942cf-a363-488d-a40d-67b0db4c1b19?fastly_token=NjQ2NWNlYTNfMmY0OTY4OWY3OTQzM2NiNmUyMTIyOTQ2ODkyYWY2NDFkNjhhYjk3ZDYyMDkxZmFmMDdjMjQ2MjA3NGMyNGYzZg%3D%3D"
+      },
+      "com.widevine.alpha": {
+       "license_url": "https://manifest.prod.boltdns.net/license/v1/cenc/widevine/6245817279001/5978efd6-b7f7-4476-bcdb-f56ac700da76/26a942cf-a363-488d-a40d-67b0db4c1b19?fastly_token=NjQ2NWNlYTNfZmQ4Y2E5NzY4NDQyYjgwNWNjYjcwNzQ0N2ExMzQxM2YxYmUzYzE4NTZjYmQ1YmEzZGVlN2QxZTA4ZDg0ZTk4YQ%3D%3D"
+      }
+     },
+     "profiles": "urn:mpeg:dash:profile:isoff-live:2011",
+     "src": "http://ssaimanifest.prod.boltdns.net/playback/once/v1/dash/live-timeline/bccenc/6245817279001/74263065-1285-4d00-842d-73a66554716a/5978efd6-b7f7-4476-bcdb-f56ac700da76/manifest.mpd?bc_token=NjQ2NWNlYTNfODU4YTZkZGIwMDQ4NGU1ZTgyZTAzY2Q1MTk5ZDA1NDExYTZkM2Y1MjFjYzkxOTlkZDkwZDExZjUwODQzZDcxNQ%3D%3D",
+     "type": "application/dash+xml",
+     "vmap": "http://ssaimanifest.prod.boltdns.net/playback/once/v1/vmap/dash/live-timeline/bccenc/6245817279001/74263065-1285-4d00-842d-73a66554716a/5978efd6-b7f7-4476-bcdb-f56ac700da76/content.vmap?bc_token=NjQ2NWNlYTNfNmZlZGNmMTMwODhjNjI1NTU2YjMwMDQ2MmNjZTYxMDZhZjBmMTE0MTU2NWQyOTYyZWEwOWIwN2U3MzlkMjI0ZQ%3D%3D&csid=svod_amcplus_web&fw_did=-&idtype=gauid&prof=amcplus_bc_web&mode=on-demand&caid=PR1949536172668&islat=0&width=0&height=0&usprivacy=1YY-&ae=-1&ipaddress=72.181.23.38"
+    },
+    {
+     "codecs": "avc1,mp4a",
+     "key_systems": {
+      "com.microsoft.playready": {
+       "license_url": "https://manifest.prod.boltdns.net/license/v1/cenc/playready/6245817279001/5978efd6-b7f7-4476-bcdb-f56ac700da76/26a942cf-a363-488d-a40d-67b0db4c1b19?fastly_token=NjQ2NWNlYTNfMmY0OTY4OWY3OTQzM2NiNmUyMTIyOTQ2ODkyYWY2NDFkNjhhYjk3ZDYyMDkxZmFmMDdjMjQ2MjA3NGMyNGYzZg%3D%3D"
+      },
+      "com.widevine.alpha": {
+       "license_url": "https://manifest.prod.boltdns.net/license/v1/cenc/widevine/6245817279001/5978efd6-b7f7-4476-bcdb-f56ac700da76/26a942cf-a363-488d-a40d-67b0db4c1b19?fastly_token=NjQ2NWNlYTNfZmQ4Y2E5NzY4NDQyYjgwNWNjYjcwNzQ0N2ExMzQxM2YxYmUzYzE4NTZjYmQ1YmEzZGVlN2QxZTA4ZDg0ZTk4YQ%3D%3D"
+      }
+     },
+     "profiles": "urn:mpeg:dash:profile:isoff-live:2011",
+     "src": "https://ssaimanifest.prod.boltdns.net/playback/once/v1/dash/live-timeline/bccenc/6245817279001/74263065-1285-4d00-842d-73a66554716a/5978efd6-b7f7-4476-bcdb-f56ac700da76/manifest.mpd?bc_token=NjQ2NWNlYTNfODU4YTZkZGIwMDQ4NGU1ZTgyZTAzY2Q1MTk5ZDA1NDExYTZkM2Y1MjFjYzkxOTlkZDkwZDExZjUwODQzZDcxNQ%3D%3D",
+     "type": "application/dash+xml",
+     "vmap": "https://ssaimanifest.prod.boltdns.net/playback/once/v1/vmap/dash/live-timeline/bccenc/6245817279001/74263065-1285-4d00-842d-73a66554716a/5978efd6-b7f7-4476-bcdb-f56ac700da76/content.vmap?bc_token=NjQ2NWNlYTNfNmZlZGNmMTMwODhjNjI1NTU2YjMwMDQ2MmNjZTYxMDZhZjBmMTE0MTU2NWQyOTYyZWEwOWIwN2U3MzlkMjI0ZQ%3D%3D&csid=svod_amcplus_web&fw_did=-&idtype=gauid&prof=amcplus_bc_web&mode=on-demand&caid=PR1949536172668&islat=0&width=0&height=0&usprivacy=1YY-&ae=-1&ipaddress=72.181.23.38"
+    }
+   ],
+   "tags": [
+    "clone",
+    "drama",
+    "genetics",
+    "action",
+    "orphan black",
+    "tatiana maslany"
+   ],
+   "text_tracks": [],
+   "thumbnail": "https://cf-images.us-east-1.prod.boltdns.net/v1/jit/6245817279001/5978efd6-b7f7-4476-bcdb-f56ac700da76/main/160x90/22m9s770ms/match/image.jpg",
+   "thumbnail_sources": [
+    {
+     "src": "https://cf-images.us-east-1.prod.boltdns.net/v1/jit/6245817279001/5978efd6-b7f7-4476-bcdb-f56ac700da76/main/160x90/22m9s770ms/match/image.jpg"
+    }
+   ],
+   "updated_at": "2023-01-12T15:52:11.403Z"
+  }
+ },
+ "status": 200,
+ "success": true
+}
