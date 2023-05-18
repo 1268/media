@@ -39,7 +39,7 @@ func (f flags) download() error {
       return err
    }
    f.Poster = play
-   reps, err := f.DASH(play.Source().Src)
+   reps, err := f.DASH(play.HTTP_DASH().Src)
    if err != nil {
       return err
    }

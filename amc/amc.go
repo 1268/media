@@ -9,49 +9,122 @@ import (
    "strings"
 )
 
-// This accepts full URL or path only.
-func (a Auth) Content(ref string) (*Content, error) {
-   // Shows must use `path`, and movies must use `path/watch`. If trial has
-   // expired, you will get `.data.type` of `redirect`. You can remove the
-   // `/watch` to resolve this, but the resultant response will still be
-   // missing `video-player-ap`.
-   url_path := func(r *http.Request) error {
-      p, err := url.Parse(ref)
+func (a Auth) Playback(ref string) (*Playback, error) {
+   // request body
+   req_body := func(r *http.Request) error {
+      var s struct {
+         Ad_Tags struct {
+            Lat int `json:"lat"`
+            Mode string `json:"mode"`
+            PPID int `json:"ppid"`
+            Player_Height int `json:"playerHeight"`
+            Player_Width int `json:"playerWidth"`
+            URL string `json:"url"`
+         } `json:"adtags"`
+      }
+      s.Ad_Tags.Mode = "on-demand"
+      s.Ad_Tags.URL = "-"
+      b, err := json.MarshalIndent(s, "", " ")
       if err != nil {
          return err
       }
-      if strings.HasPrefix(p.Path, "/movies/") {
-         r.URL.Path += "/watch"
-      }
-      r.URL.Path += p.Path
+      r.Body_Bytes(b)
       return nil
    }
-   req := http.Get(&url.URL{
+   // request URL path
+   req_URL_path := func(r *http.Request) error {
+      _, nID, found := strings.Cut(ref, "--")
+      if !found {
+         return errors.New("nid not found")
+      }
+      r.URL.Path += nID
+      return nil
+   }
+   req := http.Post(&url.URL{
       Scheme: "https",
       Host: "gw.cds.amcn.com",
-      Path: "/content-compiler-cr/api/v1/content/amcn/amcplus/path",
+      Path: "/playback-id/api/v1/playback/",
    })
-   err := url_path(req)
+   err := req_URL_path(req)
    if err != nil {
       return nil, err
    }
-   // If you request once with headers, you can request again without any
-   // headers for 10 minutes, but then headers are required again
+   if err := req_body(req); err != nil {
+      return nil, err
+   }
    req.Header = http.Header{
       "Authorization": {"Bearer " + a.Data.Access_Token},
+      "Content-Type": {"application/json"},
+      "X-Amcn-Device-Ad-ID": {"-"},
+      "X-Amcn-Language": {"en"},
       "X-Amcn-Network": {"amcplus"},
+      "X-Amcn-Platform": {"web"},
+      "X-Amcn-Service-ID": {"amcplus"},
       "X-Amcn-Tenant": {"amcn"},
+      "X-Ccpa-Do-Not-Sell": {"doNotPassData"},
    }
    res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
    }
    defer res.Body.Close()
-   con := new(Content)
-   if err := json.NewDecoder(res.Body).Decode(con); err != nil {
+   var p Playback
+   if err := p.body(res); err != nil {
       return nil, err
    }
-   return con, nil
+   p.Header = res.Header
+   return &p, nil
+}
+
+type Playback struct {
+   http.Header
+   sources []Source
+}
+
+func (p *Playback) body(res *http.Response) error {
+   var s struct {
+      Data struct {
+         Playback_JSON_Data struct {
+            Sources []Source
+         } `json:"playbackJsonData"`
+      }
+   }
+   err := json.NewDecoder(res.Body).Decode(&s)
+   if err != nil {
+      return err
+   }
+   p.sources = s.Data.Playback_JSON_Data.Sources
+   return nil
+}
+
+func (p Playback) HTTP_DASH() *Source {
+   for _, source := range p.sources {
+      if strings.HasPrefix(source.Src, "http://") {
+         if source.Type == "application/dash+xml" {
+            return &source
+         }
+      }
+   }
+   return nil
+}
+
+func (Playback) Request_Body(b []byte) ([]byte, error) {
+   return b, nil
+}
+
+func (Playback) Response_Body(b []byte) ([]byte, error) {
+   return b, nil
+}
+
+func (p Playback) Request_Header() http.Header {
+   token := p.Get("X-AMCN-BC-JWT")
+   head := make(http.Header)
+   head.Set("bcov-auth", token)
+   return head
+}
+
+func (p Playback) Request_URL() string {
+   return p.HTTP_DASH().Key_Systems.Widevine.License_URL
 }
 
 func (a *Auth) Login(email, password string) error {
@@ -119,6 +192,7 @@ func (a Auth) Write_File(name string) error {
    return os.WriteFile(name, data, 0666)
 }
 
+// JSON
 type Auth struct {
    Data struct {
       Access_Token string
@@ -163,17 +237,6 @@ func Unauth() (*Auth, error) {
    return auth, nil
 }
 
-type playback_request struct {
-   Ad_Tags struct {
-      Lat int `json:"lat"`
-      Mode string `json:"mode"`
-      PPID int `json:"ppid"`
-      Player_Height int `json:"playerHeight"`
-      Player_Width int `json:"playerWidth"`
-      URL string `json:"url"`
-   } `json:"adtags"`
-}
-
 type Source struct {
    Key_Systems *struct {
       Widevine struct {
@@ -182,55 +245,4 @@ type Source struct {
    }
    Src string
    Type string
-}
-
-type Content struct {
-   Data	struct {
-      Children []struct {
-         Properties json.RawMessage
-         Type string
-      }
-   }
-}
-
-func (c Content) Video_Player() (*Video_Player, error) {
-   for _, child := range c.Data.Children {
-      if child.Type == "video-player-ap" {
-         vid := new(Video_Player)
-         err := json.Unmarshal(child.Properties, vid)
-         if err != nil {
-            return nil, err
-         }
-         return vid, nil
-      }
-   }
-   return nil, errors.New("video-player-ap not present")
-}
-
-type Video_Player struct {
-   Content_Type string `json:"contentType"`
-   Current_Video struct {
-      Meta struct {
-         Show_Title string `json:"showTitle"`
-         
-         Title string
-         Airdate string // 1996-01-01T00:00:00.000Z
-      }
-   } `json:"currentVideo"`
-}
-
-const sep_big = " - "
-
-func (v Video_Player) Name() (string, error) {
-   year, _, found := strings.Cut(v.Current_Video.Meta.Airdate, "-")
-   if !found {
-      return "", errors.New("year not found")
-   }
-   var b strings.Builder
-   b.WriteString(v.Current_Video.Meta.Title)
-   if v.Content_Type == "movie" {
-      b.WriteString(sep_big)
-      b.WriteString(year)
-   }
-   return b.String(), nil
 }
