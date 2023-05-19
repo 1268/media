@@ -8,8 +8,8 @@ import (
 
 type Namer interface {
    Series() string
-   Season() int64
-   Episode() int64
+   Season() (int64, error)
+   Episode() (int64, error)
    Title() string
    Date() (time.Time, error)
 }
@@ -19,9 +19,17 @@ func Name(n Namer) (string, error) {
    if series := n.Series(); series != "" {
       b = append(b, series...)
       b = append(b, " - S"...)
-      b = strconv.AppendInt(b, n.Season(), 10)
+      season, err := n.Season()
+      if err != nil {
+         return "", err
+      }
+      b = strconv.AppendInt(b, season, 10)
       b = append(b, " E"...)
-      b = strconv.AppendInt(b, n.Episode(), 10)
+      episode, err := n.Episode()
+      if err != nil {
+         return "", err
+      }
+      b = strconv.AppendInt(b, episode, 10)
       b = append(b, " - "...)
       b = append(b, n.Title()...)
    } else {

@@ -74,11 +74,10 @@ func (f flags) downloadable(token *paramount.App_Token) error {
       return err
    }
    if f.Info {
-      fmt.Println(item)
       fmt.Println(ref)
       return nil
    }
-   name, err := item.Name()
+   name, err := mech.Name(item)
    if err != nil {
       return err
    }

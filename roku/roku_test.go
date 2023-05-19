@@ -6,7 +6,23 @@ import (
    "fmt"
    "os"
    "testing"
+   "time"
 )
+
+func Test_Playback(t *testing.T) {
+   site, err := New_Cross_Site()
+   if err != nil {
+      t.Fatal(err)
+   }
+   for _, test := range tests {
+      play, err := site.Playback(test.playback_ID)
+      if err != nil {
+         t.Fatal(err)
+      }
+      fmt.Printf("%+v\n", play)
+      time.Sleep(time.Second)
+   }
+}
 
 const (
    episode = iota
@@ -40,16 +56,6 @@ var tests = map[key]struct {
       key: "13d7c7cf295444944b627ef0ad2c1b3c",
       playback_ID: "597a64a4a25c5bf6af4a8c7053049a6f",
    },
-}
-
-func Test_Video(t *testing.T) {
-   test := tests[key{episode, false}]
-   con, err := New_Content(test.playback_ID)
-   if err != nil {
-      t.Fatal(err)
-   }
-   fmt.Println(con)
-   fmt.Printf("%+v\n", con.DASH())
 }
 
 func Test_Post(t *testing.T) {

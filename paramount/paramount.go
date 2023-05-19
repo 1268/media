@@ -83,11 +83,6 @@ type app_details struct {
    code int
 }
 
-const (
-   sep_big = " - "
-   sep_small = ' '
-)
-
 // com.cbs.app
 var app_secrets = map[app_details]string{
    { "4.8.06",   1648603}: "a958002817953588",

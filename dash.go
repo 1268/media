@@ -13,6 +13,15 @@ import (
    "os"
 )
 
+type Stream struct {
+   Client_ID string
+   Info bool
+   Namer
+   Poster widevine.Poster
+   Private_Key string
+   base *url.URL
+}
+
 func (s *Stream) DASH(ref string) (dash.Representations, error) {
    client := http.Default_Client
    client.CheckRedirect = nil
@@ -29,15 +38,6 @@ func (s *Stream) DASH(ref string) (dash.Representations, error) {
    return pres.Representation(), nil
 }
 
-type Stream struct {
-   Client_ID string
-   Info bool
-   Name string
-   Poster widevine.Poster
-   Private_Key string
-   base *url.URL
-}
-
 func (s Stream) DASH_Get(items dash.Representations, index int) error {
    if s.Info {
       for i, item := range items {
@@ -49,7 +49,11 @@ func (s Stream) DASH_Get(items dash.Representations, index int) error {
       return nil
    }
    item := items[index]
-   file, err := os.Create(s.Name + item.Ext())
+   file_name, err := Name(s)
+   if err != nil {
+      return err
+   }
+   file, err := os.Create(file_name + item.Ext())
    if err != nil {
       return err
    }
