@@ -10,34 +10,35 @@ import (
    "time"
 )
 
-const query = `
-query bonanzaPage(
-   $app: NBCUBrands!
-   $name: String!
-   $oneApp: Boolean
-   $platform: SupportedPlatforms!
-   $type: EntityPageType!
-   $userId: String!
-) {
-   bonanzaPage(
-      app: $app
-      name: $name
-      oneApp: $oneApp
-      platform: $platform
-      type: $type
-      userId: $userId
-   ) {
-      metadata {
-         ... on VideoPageData {
-            mpxAccountId
-            mpxGuid
-            secondaryTitle
-            seriesShortTitle
-         }
-      }
-   }
+func (m Metadata) Title() string {
+   return m.Secondary_Title
 }
-`
+
+func (m Metadata) Series() string {
+   return m.Series_Short_Title
+}
+
+func (m Metadata) Season() (int64, error) {
+   return m.Season_Number, nil
+}
+
+func (m Metadata) Episode() (int64, error) {
+   return m.Episode_Number, nil
+}
+
+func (m Metadata) Date() (time.Time, error) {
+   return time.Parse(time.RFC3339, m.Air_Date)
+}
+
+type Metadata struct {
+   MPX_Account_ID string `json:"mpxAccountId"`
+   MPX_GUID string `json:"mpxGuid"`
+   Series_Short_Title string `json:"seriesShortTitle"`
+   Season_Number int64 `json:"seasonNumber,string"`
+   Episode_Number int64 `json:"episodeNumber,string"`
+   Secondary_Title string `json:"secondaryTitle"`
+   Air_Date string `json:"airDate"`
+}
 
 func New_Metadata(guid int64) (*Metadata, error) {
    body := func(r *http.Request) error {
@@ -81,24 +82,9 @@ func New_Metadata(guid int64) (*Metadata, error) {
       return nil, err
    }
    if page.Data.Bonanza_Page.Metadata == nil {
-      return nil, errors.New(".data.bonanzaPage.metadata is null")
+      return nil, fmt.Errorf(".data.bonanzaPage.metadata is null")
    }
-   return &page.Data.Bonanza_Page.Metadata, nil
-}
-
-type Metadata struct {
-   MPX_Account_ID string `json:"mpxAccountId"`
-   MPX_GUID string `json:"mpxGuid"`
-   Series_Short_Title string `json:"seriesShortTitle"`
-   Secondary_Title string `json:"secondaryTitle"`
-}
-
-func (m Metadata) Name() string {
-   var b []byte
-   b = append(b, m.Series_Short_Title...)
-   b = append(b, '-')
-   b = append(b, m.Secondary_Title...)
-   return string(b)
+   return page.Data.Bonanza_Page.Metadata, nil
 }
 
 var secret_key = []byte("2b84a073ede61c766e4c0b3f1e656f7f")
@@ -153,3 +139,35 @@ func (m Metadata) Video() (*Video, error) {
    }
    return vid, nil
 }
+
+const query = `
+query bonanzaPage(
+   $app: NBCUBrands!
+   $name: String!
+   $oneApp: Boolean
+   $platform: SupportedPlatforms!
+   $type: EntityPageType!
+   $userId: String!
+) {
+   bonanzaPage(
+      app: $app
+      name: $name
+      oneApp: $oneApp
+      platform: $platform
+      type: $type
+      userId: $userId
+   ) {
+      metadata {
+         ... on VideoPageData {
+            airDate
+            episodeNumber
+            mpxAccountId
+            mpxGuid
+            seasonNumber
+            secondaryTitle
+            seriesShortTitle
+         }
+      }
+   }
+}
+`
