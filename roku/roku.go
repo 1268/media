@@ -82,12 +82,6 @@ type Cross_Site struct {
    token string
 }
 
-type Video struct {
-   DRM_Authentication *struct{} `json:"drmAuthentication"`
-   URL string
-   Video_Type string `json:"videoType"`
-}
-
 type Playback struct {
    DRM struct {
       Widevine struct {
