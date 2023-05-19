@@ -9,6 +9,38 @@ import (
    "time"
 )
 
+func (v Video) Season() (int64, error) {
+   return v.Meta.Season, nil
+}
+
+func (v Video) Episode() (int64, error) {
+   return v.Meta.Episode_Number, nil
+}
+
+func (v Video) Series() string {
+   return v.Meta.Show_Title
+}
+
+type Video struct {
+   Meta struct {
+      Show_Title string `json:"showTitle"`
+      Season int64 `json:",string"`
+      Episode_Number int64 `json:"episodeNumber"`
+      Airdate string // 1996-01-01T00:00:00.000Z
+   }
+   Text struct {
+      Title string
+   }
+}
+
+func (v Video) Title() string {
+   return v.Text.Title
+}
+
+func (v Video) Date() (time.Time, error) {
+   return time.Parse(time.RFC3339, v.Meta.Airdate)
+}
+
 type Content struct {
    Data	struct {
       Children []struct {
@@ -77,36 +109,4 @@ func (c Content) Video() (*Video, error) {
       }
    }
    return nil, errors.New("video-player-ap not present")
-}
-
-func (v Video) Series() string {
-   return v.Meta.Show_Title
-}
-
-type Video struct {
-   Meta struct {
-      Show_Title string `json:"showTitle"`
-      Season int64 `json:",string"`
-      Episode_Number int64 `json:"episodeNumber"`
-      Airdate string // 1996-01-01T00:00:00.000Z
-   }
-   Text struct {
-      Title string
-   }
-}
-
-func (v Video) Season() int64 {
-   return v.Meta.Season
-}
-
-func (v Video) Episode() int64 {
-   return v.Meta.Episode_Number
-}
-
-func (v Video) Title() string {
-   return v.Text.Title
-}
-
-func (v Video) Date() (time.Time, error) {
-   return time.Parse(time.RFC3339, v.Meta.Airdate)
 }

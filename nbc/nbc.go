@@ -8,35 +8,6 @@ func graphQL_compact(s string) string {
    return strings.Join(f, " ")
 }
 
-const query = `
-query bonanzaPage(
-   $app: NBCUBrands!
-   $name: String!
-   $oneApp: Boolean
-   $platform: SupportedPlatforms!
-   $type: EntityPageType!
-   $userId: String!
-) {
-   bonanzaPage(
-      app: $app
-      name: $name
-      oneApp: $oneApp
-      platform: $platform
-      type: $type
-      userId: $userId
-   ) {
-      metadata {
-         ... on VideoPageData {
-            mpxAccountId
-            mpxGuid
-            secondaryTitle
-            seriesShortTitle
-         }
-      }
-   }
-}
-`
-
 type Video struct {
    // this is only valid for one minute
    Manifest_Path string `json:"manifestPath"`

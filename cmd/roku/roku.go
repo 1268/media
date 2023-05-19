@@ -16,7 +16,7 @@ func (f flags) DASH(content *roku.Content) error {
       if err != nil {
          return err
       }
-      f.Name = content.Name()
+      f.Namer = content
    }
    reps, err := f.Stream.DASH(content.DASH().URL)
    if err != nil {

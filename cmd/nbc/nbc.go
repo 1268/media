@@ -16,7 +16,7 @@ func (f flags) download() error {
    if err != nil {
       return err
    }
-   f.Name = meta.Name()
+   f.Namer = meta
    video, err := meta.Video()
    if err != nil {
       return err

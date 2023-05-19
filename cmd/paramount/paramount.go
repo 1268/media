@@ -1,6 +1,7 @@
 package main
 
 import (
+   "2a.pages.dev/mech"
    "2a.pages.dev/mech/paramount"
    "2a.pages.dev/rosso/dash"
    "2a.pages.dev/rosso/http"
@@ -16,10 +17,7 @@ func (f flags) dash(token *paramount.App_Token) error {
       if err != nil {
          return err
       }
-      f.Name, err = item.Name()
-      if err != nil {
-         return err
-      }
+      f.Namer = item
       f.Poster, err = token.Session(f.content_ID)
       if err != nil {
          return err

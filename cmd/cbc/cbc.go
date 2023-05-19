@@ -23,7 +23,7 @@ func (f *flags) master() (*hls.Master, error) {
    if err != nil {
       return nil, err
    }
-   f.Name = asset.Name()
+   f.Namer = asset
    return f.HLS(*media.URL)
 }
 

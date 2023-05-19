@@ -1,7 +1,6 @@
 package main
 
 import (
-   "2a.pages.dev/mech"
    "2a.pages.dev/mech/amc"
    "os"
 )
@@ -26,11 +25,7 @@ func (f flags) download() error {
       if err != nil {
          return err
       }
-      video, err := content.Video()
-      if err != nil {
-         return err
-      }
-      f.Name, err = mech.Name(video)
+      f.Namer, err = content.Video()
       if err != nil {
          return err
       }

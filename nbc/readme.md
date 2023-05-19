@@ -9,8 +9,6 @@
 >
 > [Wading in Waist-High Water (2020)](https://youtube.com/watch?v=tqVxd57H-cA)
 
-https://justwatch.com/us/provider/nbc
-
 ## Android client
 
 ~~~
@@ -34,8 +32,3 @@ https://github.com/httptoolkit/frida-android-unpinning
 - https://nbcapp.nbc.co/config/android/player/v11/prod/mobile.json
 - https://nbcapp.nbc.co/config/android/player/v12/prod/mobile.json
 - https://nbcapp.nbc.co/config/android/player/v13/prod/mobile.json
-
-## Why am I not getting 720p?
-
-It seems new locked episodes do not offer HD in some cases. Once they are
-unlocked (usually after one week), HD is available.
