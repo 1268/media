@@ -7,6 +7,18 @@ https://github.com/virezox/mech/tree/6c5d82a8
 - https://github.com/httptoolkit/frida-android-unpinning
 - https://play.google.com/store/apps/details?id=com.twitter.android
 
+download:
+
+~~~
+googleplay -d com.twitter.android
+~~~
+
+install:
+
+~~~
+adb install-multiple (Get-ChildItem *.apk)
+~~~
+
 ## How to get Bearer Token?
 
 Make a request to this page, without Cookies:

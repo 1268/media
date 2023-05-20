@@ -1,36 +1,33 @@
 package twitter
 
 import (
+   "2a.pages.dev/rosso/http"
    "encoding/json"
-   "net/http"
    "net/url"
-   "strings"
 )
 
-func NewSearch(q string) (*Search, error) {
-   req, err := http.NewRequest(
-      "GET", "https://api.twitter.com/2/search/adaptive.json", nil,
-   )
-   if err != nil {
-      return nil, err
-   }
+func New_Search(q string) (*Search, error) {
+   req := http.Get(&url.URL{
+      Scheme: "https",
+      Host: "api.twitter.com",
+      Path: "/2/search/adaptive.json",
+      RawQuery: url.Values{
+         "q": {q},
+         // This ensures Spaces Tweets will include Spaces URL
+         "tweet_mode": {"extended"},
+      }.Encode(),
+   })
    req.Header.Set("Authorization", "Bearer " + bearer)
-   req.URL.RawQuery = url.Values{
-      "q": {q},
-      // This ensures Spaces Tweets will include Spaces URL
-      "tweet_mode": {"extended"},
-   }.Encode()
-   LogLevel.Dump(req)
-   res, err := new(http.Transport).RoundTrip(req)
+   res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
    }
    defer res.Body.Close()
-   search := new(Search)
-   if err := json.NewDecoder(res.Body).Decode(search); err != nil {
+   s := new(Search)
+   if err := json.NewDecoder(res.Body).Decode(s); err != nil {
       return nil, err
    }
-   return search, nil
+   return s, nil
 }
 
 type Search struct {
