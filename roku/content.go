@@ -11,13 +11,11 @@ import (
 func New_Content(id string) (*Content, error) {
    homescreen := func() string {
       include := []string{
-         "series.title",
-         "seasonNumber",
          "episodeNumber",
-         "title",
          "releaseDate",
-         // this needs to be exactly as is, otherwise size blows up
-         "series.seasons.episodes.viewOptions\u2008",
+         "seasonNumber",
+         "series.title",
+         "title",
          "viewOptions",
       }
       expand := url.URL{
@@ -29,14 +27,14 @@ func New_Content(id string) (*Content, error) {
             "include": {strings.Join(include, ",")},
          }.Encode(),
       }
-      return expand.String()
+      return url.PathEscape(expand.String())
    }()
    req := http.Get(&url.URL{
       Scheme: "https",
       Host: "therokuchannel.roku.com",
-      Path: "/api/v2/homescreen/content/" + homescreen,
-      RawPath: "/api/v2/homescreen/content/" + url.PathEscape(homescreen),
+      Path: "/api/v2/homescreen/content",
    })
+   req.URL = req.URL.JoinPath(homescreen)
    res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err

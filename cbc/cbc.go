@@ -9,7 +9,7 @@ import (
    "strings"
 )
 
-func (p Profile) Media(item *lineup_item) (*Media, error) {
+func (p Profile) Media(item *Lineup_Item) (*Media, error) {
    req := http.Get(&url.URL{
       Scheme: "https",
       Host: "services.radio-canada.ca",

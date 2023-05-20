@@ -15,15 +15,15 @@ func (f *flags) master() (*hls.Master, error) {
    if err != nil {
       return nil, err
    }
-   asset, err := cbc.New_Asset(f.id)
+   gem, err := cbc.New_Catalog_Gem(f.address)
    if err != nil {
       return nil, err
    }
-   media, err := profile.Media(asset)
+   media, err := profile.Media(gem.Item())
    if err != nil {
       return nil, err
    }
-   f.Namer = asset
+   f.Namer = gem.Structured_Metadata
    return f.HLS(*media.URL)
 }
 
