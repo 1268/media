@@ -5,34 +5,54 @@ package twitter
 import (
    "2a.pages.dev/rosso/http"
    "encoding/json"
-   "errors"
    "net/url"
-   "path"
-   "strings"
-   "time"
 )
 
-func NewGuest() (*Guest, error) {
-   req, err := http.NewRequest(
-      "POST", "https://api.twitter.com/1.1/guest/activate.json", nil,
-   )
-   if err != nil {
-      return nil, err
+const bearer =
+   "AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs=" +
+   "1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA"
+
+const persisted_query = "lFpix9BgFDhAMjn9CrW6jQ"
+
+type Audio_Space struct {
+   Metadata struct {
+      Ended_At int64 `json:"ended_at,string"`
+      Media_Key string
+      Started_At int64
+      State string
+      Title string
    }
+   Participants struct {
+      Admins []struct {
+         Display_Name string
+      }
+   }
+}
+
+type Guest struct {
+   Guest_Token string
+}
+
+func New_Guest() (*Guest, error) {
+   req := http.Post(&url.URL{
+      Scheme: "https",
+      Host: "api.twitter.com",
+      Path: "/1.1/guest/activate.json",
+   })
    req.Header.Set("Authorization", "Bearer " + bearer)
-   res, err := new(http.Transport).RoundTrip(req)
+   res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
    }
    defer res.Body.Close()
-   guest := new(Guest)
-   if err := json.NewDecoder(res.Body).Decode(guest); err != nil {
+   g := new(Guest)
+   if err := json.NewDecoder(res.Body).Decode(g); err != nil {
       return nil, err
    }
-   return guest, nil
+   return g, nil
 }
 
-func (g Guest) Source(space *AudioSpace) (*Source, error) {
+func (g Guest) Source(space *Audio_Space) (*Source, error) {
    req := http.Get(&url.URL{
       Scheme: "https",
       Host: "twitter.com",
@@ -56,50 +76,21 @@ func (g Guest) Source(space *AudioSpace) (*Source, error) {
    return &video.Source, nil
 }
 
-const bearer =
-   "AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs=" +
-   "1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA"
-
-type Guest struct {
-   Guest_Token string
-}
-
-type AudioSpace struct {
-   Metadata struct {
-      Media_Key string
-      Title string
-      State string
-      Started_At int64
-      Ended_At int64 `json:"ended_at,string"`
-   }
-   Participants struct {
-      Admins []struct {
-         Display_Name string
+func (g Guest) Space(id string) (*Audio_Space, error) {
+   query := func(r *http.Request) error {
+      b, err := json.Marshal(space_request{ID: id})
+      if err != nil {
+         return err
       }
+      r.URL.RawQuery = "variables=" + url.QueryEscape(string(b))
+      return nil
    }
-}
-
-// https://twitter.com/i/spaces/1jMJgednpreKL?s=20
-func SpaceID(addr string) (string, error) {
-   parse, err := url.Parse(addr)
-   if err != nil {
-      return "", err
-   }
-   return path.Base(parse.Path), nil
-}
-
-const spacePersistedQuery = "lFpix9BgFDhAMjn9CrW6jQ"
-
-func (a AudioSpace) Time() time.Time {
-   return time.UnixMilli(a.Metadata.Started_At)
-}
-
-func (g Guest) AudioSpace(id string) (*AudioSpace, error) {
-   var str strings.Builder
-   str.WriteString("https://twitter.com/i/api/graphql/")
-   str.WriteString(spacePersistedQuery)
-   str.WriteString("/AudioSpaceById")
-   req, err := http.NewRequest("GET", str.String(), nil)
+   req := http.Get(&url.URL{
+      Scheme: "https",
+      Host: "twitter.com",
+      Path: "/i/api/graphql/" + persisted_query + "/AudioSpaceById",
+   })
+   err := query(req)
    if err != nil {
       return nil, err
    }
@@ -107,43 +98,35 @@ func (g Guest) AudioSpace(id string) (*AudioSpace, error) {
       "Authorization": {"Bearer " + bearer},
       "X-Guest-Token": {g.Guest_Token},
    }
-   buf, err := json.Marshal(spaceRequest{ID: id})
-   if err != nil {
-      return nil, err
-   }
-   req.URL.RawQuery = "variables=" + url.QueryEscape(string(buf))
-   res, err := new(http.Transport).RoundTrip(req)
+   res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
    }
    defer res.Body.Close()
-   if res.StatusCode != http.StatusOK {
-      return nil, errors.New(res.Status)
-   }
    var space struct {
       Data struct {
-         AudioSpace AudioSpace
+         Audio_Space Audio_Space `json:"audioSpace"`
       }
    }
    if err := json.NewDecoder(res.Body).Decode(&space); err != nil {
       return nil, err
    }
-   return &space.Data.AudioSpace, nil
+   return &space.Data.Audio_Space, nil
 }
 
 type Source struct {
    Location string // Segment
 }
 
-type spaceRequest struct {
+type space_request struct {
    ID string `json:"id"`
-   IsMetatagsQuery bool `json:"isMetatagsQuery"`
-   WithBirdwatchPivots bool `json:"withBirdwatchPivots"`
-   WithDownvotePerspective bool `json:"withDownvotePerspective"`
-   WithReactionsMetadata bool `json:"withReactionsMetadata"`
-   WithReactionsPerspective bool `json:"withReactionsPerspective"`
-   WithReplays bool `json:"withReplays"`
-   WithScheduledSpaces bool `json:"withScheduledSpaces"`
-   WithSuperFollowsTweetFields bool `json:"withSuperFollowsTweetFields"`
-   WithSuperFollowsUserFields bool `json:"withSuperFollowsUserFields"`
+   Is_Metatags_Query bool `json:"isMetatagsQuery"`
+   With_Birdwatch_Pivots bool `json:"withBirdwatchPivots"`
+   With_Downvote_Perspective bool `json:"withDownvotePerspective"`
+   With_Reactions_Metadata bool `json:"withReactionsMetadata"`
+   With_Reactions_Perspective bool `json:"withReactionsPerspective"`
+   With_Replays bool `json:"withReplays"`
+   With_Scheduled_Spaces bool `json:"withScheduledSpaces"`
+   With_Super_Follows_Tweet_Fields bool `json:"withSuperFollowsTweetFields"`
+   With_Super_Follows_User_Fields bool `json:"withSuperFollowsUserFields"`
 }
