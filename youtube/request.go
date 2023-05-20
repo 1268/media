@@ -112,7 +112,6 @@ func (v version) String() string {
    return string(b)
 }
 
-
 func (r Request) Player(id string, tok *Token) (*Player, error) {
    body := func(req *http.Request) error {
       r.Context.Client.Android_SDK_Version = 99

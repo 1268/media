@@ -35,14 +35,16 @@ func main() {
       &http.Default_Client.Log_Level, "log",
       http.Default_Client.Log_Level, "log level",
    )
-   // r
-   var buf strings.Builder
-   buf.WriteString("0: Android\n")
-   buf.WriteString("1: Android embed\n")
-   buf.WriteString("2: Android check")
-   flag.IntVar(&f.request, "r", 0, buf.String())
    // refresh
    flag.BoolVar(&f.refresh, "refresh", false, "create OAuth refresh token")
+   // r
+   {
+      var b strings.Builder
+      b.WriteString("0: Android\n")
+      b.WriteString("1: Android embed\n")
+      b.WriteString("2: Android check")
+      flag.IntVar(&f.request, "r", 0, b.String())
+   }
    flag.Parse()
    if f.refresh {
       err := f.do_refresh()

@@ -57,14 +57,14 @@ var Images = []Image{
 }
 
 func (i Image) Address(id string) string {
-   var buf strings.Builder
-   buf.WriteString("http://i.ytimg.com/vi")
+   var b strings.Builder
+   b.WriteString("http://i.ytimg.com/vi")
    if strings.HasSuffix(i.Name, ".webp") {
-      buf.WriteString("_webp")
+      b.WriteString("_webp")
    }
-   buf.WriteByte('/')
-   buf.WriteString(id)
-   buf.WriteByte('/')
-   buf.WriteString(i.Name)
-   return buf.String()
+   b.WriteByte('/')
+   b.WriteString(id)
+   b.WriteByte('/')
+   b.WriteString(i.Name)
+   return b.String()
 }

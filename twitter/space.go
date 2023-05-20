@@ -3,22 +3,14 @@
 package twitter
 
 import (
-   "2a.pages.dev/mech"
+   "2a.pages.dev/rosso/http"
    "encoding/json"
-   "net/http"
+   "errors"
    "net/url"
    "path"
    "strings"
    "time"
 )
-
-const bearer =
-   "AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs=" +
-   "1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA"
-
-type Guest struct {
-   Guest_Token string
-}
 
 func NewGuest() (*Guest, error) {
    req, err := http.NewRequest(
@@ -40,18 +32,36 @@ func NewGuest() (*Guest, error) {
    return guest, nil
 }
 
-func (a AudioSpace) Duration() time.Duration {
-   meta := a.Metadata
-   if meta.Ended_At == 0 {
-      return 0
+func (g Guest) Source(space *AudioSpace) (*Source, error) {
+   req := http.Get(&url.URL{
+      Scheme: "https",
+      Host: "twitter.com",
+      Path: "/i/api/1.1/live_video_stream/status/" + space.Metadata.Media_Key,
+   })
+   req.Header = http.Header{
+      "Authorization": {"Bearer " + bearer},
+      "X-Guest-Token": {g.Guest_Token},
    }
-   return time.Duration(meta.Ended_At - meta.Started_At) * time.Millisecond
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   var video struct {
+      Source Source
+   }
+   if err := json.NewDecoder(res.Body).Decode(&video); err != nil {
+      return nil, err
+   }
+   return &video.Source, nil
 }
 
-type errorString string
+const bearer =
+   "AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs=" +
+   "1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA"
 
-func (e errorString) Error() string {
-   return string(e)
+type Guest struct {
+   Guest_Token string
 }
 
 type AudioSpace struct {
@@ -108,7 +118,7 @@ func (g Guest) AudioSpace(id string) (*AudioSpace, error) {
    }
    defer res.Body.Close()
    if res.StatusCode != http.StatusOK {
-      return nil, errorString(res.Status)
+      return nil, errors.New(res.Status)
    }
    var space struct {
       Data struct {
@@ -119,35 +129,6 @@ func (g Guest) AudioSpace(id string) (*AudioSpace, error) {
       return nil, err
    }
    return &space.Data.AudioSpace, nil
-}
-
-func (g Guest) Source(space *AudioSpace) (*Source, error) {
-   var str strings.Builder
-   str.WriteString("https://twitter.com/i/api/1.1/live_video_stream/status/")
-   str.WriteString(space.Metadata.Media_Key)
-   req, err := http.NewRequest("GET", str.String(), nil)
-   if err != nil {
-      return nil, err
-   }
-   req.Header = http.Header{
-      "Authorization": {"Bearer " + bearer},
-      "X-Guest-Token": {g.Guest_Token},
-   }
-   res, err := new(http.Transport).RoundTrip(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   if res.StatusCode != http.StatusOK {
-      return nil, errorString(res.Status)
-   }
-   var video struct {
-      Source Source
-   }
-   if err := json.NewDecoder(res.Body).Decode(&video); err != nil {
-      return nil, err
-   }
-   return &video.Source, nil
 }
 
 type Source struct {
@@ -165,38 +146,4 @@ type spaceRequest struct {
    WithScheduledSpaces bool `json:"withScheduledSpaces"`
    WithSuperFollowsTweetFields bool `json:"withSuperFollowsTweetFields"`
    WithSuperFollowsUserFields bool `json:"withSuperFollowsUserFields"`
-}
-
-func (a AudioSpace) String() string {
-   var buf strings.Builder
-   buf.WriteString("Key: ")
-   buf.WriteString(a.Metadata.Media_Key)
-   buf.WriteString("\nTitle: ")
-   buf.WriteString(a.Metadata.Title)
-   buf.WriteString("\nState: ")
-   buf.WriteString(a.Metadata.State)
-   if a.Metadata.Started_At >= 1 {
-      buf.WriteString("\nStarted: ")
-      buf.WriteString(a.Time().String())
-   }
-   if a.Metadata.Ended_At >= 1 {
-      buf.WriteString("\nDuration: ")
-      buf.WriteString(a.Duration().String())
-   }
-   for _, admin := range a.Participants.Admins {
-      buf.WriteString("\nAdmin: ")
-      buf.WriteString(admin.Display_Name)
-   }
-   return buf.String()
-}
-
-func (a AudioSpace) Base() string {
-   var buf strings.Builder
-   for _, admin := range a.Participants.Admins {
-      buf.WriteString(admin.Display_Name)
-      break
-   }
-   buf.WriteByte('-')
-   buf.WriteString(a.Metadata.Title)
-   return mech.Clean(buf.String())
 }
