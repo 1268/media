@@ -1,7 +1,5 @@
 # Roku
 
-https://justwatch.com/us/provider/the-roku-channel
-
 ## Android client
 
 just a remote control:

@@ -8,6 +8,47 @@ import (
    "time"
 )
 
+func New_Content(id string) (*Content, error) {
+   homescreen := func() string {
+      include := []string{
+         "series.title",
+         "seasonNumber",
+         "episodeNumber",
+         "title",
+         "releaseDate",
+         // this needs to be exactly as is, otherwise size blows up
+         "series.seasons.episodes.viewOptions\u2008",
+         "viewOptions",
+      }
+      expand := url.URL{
+         Scheme: "https",
+         Host: "content.sr.roku.com",
+         Path: "/content/v1/roku-trc/" + id,
+         RawQuery: url.Values{
+            "expand": {"series"},
+            "include": {strings.Join(include, ",")},
+         }.Encode(),
+      }
+      return expand.String()
+   }()
+   req := http.Get(&url.URL{
+      Scheme: "https",
+      Host: "therokuchannel.roku.com",
+      Path: "/api/v2/homescreen/content/" + homescreen,
+      RawPath: "/api/v2/homescreen/content/" + url.PathEscape(homescreen),
+   })
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   var con Content
+   if err := json.NewDecoder(res.Body).Decode(&con.s); err != nil {
+      return nil, err
+   }
+   return &con, nil
+}
+
 func (c Content) Title() string {
    return c.s.Title
 }
@@ -49,46 +90,6 @@ type Video struct {
    DRM_Authentication *struct{} `json:"drmAuthentication"`
    URL string
    Video_Type string `json:"videoType"`
-}
-
-func New_Content(id string) (*Content, error) {
-   homescreen := func() string {
-      include := []string{
-         "series.title",
-         "seasonNumber",
-         "episodeNumber",
-         "title",
-         "releaseDate",
-         // this needs to be exactly as is, otherwise size blows up
-         "series.seasons.episodes.viewOptions\u2008",
-         "viewOptions",
-      }
-      expand := url.URL{
-         Scheme: "https",
-         Host: "content.sr.roku.com",
-         Path: "/content/v1/roku-trc/" + id,
-         RawQuery: url.Values{
-            "expand": {"series"},
-            "include": {strings.Join(include, ",")},
-         }.Encode(),
-      }
-      return url.PathEscape(expand.String())
-   }
-   req := http.Get(&url.URL{
-      Scheme: "https",
-      Host: "therokuchannel.roku.com",
-      Path: "/api/v2/homescreen/content/" + homescreen(),
-   })
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   var con Content
-   if err := json.NewDecoder(res.Body).Decode(&con.s); err != nil {
-      return nil, err
-   }
-   return &con, nil
 }
 
 func (c Content) DASH() *Video {
