@@ -13,3 +13,14 @@ is returning this response:
 ~~~
 HTTP/2.0 429 Too Many Requests
 ~~~
+
+links:
+
+~~~
+developer.twitter.com/docs/authentication/api-reference/token
+developer.twitter.com/docs/authentication/oauth-2-0
+developer.twitter.com/docs/authentication/oauth-2-0/application-only
+
+developer.twitter.com/docs/authentication/oauth-1-0a/authorizing-a-request
+developer.twitter.com/docs/authentication/oauth-1-0a/creating-a-signature
+~~~

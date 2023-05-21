@@ -2,6 +2,10 @@
 
 https://github.com/virezox/mech/tree/6c5d82a8
 
+OAuth:
+
+https://github.com/virezox/mech/tree/ef55d038
+
 ## Android client
 
 - https://github.com/httptoolkit/frida-android-unpinning

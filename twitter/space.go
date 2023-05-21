@@ -8,9 +8,30 @@ import (
    "net/url"
 )
 
-const bearer =
+const old_bearer =
    "AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs=" +
    "1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA"
+
+const bearer = "AAAAAAAAAAAAAAAAAAAAAFXzAwAAAAAAMHCxpeSDG1gLNLghVe8d74hl6k4%3DRUMF4xAQLsbeBhTSRrCiQpJtxoGWeyHrDb5te2jpGskWDFW82F"
+
+func New_Guest() (*Guest, error) {
+   req := http.Post(&url.URL{
+      Scheme: "https",
+      Host: "api.twitter.com",
+      Path: "/1.1/guest/activate.json",
+   })
+   req.Header.Set("Authorization", "Bearer " + bearer)
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   g := new(Guest)
+   if err := json.NewDecoder(res.Body).Decode(g); err != nil {
+      return nil, err
+   }
+   return g, nil
+}
 
 const persisted_query = "lFpix9BgFDhAMjn9CrW6jQ"
 
@@ -31,25 +52,6 @@ type Audio_Space struct {
 
 type Guest struct {
    Guest_Token string
-}
-
-func New_Guest() (*Guest, error) {
-   req := http.Post(&url.URL{
-      Scheme: "https",
-      Host: "api.twitter.com",
-      Path: "/1.1/guest/activate.json",
-   })
-   req.Header.Set("Authorization", "Bearer " + bearer)
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   g := new(Guest)
-   if err := json.NewDecoder(res.Body).Decode(g); err != nil {
-      return nil, err
-   }
-   return g, nil
 }
 
 func (g Guest) Source(space *Audio_Space) (*Source, error) {

@@ -9,17 +9,17 @@ import (
 )
 
 func main() {
-   var req http.Request
+   req := new(http.Request)
    req.Header = make(http.Header)
    req.Header["Authorization"] = []string{"OAuth " + strings.Join([]string{
       `oauth_consumer_key="3nVuSoBZnx6U4vzUxf5w"`,
       `oauth_nonce="5775992602006906429184916339582"`,
-      // needs to be encoded:
-      `oauth_signature="I64WGB%2BOG0Pe87pCKzi4w091w2w%3D"`,
       `oauth_signature_method="HMAC-SHA1"`,
       `oauth_timestamp="1684614059"`,
-      `oauth_token="1660017733327630336-FClvhvGL5hO3eahU1O2cuCBHbEwOyc"`,
       `oauth_version="1.0"`,
+      `oauth_token="1660017733327630336-FClvhvGL5hO3eahU1O2cuCBHbEwOyc"`,
+      // needs to be encoded:
+      `oauth_signature="I64WGB%2BOG0Pe87pCKzi4w091w2w%3D"`,
    }, ",")}
    req.URL = new(url.URL)
    req.URL.Host = "api.twitter.com"
@@ -62,7 +62,14 @@ func main() {
    val["tweet_mode"] = []string{"extended"}
    val["tweet_search_mode"] = []string{"top"}
    req.URL.RawQuery = val.Encode()
-   res, err := new(http.Transport).RoundTrip(&req)
+   req.ProtoMajor = 1
+   req.ProtoMinor = 1
+   b, err := httputil.DumpRequest(req, false)
+   if err != nil {
+      panic(err)
+   }
+   os.Stdout.Write(b)
+   res, err := new(http.Transport).RoundTrip(req)
    if err != nil {
       panic(err)
    }
