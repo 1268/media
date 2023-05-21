@@ -1,16 +1,28 @@
 package twitter
 
 import (
-   "2a.pages.dev/rosso/http"
-   "fmt"
+   "encoding/json"
+   "os"
    "testing"
 )
 
 func Test_Search(t *testing.T) {
-   http.Default_Client.Log_Level = 2
-   s, err := New_Search("filter:spaces")
+   g, err := new_guest()
    if err != nil {
       t.Fatal(err)
    }
-   fmt.Println(s)
+   flow, err := flow_welcome(g)
+   if err != nil {
+      t.Fatal(err)
+   }
+   if err := flow.next_link(g); err != nil {
+      t.Fatal(err)
+   }
+   s, err := flow.open_account().search("filter:spaces")
+   if err != nil {
+      t.Fatal(err)
+   }
+   enc := json.NewEncoder(os.Stdout)
+   enc.SetIndent("", " ")
+   enc.Encode(s)
 }

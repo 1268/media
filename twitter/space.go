@@ -8,10 +8,6 @@ import (
    "net/url"
 )
 
-const bearer =
-   "AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs=" +
-   "1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA"
-
 type Guest struct {
    Guest_Token string
 }

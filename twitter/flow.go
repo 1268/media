@@ -6,6 +6,12 @@ import (
    "net/url"
 )
 
+const bearer = "AAAAAAAAAAAAAAAAAAAAAFXzAwAAAAAAMHCxpeSDG1gLNLghVe8d74hl6k4=RUMF4xAQLsbeBhTSRrCiQpJtxoGWeyHrDb5te2jpGskWDFW82F"
+
+const Old_Bearer =
+   "AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs=" +
+   "1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA"
+
 func flow_welcome(g *guest) (*task, error) {
    req := http.Post(&url.URL{
       Scheme: "https",
@@ -40,8 +46,6 @@ func flow_welcome(g *guest) (*task, error) {
    }
    return t, nil
 }
-
-const bearer = "AAAAAAAAAAAAAAAAAAAAAFXzAwAAAAAAMHCxpeSDG1gLNLghVe8d74hl6k4=RUMF4xAQLsbeBhTSRrCiQpJtxoGWeyHrDb5te2jpGskWDFW82F"
 
 type flow_data struct {
    Flow_Context struct {
