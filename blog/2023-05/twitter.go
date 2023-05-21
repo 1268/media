@@ -8,11 +8,19 @@ import (
 
 const bearer = "AAAAAAAAAAAAAAAAAAAAAFXzAwAAAAAAMHCxpeSDG1gLNLghVe8d74hl6k4%3DRUMF4xAQLsbeBhTSRrCiQpJtxoGWeyHrDb5te2jpGskWDFW82F"
 
-type Guest struct {
+type flow_data struct {
+   Flow_Context struct {
+      Start_Location struct {
+         Location string `json:"location"`
+      } `json:"start_location"`
+   } `json:"flow_context"`
+}
+
+type guest struct {
    Guest_Token string
 }
 
-func New_Guest() (*Guest, error) {
+func new_guest() (*guest, error) {
    req := http.Post(&url.URL{
       Scheme: "https",
       Host: "api.twitter.com",
@@ -24,14 +32,27 @@ func New_Guest() (*Guest, error) {
       return nil, err
    }
    defer res.Body.Close()
-   g := new(Guest)
+   g := new(guest)
    if err := json.NewDecoder(res.Body).Decode(g); err != nil {
       return nil, err
    }
    return g, nil
 }
 
-func (g Guest) flow_welcome() (*task, error) {
+type subtask struct {
+   Open_Account *struct {
+      OAuth_Token string
+      OAuth_Token_Secret string
+   }
+}
+
+type task struct {
+   Flow_Token *string `json:"flow_token"`
+   Input_Flow_Data *flow_data `json:"input_flow_data"`
+   Subtasks []subtask
+}
+
+func flow_welcome(g *guest) (*task, error) {
    req := http.Post(&url.URL{
       Scheme: "https",
       Host: "api.twitter.com",
@@ -59,49 +80,44 @@ func (g Guest) flow_welcome() (*task, error) {
       return nil, err
    }
    defer res.Body.Close()
+   t.Input_Flow_Data = nil
    if err := json.NewDecoder(res.Body).Decode(&t); err != nil {
       return nil, err
    }
    return &t, nil
 }
 
-func (g Guest) next_link(t *task) (*http.Response, error) {
+func (t *task) next_link(g *guest) error {
    req := http.Post(&url.URL{
       Scheme: "https",
       Host: "api.twitter.com",
       Path: "/1.1/onboarding/task.json",
    })
-   req.Header["Authorization"] = []string{"Bearer " + bearer}
-   req.Header["Content-Type"] = []string{"application/json"}
-   req.Header["X-Guest-Token"] = []string{g.Guest_Token}
+   req.Header = http.Header{
+      "Authorization": {"Bearer " + bearer},
+      "Content-Type": {"application/json"},
+      "X-Guest-Token": {g.Guest_Token},
+   }
    {
-      t.Input_Flow_Data = nil
       b, err := json.MarshalIndent(t, "", " ")
       if err != nil {
-         return nil, err
+         return err
       }
       req.Body_Bytes(b)
    }
-   return http.Default_Client.Do(req)
-}
-
-type input struct {
-   Open_Link struct {
-      Link string
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return err
    }
-   Subtask_ID string
+   defer res.Body.Close()
+   return json.NewDecoder(res.Body).Decode(t)
 }
 
-type flow_data struct {
-   Flow_Context struct {
-      Start_Location struct {
-         Location string `json:"location"`
-      } `json:"start_location"`
-   } `json:"flow_context"`
-}
-
-type task struct {
-   Flow_Token *string `json:"flow_token"`
-   Input_Flow_Data *flow_data `json:"input_flow_data,omitempty"`
-   Subtask_Inputs []input `json:",omitempty"`
+func (t task) open_account() *subtask {
+   for _, sub := range t.Subtasks {
+      if sub.Open_Account != nil {
+         return &sub
+      }
+   }
+   return nil
 }
