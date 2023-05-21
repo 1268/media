@@ -1,30 +1,17 @@
 package twitter
 
 import (
-   "io"
-   "net/http"
-   "net/http/httputil"
+   "2a.pages.dev/rosso/http"
+   "encoding/json"
    "net/url"
-   "os"
-   "strings"
 )
 
-func task_two() {
-   req_body := strings.NewReader(`
-   {
-     "flow_token": "g;168462860984978255:-1684628609855:oO8bop6j0OMkYsvrvUZtd7HF:0",
-     "subtask_inputs": [
-       {
-         "open_link": {
-           "link": "next_link"
-         },
-         "subtask_id": "NextTaskOpenLink"
-       }
-     ]
-   }
-   `)
-   var req http.Request
-   req.Header = make(http.Header)
+func (t task) next_link() (*http.Response, error) {
+   req := http.Post(&url.URL{
+      Scheme: "https",
+      Host: "api.twitter.com",
+      Path: "/1.1/onboarding/task.json",
+   })
    req.Header["Accept"] = []string{"application/json"}
    req.Header["Accept-Language"] = []string{"en-US"}
    req.Header["Authorization"] = []string{"Bearer AAAAAAAAAAAAAAAAAAAAAFXzAwAAAAAAMHCxpeSDG1gLNLghVe8d74hl6k4%3DRUMF4xAQLsbeBhTSRrCiQpJtxoGWeyHrDb5te2jpGskWDFW82F"}
@@ -51,26 +38,50 @@ func task_two() {
    req.Header["X-Twitter-Client-Language"] = []string{"en-US"}
    req.Header["X-Twitter-Client-Limit-Ad-Tracking"] = []string{"0"}
    req.Header["X-Twitter-Client-Version"] = []string{"9.89.0-release.1"}
-   req.Method = "POST"
-   req.ProtoMajor = 1
-   req.ProtoMinor = 1
-   req.URL = new(url.URL)
-   req.URL.Host = "api.twitter.com"
-   req.URL.Path = "/1.1/onboarding/task.json"
-   req.URL.RawPath = ""
-   val := make(url.Values)
-   req.URL.RawQuery = val.Encode()
-   req.URL.Scheme = "https"
-   req.Body = io.NopCloser(req_body)
-   res, err := new(http.Transport).RoundTrip(&req)
-   if err != nil {
-      panic(err)
+   {
+      var i input
+      i.Open_Link.Link = "next_link"
+      i.Subtask_ID = "NextTaskOpenLink"
+      t.Subtask_Inputs = []input{i}
+      b, err := json.Marshal(t)
+      if err != nil {
+         return nil, err
+      }
+      req.Body_Bytes(b)
    }
-   defer res.Body.Close()
-   res_body, err := httputil.DumpResponse(res, true)
-   if err != nil {
-      panic(err)
+   /*
+   req_body := strings.NewReader(`
+   {
+     "flow_token": "g;168462860984978255:-1684628609855:oO8bop6j0OMkYsvrvUZtd7HF:0",
+     "subtask_inputs": [
+       {
+         "open_link": {
+           "link": "next_link"
+         },
+         "subtask_id": "NextTaskOpenLink"
+       }
+     ]
    }
-   os.Stdout.Write(res_body)
+   `)
+   */
+   return http.Default_Client.Do(req)
 }
 
+type input struct {
+   Open_Link struct {
+      Link string
+   }
+   Subtask_ID string
+}
+
+type task struct {
+   Flow_Token *string
+   Input_Flow_Data *struct {
+      Flow_Context struct {
+         Start_Location struct {
+            Location string
+         }
+      }
+   }
+   Subtask_Inputs []input
+}
