@@ -6,17 +6,19 @@ import (
    "net/url"
 )
 
-func (t task) next_link() (*http.Response, error) {
+func (g Guest) next_link(t *task) (*http.Response, error) {
    req := http.Post(&url.URL{
       Scheme: "https",
       Host: "api.twitter.com",
       Path: "/1.1/onboarding/task.json",
    })
+   req.Header["Authorization"] = []string{"Bearer " + bearer}
+   req.Header["Content-Type"] = []string{"application/json"}
+   req.Header["X-Guest-Token"] = []string{g.Guest_Token}
+   /*
    req.Header["Accept"] = []string{"application/json"}
    req.Header["Accept-Language"] = []string{"en-US"}
-   req.Header["Authorization"] = []string{"Bearer AAAAAAAAAAAAAAAAAAAAAFXzAwAAAAAAMHCxpeSDG1gLNLghVe8d74hl6k4%3DRUMF4xAQLsbeBhTSRrCiQpJtxoGWeyHrDb5te2jpGskWDFW82F"}
    req.Header["Cache-Control"] = []string{"no-store"}
-   req.Header["Content-Type"] = []string{"application/json"}
    req.Header["Cookie"] = []string{"guest_id_marketing=v1%3A168462381830737295; guest_id_ads=v1%3A168462381830737295; personalization_id=v1_5rPm5RI8w/lssWlTrCBkGw==; guest_id=v1%3A168462381830737295"}
    req.Header["Optimize-Body"] = []string{"true"}
    req.Header["Os-Security-Patch-Level"] = []string{"2016-09-06"}
@@ -27,7 +29,6 @@ func (t task) next_link() (*http.Response, error) {
    req.Header["User-Agent"] = []string{"TwitterAndroid/9.89.0-release.1 (29890001-r-1) Android+SDK+built+for+x86/6.0 (unknown;Android+SDK+built+for+x86;Android;sdk_google_phone_x86;0;;0;2013)"}
    req.Header["X-B3-Traceid"] = []string{"4ea0d2ad68a17019"}
    req.Header["X-Client-Uuid"] = []string{"b9d292b4-eb11-47c1-8df7-f90c4c89389d"}
-   req.Header["X-Guest-Token"] = []string{"1660058730438836226"}
    req.Header["X-Twitter-Active-User"] = []string{"yes"}
    req.Header["X-Twitter-Api-Version"] = []string{"5"}
    req.Header["X-Twitter-Client"] = []string{"TwitterAndroid"}
@@ -38,12 +39,16 @@ func (t task) next_link() (*http.Response, error) {
    req.Header["X-Twitter-Client-Language"] = []string{"en-US"}
    req.Header["X-Twitter-Client-Limit-Ad-Tracking"] = []string{"0"}
    req.Header["X-Twitter-Client-Version"] = []string{"9.89.0-release.1"}
+   */
    {
+      /*
       var i input
       i.Open_Link.Link = "next_link"
       i.Subtask_ID = "NextTaskOpenLink"
       t.Subtask_Inputs = []input{i}
-      b, err := json.Marshal(t)
+      */
+      t.Input_Flow_Data = nil
+      b, err := json.MarshalIndent(t, "", " ")
       if err != nil {
          return nil, err
       }
@@ -74,14 +79,16 @@ type input struct {
    Subtask_ID string
 }
 
+type flow_data struct {
+   Flow_Context struct {
+      Start_Location struct {
+         Location string `json:"location"`
+      } `json:"start_location"`
+   } `json:"flow_context"`
+}
+
 type task struct {
-   Flow_Token *string
-   Input_Flow_Data *struct {
-      Flow_Context struct {
-         Start_Location struct {
-            Location string
-         }
-      }
-   }
-   Subtask_Inputs []input
+   Flow_Token *string `json:"flow_token"`
+   Input_Flow_Data *flow_data `json:"input_flow_data,omitempty"`
+   Subtask_Inputs []input `json:",omitempty"`
 }

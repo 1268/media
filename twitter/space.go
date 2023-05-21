@@ -8,11 +8,13 @@ import (
    "net/url"
 )
 
-const old_bearer =
+const bearer =
    "AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs=" +
    "1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA"
 
-const bearer = "AAAAAAAAAAAAAAAAAAAAAFXzAwAAAAAAMHCxpeSDG1gLNLghVe8d74hl6k4%3DRUMF4xAQLsbeBhTSRrCiQpJtxoGWeyHrDb5te2jpGskWDFW82F"
+type Guest struct {
+   Guest_Token string
+}
 
 func New_Guest() (*Guest, error) {
    req := http.Post(&url.URL{
@@ -48,10 +50,6 @@ type Audio_Space struct {
          Display_Name string
       }
    }
-}
-
-type Guest struct {
-   Guest_Token string
 }
 
 func (g Guest) Source(space *Audio_Space) (*Source, error) {

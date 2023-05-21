@@ -18,9 +18,8 @@ links:
 
 ~~~
 developer.twitter.com/docs/authentication/api-reference/token
-developer.twitter.com/docs/authentication/oauth-2-0
-developer.twitter.com/docs/authentication/oauth-2-0/application-only
-
 developer.twitter.com/docs/authentication/oauth-1-0a/authorizing-a-request
 developer.twitter.com/docs/authentication/oauth-1-0a/creating-a-signature
+developer.twitter.com/docs/authentication/oauth-2-0
+developer.twitter.com/docs/authentication/oauth-2-0/application-only
 ~~~
