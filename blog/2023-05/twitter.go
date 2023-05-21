@@ -2,55 +2,117 @@ package twitter
 
 import (
    "2a.pages.dev/rosso/http"
+   "bytes"
+   "crypto/hmac"
+   "crypto/sha1"
+   "encoding/base64"
    "encoding/json"
    "net/url"
+   "strconv"
+   "time"
 )
 
-func (x subtask) search() (*http.Response, error) {
-   val := make(url.Values)
-   val["cards_platform"] = []string{"Android-12"}
-   val["earned"] = []string{"true"}
-   val["ext"] = []string{"mediaRestrictions,altText,mediaStats,mediaColor,info360,highlightedLabel,superFollowMetadata,hasNftAvatar,unmentionInfo"}
-   val["include_blocked_by"] = []string{"true"}
-   val["include_blocking"] = []string{"true"}
-   val["include_cards"] = []string{"true"}
-   val["include_carousels"] = []string{"true"}
-   val["include_composer_source"] = []string{"true"}
-   val["include_entities"] = []string{"true"}
-   val["include_ext_enrichments"] = []string{"true"}
-   val["include_ext_has_nft_avatar"] = []string{"true"}
-   val["include_ext_media_availability"] = []string{"true"}
-   val["include_ext_professional"] = []string{"true"}
-   val["include_ext_replyvoting_downvote_perspective"] = []string{"true"}
-   val["include_ext_sensitive_media_warning"] = []string{"true"}
-   val["include_media_features"] = []string{"true"}
-   val["include_profile_interstitial_type"] = []string{"true"}
-   val["include_quote_count"] = []string{"true"}
-   val["include_reply_count"] = []string{"true"}
-   val["include_user_entities"] = []string{"true"}
-   val["include_viewer_quick_promote_eligibility"] = []string{"true"}
-   val["q"] = []string{"filter:spaces"}
-   val["query_source"] = []string{"typed_query"}
-   val["simple_quoted_tweet"] = []string{"true"}
-   val["spelling_corrections"] = []string{"true"}
-   val["tweet_mode"] = []string{"extended"}
-   val["tweet_search_mode"] = []string{"top"}
+func (x subtask) search(q string) (*search, error) {
    req := http.Get(&url.URL{
       Scheme: "https",
       Host: "api.twitter.com",
       Path: "/2/search/adaptive.json",
-      RawQuery: val.Encode(),
+      RawQuery: url.Values{
+         "q": {q},
+         // This ensures Spaces Tweets will include Spaces URL
+         "tweet_mode": {"extended"},
+      }.Encode(),
    })
-   auth := OAuth1{
-      AccessToken: x.Open_Account.OAuth_Token,
-      AccessSecret: x.Open_Account.OAuth_Token_Secret,
-      ConsumerKey: "3nVuSoBZnx6U4vzUxf5w",
-      ConsumerSecret: "Bcs59EFbbsdF6Sl9Ng71smgStWEGwXXKSjYvPVt7qys",
+   auth := oauth{
+      consumer_key: "3nVuSoBZnx6U4vzUxf5w",
+      consumer_secret: "Bcs59EFbbsdF6Sl9Ng71smgStWEGwXXKSjYvPVt7qys",
+      token: x.Open_Account.OAuth_Token,
+      token_secret: x.Open_Account.OAuth_Token_Secret,
    }
-   req.Header["Authorization"] = []string{
-      auth.BuildOAuth1Header(req.Method, req.URL.String(), val),
+   req.Header["Authorization"] = []string{auth.sign(req.Method, req.URL)}
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
    }
-   return http.Default_Client.Do(req)
+   defer res.Body.Close()
+   s := new(search)
+   if err := json.NewDecoder(res.Body).Decode(s); err != nil {
+      return nil, err
+   }
+   return s, nil
+}
+
+type search struct {
+   GlobalObjects struct {
+      Tweets map[int64]struct {
+         Entities struct {
+            URLs []struct {
+               Expanded_URL string
+            }
+         }
+      }
+   }
+}
+
+type oauth struct {
+   consumer_key string
+   consumer_secret string
+   token string
+   token_secret string
+}
+
+func (o oauth) sign(method string, ref *url.URL) string {
+   m := value_map{
+      "oauth_consumer_key": o.consumer_key,
+      "oauth_nonce": "0",
+      "oauth_signature_method": "HMAC-SHA-1",
+      "oauth_timestamp": strconv.FormatInt(time.Now().Unix(), 10),
+      "oauth_token": o.token,
+   }
+   key := value_slice{o.consumer_secret, o.token_secret}
+   h := hmac.New(sha1.New, key.Bytes())
+   {
+      query := ref.Query()
+      for key, value := range m {
+         query.Set(key, value)
+      }
+      req := value_slice{
+         method,
+         ref.Scheme + "://" + ref.Host + ref.Path,
+         query.Encode(),
+      }
+      h.Write(req.Bytes())
+   }
+   m["oauth_signature"] = base64.StdEncoding.EncodeToString(h.Sum(nil))
+   return "OAuth " + m.String()
+}
+
+type value_map map[string]string
+
+func (v value_map) String() string {
+   var b bytes.Buffer
+   for key, value := range v {
+      if b.Len() >= 1 {
+         b.WriteByte(',')
+      }
+      b.WriteString(key)
+      b.WriteByte('=')
+      b.WriteString(url.QueryEscape(value))
+   }
+   return b.String()
+}
+
+type value_slice []string
+
+func (v value_slice) Bytes() []byte {
+   var b bytes.Buffer
+   for _, value := range v {
+      if b.Len() >= 1 {
+         b.WriteByte('&')
+      }
+      b.WriteString(url.QueryEscape(value))
+   }
+   return b.Bytes()
 }
 
 func flow_welcome(g *guest) (*task, error) {

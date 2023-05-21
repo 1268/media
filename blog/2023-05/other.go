@@ -36,7 +36,7 @@ func token() {
    os.Stdout.Write(res_body)
 }
 
-func search() {
+func do_search() {
    req := new(http.Request)
    req.Header = make(http.Header)
    req.Header["Authorization"] = []string{"OAuth " + strings.Join([]string{

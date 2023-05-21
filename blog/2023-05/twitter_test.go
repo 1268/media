@@ -1,7 +1,7 @@
 package twitter
 
 import (
-   "net/http/httputil"
+   "encoding/json"
    "os"
    "testing"
 )
@@ -18,14 +18,11 @@ func Test_Search(t *testing.T) {
    if err := flow.next_link(g); err != nil {
       t.Fatal(err)
    }
-   res, err := flow.open_account().search()
+   s, err := flow.open_account().search("filter:spaces")
    if err != nil {
       t.Fatal(err)
    }
-   defer res.Body.Close()
-   data, err := httputil.DumpResponse(res, true)
-   if err != nil {
-      t.Fatal(err)
-   }
-   os.Stdout.Write(data)
+   enc := json.NewEncoder(os.Stdout)
+   enc.SetIndent("", " ")
+   enc.Encode(s)
 }
