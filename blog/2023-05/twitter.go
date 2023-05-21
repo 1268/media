@@ -73,6 +73,7 @@ func flow_welcome(g *guest) (*task, error) {
       if err != nil {
          return nil, err
       }
+      t.Input_Flow_Data = nil
       req.Body_Bytes(b)
    }
    res, err := http.Default_Client.Do(req)
@@ -80,7 +81,6 @@ func flow_welcome(g *guest) (*task, error) {
       return nil, err
    }
    defer res.Body.Close()
-   t.Input_Flow_Data = nil
    if err := json.NewDecoder(res.Body).Decode(&t); err != nil {
       return nil, err
    }

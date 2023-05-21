@@ -8,7 +8,6 @@ import (
 
 func (x subtask) search() (*http.Response, error) {
    req, err := http.NewRequest(
-      //"GET", "https://na.glbtls.t.co/2/search/adaptive.json", nil,
       "GET", "https://api.twitter.com/2/search/adaptive.json", nil,
    )
    if err != nil {
@@ -36,25 +35,12 @@ func (x subtask) search() (*http.Response, error) {
    val["include_reply_count"] = []string{"true"}
    val["include_user_entities"] = []string{"true"}
    val["include_viewer_quick_promote_eligibility"] = []string{"true"}
-   val["q"] = []string{"cats"}
+   val["q"] = []string{"filter:spaces"}
    val["query_source"] = []string{"typed_query"}
    val["simple_quoted_tweet"] = []string{"true"}
    val["spelling_corrections"] = []string{"true"}
    val["tweet_mode"] = []string{"extended"}
    val["tweet_search_mode"] = []string{"top"}
-   /*
-   []string{
-      strings.Join([]string{
-         `OAuth oauth_version=1.0`,
-         `oauth_nonce=3631287121008092069727528464482`,
-         `oauth_timestamp=1649508643`,
-         `oauth_signature=s%2FAtWUq2kmE3Th37knZIsZvxudE%3D`,
-         `oauth_consumer_key=3nVuSoBZnx6U4vzUxf5w`,
-         `oauth_signature_method=HMAC-SHA1`,
-         `oauth_token=449483305-wcH6DvQDjePDx6LsD4dVtiXvdWxYE8JOfI1KKJjS`,
-      }, ","),
-   }
-   */
    auth := go_oauth1.OAuth1{
       AccessToken: x.Open_Account.OAuth_Token,
       AccessSecret: x.Open_Account.OAuth_Token_Secret,
