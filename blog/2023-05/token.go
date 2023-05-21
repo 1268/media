@@ -1,4 +1,4 @@
-package main
+package twitter
 
 import (
    "io"
@@ -9,7 +9,8 @@ import (
    "strings"
 )
 
-func main() {
+func token() {
+   req_body := strings.NewReader(`grant_type=client_credentials`)
    var req http.Request
    req.Header = make(http.Header)
    req.Method = "POST"
@@ -34,5 +35,3 @@ func main() {
    }
    os.Stdout.Write(res_body)
 }
-
-var req_body = strings.NewReader(`grant_type=client_credentials`)

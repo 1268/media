@@ -1,0 +1,30 @@
+{
+  "flow_token": "g;168462905481829514:-1684629054827:tGqdk7FpVW6JIrsQJIVFGsub:0",
+  "status": "success",
+  "subtasks": [
+    {
+      "subtask_id": "NextTaskOpenLink",
+      "callbacks": [
+        {
+          "trigger": "impression",
+          "endpoint": "callback.json?product=metric-tracking&identifier=generic-metric-tracking-cb&params=%7B%22data%22%3A%5B%7B%22dataset%22%3A%22signup_events%22%2C%22signup_event_data%22%3A%7B%22subtask_id%22%3A%22NextTaskOpenLink%22%2C%22flow_token%22%3A%22g%3B168462905481829514%3A-1684629054827%3AtGqdk7FpVW6JIrsQJIVFGsub%3A0%22%2C%22flow_name%22%3A%22welcome%22%2C%22flow_start_location%22%3A%22splash_screen%22%2C%22signup_flow_name%22%3A%22open_app%22%7D%7D%5D%7D"
+        },
+        {
+          "trigger": "impression",
+          "scribe_config": {
+            "page": "onboarding",
+            "section": "open_app",
+            "component": "NextTaskOpenLink",
+            "action": "impression"
+          }
+        }
+      ],
+      "open_link": {
+        "link": {
+          "link_type": "task",
+          "link_id": "next_link"
+        }
+      }
+    }
+  ]
+}

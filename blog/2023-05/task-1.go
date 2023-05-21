@@ -1,15 +1,25 @@
-package main
+package twitter
 
 import (
    "io"
    "net/http"
-   "net/http/httputil"
    "net/url"
-   "os"
    "strings"
 )
 
-func main() {
+func task_one() (*http.Response, error) {
+   var req_body = strings.NewReader(`
+   {
+      "flow_token": null,
+      "input_flow_data": {
+         "flow_context": {
+            "start_location": {
+               "location": "splash_screen"
+            }
+         }
+      }
+   }
+   `)
    var req http.Request
    req.Header = make(http.Header)
    req.Method = "POST"
@@ -25,27 +35,5 @@ func main() {
    req.Header["User-Agent"] = []string{"TwitterAndroid/99"}
    req.URL.RawQuery = val.Encode()
    req.Body = io.NopCloser(req_body)
-   res, err := new(http.Transport).RoundTrip(&req)
-   if err != nil {
-      panic(err)
-   }
-   defer res.Body.Close()
-   res_body, err := httputil.DumpResponse(res, true)
-   if err != nil {
-      panic(err)
-   }
-   os.Stdout.Write(res_body)
+   return new(http.Transport).RoundTrip(&req)
 }
-
-var req_body = strings.NewReader(`
-{
-   "flow_token": null,
-   "input_flow_data": {
-      "flow_context": {
-         "start_location": {
-            "location": "splash_screen"
-         }
-      }
-   }
-}
-`)

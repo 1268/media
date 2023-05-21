@@ -1,4 +1,4 @@
-package main
+package twitter
 
 import (
    "net/http"
@@ -8,7 +8,7 @@ import (
    "strings"
 )
 
-func main() {
+func search() {
    req := new(http.Request)
    req.Header = make(http.Header)
    req.Header["Authorization"] = []string{"OAuth " + strings.Join([]string{
