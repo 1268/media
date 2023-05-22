@@ -41,7 +41,6 @@ type subtask struct {
    }
 }
 
-// this always returns the same output. how old are the username and password?
 func access_token() (string, error) {
    req := http.Post(&url.URL{
       Scheme: "https",
