@@ -6,45 +6,19 @@ import (
    "net/url"
 )
 
-const bearer = "AAAAAAAAAAAAAAAAAAAAAFXzAwAAAAAAMHCxpeSDG1gLNLghVe8d74hl6k4=RUMF4xAQLsbeBhTSRrCiQpJtxoGWeyHrDb5te2jpGskWDFW82F"
+type flow struct {
+   Flow_Token *string `json:"flow_token"`
+   Input_Flow_Data *flow_data `json:"input_flow_data"`
+   Subtasks []subtask
+}
 
-const Old_Bearer =
-   "AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs=" +
-   "1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA"
-
-func flow_welcome(g *guest) (*task, error) {
-   req := http.Post(&url.URL{
-      Scheme: "https",
-      Host: "api.twitter.com",
-      Path: "/1.1/onboarding/task.json",
-      RawQuery: "flow_name=welcome",
-   })
-   req.Header = http.Header{
-      "Authorization": {"Bearer " + bearer},
-      "Content-Type": {"application/json"},
-      "User-Agent": {"TwitterAndroid/99"},
-      "X-Guest-Token": {g.Guest_Token},
-   }
-   {
-      var t task
-      t.Input_Flow_Data = new(flow_data)
-      t.Input_Flow_Data.Flow_Context.Start_Location.Location = "splash_screen"
-      b, err := json.MarshalIndent(t, "", " ")
-      if err != nil {
-         return nil, err
+func (f flow) open_account() *subtask {
+   for _, task := range f.Subtasks {
+      if task.Open_Account != nil {
+         return &task
       }
-      req.Body_Bytes(b)
    }
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   t := new(task)
-   if err := json.NewDecoder(res.Body).Decode(t); err != nil {
-      return nil, err
-   }
-   return t, nil
+   return nil
 }
 
 type flow_data struct {
@@ -55,29 +29,6 @@ type flow_data struct {
    } `json:"flow_context"`
 }
 
-type guest struct {
-   Guest_Token string
-}
-
-func new_guest() (*guest, error) {
-   req := http.Post(&url.URL{
-      Scheme: "https",
-      Host: "api.twitter.com",
-      Path: "/1.1/guest/activate.json",
-   })
-   req.Header.Set("Authorization", "Bearer " + bearer)
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   g := new(guest)
-   if err := json.NewDecoder(res.Body).Decode(g); err != nil {
-      return nil, err
-   }
-   return g, nil
-}
-
 type subtask struct {
    Open_Account *struct {
       OAuth_Token string
@@ -85,25 +36,105 @@ type subtask struct {
    }
 }
 
-type task struct {
-   Flow_Token *string `json:"flow_token"`
-   Input_Flow_Data *flow_data `json:"input_flow_data"`
-   Subtasks []subtask
+func access_token() (*header, error) {
+   req := http.Post(&url.URL{
+      Scheme: "https",
+      Host: "api.twitter.com",
+      Path: "/oauth2/token",
+   })
+   req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+   req.SetBasicAuth(
+      "3nVuSoBZnx6U4vzUxf5w",
+      "Bcs59EFbbsdF6Sl9Ng71smgStWEGwXXKSjYvPVt7qys",
+   )
+   req.Body_String("grant_type=client_credentials")
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   var head header
+   {
+      var s struct {
+         Access_Token string
+      }
+      if err := json.NewDecoder(res.Body).Decode(&s); err != nil {
+         return nil, err
+      }
+      head.Header = make(http.Header)
+      head.Set("Authorization", "Bearer " + s.Access_Token)
+   }
+   return &head, nil
 }
 
-func (t *task) next_link(g *guest) error {
+func (h header) activate() error {
+   req := http.Post(&url.URL{
+      Scheme: "https",
+      Host: "api.twitter.com",
+      Path: "/1.1/guest/activate.json",
+   })
+   req.Header = h.Header
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return err
+   }
+   defer res.Body.Close()
+   var s struct {
+      Guest_Token string
+   }
+   if err := json.NewDecoder(res.Body).Decode(&s); err != nil {
+      return err
+   }
+   h.Set("X-Guest-Token", s.Guest_Token)
+   return nil
+}
+
+type header struct {
+   http.Header
+}
+
+func welcome(h header) (*flow, error) {
+   req := http.Post(&url.URL{
+      Scheme: "https",
+      Host: "api.twitter.com",
+      Path: "/1.1/onboarding/task.json",
+      RawQuery: "flow_name=welcome",
+   })
+   req.Header = h.Header
+   req.Header.Set("Content-Type", "application/json")
+   req.Header.Set("User-Agent", "TwitterAndroid/99")
+   {
+      var f flow
+      f.Input_Flow_Data = new(flow_data)
+      f.Input_Flow_Data.Flow_Context.Start_Location.Location = "splash_screen"
+      b, err := json.MarshalIndent(f, "", " ")
+      if err != nil {
+         return nil, err
+      }
+      req.Body_Bytes(b)
+   }
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   f := new(flow)
+   if err := json.NewDecoder(res.Body).Decode(f); err != nil {
+      return nil, err
+   }
+   return f, nil
+}
+
+func (f *flow) next_link(h header) error {
    req := http.Post(&url.URL{
       Scheme: "https",
       Host: "api.twitter.com",
       Path: "/1.1/onboarding/task.json",
    })
-   req.Header = http.Header{
-      "Authorization": {"Bearer " + bearer},
-      "Content-Type": {"application/json"},
-      "X-Guest-Token": {g.Guest_Token},
-   }
+   req.Header = h.Header
+   req.Header.Set("Conten-Type", "application/json")
    {
-      b, err := json.MarshalIndent(t, "", " ")
+      b, err := json.MarshalIndent(f, "", " ")
       if err != nil {
          return err
       }
@@ -114,14 +145,5 @@ func (t *task) next_link(g *guest) error {
       return err
    }
    defer res.Body.Close()
-   return json.NewDecoder(res.Body).Decode(t)
-}
-
-func (t task) open_account() *subtask {
-   for _, sub := range t.Subtasks {
-      if sub.Open_Account != nil {
-         return &sub
-      }
-   }
-   return nil
+   return json.NewDecoder(res.Body).Decode(f)
 }

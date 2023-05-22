@@ -6,21 +6,6 @@ import (
    "net/url"
 )
 
-func Token() (*http.Response, error) {
-   req := http.Post(&url.URL{
-      Scheme: "https",
-      Host: "api.twitter.com",
-      Path: "/oauth2/token",
-   })
-   req.Header["Content-Type"] = []string{"application/x-www-form-urlencoded"}
-   req.SetBasicAuth(
-      "3nVuSoBZnx6U4vzUxf5w",
-      "Bcs59EFbbsdF6Sl9Ng71smgStWEGwXXKSjYvPVt7qys",
-   )
-   req.Body_String("grant_type=client_credentials")
-   return http.Default_Client.Do(req)
-}
-
 func (x subtask) search(q string) (*search, error) {
    req := http.Get(&url.URL{
       Scheme: "https",
@@ -61,30 +46,6 @@ type search struct {
          }
       }
    }
-}
-
-func New_Search(q string) (*Search, error) {
-   req := http.Get(&url.URL{
-      Scheme: "https",
-      Host: "api.twitter.com",
-      Path: "/2/search/adaptive.json",
-      RawQuery: url.Values{
-         "q": {q},
-         // This ensures Spaces Tweets will include Spaces URL
-         "tweet_mode": {"extended"},
-      }.Encode(),
-   })
-   req.Header.Set("Authorization", "Bearer " + bearer)
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   s := new(Search)
-   if err := json.NewDecoder(res.Body).Decode(s); err != nil {
-      return nil, err
-   }
-   return s, nil
 }
 
 type Search struct {
