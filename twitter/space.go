@@ -10,7 +10,7 @@ import (
 
 const persisted_query = "lFpix9BgFDhAMjn9CrW6jQ"
 
-type Audio_Space struct {
+type space struct {
    Metadata struct {
       Ended_At int64 `json:"ended_at,string"`
       Media_Key string
@@ -25,7 +25,7 @@ type Audio_Space struct {
    }
 }
 
-type Source struct {
+type source struct {
    Location string // Segment
 }
 
@@ -42,7 +42,8 @@ type space_request struct {
    With_Super_Follows_User_Fields bool `json:"withSuperFollowsUserFields"`
 }
 
-func (h header) Space(id string) (*Audio_Space, error) {
+// FIXME see if headers are needed
+func New_Space(access_token, guest_token, id string) (*space, error) {
    query := func(r *http.Request) error {
       b, err := json.Marshal(space_request{ID: id})
       if err != nil {
@@ -60,7 +61,10 @@ func (h header) Space(id string) (*Audio_Space, error) {
    if err != nil {
       return nil, err
    }
-   req.Header = h.Header
+   req.Header = http.Header{
+      "Authorization": {"Bearer " + access_token},
+      "X-Guest-Token": {guest_token},
+   }
    res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
@@ -68,7 +72,7 @@ func (h header) Space(id string) (*Audio_Space, error) {
    defer res.Body.Close()
    var s struct {
       Data struct {
-         Audio_Space Audio_Space `json:"audioSpace"`
+         Audio_Space space `json:"audioSpace"`
       }
    }
    if err := json.NewDecoder(res.Body).Decode(&s); err != nil {
@@ -77,23 +81,27 @@ func (h header) Space(id string) (*Audio_Space, error) {
    return &s.Data.Audio_Space, nil
 }
 
-func (h header) Source(space *Audio_Space) (*Source, error) {
+// FIXME see if headers are needed
+func (s space) Source(access_token, guest_token string) (*source, error) {
    req := http.Get(&url.URL{
       Scheme: "https",
       Host: "twitter.com",
-      Path: "/i/api/1.1/live_video_stream/status/" + space.Metadata.Media_Key,
+      Path: "/i/api/1.1/live_video_stream/status/" + s.Metadata.Media_Key,
    })
-   req.Header = h.Header
+   req.Header = http.Header{
+      "Authorization": {"Bearer " + access_token},
+      "X-Guest-Token": {guest_token},
+   }
    res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
    }
    defer res.Body.Close()
-   var s struct {
-      Source Source
+   var status struct {
+      Source source
    }
-   if err := json.NewDecoder(res.Body).Decode(&s); err != nil {
+   if err := json.NewDecoder(res.Body).Decode(&status); err != nil {
       return nil, err
    }
-   return &s.Source, nil
+   return &status.Source, nil
 }

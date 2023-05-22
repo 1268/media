@@ -13,17 +13,16 @@ func (x subtask) search(q string) (*search, error) {
       Path: "/2/search/adaptive.json",
       RawQuery: url.Values{
          "q": {q},
-         // This ensures Spaces Tweets will include Spaces URL
-         "tweet_mode": {"extended"},
+         "tweet_search_mode": {"live"},
       }.Encode(),
    })
    auth := oauth{
-      consumer_key: "3nVuSoBZnx6U4vzUxf5w",
-      consumer_secret: "Bcs59EFbbsdF6Sl9Ng71smgStWEGwXXKSjYvPVt7qys",
+      consumer_key: consumer_key,
+      consumer_secret: consumer_secret,
       token: x.Open_Account.OAuth_Token,
       token_secret: x.Open_Account.OAuth_Token_Secret,
    }
-   req.Header["Authorization"] = []string{auth.sign(req.Method, req.URL)}
+   req.Header.Set("Authorization", auth.sign(req.Method, req.URL))
    res, err := http.Default_Client.Do(req)
    if err != nil {
       return nil, err
@@ -37,18 +36,6 @@ func (x subtask) search(q string) (*search, error) {
 }
 
 type search struct {
-   GlobalObjects struct {
-      Tweets map[int64]struct {
-         Entities struct {
-            URLs []struct {
-               Expanded_URL string
-            }
-         }
-      }
-   }
-}
-
-type Search struct {
    GlobalObjects struct {
       Tweets map[int64]struct {
          Entities struct {
