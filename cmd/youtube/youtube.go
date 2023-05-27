@@ -6,6 +6,40 @@ import (
    "os"
 )
 
+func (f flags) download() error {
+   play, err := f.player()
+   if err != nil {
+      return err
+   }
+   forms := play.Streaming_Data.Adaptive_Formats
+   if f.info {
+      for _, form := range forms {
+         fmt.Println(form)
+      }
+   } else {
+      fmt.Println(play.Playability_Status)
+      if f.audio != "" {
+         form, ok := forms.Audio(f.audio)
+         if ok {
+            err := f.encode(form, play.Name())
+            if err != nil {
+               return err
+            }
+         }
+      }
+      if f.height >= 1 {
+         form, ok := forms.Video(f.height)
+         if ok {
+            err := f.encode(form, play.Name())
+            if err != nil {
+               return err
+            }
+         }
+      }
+   }
+   return nil
+}
+
 func (f flags) encode(form *youtube.Format, name string) error {
    ext, err := form.Ext()
    if err != nil {
@@ -44,38 +78,6 @@ func (f flags) player() (*youtube.Player, error) {
       }
    }
    return req.Player(f.video_ID, token)
-}
-
-func (f flags) download() error {
-   play, err := f.player()
-   if err != nil {
-      return err
-   }
-   forms := play.Streaming_Data.Adaptive_Formats
-   if f.info {
-      fmt.Println(play)
-   } else {
-      fmt.Println(play.Playability_Status)
-      if f.audio != "" {
-         form, ok := forms.Audio(f.audio)
-         if ok {
-            err := f.encode(form, play.Name())
-            if err != nil {
-               return err
-            }
-         }
-      }
-      if f.height >= 1 {
-         form, ok := forms.Video(f.height)
-         if ok {
-            err := f.encode(form, play.Name())
-            if err != nil {
-               return err
-            }
-         }
-      }
-   }
-   return nil
 }
 
 func (f flags) do_refresh() error {
