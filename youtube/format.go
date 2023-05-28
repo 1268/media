@@ -8,17 +8,6 @@ import (
    "strconv"
 )
 
-type Format struct {
-   Audio_Quality string `json:"audioQuality"`
-   Bitrate int64
-   Content_Length int64 `json:"contentLength,string"`
-   Height int
-   MIME_Type string `json:"mimeType"`
-   Quality_Label string `json:"qualityLabel"`
-   URL string
-   Width int
-}
-
 func (f Format) Encode(w io.Writer) error {
    req, err := http.Get_Parse(f.URL)
    if err != nil {
@@ -30,6 +19,7 @@ func (f Format) Encode(w io.Writer) error {
    }
    pro := http.Progress_Bytes(w, f.Content_Length)
    client := http.Default_Client
+   client.CheckRedirect = nil
    client.Log_Level = 0
    var pos int64
    for pos < f.Content_Length {
@@ -52,6 +42,17 @@ func (f Format) Encode(w io.Writer) error {
       pos += chunk
    }
    return nil
+}
+
+type Format struct {
+   Audio_Quality string `json:"audioQuality"`
+   Bitrate int64
+   Content_Length int64 `json:"contentLength,string"`
+   Height int
+   MIME_Type string `json:"mimeType"`
+   Quality_Label string `json:"qualityLabel"`
+   URL string
+   Width int
 }
 
 const chunk = 10_000_000

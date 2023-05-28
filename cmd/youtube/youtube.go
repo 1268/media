@@ -6,6 +6,19 @@ import (
    "os"
 )
 
+func (f flags) encode(form *youtube.Format, name string) error {
+   ext, err := form.Ext()
+   if err != nil {
+      return err
+   }
+   file, err := os.Create(name + ext)
+   if err != nil {
+      return err
+   }
+   defer file.Close()
+   return form.Encode(file)
+}
+
 func (f flags) download() error {
    play, err := f.player()
    if err != nil {
@@ -17,7 +30,7 @@ func (f flags) download() error {
          fmt.Println(form)
       }
    } else {
-      fmt.Println(play.Playability_Status)
+      fmt.Printf("%+v\n", play.Playability_Status)
       if f.audio != "" {
          form, ok := forms.Audio(f.audio)
          if ok {
@@ -38,19 +51,6 @@ func (f flags) download() error {
       }
    }
    return nil
-}
-
-func (f flags) encode(form *youtube.Format, name string) error {
-   ext, err := form.Ext()
-   if err != nil {
-      return err
-   }
-   file, err := os.Create(name + ext)
-   if err != nil {
-      return err
-   }
-   defer file.Close()
-   return form.Encode(file)
 }
 
 func (f flags) player() (*youtube.Player, error) {
