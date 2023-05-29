@@ -11,6 +11,7 @@ import (
 func hls_get[T hls.Mixed](str Stream, items []T, index int) error {
    if str.Info {
       for i, item := range items {
+         fmt.Println()
          if i == index {
             fmt.Print("!")
          }

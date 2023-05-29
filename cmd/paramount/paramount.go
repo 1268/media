@@ -31,33 +31,32 @@ func (f flags) dash(token *paramount.App_Token) error {
    if err != nil {
       return err
    }
+   // video
    {
       reps := reps.Filter(dash.Video)
-      index := reps.Index(func(r dash.Represent) bool {
-         return r.Height == f.height
+      reps.Sort(func(a, b dash.Represent) bool {
+         return a.Bandwidth < b.Bandwidth
+      })
+      index := reps.Index(func(a dash.Represent) bool {
+         return a.Height == f.height
       })
       err := f.DASH_Get(reps, index)
       if err != nil {
          return err
       }
    }
-   reps = reps.Filter(func(r dash.Represent) bool {
-      if !dash.Audio(r) {
-         return false
+   // audio
+   reps = reps.Filter(func(a dash.Represent) bool {
+      if dash.Audio(a) {
+         return a.Role() != "description"
       }
-      if r.Role() == "description" {
-         return false
-      }
-      return true
+      return false
    })
-   index := reps.Index(func(r dash.Represent) bool {
-      if !strings.HasPrefix(r.Adaptation.Lang, f.lang) {
-         return false
+   index := reps.Index(func(a dash.Represent) bool {
+      if strings.HasPrefix(a.Codecs, f.codecs) {
+         return strings.HasPrefix(a.Adaptation.Lang, f.lang)
       }
-      if !strings.HasPrefix(r.Codecs, f.codecs) {
-         return false
-      }
-      return true
+      return false
    })
    return f.DASH_Get(reps, index)
 }

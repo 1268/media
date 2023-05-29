@@ -40,6 +40,7 @@ func (f flags) download() error {
    if err != nil {
       return err
    }
+   // video
    {
       reps := reps.Filter(dash.Video)
       index := reps.Index(func(r dash.Represent) bool {
@@ -50,6 +51,7 @@ func (f flags) download() error {
          return err
       }
    }
+   // audio
    return f.DASH_Get(reps.Filter(dash.Audio), 0)
 }
 

@@ -13,14 +13,16 @@ type flags struct {
    mech.Stream
    name string
    password string
+   resolution string
 }
 
 func main() {
    var f flags
    flag.StringVar(&f.address, "a", "", "address")
    flag.StringVar(&f.email, "e", "", "email")
-   flag.Int64Var(&f.bandwidth, "f", 3687532, "video bandwidth")
-   flag.StringVar(&f.name, "g", "English", "audio name")
+   flag.StringVar(&f.resolution, "f", "720", "resolution")
+   flag.Int64Var(&f.bandwidth, "g", 9, "minimum bandwidth")
+   flag.StringVar(&f.name, "h", "English", "audio name")
    flag.BoolVar(&f.Info, "i", false, "information")
    flag.IntVar(
       &http.Default_Client.Log_Level, "log",

@@ -33,13 +33,10 @@ func (f flags) DASH(content *roku.Content) error {
       }
    }
    reps = reps.Filter(func(r dash.Represent) bool {
-      if !dash.Audio(r) {
-         return false
+      if strings.HasPrefix(r.Adaptation.Lang, f.lang) {
+         return dash.Audio(r)
       }
-      if !strings.HasPrefix(r.Adaptation.Lang, f.lang) {
-         return false
-      }
-      return true
+      return false
    })
    index := reps.Index(func(r dash.Represent) bool {
       return strings.Contains(r.Codecs, f.codec)

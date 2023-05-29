@@ -4,6 +4,7 @@ import (
    "2a.pages.dev/mech/cbc"
    "2a.pages.dev/rosso/hls"
    "os"
+   "strings"
 )
 
 func (f flags) download() error {
@@ -11,14 +12,25 @@ func (f flags) download() error {
    if err != nil {
       return err
    }
-   // video
-   index := master.Streams.Index(func(s hls.Stream) bool {
-      return s.Bandwidth >= f.bandwidth
+   master.Streams = master.Streams.Filter(func(a hls.Stream) bool {
+      return a.Resolution != ""
+   })
+   master.Streams.Sort(func(a, b hls.Stream) bool {
+      return a.Bandwidth < b.Bandwidth
+   })
+   index := master.Streams.Index(func(a hls.Stream) bool {
+      if strings.HasSuffix(a.Resolution, f.resolution) {
+         return a.Bandwidth >= f.bandwidth
+      }
+      return false
    })
    if err := f.HLS_Streams(master.Streams, index); err != nil {
       return err
    }
    // audio
+   master.Media = master.Media.Filter(func(m hls.Medium) bool {
+      return m.Type == "AUDIO"
+   })
    index = master.Media.Index(func(m hls.Medium) bool {
       return m.Name == f.name
    })
@@ -40,6 +52,7 @@ func (f flags) profile() error {
    }
    return profile.Write_File(home + "/mech/cbc.json")
 }
+
 func (f *flags) master() (*hls.Master, error) {
    home, err := os.UserHomeDir()
    if err != nil {

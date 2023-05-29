@@ -13,34 +13,10 @@ import (
    "os"
 )
 
-type Stream struct {
-   Client_ID string
-   Info bool
-   Namer
-   Poster widevine.Poster
-   Private_Key string
-   base *url.URL
-}
-
-func (s *Stream) DASH(ref string) (dash.Represents, error) {
-   client := http.Default_Client
-   client.CheckRedirect = nil
-   res, err := client.Get(ref)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   var pre dash.Presentation
-   if err := xml.NewDecoder(res.Body).Decode(&pre); err != nil {
-      return nil, err
-   }
-   s.base = res.Request.URL
-   return pre.Represents(), nil
-}
-
 func (s Stream) DASH_Get(items dash.Represents, index int) error {
    if s.Info {
       for i, item := range items {
+         fmt.Println()
          if i == index {
             fmt.Print("!")
          }
@@ -129,4 +105,28 @@ func (s Stream) DASH_Get(items dash.Represents, index int) error {
       }
    }
    return nil
+}
+type Stream struct {
+   Client_ID string
+   Info bool
+   Namer
+   Poster widevine.Poster
+   Private_Key string
+   base *url.URL
+}
+
+func (s *Stream) DASH(ref string) (dash.Represents, error) {
+   client := http.Default_Client
+   client.CheckRedirect = nil
+   res, err := client.Get(ref)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   var pre dash.Presentation
+   if err := xml.NewDecoder(res.Body).Decode(&pre); err != nil {
+      return nil, err
+   }
+   s.base = res.Request.URL
+   return pre.Represents(), nil
 }

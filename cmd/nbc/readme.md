@@ -1,8 +1,7 @@
 # NBC
 
 ~~~
-go run . -b 9000199358
+go run . -b 9000258315 -i
 ~~~
 
-- https://github.com/ytdl-org/youtube-dl/issues/29191
-- https://nbc.com/saturday-night-live/video/october-2-owen-wilson/9000199358
+https://nbc.com/saturday-night-live/episodes
