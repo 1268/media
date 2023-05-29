@@ -10,10 +10,10 @@ import (
 
 type flags struct {
    address string
-   bandwidth int64
    email string
    mech.Stream
    password string
+   height int64
 }
 
 func main() {
@@ -30,7 +30,7 @@ func main() {
    // e
    flag.StringVar(&f.email, "e", "", "email")
    // f
-   flag.Int64Var(&f.bandwidth, "f", 2_532_000, "video bandwidth")
+   flag.Int64Var(&f.height, "f", 648, "minimum height")
    // i
    flag.BoolVar(&f.Info, "i", false, "information")
    // k

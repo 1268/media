@@ -23,7 +23,7 @@ func (f flags) DASH(content *roku.Content) error {
       return err
    }
    {
-      reps := reps.Video()
+      reps := dash.Filter(reps, dash.Video)
       var index int
       for index < len(reps) {
          if reps[index].Height == f.height {
@@ -36,8 +36,8 @@ func (f flags) DASH(content *roku.Content) error {
          return err
       }
    }
-   reps = reps.Filter(func(r dash.Representation) bool {
-      if r.MIME_Type != "audio/mp4" {
+   reps = dash.Filter(reps, func(r dash.Representation) bool {
+      if !dash.Audio(r) {
          return false
       }
       if !strings.HasPrefix(r.Adaptation.Lang, f.lang) {
@@ -45,8 +45,8 @@ func (f flags) DASH(content *roku.Content) error {
       }
       return true
    })
-   index := reps.Index(func(a, b dash.Representation) bool {
-      return strings.Contains(b.Codecs, f.codec)
+   index := dash.Index_Func(reps, func(r dash.Representation) bool {
+      return strings.Contains(r.Codecs, f.codec)
    })
    return f.DASH_Get(reps, index)
 }

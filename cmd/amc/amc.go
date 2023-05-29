@@ -2,6 +2,7 @@ package main
 
 import (
    "2a.pages.dev/mech/amc"
+   "2a.pages.dev/rosso/dash"
    "os"
 )
 
@@ -40,13 +41,16 @@ func (f flags) download() error {
       return err
    }
    {
-      reps := reps.Video()
-      err := f.DASH_Get(reps, reps.Bandwidth(f.bandwidth))
+      reps := dash.Filter(reps, dash.Video)
+      index := dash.Index_Func(reps, func(r dash.Representation) bool {
+         return r.Height >= f.height
+      })
+      err := f.DASH_Get(reps, index)
       if err != nil {
          return err
       }
    }
-   return f.DASH_Get(reps.Audio(), 0)
+   return f.DASH_Get(dash.Filter(reps, dash.Audio), 0)
 }
 
 func (f flags) login() error {
