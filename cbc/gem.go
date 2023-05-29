@@ -7,6 +7,34 @@ import (
    "time"
 )
 
+func New_Catalog_Gem(ref string) (*Catalog_Gem, error) {
+   // you can also use `phone_android`, but it returns combined number and name:
+   // 3. Beauty Hath Strange Power
+   req := http.Get(&url.URL{
+      Scheme: "https",
+      Host: "services.radio-canada.ca",
+      Path: "/ott/catalog/v2/gem/show",
+      RawQuery: "device=web",
+   })
+   {
+      p, err := url.Parse(ref)
+      if err != nil {
+         return nil, err
+      }
+      req.URL.Path += p.Path
+   }
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   gem := new(Catalog_Gem)
+   if err := json.NewDecoder(res.Body).Decode(gem); err != nil {
+      return nil, err
+   }
+   return gem, nil
+}
+
 func (m Metadata) Season() (int64, error) {
    return m.Part_Of_Season.Season_Number, nil
 }
@@ -45,27 +73,6 @@ func (m Metadata) Title() string {
 type Lineup_Item struct {
    URL string
    Formatted_ID_Media string `json:"formattedIdMedia"`
-}
-
-func New_Catalog_Gem(link string) (*Catalog_Gem, error) {
-   // you can also use `phone_android`, but it returns combined number and name:
-   // 3. Beauty Hath Strange Power
-   req := http.Get(&url.URL{
-      Scheme: "https",
-      Host: "services.radio-canada.ca",
-      Path: "/ott/catalog/v2/gem/show/" + link,
-      RawQuery: "device=web",
-   })
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   gem := new(Catalog_Gem)
-   if err := json.NewDecoder(res.Body).Decode(gem); err != nil {
-      return nil, err
-   }
-   return gem, nil
 }
 
 func (c Catalog_Gem) Item() *Lineup_Item {

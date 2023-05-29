@@ -1,0 +1,97 @@
+{
+  "url": "https://cbcrcott-gem.akamaized.net/97c5b939-a38a-4056-82e0-2cab762917ca/CBC_FILMS_THE_WITCH.ism/[manifestType]_master.m3u8?hdnea=st=1685370148~7eexp=1685370268~7eacl=/97c5b939-a38a-4056-82e0-2cab762917ca/cbc_films_the_witch.ism/[manifesttype]*~7ehmac=4197e390c9729fa4adde6a7b8e95459d5acfb8248e61d8f35d482cd4e06b2bc8",
+  "message": null,
+  "errorCode": 0,
+  "params": [
+    {
+      "name": "mediaType",
+      "value": "video"
+    },
+    {
+      "name": "daiContentSourceId",
+      "value": "2556398"
+    },
+    {
+      "name": "adsEnabled",
+      "value": true
+    },
+    {
+      "name": "daiApiKey",
+      "value": "0A753C2A9BE994A75562DD9EAE366396307A3E2F489D692A561E2D3665AB1069"
+    },
+    {
+      "name": "contentType",
+      "value": "vnd.apple.mpegURL"
+    },
+    {
+      "name": "tokenId",
+      "value": 1
+    }
+  ],
+  "bitrates": [
+    {
+      "bitrate": 3400,
+      "width": 1280,
+      "height": 720,
+      "lines": "720p",
+      "param": null,
+      "max": 0
+    },
+    {
+      "bitrate": 2500,
+      "width": 1280,
+      "height": 720,
+      "lines": "720p",
+      "param": null,
+      "max": 0
+    },
+    {
+      "bitrate": 1800,
+      "width": 852,
+      "height": 480,
+      "lines": "540p",
+      "param": null,
+      "max": 0
+    },
+    {
+      "bitrate": 1000,
+      "width": 640,
+      "height": 360,
+      "lines": "360p",
+      "param": null,
+      "max": 0
+    },
+    {
+      "bitrate": 600,
+      "width": 640,
+      "height": 360,
+      "lines": "360p",
+      "param": null,
+      "max": 0
+    },
+    {
+      "bitrate": 400,
+      "width": 400,
+      "height": 224,
+      "lines": "240p",
+      "param": null,
+      "max": 450000
+    },
+    {
+      "bitrate": 200,
+      "width": 400,
+      "height": 224,
+      "lines": "224p",
+      "param": null,
+      "max": 0
+    },
+    {
+      "bitrate": 100,
+      "width": 0,
+      "height": 0,
+      "lines": "128k",
+      "param": null,
+      "max": 0
+    }
+  ]
+}

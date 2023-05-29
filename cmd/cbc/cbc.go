@@ -27,22 +27,6 @@ func (f *flags) master() (*hls.Master, error) {
    return f.HLS(*media.URL)
 }
 
-func (f flags) profile() error {
-   home, err := os.UserHomeDir()
-   if err != nil {
-      return err
-   }
-   login, err := cbc.New_Token(f.email, f.password)
-   if err != nil {
-      return err
-   }
-   profile, err := login.Profile()
-   if err != nil {
-      return err
-   }
-   return profile.Write_File(home + "/mech/cbc.json")
-}
-
 func (f flags) download() error {
    master, err := f.master()
    if err != nil {
@@ -64,4 +48,20 @@ func (f flags) download() error {
       return b.Name == f.name
    })
    return f.HLS_Media(media, index)
+}
+
+func (f flags) profile() error {
+   home, err := os.UserHomeDir()
+   if err != nil {
+      return err
+   }
+   login, err := cbc.New_Token(f.email, f.password)
+   if err != nil {
+      return err
+   }
+   profile, err := login.Profile()
+   if err != nil {
+      return err
+   }
+   return profile.Write_File(home + "/mech/cbc.json")
 }

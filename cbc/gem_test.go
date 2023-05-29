@@ -9,12 +9,9 @@ import (
 )
 
 var links = []string{
-   // gem.cbc.ca/media/downton-abbey/s01e05
-   "downton-abbey/s01e05",
-   // gem.cbc.ca/the-fall/s02e03
-   "the-fall/s02e03",
-   // gem.cbc.ca/the-witch
-   "the-witch",
+   "https://gem.cbc.ca/downton-abbey/s01e05",
+   "https://gem.cbc.ca/the-fall/s02e03",
+   "https://gem.cbc.ca/the-witch",
 }
 
 func Test_Gem(t *testing.T) {
