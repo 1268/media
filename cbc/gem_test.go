@@ -2,6 +2,7 @@ package cbc
 
 import (
    "2a.pages.dev/mech"
+   "encoding/json"
    "fmt"
    "os"
    "testing"
@@ -15,22 +16,6 @@ var links = []string{
 }
 
 func Test_Gem(t *testing.T) {
-   for _, link := range links {
-      gem, err := New_Catalog_Gem(link)
-      if err != nil {
-         t.Fatal(err)
-      }
-      fmt.Printf("%+v\n", gem.Item())
-      name, err := mech.Name(gem.Structured_Metadata)
-      if err != nil {
-         t.Fatal(err)
-      }
-      fmt.Println(name)
-      time.Sleep(time.Second)
-   }
-}
-
-func Test_Media(t *testing.T) {
    home, err := os.UserHomeDir()
    if err != nil {
       t.Fatal(err)
@@ -39,13 +24,24 @@ func Test_Media(t *testing.T) {
    if err != nil {
       t.Fatal(err)
    }
-   gem, err := New_Catalog_Gem(links[0])
-   if err != nil {
-      t.Fatal(err)
+   enc := json.NewEncoder(os.Stdout)
+   enc.SetIndent("", " ")
+   for _, link := range links {
+      gem, err := New_Catalog_Gem(link)
+      if err != nil {
+         t.Fatal(err)
+      }
+      enc.Encode(gem.Item())
+      name, err := mech.Name(gem.Structured_Metadata)
+      if err != nil {
+         t.Fatal(err)
+      }
+      fmt.Println(name)
+      media, err := pro.Media(gem.Item())
+      if err != nil {
+         t.Fatal(err)
+      }
+      enc.Encode(media)
+      time.Sleep(time.Second)
    }
-   media, err := pro.Media(gem.Item())
-   if err != nil {
-      t.Fatal(err)
-   }
-   fmt.Printf("%+v\n", media)
 }

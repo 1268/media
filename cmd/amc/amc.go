@@ -41,8 +41,8 @@ func (f flags) download() error {
       return err
    }
    {
-      reps := dash.Filter(reps, dash.Video)
-      index := dash.Index_Func(reps, func(r dash.Representation) bool {
+      reps := reps.Filter(dash.Video)
+      index := reps.Index(func(r dash.Represent) bool {
          return r.Height >= f.height
       })
       err := f.DASH_Get(reps, index)
@@ -50,7 +50,7 @@ func (f flags) download() error {
          return err
       }
    }
-   return f.DASH_Get(dash.Filter(reps, dash.Audio), 0)
+   return f.DASH_Get(reps.Filter(dash.Audio), 0)
 }
 
 func (f flags) login() error {

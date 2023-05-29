@@ -9,6 +9,8 @@ import (
    "strings"
 )
 
+const manifest_type = "desktop"
+
 func (p Profile) Media(item *Lineup_Item) (*Media, error) {
    req := http.Get(&url.URL{
       Scheme: "https",
@@ -17,8 +19,11 @@ func (p Profile) Media(item *Lineup_Item) (*Media, error) {
       RawQuery: url.Values{
          "appCode": {"gem"},
          "idMedia": {item.Formatted_ID_Media},
-         "manifestType": {"desktop"},
+         "manifestType": {manifest_type},
          "output": {"json"},
+         // you need this one the first request for a video, but can omit after
+         // that. we will just send it every time.
+         "tech": {"hls"},
       }.Encode(),
    })
    req.Header = http.Header{
@@ -30,14 +35,20 @@ func (p Profile) Media(item *Lineup_Item) (*Media, error) {
       return nil, err
    }
    defer res.Body.Close()
-   med := new(Media)
-   if err := json.NewDecoder(res.Body).Decode(med); err != nil {
+   m := new(Media)
+   if err := json.NewDecoder(res.Body).Decode(m); err != nil {
       return nil, err
    }
-   if med.Message != nil {
-      return nil, errors.New(*med.Message)
+   if m.Message != "" {
+      return nil, errors.New(m.Message)
    }
-   return med, nil
+   m.URL = strings.Replace(m.URL, "[manifestType]", manifest_type, 1)
+   return m, nil
+}
+
+type Media struct {
+   Message string
+   URL string
 }
 
 var scope = []string{
@@ -74,20 +85,6 @@ func New_Token(username, password string) (*Token, error) {
 }
 
 const forwarded_for = "99.224.0.0"
-
-// gem.cbc.ca/media/downton-abbey/s01e05
-func Get_ID(input string) string {
-   _, after, found := strings.Cut(input, "/media/")
-   if found {
-      return after
-   }
-   return input
-}
-
-type Media struct {
-   Message *string
-   URL *string
-}
 
 func (p Profile) Write_File(name string) error {
    data, err := json.MarshalIndent(p, "", " ")
@@ -136,4 +133,3 @@ func (t Token) Profile() (*Profile, error) {
 type Token struct {
    Access_Token string
 }
-

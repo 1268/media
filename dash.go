@@ -22,7 +22,7 @@ type Stream struct {
    base *url.URL
 }
 
-func (s *Stream) DASH(ref string) ([]dash.Representation, error) {
+func (s *Stream) DASH(ref string) (dash.Represents, error) {
    client := http.Default_Client
    client.CheckRedirect = nil
    res, err := client.Get(ref)
@@ -30,15 +30,15 @@ func (s *Stream) DASH(ref string) ([]dash.Representation, error) {
       return nil, err
    }
    defer res.Body.Close()
-   var pres dash.Presentation
-   if err := xml.NewDecoder(res.Body).Decode(&pres); err != nil {
+   var pre dash.Presentation
+   if err := xml.NewDecoder(res.Body).Decode(&pre); err != nil {
       return nil, err
    }
    s.base = res.Request.URL
-   return pres.Representation(), nil
+   return pre.Represents(), nil
 }
 
-func (s Stream) DASH_Get(items []dash.Representation, index int) error {
+func (s Stream) DASH_Get(items dash.Represents, index int) error {
    if s.Info {
       for i, item := range items {
          if i == index {

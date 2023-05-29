@@ -32,8 +32,8 @@ func (f flags) dash(token *paramount.App_Token) error {
       return err
    }
    {
-      reps := dash.Filter(reps, dash.Video)
-      index := dash.Index_Func(reps, func(r dash.Representation) bool {
+      reps := reps.Filter(dash.Video)
+      index := reps.Index(func(r dash.Represent) bool {
          return r.Height == f.height
       })
       err := f.DASH_Get(reps, index)
@@ -41,7 +41,7 @@ func (f flags) dash(token *paramount.App_Token) error {
          return err
       }
    }
-   reps = dash.Filter(reps, func(r dash.Representation) bool {
+   reps = reps.Filter(func(r dash.Represent) bool {
       if !dash.Audio(r) {
          return false
       }
@@ -50,7 +50,7 @@ func (f flags) dash(token *paramount.App_Token) error {
       }
       return true
    })
-   index := dash.Index_Func(reps, func(r dash.Representation) bool {
+   index := reps.Index(func(r dash.Represent) bool {
       if !strings.HasPrefix(r.Adaptation.Lang, f.lang) {
          return false
       }

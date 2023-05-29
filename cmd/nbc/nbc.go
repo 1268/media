@@ -3,6 +3,7 @@ package main
 import (
    "2a.pages.dev/mech"
    "2a.pages.dev/mech/nbc"
+   "2a.pages.dev/rosso/hls"
 )
 
 type flags struct {
@@ -25,6 +26,8 @@ func (f flags) download() error {
    if err != nil {
       return err
    }
-   streams := master.Streams
-   return f.HLS_Streams(streams, streams.Bandwidth(f.bandwidth))
+   index := master.Streams.Index(func(s hls.Stream) bool{
+      return s.Bandwidth >= f.bandwidth
+   })
+   return f.HLS_Streams(master.Streams, index)
 }
