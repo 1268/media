@@ -16,13 +16,13 @@ type flags struct {
 func main() {
    var f flags
    flag.Int64Var(&f.guid, "b", 0, "GUID")
-   flag.StringVar(&f.resolution, "f", "720", "resolution")
-   flag.Int64Var(&f.bandwidth, "g", 9, "minimum bandwidth")
+   flag.Int64Var(&f.bandwidth, "bandwidth", 8_000_000, "maximum bandwidth")
    flag.BoolVar(&f.Info, "i", false, "information")
    flag.IntVar(
       &http.Default_Client.Log_Level, "log",
       http.Default_Client.Log_Level, "log level",
    )
+   flag.StringVar(&f.resolution, "r", "720", "resolution")
    flag.Parse()
    if f.guid >= 1 {
       err := f.download()

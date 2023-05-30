@@ -35,10 +35,10 @@ func (f flags) dash(token *paramount.App_Token) error {
    {
       reps := reps.Filter(dash.Video)
       reps.Sort(func(a, b dash.Represent) bool {
-         return a.Bandwidth < b.Bandwidth
+         return b.Bandwidth < a.Bandwidth
       })
       index := reps.Index(func(a dash.Represent) bool {
-         return a.Height == f.height
+         return a.Height <= f.height
       })
       err := f.DASH_Get(reps, index)
       if err != nil {
@@ -46,15 +46,10 @@ func (f flags) dash(token *paramount.App_Token) error {
       }
    }
    // audio
-   reps = reps.Filter(func(a dash.Represent) bool {
-      if dash.Audio(a) {
-         return a.Role() != "description"
-      }
-      return false
-   })
+   reps = reps.Filter(dash.Audio)
    index := reps.Index(func(a dash.Represent) bool {
-      if strings.HasPrefix(a.Codecs, f.codecs) {
-         return strings.HasPrefix(a.Adaptation.Lang, f.lang)
+      if strings.HasPrefix(a.Adaptation.Lang, f.lang) {
+         return strings.HasPrefix(a.Codecs, f.codecs)
       }
       return false
    })

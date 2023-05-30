@@ -22,12 +22,12 @@ func main() {
    flag.Func("a", "address", func(s string) error {
       return youtube.Video_ID(s, &f.video_ID)
    })
+   // audio
+   flag.StringVar(&f.audio, "audio", "AUDIO_QUALITY_MEDIUM", "audio quality")
    // b
    flag.StringVar(&f.video_ID, "b", "", "video ID")
-   // f
-   flag.IntVar(&f.height, "f", 1080, "target video height")
-   // g
-   flag.StringVar(&f.audio, "g", "AUDIO_QUALITY_MEDIUM", "target audio")
+   // h
+   flag.IntVar(&f.height, "h", 1080, "maximum height")
    // i
    flag.BoolVar(&f.info, "i", false, "information")
    // log
@@ -35,8 +35,6 @@ func main() {
       &http.Default_Client.Log_Level, "log",
       http.Default_Client.Log_Level, "log level",
    )
-   // refresh
-   flag.BoolVar(&f.refresh, "refresh", false, "create OAuth refresh token")
    // r
    {
       var b strings.Builder
@@ -45,6 +43,8 @@ func main() {
       b.WriteString("2: Android check")
       flag.IntVar(&f.request, "r", 0, b.String())
    }
+   // refresh
+   flag.BoolVar(&f.refresh, "refresh", false, "create OAuth refresh token")
    flag.Parse()
    if f.refresh {
       err := f.do_refresh()

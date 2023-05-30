@@ -43,8 +43,11 @@ func (f flags) download() error {
    // video
    {
       reps := reps.Filter(dash.Video)
-      index := reps.Index(func(r dash.Represent) bool {
-         return r.Height >= f.height
+      reps.Sort(func(a, b dash.Represent) bool {
+         return b.Height < a.Height
+      })
+      index := reps.Index(func(a dash.Represent) bool {
+         return a.Height <= f.height
       })
       err := f.DASH_Get(reps, index)
       if err != nil {

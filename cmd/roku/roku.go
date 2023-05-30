@@ -22,22 +22,22 @@ func (f flags) DASH(content *roku.Content) error {
    if err != nil {
       return err
    }
+   // video
    {
       reps := reps.Filter(dash.Video)
       index := reps.Index(func(r dash.Represent) bool {
-         return r.Height >= f.height
+         if r.Bandwidth <= f.bandwidth {
+            return r.Height <= f.height
+         }
+         return false
       })
       err := f.DASH_Get(reps, index)
       if err != nil {
          return err
       }
    }
-   reps = reps.Filter(func(r dash.Represent) bool {
-      if strings.HasPrefix(r.Adaptation.Lang, f.lang) {
-         return dash.Audio(r)
-      }
-      return false
-   })
+   // audio
+   reps = reps.Filter(dash.Audio)
    index := reps.Index(func(r dash.Represent) bool {
       return strings.Contains(r.Codecs, f.codec)
    })

@@ -75,39 +75,6 @@ func (f Format) Ext() (string, error) {
    return "", errors.New(f.MIME_Type)
 }
 
-type Formats []Format
-
-func (f Formats) Audio(quality string) (*Format, bool) {
-   for _, form := range f {
-      if form.Audio_Quality == quality {
-         return &form, true
-      }
-   }
-   return nil, false
-}
-
-func (f Formats) Video(height int) (*Format, bool) {
-   distance := func(f *Format) int {
-      if f.Height > height {
-         return f.Height - height
-      }
-      return height - f.Height
-   }
-   var (
-      ok bool
-      output *Format
-   )
-   for i, input := range f {
-      // since codecs are in this order avc1,vp9,av01,
-      // do "<=" so we can get last one
-      if output == nil || distance(&input) <= distance(output) {
-         output = &f[i]
-         ok = true
-      }
-   }
-   return output, ok
-}
-
 func (f Format) String() string {
    var b []byte
    b = append(b, "quality: "...)

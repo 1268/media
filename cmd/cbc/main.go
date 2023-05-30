@@ -19,16 +19,16 @@ type flags struct {
 func main() {
    var f flags
    flag.StringVar(&f.address, "a", "", "address")
+   flag.Int64Var(&f.bandwidth, "b", 3_000_000, "maximum bandwidth")
    flag.StringVar(&f.email, "e", "", "email")
-   flag.StringVar(&f.resolution, "f", "720", "resolution")
-   flag.Int64Var(&f.bandwidth, "g", 9, "minimum bandwidth")
-   flag.StringVar(&f.name, "h", "English", "audio name")
    flag.BoolVar(&f.Info, "i", false, "information")
    flag.IntVar(
       &http.Default_Client.Log_Level, "log",
       http.Default_Client.Log_Level, "log level",
    )
+   flag.StringVar(&f.name, "n", "English", "audio name")
    flag.StringVar(&f.password, "p", "", "password")
+   flag.StringVar(&f.resolution, "r", "720", "resolution")
    flag.Parse()
    if f.email != "" {
       err := f.profile()

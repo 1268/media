@@ -12,15 +12,16 @@ func (f flags) download() error {
    if err != nil {
       return err
    }
+   // video
    master.Streams = master.Streams.Filter(func(a hls.Stream) bool {
       return a.Resolution != ""
    })
    master.Streams.Sort(func(a, b hls.Stream) bool {
-      return a.Bandwidth < b.Bandwidth
+      return b.Bandwidth < a.Bandwidth
    })
    index := master.Streams.Index(func(a hls.Stream) bool {
       if strings.HasSuffix(a.Resolution, f.resolution) {
-         return a.Bandwidth >= f.bandwidth
+         return a.Bandwidth <= f.bandwidth
       }
       return false
    })

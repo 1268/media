@@ -24,18 +24,18 @@ func main() {
    var f flags
    // a
    flag.StringVar(&f.address, "a", "", "address")
-   // c
+   // client
    f.Client_ID = filepath.Join(home, "mech/client_id.bin")
-   flag.StringVar(&f.Client_ID, "c", f.Client_ID, "client ID")
+   flag.StringVar(&f.Client_ID, "client", f.Client_ID, "client ID")
    // e
    flag.StringVar(&f.email, "e", "", "email")
-   // f
-   flag.Int64Var(&f.height, "f", 720, "minimum height")
+   // h
+   flag.Int64Var(&f.height, "h", 1080, "maximum height")
    // i
    flag.BoolVar(&f.Info, "i", false, "information")
-   // k
+   // key
    f.Private_Key = filepath.Join(home, "mech/private_key.pem")
-   flag.StringVar(&f.Private_Key, "k", f.Private_Key, "private key")
+   flag.StringVar(&f.Private_Key, "key", f.Private_Key, "private key")
    // log
    flag.IntVar(
       &http.Default_Client.Log_Level, "log",

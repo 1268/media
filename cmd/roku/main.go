@@ -10,11 +10,12 @@ import (
 )
 
 type flags struct {
+   bandwidth int64
    codec string
-   id string
-   mech.Stream
-   lang string
    height int64
+   id string
+   lang string
+   mech.Stream
 }
 
 func main() {
@@ -25,20 +26,22 @@ func main() {
    var f flags
    // b
    flag.StringVar(&f.id, "b", "", "ID")
+   // bandwidth
+   flag.Int64Var(&f.bandwidth, "bandwidth", 4_000_000, "maximum bandwidth")
    // c
+   flag.StringVar(&f.codec, "c", "mp4a", "audio codec")
+   // client
    f.Client_ID = filepath.Join(home, "mech/client_id.bin")
-   flag.StringVar(&f.Client_ID, "c", f.Client_ID, "client ID")
-   // f
-   flag.Int64Var(&f.height, "f", 1080, "video height")
-   // g
-   flag.StringVar(&f.codec, "g", "mp4a", "audio codec")
+   flag.StringVar(&f.Client_ID, "client", f.Client_ID, "client ID")
    // h
-   flag.StringVar(&f.lang, "h", "en", "audio lang")
+   flag.Int64Var(&f.height, "h", 1080, "maximum height")
    // i
    flag.BoolVar(&f.Info, "i", false, "information")
-   // k
+   // key
    f.Private_Key = filepath.Join(home, "mech/private_key.pem")
-   flag.StringVar(&f.Private_Key, "k", f.Private_Key, "private key")
+   flag.StringVar(&f.Private_Key, "key", f.Private_Key, "private key")
+   // language
+   flag.StringVar(&f.lang, "language", "en", "audio language")
    // log
    flag.IntVar(
       &http.Default_Client.Log_Level, "log",

@@ -27,21 +27,21 @@ func main() {
    // b
    flag.StringVar(&f.content_ID, "b", "", "content ID")
    // c
+   flag.StringVar(&f.codecs, "c", "mp4a", "audio codec")
+   // client
    f.Client_ID = filepath.Join(home, "mech/client_id.bin")
-   flag.StringVar(&f.Client_ID, "c", f.Client_ID, "client ID")
+   flag.StringVar(&f.Client_ID, "client", f.Client_ID, "client ID")
    // d
    flag.BoolVar(&f.dash_cenc, "d", false, "DASH_CENC")
-   // f
-   flag.Int64Var(&f.height, "f", 720, "video height")
-   // g
-   flag.StringVar(&f.codecs, "g", "mp4a", "audio codec")
    // h
-   flag.StringVar(&f.lang, "h", "en", "audio lang")
+   flag.Int64Var(&f.height, "h", 720, "maximum height")
    // i
    flag.BoolVar(&f.Info, "i", false, "information")
-   // k
+   // key
    f.Private_Key = filepath.Join(home, "mech/private_key.pem")
-   flag.StringVar(&f.Private_Key, "k", f.Private_Key, "private key")
+   flag.StringVar(&f.Private_Key, "key", f.Private_Key, "private key")
+   // language
+   flag.StringVar(&f.lang, "language", "en", "audio language")
    // log
    flag.IntVar(
       &http.Default_Client.Log_Level, "log",
