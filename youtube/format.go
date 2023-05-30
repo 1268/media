@@ -8,6 +8,34 @@ import (
    "strconv"
 )
 
+type Format struct {
+   Quality_Label string `json:"qualityLabel"`
+   Audio_Quality string `json:"audioQuality"`
+   Bitrate int64
+   Content_Length int64 `json:"contentLength,string"`
+   MIME_Type string `json:"mimeType"`
+   URL string
+}
+
+func (f Format) String() string {
+   var b []byte
+   b = append(b, "quality: "...)
+   if f.Quality_Label != "" {
+      b = append(b, f.Quality_Label...)
+   } else {
+      b = append(b, f.Audio_Quality...)
+   }
+   b = append(b, "\nbitrate: "...)
+   b = strconv.AppendInt(b, f.Bitrate, 10)
+   if f.Content_Length >= 1 { // Tq92D6wQ1mg
+      b = append(b, "\nsize: "...)
+      b = strconv.AppendInt(b, f.Content_Length, 10)
+   }
+   b = append(b, "\ntype: "...)
+   b = append(b, f.MIME_Type...)
+   return string(b)
+}
+
 func (f Format) Encode(w io.Writer) error {
    req, err := http.Get_Parse(f.URL)
    if err != nil {
@@ -44,17 +72,6 @@ func (f Format) Encode(w io.Writer) error {
    return nil
 }
 
-type Format struct {
-   Audio_Quality string `json:"audioQuality"`
-   Bitrate int64
-   Content_Length int64 `json:"contentLength,string"`
-   Height int
-   MIME_Type string `json:"mimeType"`
-   Quality_Label string `json:"qualityLabel"`
-   URL string
-   Width int
-}
-
 const chunk = 10_000_000
 
 func (f Format) Ext() (string, error) {
@@ -73,23 +90,4 @@ func (f Format) Ext() (string, error) {
       return ".webm", nil
    }
    return "", errors.New(f.MIME_Type)
-}
-
-func (f Format) String() string {
-   var b []byte
-   b = append(b, "quality: "...)
-   if f.Quality_Label != "" {
-      b = append(b, f.Quality_Label...)
-   } else {
-      b = append(b, f.Audio_Quality...)
-   }
-   b = append(b, "\n\tbitrate: "...)
-   b = strconv.AppendInt(b, f.Bitrate, 10)
-   if f.Content_Length >= 1 { // Tq92D6wQ1mg
-      b = append(b, "\n\tContent-Length: "...)
-      b = strconv.AppendInt(b, f.Content_Length, 10)
-   }
-   b = append(b, "\n\tMIME type: "...)
-   b = append(b, f.MIME_Type...)
-   return string(b)
 }

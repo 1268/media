@@ -3,7 +3,7 @@ module 2a.pages.dev/mech
 go 1.20
 
 require (
-	2a.pages.dev/rosso v1.6.0
+	2a.pages.dev/rosso v1.6.1
 	github.com/chmike/cmac-go v1.1.0
 )
 

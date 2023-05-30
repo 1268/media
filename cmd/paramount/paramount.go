@@ -5,6 +5,7 @@ import (
    "2a.pages.dev/mech/paramount"
    "2a.pages.dev/rosso/dash"
    "2a.pages.dev/rosso/http"
+   "2a.pages.dev/rosso/slices"
    "fmt"
    "io"
    "os"
@@ -33,11 +34,11 @@ func (f flags) dash(token *paramount.App_Token) error {
    }
    // video
    {
-      reps := reps.Filter(dash.Video)
-      reps.Sort(func(a, b dash.Represent) bool {
+      reps := slices.Filter(reps, dash.Video)
+      slices.Sort(reps, func(a, b dash.Represent) bool {
          return b.Bandwidth < a.Bandwidth
       })
-      index := reps.Index(func(a dash.Represent) bool {
+      index := slices.Index(reps, func(a dash.Represent) bool {
          return a.Height <= f.height
       })
       err := f.DASH_Get(reps, index)
@@ -46,8 +47,8 @@ func (f flags) dash(token *paramount.App_Token) error {
       }
    }
    // audio
-   reps = reps.Filter(dash.Audio)
-   index := reps.Index(func(a dash.Represent) bool {
+   reps = slices.Filter(reps, dash.Audio)
+   index := slices.Index(reps, func(a dash.Represent) bool {
       if strings.HasPrefix(a.Adaptation.Lang, f.lang) {
          return strings.HasPrefix(a.Codecs, f.codecs)
       }

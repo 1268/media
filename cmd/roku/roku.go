@@ -3,6 +3,7 @@ package main
 import (
    "2a.pages.dev/mech/roku"
    "2a.pages.dev/rosso/dash"
+   "2a.pages.dev/rosso/slices"
    "strings"
 )
 
@@ -24,8 +25,8 @@ func (f flags) DASH(content *roku.Content) error {
    }
    // video
    {
-      reps := reps.Filter(dash.Video)
-      index := reps.Index(func(r dash.Represent) bool {
+      reps := slices.Filter(reps, dash.Video)
+      index := slices.Index(reps, func(r dash.Represent) bool {
          if r.Bandwidth <= f.bandwidth {
             return r.Height <= f.height
          }
@@ -37,8 +38,8 @@ func (f flags) DASH(content *roku.Content) error {
       }
    }
    // audio
-   reps = reps.Filter(dash.Audio)
-   index := reps.Index(func(r dash.Represent) bool {
+   reps = slices.Filter(reps, dash.Audio)
+   index := slices.Index(reps, func(r dash.Represent) bool {
       return strings.Contains(r.Codecs, f.codec)
    })
    return f.DASH_Get(reps, index)

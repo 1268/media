@@ -3,6 +3,7 @@ package main
 import (
    "2a.pages.dev/mech/nbc"
    "2a.pages.dev/rosso/hls"
+   "2a.pages.dev/rosso/slices"
    "strings"
 )
 
@@ -21,14 +22,14 @@ func (f flags) download() error {
       return err
    }
    // video and audio
-   master.Streams.Sort(func(a, b hls.Stream) bool {
+   slices.Sort(master.Stream, func(a, b hls.Stream) bool {
       return b.Bandwidth < a.Bandwidth
    })
-   index := master.Streams.Index(func(s hls.Stream) bool{
-      if strings.HasSuffix(s.Resolution, f.resolution) {
-         return s.Bandwidth <= f.bandwidth
+   index := slices.Index(master.Stream, func(a hls.Stream) bool {
+      if strings.HasSuffix(a.Resolution, f.resolution) {
+         return a.Bandwidth <= f.bandwidth
       }
       return false
    })
-   return f.HLS_Streams(master.Streams, index)
+   return f.HLS_Streams(master.Stream, index)
 }

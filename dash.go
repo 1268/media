@@ -13,7 +13,7 @@ import (
    "os"
 )
 
-func (s Stream) DASH_Get(items dash.Represents, index int) error {
+func (s Stream) DASH_Get(items []dash.Represent, index int) error {
    if s.Info {
       for i, item := range items {
          fmt.Println()
@@ -115,7 +115,7 @@ type Stream struct {
    base *url.URL
 }
 
-func (s *Stream) DASH(ref string) (dash.Represents, error) {
+func (s *Stream) DASH(ref string) ([]dash.Represent, error) {
    client := http.Default_Client
    client.CheckRedirect = nil
    res, err := client.Get(ref)

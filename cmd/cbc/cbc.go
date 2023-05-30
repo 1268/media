@@ -3,6 +3,7 @@ package main
 import (
    "2a.pages.dev/mech/cbc"
    "2a.pages.dev/rosso/hls"
+   "2a.pages.dev/rosso/slices"
    "os"
    "strings"
 )
@@ -13,26 +14,26 @@ func (f flags) download() error {
       return err
    }
    // video
-   master.Streams = master.Streams.Filter(func(a hls.Stream) bool {
+   master.Stream = slices.Filter(master.Stream, func(a hls.Stream) bool {
       return a.Resolution != ""
    })
-   master.Streams.Sort(func(a, b hls.Stream) bool {
+   slices.Sort(master.Stream, func(a, b hls.Stream) bool {
       return b.Bandwidth < a.Bandwidth
    })
-   index := master.Streams.Index(func(a hls.Stream) bool {
+   index := slices.Index(master.Stream, func(a hls.Stream) bool {
       if strings.HasSuffix(a.Resolution, f.resolution) {
          return a.Bandwidth <= f.bandwidth
       }
       return false
    })
-   if err := f.HLS_Streams(master.Streams, index); err != nil {
+   if err := f.HLS_Streams(master.Stream, index); err != nil {
       return err
    }
    // audio
-   master.Media = master.Media.Filter(func(m hls.Medium) bool {
+   master.Media = slices.Filter(master.Media, func(m hls.Media) bool {
       return m.Type == "AUDIO"
    })
-   index = master.Media.Index(func(m hls.Medium) bool {
+   index = slices.Index(master.Media, func(m hls.Media) bool {
       return m.Name == f.name
    })
    return f.HLS_Media(master.Media, index)

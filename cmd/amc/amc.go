@@ -3,6 +3,7 @@ package main
 import (
    "2a.pages.dev/mech/amc"
    "2a.pages.dev/rosso/dash"
+   "2a.pages.dev/rosso/slices"
    "os"
 )
 
@@ -42,11 +43,11 @@ func (f flags) download() error {
    }
    // video
    {
-      reps := reps.Filter(dash.Video)
-      reps.Sort(func(a, b dash.Represent) bool {
+      reps := slices.Filter(reps, dash.Video)
+      slices.Sort(reps, func(a, b dash.Represent) bool {
          return b.Height < a.Height
       })
-      index := reps.Index(func(a dash.Represent) bool {
+      index := slices.Index(reps, func(a dash.Represent) bool {
          return a.Height <= f.height
       })
       err := f.DASH_Get(reps, index)
@@ -55,7 +56,7 @@ func (f flags) download() error {
       }
    }
    // audio
-   return f.DASH_Get(reps.Filter(dash.Audio), 0)
+   return f.DASH_Get(slices.Filter(reps, dash.Audio), 0)
 }
 
 func (f flags) login() error {

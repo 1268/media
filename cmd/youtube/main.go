@@ -8,12 +8,14 @@ import (
 )
 
 type flags struct {
-   audio string
-   height int
+   audio_q string
+   audio_t string
    info bool
    refresh bool
    request int
    video_ID string
+   video_q string
+   video_t string
 }
 
 func main() {
@@ -22,12 +24,12 @@ func main() {
    flag.Func("a", "address", func(s string) error {
       return youtube.Video_ID(s, &f.video_ID)
    })
-   // audio
-   flag.StringVar(&f.audio, "audio", "AUDIO_QUALITY_MEDIUM", "audio quality")
+   // aq
+   flag.StringVar(&f.audio_q, "aq", "AUDIO_QUALITY_MEDIUM", "audio quality")
+   // at
+   flag.StringVar(&f.audio_t, "at", "opus", "audio type")
    // b
    flag.StringVar(&f.video_ID, "b", "", "video ID")
-   // h
-   flag.IntVar(&f.height, "h", 1080, "maximum height")
    // i
    flag.BoolVar(&f.info, "i", false, "information")
    // log
@@ -45,6 +47,10 @@ func main() {
    }
    // refresh
    flag.BoolVar(&f.refresh, "refresh", false, "create OAuth refresh token")
+   // vq
+   flag.StringVar(&f.video_q, "vq", "1080p", "video quality")
+   // vt
+   flag.StringVar(&f.video_t, "vt", "vp9", "video type")
    flag.Parse()
    if f.refresh {
       err := f.do_refresh()
