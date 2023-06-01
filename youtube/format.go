@@ -2,11 +2,20 @@ package youtube
 
 import (
    "2a.pages.dev/rosso/http"
+   "2a.pages.dev/rosso/strconv"
    "errors"
    "io"
    "mime"
-   "strconv"
 )
+
+type Format struct {
+   Quality_Label string `json:"qualityLabel"`
+   Audio_Quality string `json:"audioQuality"`
+   Bitrate strconv.Rate
+   Content_Length int64 `json:"contentLength,string"`
+   MIME_Type string `json:"mimeType"`
+   URL string
+}
 
 func (f Format) String() string {
    var b []byte
@@ -17,19 +26,10 @@ func (f Format) String() string {
       b = append(b, f.Audio_Quality...)
    }
    b = append(b, "\nbitrate: "...)
-   b = strconv.AppendInt(b, f.Bitrate, 10)
+   b = append(b, f.Bitrate.String()...)
    b = append(b, "\ntype: "...)
    b = append(b, f.MIME_Type...)
    return string(b)
-}
-
-type Format struct {
-   Quality_Label string `json:"qualityLabel"`
-   Audio_Quality string `json:"audioQuality"`
-   Bitrate int64
-   Content_Length int64 `json:"contentLength,string"`
-   MIME_Type string `json:"mimeType"`
-   URL string
 }
 
 func (f Format) Encode(w io.Writer) error {
