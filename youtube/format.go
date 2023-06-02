@@ -3,7 +3,7 @@ package youtube
 import (
    "2a.pages.dev/rosso/http"
    "2a.pages.dev/rosso/strconv"
-   "errors"
+   "fmt"
    "io"
    "mime"
 )
@@ -26,46 +26,10 @@ func (f Format) String() string {
       b = append(b, f.Audio_Quality...)
    }
    b = append(b, "\nbitrate: "...)
-   b = append(b, f.Bitrate.String()...)
+   b = fmt.Append(b, f.Bitrate)
    b = append(b, "\ntype: "...)
    b = append(b, f.MIME_Type...)
    return string(b)
-}
-
-func (f Format) Encode(w io.Writer) error {
-   req, err := http.Get_Parse(f.URL)
-   if err != nil {
-      return err
-   }
-   val := req.URL.Query()
-   if err != nil {
-      return err
-   }
-   pro := http.Progress_Bytes(w, f.Content_Length)
-   client := http.Default_Client
-   client.CheckRedirect = nil
-   client.Log_Level = 0
-   var pos int64
-   for pos < f.Content_Length {
-      var b []byte
-      b = strconv.AppendInt(b, pos, 10)
-      b = append(b, '-')
-      b = strconv.AppendInt(b, pos+chunk-1, 10)
-      val.Set("range", string(b))
-      req.URL.RawQuery = val.Encode()
-      res, err := client.Do(req)
-      if err != nil {
-         return err
-      }
-      if _, err := io.Copy(pro, res.Body); err != nil {
-         return err
-      }
-      if err := res.Body.Close(); err != nil {
-         return err
-      }
-      pos += chunk
-   }
-   return nil
 }
 
 const chunk = 10_000_000
@@ -85,5 +49,37 @@ func (f Format) Ext() (string, error) {
    case "video/webm":
       return ".webm", nil
    }
-   return "", errors.New(f.MIME_Type)
+   return "", fmt.Errorf(f.MIME_Type)
+}
+
+func (f Format) Encode(w io.Writer) error {
+   req, err := http.Get_Parse(f.URL)
+   if err != nil {
+      return err
+   }
+   val := req.URL.Query()
+   if err != nil {
+      return err
+   }
+   pro := http.Progress_Bytes(w, f.Content_Length)
+   client := http.Default_Client
+   client.CheckRedirect = nil
+   client.Log_Level = 0
+   var pos int64
+   for pos < f.Content_Length {
+      val.Set("range", fmt.Sprint(pos, "-", pos+chunk-1))
+      req.URL.RawQuery = val.Encode()
+      res, err := client.Do(req)
+      if err != nil {
+         return err
+      }
+      if _, err := io.Copy(pro, res.Body); err != nil {
+         return err
+      }
+      if err := res.Body.Close(); err != nil {
+         return err
+      }
+      pos += chunk
+   }
+   return nil
 }
