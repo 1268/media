@@ -28,7 +28,8 @@ func (f flags) download() error {
       fmt.Printf("%+v\n", play.Playability_Status)
       // video
       index := slices.Index(forms, func(a youtube.Format) bool {
-         if a.Quality_Label == f.video_q {
+         // 1080p60
+         if strings.HasPrefix(a.Quality_Label, f.video_q) {
             return strings.Contains(a.MIME_Type, f.video_t)
          }
          return false
