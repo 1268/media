@@ -6,7 +6,6 @@ import (
    "2a.pages.dev/rosso/http"
    "2a.pages.dev/rosso/mp4"
    "encoding/base64"
-   "encoding/xml"
    "fmt"
    "io"
    "net/url"
@@ -106,6 +105,7 @@ func (s Stream) DASH_Get(items []dash.Represent, index int) error {
    }
    return nil
 }
+
 type Stream struct {
    Client_ID string
    Info bool
@@ -123,10 +123,10 @@ func (s *Stream) DASH(ref string) ([]dash.Represent, error) {
       return nil, err
    }
    defer res.Body.Close()
-   var pre dash.Presentation
-   if err := xml.NewDecoder(res.Body).Decode(&pre); err != nil {
+   s.base = res.Request.URL
+   pre, err := dash.New_Presentation(res.Body)
+   if err != nil {
       return nil, err
    }
-   s.base = res.Request.URL
    return pre.Represents(), nil
 }
