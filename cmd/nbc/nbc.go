@@ -22,8 +22,8 @@ func (f flags) download() error {
       return err
    }
    // video and audio
-   slices.Sort(master.Stream, func(a, b hls.Stream) bool {
-      return b.Bandwidth < a.Bandwidth
+   slices.Sort(master.Stream, func(a, b hls.Stream) int {
+      return int(b.Bandwidth - a.Bandwidth)
    })
    index := slices.Index(master.Stream, func(a hls.Stream) bool {
       if strings.HasSuffix(a.Resolution, f.resolution) {

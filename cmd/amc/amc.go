@@ -43,9 +43,9 @@ func (f flags) download() error {
    }
    // video
    {
-      reps := slices.Filter(reps, dash.Video)
-      slices.Sort(reps, func(a, b dash.Represent) bool {
-         return b.Height < a.Height
+      reps := slices.Delete(slices.Clone(reps), dash.Audio)
+      slices.Sort(reps, func(a, b dash.Represent) int {
+         return int(b.Height - a.Height)
       })
       index := slices.Index(reps, func(a dash.Represent) bool {
          return a.Height <= f.height
@@ -56,7 +56,7 @@ func (f flags) download() error {
       }
    }
    // audio
-   return f.DASH_Get(slices.Filter(reps, dash.Audio), 0)
+   return f.DASH_Get(slices.Delete(reps, dash.Video), 0)
 }
 
 func (f flags) login() error {

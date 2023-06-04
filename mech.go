@@ -1,7 +1,7 @@
 package mech
 
 import (
-   "strconv"
+   "fmt"
    "strings"
    "time"
 )
@@ -15,33 +15,29 @@ type Namer interface {
 }
 
 func Name(n Namer) (string, error) {
-   var b []byte
-   if series := n.Series(); series != "" {
-      b = append(b, series...)
-      b = append(b, " - S"...)
-      season, err := n.Season()
-      if err != nil {
-         return "", err
-      }
-      b = strconv.AppendInt(b, season, 10)
-      b = append(b, " E"...)
-      episode, err := n.Episode()
-      if err != nil {
-         return "", err
-      }
-      b = strconv.AppendInt(b, episode, 10)
-      b = append(b, " - "...)
-      b = append(b, n.Title()...)
-   } else {
+   b := new(strings.Builder)
+   if season, err := n.Season(); err != nil {
       date, err := n.Date()
       if err != nil {
          return "", err
       }
-      b = append(b, n.Title()...)
-      b = append(b, " - "...)
-      b = append(b, strconv.Itoa(date.Year())...)
+      fmt.Fprint(b, n.Title())
+      fmt.Fprint(b, " - ")
+      fmt.Fprint(b, date.Year())
+   } else {
+      fmt.Fprint(b, n.Series())
+      fmt.Fprint(b, " - S")
+      fmt.Fprint(b, season)
+      fmt.Fprint(b, " E")
+      episode, err := n.Episode()
+      if err != nil {
+         return "", err
+      }
+      fmt.Fprint(b, episode)
+      fmt.Fprint(b, " - ")
+      fmt.Fprint(b, n.Title())
    }
-   return string(b), nil
+   return b.String(), nil
 }
 
 func Clean(path string) string {

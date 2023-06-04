@@ -1,7 +1,6 @@
 package main
 
 import (
-   "2a.pages.dev/mech"
    "2a.pages.dev/mech/paramount"
    "2a.pages.dev/rosso/dash"
    "2a.pages.dev/rosso/http"
@@ -34,9 +33,9 @@ func (f flags) dash(token *paramount.App_Token) error {
    }
    // video
    {
-      reps := slices.Filter(reps, dash.Video)
-      slices.Sort(reps, func(a, b dash.Represent) bool {
-         return b.Bandwidth < a.Bandwidth
+      reps := slices.Delete(slices.Clone(reps), dash.Not(dash.Video))
+      slices.Sort(reps, func(a, b dash.Represent) int {
+         return int(a.Bandwidth - b.Bandwidth)
       })
       index := slices.Index(reps, func(a dash.Represent) bool {
          return a.Height <= f.height
@@ -47,12 +46,17 @@ func (f flags) dash(token *paramount.App_Token) error {
       }
    }
    // audio
-   reps = slices.Filter(reps, dash.Audio)
-   index := slices.Index(reps, func(a dash.Represent) bool {
-      if strings.HasPrefix(a.Adaptation.Lang, f.lang) {
-         return strings.HasPrefix(a.Codecs, f.codecs)
+   reps = slices.Delete(reps, func(a dash.Represent) bool {
+      if a.Adaptation.Role != nil {
+         return true
+      }
+      if !dash.Audio(a) {
+         return true
       }
       return false
+   })
+   index := slices.Index(reps, func(a dash.Represent) bool {
+      return strings.HasPrefix(a.Adaptation.Lang, f.lang)
    })
    return f.DASH_Get(reps, index)
 }
@@ -70,7 +74,7 @@ func (f flags) downloadable(token *paramount.App_Token) error {
       fmt.Println(ref)
       return nil
    }
-   name, err := mech.Name(item)
+   name, err := paramount.Name(item)
    if err != nil {
       return err
    }

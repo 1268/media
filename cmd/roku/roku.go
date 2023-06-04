@@ -25,7 +25,7 @@ func (f flags) DASH(content *roku.Content) error {
    }
    // video
    {
-      reps := slices.Filter(reps, dash.Video)
+      reps := slices.Delete(slices.Clone(reps), dash.Not(dash.Video))
       index := slices.Index(reps, func(r dash.Represent) bool {
          if r.Bandwidth <= f.bandwidth {
             return r.Height <= f.height
@@ -38,7 +38,7 @@ func (f flags) DASH(content *roku.Content) error {
       }
    }
    // audio
-   reps = slices.Filter(reps, dash.Audio)
+   reps = slices.Delete(reps, dash.Not(dash.Audio))
    index := slices.Index(reps, func(r dash.Represent) bool {
       return strings.Contains(r.Codecs, f.codec)
    })

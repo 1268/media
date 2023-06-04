@@ -10,7 +10,6 @@ import (
 )
 
 type flags struct {
-   codecs string
    content_ID string
    dash_cenc bool
    height int64
@@ -26,8 +25,6 @@ func main() {
    var f flags
    // b
    flag.StringVar(&f.content_ID, "b", "", "content ID")
-   // c
-   flag.StringVar(&f.codecs, "c", "mp4a", "audio codec")
    // client
    f.Client_ID = filepath.Join(home, "mech/client_id.bin")
    flag.StringVar(&f.Client_ID, "client", f.Client_ID, "client ID")
