@@ -12,7 +12,7 @@ import (
 type flags struct {
    content_ID string
    dash_cenc bool
-   height int64
+   height int
    lang string
    mech.Stream
 }
@@ -31,7 +31,7 @@ func main() {
    // d
    flag.BoolVar(&f.dash_cenc, "d", false, "DASH_CENC")
    // h
-   flag.Int64Var(&f.height, "h", 720, "maximum height")
+   flag.IntVar(&f.height, "h", 720, "maximum height")
    // i
    flag.BoolVar(&f.Info, "i", false, "information")
    // key

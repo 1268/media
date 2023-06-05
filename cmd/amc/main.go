@@ -13,7 +13,7 @@ type flags struct {
    email string
    mech.Stream
    password string
-   height int64
+   height int
 }
 
 func main() {
@@ -30,7 +30,7 @@ func main() {
    // e
    flag.StringVar(&f.email, "e", "", "email")
    // h
-   flag.Int64Var(&f.height, "h", 1080, "maximum height")
+   flag.IntVar(&f.height, "h", 1080, "maximum height")
    // i
    flag.BoolVar(&f.Info, "i", false, "information")
    // key

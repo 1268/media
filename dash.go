@@ -7,12 +7,32 @@ import (
    "2a.pages.dev/rosso/mp4"
    "encoding/base64"
    "fmt"
-   "io"
    "net/url"
    "os"
 )
 
-func (s Stream) DASH_Get(items []dash.Represent, index int) error {
+type Stream struct {
+   Client_ID string
+   Info bool
+   Namer
+   Poster widevine.Poster
+   Private_Key string
+   base *url.URL
+}
+
+func (s *Stream) DASH(ref string) ([]dash.Representer, error) {
+   client := http.Default_Client
+   client.CheckRedirect = nil
+   res, err := client.Get(ref)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   s.base = res.Request.URL
+   return dash.Representers(res.Body)
+}
+
+func (s Stream) DASH_Get(items []dash.Representer, index int) error {
    if s.Info {
       for i, item := range items {
          fmt.Println()
@@ -35,7 +55,7 @@ func (s Stream) DASH_Get(items []dash.Represent, index int) error {
    defer file.Close()
    client := http.Default_Client
    client.CheckRedirect = nil
-   req, err := http.Get_Parse(item.Initialization())
+   req, err := http.Get_Parse(item.Segment_Template.Get_Initialization())
    if err != nil {
       return err
    }
@@ -45,40 +65,31 @@ func (s Stream) DASH_Get(items []dash.Represent, index int) error {
       return err
    }
    defer res.Body.Close()
-   media := item.Media()
+   media := item.Segment_Template.Get_Media()
    pro := http.Progress_Chunks(file, len(media))
    dec := mp4.New_Decrypt(pro)
-   var key []byte
-   if item.Content_Protection != nil {
-      private_key, err := os.ReadFile(s.Private_Key)
-      if err != nil {
-         return err
-      }
-      client_ID, err := os.ReadFile(s.Client_ID)
-      if err != nil {
-         return err
-      }
-      pssh, err := base64.StdEncoding.DecodeString(item.Widevine().PSSH)
-      if err != nil {
-         return err
-      }
-      mod, err := widevine.New_Module(private_key, client_ID, pssh)
-      if err != nil {
-         return err
-      }
-      keys, err := mod.Post(s.Poster)
-      if err != nil {
-         return err
-      }
-      key = keys.Content().Key
-      if err := dec.Init(res.Body); err != nil {
-         return err
-      }
-   } else {
-      _, err := io.Copy(pro, res.Body)
-      if err != nil {
-         return err
-      }
+   private_key, err := os.ReadFile(s.Private_Key)
+   if err != nil {
+      return err
+   }
+   client_ID, err := os.ReadFile(s.Client_ID)
+   if err != nil {
+      return err
+   }
+   pssh, err := base64.StdEncoding.DecodeString(item.Widevine())
+   if err != nil {
+      return err
+   }
+   mod, err := widevine.New_Module(private_key, client_ID, pssh)
+   if err != nil {
+      return err
+   }
+   keys, err := mod.Post(s.Poster)
+   if err != nil {
+      return err
+   }
+   if err := dec.Init(res.Body); err != nil {
+      return err
    }
    client.Log_Level = 0
    for _, ref := range media {
@@ -91,11 +102,7 @@ func (s Stream) DASH_Get(items []dash.Represent, index int) error {
          return err
       }
       pro.Add_Chunk(res.ContentLength)
-      if item.Content_Protection != nil {
-         err = dec.Segment(res.Body, key)
-      } else {
-         _, err = io.Copy(pro, res.Body)
-      }
+      err = dec.Segment(res.Body, keys.Content().Key)
       if err != nil {
          return err
       }
@@ -104,29 +111,4 @@ func (s Stream) DASH_Get(items []dash.Represent, index int) error {
       }
    }
    return nil
-}
-
-type Stream struct {
-   Client_ID string
-   Info bool
-   Namer
-   Poster widevine.Poster
-   Private_Key string
-   base *url.URL
-}
-
-func (s *Stream) DASH(ref string) ([]dash.Represent, error) {
-   client := http.Default_Client
-   client.CheckRedirect = nil
-   res, err := client.Get(ref)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   s.base = res.Request.URL
-   pre, err := dash.New_Presentation(res.Body)
-   if err != nil {
-      return nil, err
-   }
-   return pre.Represents(), nil
 }

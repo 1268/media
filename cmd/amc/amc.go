@@ -44,10 +44,10 @@ func (f flags) download() error {
    // video
    {
       reps := slices.Delete(slices.Clone(reps), dash.Audio)
-      slices.Sort(reps, func(a, b dash.Represent) int {
-         return int(b.Height - a.Height)
+      slices.Sort(reps, func(a, b dash.Representer) bool {
+         return b.Height < a.Height
       })
-      index := slices.Index(reps, func(a dash.Represent) bool {
+      index := slices.Index(reps, func(a dash.Representer) bool {
          return a.Height <= f.height
       })
       err := f.DASH_Get(reps, index)

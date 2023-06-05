@@ -14,8 +14,8 @@ func (f flags) download() error {
       return err
    }
    forms := play.Streaming_Data.Adaptive_Formats
-   slices.Sort(forms, func(a, b youtube.Format) int {
-      return int(b.Bitrate - a.Bitrate)
+   slices.Sort(forms, func(a, b youtube.Format) bool {
+      return b.Bitrate < a.Bitrate
    })
    if f.info {
       for i, form := range forms {
