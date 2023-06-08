@@ -38,7 +38,10 @@ func (f flags) dash(token *paramount.App_Token) error {
          return b.Bandwidth < a.Bandwidth
       })
       index := slices.Index(reps, func(a dash.Representer) bool {
-         return a.Height <= f.height
+         if a.Height <= f.height {
+            return a.Bandwidth <= f.bandwidth
+         }
+         return false
       })
       err := f.DASH_Get(reps, index)
       if err != nil {
@@ -46,15 +49,7 @@ func (f flags) dash(token *paramount.App_Token) error {
       }
    }
    // audio
-   reps = slices.Delete(reps, func(a dash.Representer) bool {
-      if a.Adaptation_Set.Role != nil {
-         return true
-      }
-      if !dash.Audio(a) {
-         return true
-      }
-      return false
-   })
+   reps = slices.Delete(reps, dash.Not(dash.Audio))
    index := slices.Index(reps, func(a dash.Representer) bool {
       return strings.HasPrefix(a.Adaptation_Set.Lang, f.lang)
    })

@@ -10,11 +10,12 @@ import (
 )
 
 type flags struct {
+   mech.Stream
    content_ID string
    dash_cenc bool
-   height int
    lang string
-   mech.Stream
+   height int
+   bandwidth int
 }
 
 func main() {
@@ -25,6 +26,8 @@ func main() {
    var f flags
    // b
    flag.StringVar(&f.content_ID, "b", "", "content ID")
+   // bandwidth
+   flag.IntVar(&f.bandwidth, "bandwidth", 5_000_000, "maximum bandwidth")
    // client
    f.Client_ID = filepath.Join(home, "mech/client_id.bin")
    flag.StringVar(&f.Client_ID, "client", f.Client_ID, "client ID")
