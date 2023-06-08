@@ -7,8 +7,16 @@ import (
    "errors"
    "net/url"
    "strconv"
+   "strings"
    "time"
 )
+
+// some items stupidly have the show and episode title combined:
+// paramountplus.com/shows/video/H87tz3NIw_Ymtcj4zZlWUivmzAPBnMYZ
+func (i Item) Series() string {
+   before, _, _ := strings.Cut(i.Series_Title, " - ")
+   return before
+}
 
 func (i Item) Date() (time.Time, error) {
    return time.Parse("2006-01-02T15:04:05-0700", i.Media_Available_Date)
@@ -31,10 +39,6 @@ type Item struct {
    Label string
    // 2023-01-15T19:00:00-0800
    Media_Available_Date string `json:"mediaAvailableDate"`
-}
-
-func (i Item) Series() string {
-   return i.Series_Title
 }
 
 func (i Item) Title() string {

@@ -16,12 +16,13 @@ type Namer interface {
 
 func Name(n Namer) (string, error) {
    b := new(strings.Builder)
+   title := Clean(n.Title())
    if season, err := n.Season(); err != nil {
       date, err := n.Date()
       if err != nil {
          return "", err
       }
-      fmt.Fprint(b, n.Title())
+      fmt.Fprint(b, title)
       fmt.Fprint(b, " - ")
       fmt.Fprint(b, date.Year())
    } else {
@@ -35,7 +36,7 @@ func Name(n Namer) (string, error) {
       }
       fmt.Fprint(b, episode)
       fmt.Fprint(b, " - ")
-      fmt.Fprint(b, n.Title())
+      fmt.Fprint(b, title)
    }
    return b.String(), nil
 }
