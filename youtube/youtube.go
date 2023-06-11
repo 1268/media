@@ -8,6 +8,18 @@ import (
    "time"
 )
 
+func Video_ID(data string, v *string) error {
+   ref, err := url.Parse(data)
+   if err != nil {
+      return err
+   }
+   *v = ref.Query().Get("v")
+   if *v == "" {
+      *v = path.Base(ref.Path)
+   }
+   return nil
+}
+
 const sep_big = " - "
 
 func (p Player) Name() string {
@@ -52,6 +64,7 @@ func (p Player) Duration() time.Duration {
 func (p Player) Publish_Date() string {
    return p.Microformat.Player_Microformat_Renderer.Publish_Date
 }
+
 // YouTube on TV
 const (
    client_ID =
@@ -95,16 +108,4 @@ type Item struct {
          }
       }
    } `json:"videoWithContextRenderer"`
-}
-
-func Video_ID(data string, v *string) error {
-   ref, err := url.Parse(data)
-   if err != nil {
-      return err
-   }
-   *v = ref.Query().Get("v")
-   if *v == "" {
-      *v = path.Base(ref.Path)
-   }
-   return nil
 }
