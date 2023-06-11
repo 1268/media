@@ -11,9 +11,9 @@ type flags struct {
    audio_q string
    audio_t string
    info bool
+   r youtube.Request
    refresh bool
    request int
-   video_ID string
    video_q string
    video_t string
 }
@@ -21,15 +21,13 @@ type flags struct {
 func main() {
    var f flags
    // a
-   flag.Func("a", "address", func(s string) error {
-      return youtube.Video_ID(s, &f.video_ID)
-   })
+   flag.Var(&f.r, "a", "address")
+   // b
+   flag.StringVar(&f.r.Video_ID, "b", "", "video ID")
    // aq
    flag.StringVar(&f.audio_q, "aq", "AUDIO_QUALITY_MEDIUM", "audio quality")
    // at
    flag.StringVar(&f.audio_t, "at", "opus", "audio type")
-   // b
-   flag.StringVar(&f.video_ID, "b", "", "video ID")
    // i
    flag.BoolVar(&f.info, "i", false, "information")
    // log
@@ -57,7 +55,7 @@ func main() {
       if err != nil {
          panic(err)
       }
-   } else if f.video_ID != "" {
+   } else if f.r.Video_ID != "" {
       err := f.download()
       if err != nil {
          panic(err)

@@ -6,7 +6,10 @@ import (
 )
 
 func Test_Format(t *testing.T) {
-   play, err := Android().Player(androids[0], nil)
+   var r Request
+   r.Android()
+   r.Video_ID = androids[0]
+   play, err := r.Player(nil)
    if err != nil {
       t.Fatal(err)
    }

@@ -5,8 +5,25 @@ import (
    "2a.pages.dev/rosso/json"
    "io"
    "net/url"
+   "path"
    "strconv"
 )
+
+func (r *Request) Set(s string) error {
+   p, err := url.Parse(s)
+   if err != nil {
+      return err
+   }
+   r.Video_ID = p.Query().Get("v")
+   if r.Video_ID == "" {
+      r.Video_ID = path.Base(p.Path)
+   }
+   return nil
+}
+
+func (r Request) String() string {
+   return r.Video_ID
+}
 
 func new_config() (*config, error) {
    req := http.Get(&url.URL{
@@ -79,29 +96,6 @@ type version struct {
 
 var max_android = version{18, 22, 99}
 
-func Android() Request {
-   var r Request
-   r.Content_Check_OK = true
-   r.Context.Client.Name = "ANDROID"
-   r.Context.Client.Version = max_android.String()
-   return r
-}
-
-type Request struct {
-   Content_Check_OK bool `json:"contentCheckOk,omitempty"`
-   Context struct {
-      Client struct {
-         Android_SDK_Version int32 `json:"androidSdkVersion,omitempty"`
-         Name string `json:"clientName"`
-         Version string `json:"clientVersion"`
-      } `json:"client"`
-   } `json:"context"`
-   Params []byte `json:"params,omitempty"`
-   Query string `json:"query,omitempty"`
-   Racy_Check_OK bool `json:"racyCheckOk,omitempty"`
-   Video_ID string `json:"videoId,omitempty"`
-}
-
 func (v version) String() string {
    var b []byte
    b = strconv.AppendInt(b, v.major, 10)
@@ -112,10 +106,17 @@ func (v version) String() string {
    return string(b)
 }
 
-func (r Request) Player(id string, tok *Token) (*Player, error) {
+const user_agent = "com.google.android.youtube/"
+
+type config struct {
+   Innertube_API_Key string
+   Innertube_Client_Name string
+   Innertube_Client_Version string
+}
+
+func (r Request) Player(tok *Token) (*Player, error) {
    body := func(req *http.Request) error {
       r.Context.Client.Android_SDK_Version = 99
-      r.Video_ID = id
       b, err := json.MarshalIndent(r, "", " ")
       if err != nil {
          return err
@@ -148,33 +149,40 @@ func (r Request) Player(id string, tok *Token) (*Player, error) {
    return play, nil
 }
 
-const user_agent = "com.google.android.youtube/"
+type Request struct {
+   Content_Check_OK bool `json:"contentCheckOk,omitempty"`
+   Context struct {
+      Client struct {
+         Android_SDK_Version int32 `json:"androidSdkVersion,omitempty"`
+         Name string `json:"clientName"`
+         Version string `json:"clientVersion"`
+      } `json:"client"`
+   } `json:"context"`
+   Params []byte `json:"params,omitempty"`
+   Query string `json:"query,omitempty"`
+   Racy_Check_OK bool `json:"racyCheckOk,omitempty"`
+   Video_ID string `json:"videoId,omitempty"`
+}
 
-func Android_Check() Request {
-   var r Request
+func (r *Request) Android() {
+   r.Content_Check_OK = true
+   r.Context.Client.Name = "ANDROID"
+   r.Context.Client.Version = max_android.String()
+}
+
+func (r *Request) Android_Check() {
    r.Content_Check_OK = true
    r.Context.Client.Name = "ANDROID"
    r.Context.Client.Version = max_android.String()
    r.Racy_Check_OK = true
-   return r
 }
 
-func Mobile_Web() Request {
-   var r Request
+func (r *Request) Mobile_Web() {
    r.Context.Client.Name = "MWEB"
    r.Context.Client.Version = mweb_version
-   return r
 }
 
-func Android_Embed() Request {
-   var r Request
+func (r *Request) Android_Embed() {
    r.Context.Client.Name = "ANDROID_EMBEDDED_PLAYER"
    r.Context.Client.Version = max_android.String()
-   return r
-}
-
-type config struct {
-   Innertube_API_Key string
-   Innertube_Client_Name string
-   Innertube_Client_Version string
 }

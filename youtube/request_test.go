@@ -1,7 +1,6 @@
 package youtube
 
 import (
-   "2a.pages.dev/rosso/http"
    "encoding/json"
    "fmt"
    "os"
@@ -9,9 +8,26 @@ import (
    "time"
 )
 
+func Test_Android_Embed(t *testing.T) {
+   var req Request
+   req.Android_Embed()
+   for _, embed := range android_embeds {
+      req.Video_ID = embed
+      play, err := req.Player(nil)
+      if err != nil {
+         t.Fatal(err)
+      }
+      if play.Playability_Status.Status != "OK" {
+         t.Fatal(play)
+      }
+      time.Sleep(time.Second)
+   }
+}
+
 func Test_Search(t *testing.T) {
-   http.Default_Client.Log_Level = 2
-   search, err := Mobile_Web().Search("oneohtrix point never along")
+   var req Request
+   req.Mobile_Web()
+   search, err := req.Search("oneohtrix point never along")
    if err != nil {
       t.Fatal(err)
    }
@@ -33,19 +49,6 @@ func Test_Config(t *testing.T) {
    enc := json.NewEncoder(os.Stdout)
    enc.SetIndent("", " ")
    enc.Encode(con)
-}
-
-func Test_Android_Embed(t *testing.T) {
-   for _, embed := range android_embeds {
-      play, err := Android_Embed().Player(embed, nil)
-      if err != nil {
-         t.Fatal(err)
-      }
-      if play.Playability_Status.Status != "OK" {
-         t.Fatal(play)
-      }
-      time.Sleep(time.Second)
-   }
 }
 
 var androids = []string{

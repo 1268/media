@@ -8,6 +8,30 @@ import (
    "strings"
 )
 
+func (f flags) player() (*youtube.Player, error) {
+   var token *youtube.Token
+   switch f.request {
+   case 0:
+      f.r.Android()
+   case 1:
+      f.r.Android_Embed()
+   case 2:
+      f.r.Android_Check()
+      home, err := os.UserHomeDir()
+      if err != nil {
+         return nil, err
+      }
+      token, err = youtube.Read_Token(home + "/mech/youtube.json")
+      if err != nil {
+         return nil, err
+      }
+      if err := token.Refresh(); err != nil {
+         return nil, err
+      }
+   }
+   return f.r.Player(token)
+}
+
 func (f flags) download() error {
    play, err := f.player()
    if err != nil {
@@ -66,33 +90,6 @@ func (f flags) encode(form youtube.Format, name string) error {
    return form.Encode(file)
 }
 
-func (f flags) player() (*youtube.Player, error) {
-   var (
-      req youtube.Request
-      token *youtube.Token
-   )
-   switch f.request {
-   case 0:
-      req = youtube.Android()
-   case 1:
-      req = youtube.Android_Embed()
-   case 2:
-      req = youtube.Android_Check()
-      home, err := os.UserHomeDir()
-      if err != nil {
-         return nil, err
-      }
-      token, err = youtube.Read_Token(home + "/mech/youtube.json")
-      if err != nil {
-         return nil, err
-      }
-      if err := token.Refresh(); err != nil {
-         return nil, err
-      }
-   }
-   return req.Player(f.video_ID, token)
-}
-
 func (f flags) do_refresh() error {
    code, err := youtube.New_Device_Code()
    if err != nil {
@@ -110,4 +107,3 @@ func (f flags) do_refresh() error {
    }
    return token.Write_File(home + "/mech/youtube.json")
 }
-

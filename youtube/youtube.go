@@ -2,23 +2,9 @@ package youtube
 
 import (
    "2a.pages.dev/mech"
-   "net/url"
-   "path"
    "strings"
    "time"
 )
-
-func Video_ID(data string, v *string) error {
-   ref, err := url.Parse(data)
-   if err != nil {
-      return err
-   }
-   *v = ref.Query().Get("v")
-   if *v == "" {
-      *v = path.Base(ref.Path)
-   }
-   return nil
-}
 
 const sep_big = " - "
 
