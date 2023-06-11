@@ -185,11 +185,11 @@ func (a *Auth) Refresh() error {
 }
 
 func (a Auth) Write_File(name string) error {
-   data, err := json.MarshalIndent(a, "", " ")
+   text, err := json.MarshalIndent(a, "", " ")
    if err != nil {
       return err
    }
-   return os.WriteFile(name, data, 0666)
+   return os.WriteFile(name, text, 0666)
 }
 
 // JSON
@@ -201,12 +201,12 @@ type Auth struct {
 }
 
 func Read_Auth(name string) (*Auth, error) {
-   data, err := os.ReadFile(name)
+   text, err := os.ReadFile(name)
    if err != nil {
       return nil, err
    }
    a := new(Auth)
-   if err := json.Unmarshal(data, a); err != nil {
+   if err := json.Unmarshal(text, a); err != nil {
       return nil, err
    }
    return a, nil

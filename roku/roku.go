@@ -24,13 +24,15 @@ func New_Cross_Site() (*Cross_Site, error) {
          site.cookie = cook
       }
    }
-   data, err := io.ReadAll(res.Body)
-   if err != nil {
-      return nil, err
-   }
-   sep := []byte("\tcsrf:")
-   if err := json.Cut(data, sep, &site.token); err != nil {
-      return nil, err
+   {
+      s, err := io.ReadAll(res.Body)
+      if err != nil {
+         return nil, err
+      }
+      sep := []byte("\tcsrf:")
+      if err := json.Cut(s, sep, &site.token); err != nil {
+         return nil, err
+      }
    }
    return &site, nil
 }

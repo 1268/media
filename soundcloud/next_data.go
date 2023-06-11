@@ -23,14 +23,16 @@ func new_next_data() (*next_data, error) {
       return nil, err
    }
    defer res.Body.Close()
-   data, err := io.ReadAll(res.Body)
-   if err != nil {
-      return nil, err
-   }
-   sep := []byte(` id="__NEXT_DATA__" type="application/json">`)
    next := new(next_data)
-   if err := json.Cut(data, sep, next); err != nil {
-      return nil, err
+   {
+      s, err := io.ReadAll(res.Body)
+      if err != nil {
+         return nil, err
+      }
+      sep := []byte(` id="__NEXT_DATA__" type="application/json">`)
+      if err := json.Cut(s, sep, next); err != nil {
+         return nil, err
+      }
    }
    return next, nil
 }

@@ -10,13 +10,13 @@ import (
 )
 
 func (r *Request) Set(s string) error {
-   p, err := url.Parse(s)
+   ref, err := url.Parse(s)
    if err != nil {
       return err
    }
-   r.Video_ID = p.Query().Get("v")
+   r.Video_ID = ref.Query().Get("v")
    if r.Video_ID == "" {
-      r.Video_ID = path.Base(p.Path)
+      r.Video_ID = path.Base(ref.Path)
    }
    return nil
 }
@@ -36,14 +36,16 @@ func new_config() (*config, error) {
       return nil, err
    }
    defer res.Body.Close()
-   data, err := io.ReadAll(res.Body)
-   if err != nil {
-      return nil, err
-   }
-   sep := []byte("\nytcfg.set(")
    con := new(config)
-   if err := json.Cut(data, sep, con); err != nil {
-      return nil, err
+   {
+      s, err := io.ReadAll(res.Body)
+      if err != nil {
+         return nil, err
+      }
+      sep := []byte("\nytcfg.set(")
+      if err := json.Cut(s, sep, con); err != nil {
+         return nil, err
+      }
    }
    return con, nil
 }

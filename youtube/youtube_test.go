@@ -6,10 +6,29 @@ import (
    "time"
 )
 
+var id_tests = []string{
+   "https://youtube.com/shorts/9Vsdft81Q6w",
+   "https://youtube.com/watch?v=XY-hOqcPGCY",
+}
+
+func Test_ID(t *testing.T) {
+   var req Request
+   for _, test := range id_tests {
+      err := req.Set(test)
+      if err != nil {
+         t.Fatal(err)
+      }
+      fmt.Println(req.Video_ID)
+   }
+}
+
 func Test_Player(t *testing.T) {
+   var req Request
+   req.Android()
+   req.Video_ID = androids[0]
    for {
       for range [16]struct{}{} {
-         p, err := Android().Player(androids[0], nil)
+         p, err := req.Player(nil)
          if err != nil {
             t.Fatal(err)
          }
@@ -22,20 +41,5 @@ func Test_Player(t *testing.T) {
          time.Sleep(time.Second)
       }
       max_android.minor++
-   }
-}
-var id_tests = []string{
-   "https://youtube.com/shorts/9Vsdft81Q6w",
-   "https://youtube.com/watch?v=XY-hOqcPGCY",
-}
-
-func Test_ID(t *testing.T) {
-   for _, test := range id_tests {
-      var id string
-      err := Video_ID(test, &id)
-      if err != nil {
-         t.Fatal(err)
-      }
-      fmt.Println(id)
    }
 }

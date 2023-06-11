@@ -73,23 +73,23 @@ type Device_Code struct {
 }
 
 func Read_Token(name string) (*Token, error) {
-   data, err := os.ReadFile(name)
+   text, err := os.ReadFile(name)
    if err != nil {
       return nil, err
    }
    tok := new(Token)
-   if err := json.Unmarshal(data, tok); err != nil {
+   if err := json.Unmarshal(text, tok); err != nil {
       return nil, err
    }
    return tok, nil
 }
 
 func (t Token) Write_File(name string) error {
-   data, err := json.Marshal(t)
+   text, err := json.Marshal(t)
    if err != nil {
       return err
    }
-   return os.WriteFile(name, data, 0666)
+   return os.WriteFile(name, text, 0666)
 }
 
 type Token struct {

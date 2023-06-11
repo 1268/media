@@ -8,6 +8,50 @@ import (
    "time"
 )
 
+func Test_Android_Check(t *testing.T) {
+   home, err := os.UserHomeDir()
+   if err != nil {
+      t.Fatal(err)
+   }
+   tok, err := Read_Token(home + "/mech/youtube.json")
+   if err != nil {
+      t.Fatal(err)
+   }
+   var req Request
+   req.Android_Check()
+   for _, check := range android_checks {
+      req.Video_ID = check
+      play, err := req.Player(tok)
+      if err != nil {
+         t.Fatal(err)
+      }
+      if play.Playability_Status.Status != "OK" {
+         t.Fatal(play)
+      }
+      time.Sleep(time.Second)
+   }
+}
+
+var android_embeds = []string{
+   "HtVdAasjOgU",
+   "WaOKSUlf4TM",
+}
+func Test_Android(t *testing.T) {
+   var req Request
+   req.Android()
+   for _, android := range androids {
+      req.Video_ID = android
+      play, err := req.Player(nil)
+      if err != nil {
+         t.Fatal(err)
+      }
+      if play.Playability_Status.Status != "OK" {
+         t.Fatal(play)
+      }
+      time.Sleep(time.Second)
+   }
+}
+
 func Test_Android_Embed(t *testing.T) {
    var req Request
    req.Android_Embed()
@@ -56,19 +100,6 @@ var androids = []string{
    "zv9NimPx3Es",
 }
 
-func Test_Android(t *testing.T) {
-   for _, android := range androids {
-      play, err := Android().Player(android, nil)
-      if err != nil {
-         t.Fatal(err)
-      }
-      if play.Playability_Status.Status != "OK" {
-         t.Fatal(play)
-      }
-      time.Sleep(time.Second)
-   }
-}
-
 var android_checks = []string{
    "Cr381pDsSsA", // racy check
    "HsUATh_Nc2U", // racy check
@@ -78,29 +109,3 @@ var android_checks = []string{
    "nGC3D_FkCmg", // content check
 }
 
-func Test_Android_Check(t *testing.T) {
-   home, err := os.UserHomeDir()
-   if err != nil {
-      t.Fatal(err)
-   }
-   req := Android_Check()
-   tok, err := Read_Token(home + "/mech/youtube.json")
-   if err != nil {
-      t.Fatal(err)
-   }
-   for _, check := range android_checks {
-      play, err := req.Player(check, tok)
-      if err != nil {
-         t.Fatal(err)
-      }
-      if play.Playability_Status.Status != "OK" {
-         t.Fatal(play)
-      }
-      time.Sleep(time.Second)
-   }
-}
-
-var android_embeds = []string{
-   "HtVdAasjOgU",
-   "WaOKSUlf4TM",
-}

@@ -28,11 +28,11 @@ func Test_New_Profile(t *testing.T) {
 }
 
 func user_info(name string) ([]string, error) {
-   data, err := os.ReadFile(name)
+   text, err := os.ReadFile(name)
    if err != nil {
       return nil, err
    }
-   return strings.Split(string(data), "\n"), nil
+   return strings.Split(string(text), "\n"), nil
 }
 
 func Test_Profile(t *testing.T) {

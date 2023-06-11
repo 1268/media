@@ -87,20 +87,20 @@ func New_Token(username, password string) (*Token, error) {
 const forwarded_for = "99.224.0.0"
 
 func (p Profile) Write_File(name string) error {
-   data, err := json.MarshalIndent(p, "", " ")
+   text, err := json.MarshalIndent(p, "", " ")
    if err != nil {
       return err
    }
-   return os.WriteFile(name, data, 0666)
+   return os.WriteFile(name, text, 0666)
 }
 
 func Read_Profile(name string) (*Profile, error) {
-   data, err := os.ReadFile(name)
+   text, err := os.ReadFile(name)
    if err != nil {
       return nil, err
    }
    pro := new(Profile)
-   if err := json.Unmarshal(data, pro); err != nil {
+   if err := json.Unmarshal(text, pro); err != nil {
       return nil, err
    }
    return pro, nil

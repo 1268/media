@@ -195,7 +195,7 @@ func New_Params(ref string) (*Params, error) {
       return nil, err
    }
    defer res.Body.Close()
-   data, err := io.ReadAll(res.Body)
+   text, err := io.ReadAll(res.Body)
    if err != nil {
       return nil, err
    }
@@ -203,7 +203,7 @@ func New_Params(ref string) (*Params, error) {
    var p struct {
       Report_Params []byte `xml:"data-tou-report-params,attr"`
    }
-   if err := xml.Cut_Before(data, sep, &p); err != nil {
+   if err := xml.Cut_Before(text, sep, &p); err != nil {
       return nil, err
    }
    param := new(Params)
