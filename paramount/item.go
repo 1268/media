@@ -64,7 +64,7 @@ func (at App_Token) Item(content_ID string) (*Item, error) {
       return nil, err
    }
    if len(video.Item_List) == 0 {
-      return nil, errors.New("Item_List length is zero")
+      return nil, errors.New("itemList length is zero")
    }
    return &video.Item_List[0], nil
 }
