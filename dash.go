@@ -65,9 +65,12 @@ func (s Stream) DASH_Get(items []dash.Representer, index int) error {
       return err
    }
    defer res.Body.Close()
+   dec := make(mp4.Decrypt)
+   if err := dec.Init(res.Body, file); err != nil {
+      return err
+   }
    media := item.Segment_Template.Get_Media()
    pro := http.Progress_Chunks(file, len(media))
-   dec := mp4.New_Decrypt(pro)
    private_key, err := os.ReadFile(s.Private_Key)
    if err != nil {
       return err
@@ -88,9 +91,6 @@ func (s Stream) DASH_Get(items []dash.Representer, index int) error {
    if err != nil {
       return err
    }
-   if err := dec.Init(res.Body); err != nil {
-      return err
-   }
    client.Log_Level = 0
    for _, ref := range media {
       req.URL, err = s.base.Parse(ref)
@@ -102,7 +102,7 @@ func (s Stream) DASH_Get(items []dash.Representer, index int) error {
          return err
       }
       pro.Add_Chunk(res.ContentLength)
-      err = dec.Segment(res.Body, keys.Content().Key)
+      err = dec.Segment(res.Body, pro, keys.Content().Key)
       if err != nil {
          return err
       }

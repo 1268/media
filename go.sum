@@ -1,7 +1,7 @@
-2a.pages.dev/rosso v1.7.5 h1:UNW0ODg5y3ODlE+ax0/4Ku34k7ERCM5FYtU+tULByUg=
-2a.pages.dev/rosso v1.7.5/go.mod h1:QGaV12X4JI4ev+uEoGy+NlmaRQiGOEGXOLMryKJWM08=
-github.com/Eyevinn/mp4ff v0.35.0 h1:umuXXGwBRiuJ671aUbM4Z/ZCt4FNdoLg5PC4clmxVO8=
-github.com/Eyevinn/mp4ff v0.35.0/go.mod h1:w/6GSa5ghZ1VavzJK6McQ2/flx8mKtcrKDr11SsEweA=
+2a.pages.dev/rosso v1.7.7 h1:gx6Z4e3ap90TIbIpGEAqRoWauw3qlDnr+43OnJqCOA0=
+2a.pages.dev/rosso v1.7.7/go.mod h1:8z7C0tuOrJop0rmGAr5h+uF5k8XPmDYqpt16JU4xwJA=
+github.com/Eyevinn/mp4ff v0.36.0 h1:NMPx0GCzWJFkdKrLlKyXsYcTjlaFruFvo6jqQ3JCzWw=
+github.com/Eyevinn/mp4ff v0.36.0/go.mod h1:w/6GSa5ghZ1VavzJK6McQ2/flx8mKtcrKDr11SsEweA=
 github.com/chmike/cmac-go v1.1.0 h1:aF73ZAEx9N2WdQc93DOJ2fMsBDAGqUtuenjMJMb3kEI=
 github.com/chmike/cmac-go v1.1.0/go.mod h1:wcIN7NRqWSKGuORzd4dReBkoBDE9ZBqfyTVxyDxGeUw=
 github.com/go-test/deep v1.0.8 h1:TDsG77qcSprGbC6vTN8OuXp5g+J+b5Pcguhf7Zt61VM=
