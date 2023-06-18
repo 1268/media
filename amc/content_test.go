@@ -3,7 +3,6 @@ package amc
 import (
    "2a.pages.dev/mech"
    "fmt"
-   "os"
    "testing"
    "time"
 )
@@ -24,11 +23,11 @@ var tests = []struct {
 }
 
 func Test_Content(t *testing.T) {
-   home, err := os.UserHomeDir()
+   home, err := mech.Home()
    if err != nil {
       t.Fatal(err)
    }
-   auth, err := Read_Auth(home + "/mech/amc.json")
+   auth, err := Read_Auth(home + "/amc.json")
    if err != nil {
       t.Fatal(err)
    }

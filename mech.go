@@ -2,16 +2,28 @@ package mech
 
 import (
    "fmt"
+   "os"
+   "path/filepath"
    "strings"
    "time"
 )
 
-type Namer interface {
-   Series() string
-   Season() (int64, error)
-   Episode() (int64, error)
-   Title() string
-   Date() (time.Time, error)
+func Home() (string, error) {
+   dir, err := os.UserHomeDir()
+   if err != nil {
+      return "", err
+   }
+   return filepath.Join(dir, "2a", "mech"), nil
+}
+
+func Clean(path string) string {
+   mapping := func(r rune) rune {
+      if strings.ContainsRune(`"*/:<>?\|`, r) {
+         return '-'
+      }
+      return r
+   }
+   return strings.Map(mapping, path)
 }
 
 func Name(n Namer) (string, error) {
@@ -41,12 +53,10 @@ func Name(n Namer) (string, error) {
    return b.String(), nil
 }
 
-func Clean(path string) string {
-   mapping := func(r rune) rune {
-      if strings.ContainsRune(`"*/:<>?\|`, r) {
-         return '-'
-      }
-      return r
-   }
-   return strings.Map(mapping, path)
+type Namer interface {
+   Series() string
+   Season() (int64, error)
+   Episode() (int64, error)
+   Title() string
+   Date() (time.Time, error)
 }

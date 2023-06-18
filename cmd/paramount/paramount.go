@@ -1,6 +1,7 @@
 package main
 
 import (
+   "2a.pages.dev/mech"
    "2a.pages.dev/mech/paramount"
    "2a.pages.dev/rosso/dash"
    "2a.pages.dev/rosso/http"
@@ -69,7 +70,7 @@ func (f flags) downloadable(token *paramount.App_Token) error {
       fmt.Println(ref)
       return nil
    }
-   name, err := paramount.Name(item)
+   name, err := mech.Name(item)
    if err != nil {
       return err
    }

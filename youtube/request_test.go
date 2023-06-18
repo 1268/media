@@ -1,6 +1,7 @@
 package youtube
 
 import (
+   "2a.pages.dev/mech"
    "encoding/json"
    "fmt"
    "os"
@@ -9,11 +10,11 @@ import (
 )
 
 func Test_Android_Check(t *testing.T) {
-   home, err := os.UserHomeDir()
+   home, err := mech.Home()
    if err != nil {
       t.Fatal(err)
    }
-   tok, err := Read_Token(home + "/mech/youtube.json")
+   tok, err := Read_Token(home + "/youtube.json")
    if err != nil {
       t.Fatal(err)
    }

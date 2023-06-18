@@ -1,6 +1,7 @@
 package roku
 
 import (
+   "2a.pages.dev/mech"
    "2a.pages.dev/mech/widevine"
    "encoding/base64"
    "encoding/json"
@@ -10,15 +11,15 @@ import (
 )
 
 func Test_Post(t *testing.T) {
-   home, err := os.UserHomeDir()
+   home, err := mech.Home()
    if err != nil {
       t.Fatal(err)
    }
-   private_key, err := os.ReadFile(home + "/mech/private_key.pem")
+   private_key, err := os.ReadFile(home + "/private_key.pem")
    if err != nil {
       t.Fatal(err)
    }
-   client_ID, err := os.ReadFile(home + "/mech/client_id.bin")
+   client_ID, err := os.ReadFile(home + "/client_id.bin")
    if err != nil {
       t.Fatal(err)
    }

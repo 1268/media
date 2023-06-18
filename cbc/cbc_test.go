@@ -1,6 +1,7 @@
 package cbc
 
 import (
+   "2a.pages.dev/mech"
    "fmt"
    "os"
    "strings"
@@ -8,11 +9,11 @@ import (
 )
 
 func Test_New_Profile(t *testing.T) {
-   home, err := os.UserHomeDir()
+   home, err := mech.Home()
    if err != nil {
       t.Fatal(err)
    }
-   user, err := user_info(home + "/mech/cbc.txt")
+   user, err := user_info(home + "/cbc.txt")
    if err != nil {
       t.Fatal(err)
    }
@@ -36,11 +37,11 @@ func user_info(name string) ([]string, error) {
 }
 
 func Test_Profile(t *testing.T) {
-   home, err := os.UserHomeDir()
+   home, err := mech.Home()
    if err != nil {
       t.Fatal(err)
    }
-   user, err := user_info(home + "/mech/cbc.txt")
+   user, err := user_info(home + "/cbc.txt")
    if err != nil {
       t.Fatal(err)
    }
@@ -52,7 +53,7 @@ func Test_Profile(t *testing.T) {
    if err != nil {
       t.Fatal(err)
    }
-   if err := pro.Write_File(home + "/mech/cbc.json"); err != nil {
+   if err := pro.Write_File(home + "/cbc.json"); err != nil {
       t.Fatal(err)
    }
 }

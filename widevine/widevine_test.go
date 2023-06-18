@@ -17,11 +17,11 @@ func Test_Response(t *testing.T) {
    if err != nil {
       t.Fatal(err)
    }
-   private_key, err := os.ReadFile(home + "/mech/private_key.pem")
+   private_key, err := os.ReadFile(home + "2a/mech/private_key.pem")
    if err != nil {
       t.Fatal(err)
    }
-   client_ID, err := os.ReadFile(home + "/mech/client_id.bin")
+   client_ID, err := os.ReadFile(home + "/2a/mech/client_id.bin")
    if err != nil {
       t.Fatal(err)
    }

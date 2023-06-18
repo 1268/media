@@ -5,7 +5,6 @@ import (
    "2a.pages.dev/mech/paramount"
    "2a.pages.dev/rosso/http"
    "flag"
-   "os"
    "path/filepath"
 )
 
@@ -19,7 +18,7 @@ type flags struct {
 }
 
 func main() {
-   home, err := os.UserHomeDir()
+   home, err := mech.Home()
    if err != nil {
       panic(err)
    }
@@ -29,7 +28,7 @@ func main() {
    // bandwidth
    flag.IntVar(&f.bandwidth, "bandwidth", 5_000_000, "maximum bandwidth")
    // client
-   f.Client_ID = filepath.Join(home, "mech/client_id.bin")
+   f.Client_ID = filepath.Join(home, "client_id.bin")
    flag.StringVar(&f.Client_ID, "client", f.Client_ID, "client ID")
    // d
    flag.BoolVar(&f.dash_cenc, "d", false, "DASH_CENC")
@@ -38,7 +37,7 @@ func main() {
    // i
    flag.BoolVar(&f.Info, "i", false, "information")
    // key
-   f.Private_Key = filepath.Join(home, "mech/private_key.pem")
+   f.Private_Key = filepath.Join(home, "private_key.pem")
    flag.StringVar(&f.Private_Key, "key", f.Private_Key, "private key")
    // language
    flag.StringVar(&f.lang, "language", "en", "audio language")

@@ -1,7 +1,6 @@
 package paramount
 
 import (
-   "2a.pages.dev/mech"
    "2a.pages.dev/rosso/http"
    "encoding/json"
    "errors"
@@ -29,8 +28,6 @@ func (i Item) Season() (int64, error) {
 func (i Item) Episode() (int64, error) {
    return strconv.ParseInt(i.Episode_Num, 10, 64)
 }
-
-var Name = mech.Name
 
 type Item struct {
    Series_Title string `json:"seriesTitle"`

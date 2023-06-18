@@ -4,7 +4,6 @@ import (
    "2a.pages.dev/mech"
    "2a.pages.dev/rosso/http"
    "flag"
-   "os"
    "path/filepath"
 )
 
@@ -17,11 +16,10 @@ type flags struct {
 }
 
 func main() {
-   home, err := os.UserHomeDir()
+   home, err := mech.Home()
    if err != nil {
       panic(err)
    }
-   home = filepath.Join(home, "2a.pages.dev", "mech")
    var f flags
    // a
    flag.StringVar(&f.address, "a", "", "address")

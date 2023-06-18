@@ -16,11 +16,11 @@ var links = []string{
 }
 
 func Test_Gem(t *testing.T) {
-   home, err := os.UserHomeDir()
+   home, err := mech.Home()
    if err != nil {
       t.Fatal(err)
    }
-   pro, err := Read_Profile(home + "/mech/cbc.json")
+   pro, err := Read_Profile(home + "/cbc.json")
    if err != nil {
       t.Fatal(err)
    }

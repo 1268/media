@@ -1,6 +1,7 @@
 package amc
 
 import (
+   "2a.pages.dev/mech"
    "2a.pages.dev/mech/widevine"
    "encoding/base64"
    "os"
@@ -9,15 +10,15 @@ import (
 )
 
 func Test_Post(t *testing.T) {
-   home, err := os.UserHomeDir()
+   home, err := mech.Home()
    if err != nil {
       t.Fatal(err)
    }
-   private_key, err := os.ReadFile(home + "/mech/private_key.pem")
+   private_key, err := os.ReadFile(home + "/private_key.pem")
    if err != nil {
       t.Fatal(err)
    }
-   client_ID, err := os.ReadFile(home + "/mech/client_id.bin")
+   client_ID, err := os.ReadFile(home + "/client_id.bin")
    if err != nil {
       t.Fatal(err)
    }
@@ -30,7 +31,7 @@ func Test_Post(t *testing.T) {
    if err != nil {
       t.Fatal(err)
    }
-   auth, err := Read_Auth(home + "/mech/amc.json")
+   auth, err := Read_Auth(home + "/amc.json")
    if err != nil {
       t.Fatal(err)
    }
@@ -56,11 +57,11 @@ func user_info(name string) ([]string, error) {
 }
 
 func Test_Login(t *testing.T) {
-   home, err := os.UserHomeDir()
+   home, err := mech.Home()
    if err != nil {
       t.Fatal(err)
    }
-   user, err := user_info(home + "/mech/amc.txt")
+   user, err := user_info(home + "/amc.txt")
    if err != nil {
       t.Fatal(err)
    }
@@ -71,24 +72,24 @@ func Test_Login(t *testing.T) {
    if err := auth.Login(user[0], user[1]); err != nil {
       t.Fatal(err)
    }
-   if err := auth.Write_File(home + "/mech/amc.json"); err != nil {
+   if err := auth.Write_File(home + "/amc.json"); err != nil {
       t.Fatal(err)
    }
 }
 
 func Test_Refresh(t *testing.T) {
-   home, err := os.UserHomeDir()
+   home, err := mech.Home()
    if err != nil {
       t.Fatal(err)
    }
-   auth, err := Read_Auth(home + "/mech/amc.json")
+   auth, err := Read_Auth(home + "/amc.json")
    if err != nil {
       t.Fatal(err)
    }
    if err := auth.Refresh(); err != nil {
       t.Fatal(err)
    }
-   if err := auth.Write_File(home + "/mech/amc.json"); err != nil {
+   if err := auth.Write_File(home + "/amc.json"); err != nil {
       t.Fatal(err)
    }
 }

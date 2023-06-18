@@ -1,6 +1,7 @@
 package main
 
 import (
+   "2a.pages.dev/mech"
    "2a.pages.dev/mech/youtube"
    "2a.pages.dev/rosso/slices"
    "fmt"
@@ -17,11 +18,11 @@ func (f flags) player() (*youtube.Player, error) {
       f.r.Android_Embed()
    case 2:
       f.r.Android_Check()
-      home, err := os.UserHomeDir()
+      home, err := mech.Home()
       if err != nil {
          return nil, err
       }
-      token, err = youtube.Read_Token(home + "/mech/youtube.json")
+      token, err = youtube.Read_Token(home + "/youtube.json")
       if err != nil {
          return nil, err
       }
@@ -101,9 +102,9 @@ func (f flags) do_refresh() error {
    if err != nil {
       return err
    }
-   home, err := os.UserHomeDir()
+   home, err := mech.Home()
    if err != nil {
       return err
    }
-   return token.Write_File(home + "/mech/youtube.json")
+   return token.Write_File(home + "/youtube.json")
 }

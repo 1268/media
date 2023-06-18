@@ -1,6 +1,7 @@
 package paramount
 
 import (
+   "2a.pages.dev/mech"
    "fmt"
    "testing"
    "time"
@@ -16,7 +17,7 @@ func Test_Item(t *testing.T) {
       if err != nil {
          t.Fatal(err)
       }
-      name, err := Name(item)
+      name, err := mech.Name(item)
       if err != nil {
          t.Fatal(err)
       }

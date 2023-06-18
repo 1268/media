@@ -1,25 +1,25 @@
 package main
 
 import (
+   "2a.pages.dev/mech"
    "2a.pages.dev/mech/amc"
    "2a.pages.dev/rosso/dash"
    "2a.pages.dev/rosso/slices"
-   "os"
 )
 
 func (f flags) download() error {
-   home, err := os.UserHomeDir()
+   home, err := mech.Home()
    if err != nil {
       return err
    }
-   auth, err := amc.Read_Auth(home + "/mech/amc.json")
+   auth, err := amc.Read_Auth(home + "/amc.json")
    if err != nil {
       return err
    }
    if err := auth.Refresh(); err != nil {
       return err
    }
-   if err := auth.Write_File(home + "/mech/amc.json"); err != nil {
+   if err := auth.Write_File(home + "/amc.json"); err != nil {
       return err
    }
    if !f.Info {
@@ -67,9 +67,9 @@ func (f flags) login() error {
    if err := auth.Login(f.email, f.password); err != nil {
       return err
    }
-   home, err := os.UserHomeDir()
+   home, err := mech.Home()
    if err != nil {
       return err
    }
-   return auth.Write_File(home + "/mech/amc.json")
+   return auth.Write_File(home + "/amc.json")
 }
