@@ -13,24 +13,34 @@ import (
 )
 
 func (f flags) dash(token *paramount.App_Token) error {
+   ref, err := paramount.DASH_CENC(f.content_ID)
+   if err != nil {
+      return err
+   }
+   res, err := http.Get_Parse(ref)
+   if err != nil {
+      return err
+   }
+   defer res.Body.Close()
+   reps, err := dash.Representers(res.Body)
+   if err != nil {
+      return err
+   }
    if !f.Info {
       item, err := token.Item(f.content_ID)
       if err != nil {
          return err
       }
+      
+      
+      
+      
+      
       f.Namer = item
       f.Poster, err = token.Session(f.content_ID)
       if err != nil {
          return err
       }
-   }
-   ref, err := paramount.DASH_CENC(f.content_ID)
-   if err != nil {
-      return err
-   }
-   reps, err := f.Stream.DASH(ref)
-   if err != nil {
-      return err
    }
    // video
    {

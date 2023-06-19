@@ -1,6 +1,28 @@
 package youtube
 
-import "strings"
+import (
+   "net/url"
+   "strings"
+)
+
+func (i Image) URL(id string) *url.URL {
+   var u url.URL
+   u.Scheme = "http"
+   u.Host = "i.ytimg.com"
+   {
+      var b strings.Builder
+      b.WriteString("/vi")
+      if strings.HasSuffix(i.Name, ".webp") {
+         b.WriteString("_webp")
+      }
+      b.WriteByte('/')
+      b.WriteString(id)
+      b.WriteByte('/')
+      b.WriteString(i.Name)
+      u.Path = b.String()
+   }
+   return &u
+}
 
 type Image struct {
    Crop bool
@@ -54,17 +76,4 @@ var Images = []Image{
    {Width:1280, Height:720, Name:"maxres1.webp"},
    {Width:1280, Height:720, Name:"maxres2.webp"},
    {Width:1280, Height:720, Name:"maxres3.webp"},
-}
-
-func (i Image) Address(id string) string {
-   var b strings.Builder
-   b.WriteString("http://i.ytimg.com/vi")
-   if strings.HasSuffix(i.Name, ".webp") {
-      b.WriteString("_webp")
-   }
-   b.WriteByte('/')
-   b.WriteString(id)
-   b.WriteByte('/')
-   b.WriteString(i.Name)
-   return b.String()
 }

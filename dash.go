@@ -5,7 +5,6 @@ import (
    "2a.pages.dev/rosso/dash"
    "2a.pages.dev/rosso/http"
    "2a.pages.dev/rosso/mp4"
-   "encoding/base64"
    "fmt"
    "net/url"
    "os"
@@ -15,9 +14,9 @@ type Stream struct {
    Client_ID string
    Info bool
    Namer
-   Poster widevine.Poster
    Private_Key string
    base *url.URL
+   widevine.Poster
 }
 
 func (s *Stream) DASH(ref string) ([]dash.Representer, error) {
@@ -79,7 +78,7 @@ func (s Stream) DASH_Get(items []dash.Representer, index int) error {
    if err != nil {
       return err
    }
-   pssh, err := base64.StdEncoding.DecodeString(item.Widevine())
+   pssh, err := item.Widevine()
    if err != nil {
       return err
    }

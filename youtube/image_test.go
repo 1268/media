@@ -10,10 +10,14 @@ import (
 const image_test = "UpNXI3_ctAc"
 
 func Test_Image(t *testing.T) {
+   req, err := http.NewRequest("HEAD", "", nil)
+   if err != nil {
+      t.Fatal(err)
+   }
    for _, img := range Images {
-      ref := img.Address(image_test)
-      fmt.Println("HEAD", ref)
-      res, err := http.Head(ref)
+      req.URL = img.URL(image_test)
+      fmt.Println("HEAD", req.URL)
+      res, err := new(http.Transport).RoundTrip(req)
       if err != nil {
          t.Fatal(err)
       }
