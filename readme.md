@@ -39,7 +39,7 @@ go build
    Discord
    </dt>
    <dd>
-   srpen6#6983
+   srpen6
    </dd>
    <dd>
    https://discord.com/invite/WWq6rFb8Rf
