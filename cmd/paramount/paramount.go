@@ -31,11 +31,6 @@ func (f flags) dash(token *paramount.App_Token) error {
       if err != nil {
          return err
       }
-      
-      
-      
-      
-      
       f.Namer = item
       f.Poster, err = token.Session(f.content_ID)
       if err != nil {
@@ -62,7 +57,10 @@ func (f flags) dash(token *paramount.App_Token) error {
    // audio
    reps = slices.Delete(reps, dash.Not(dash.Audio))
    index := slices.Index(reps, func(a dash.Representer) bool {
-      return strings.HasPrefix(a.Adaptation_Set.Lang, f.lang)
+      if strings.HasPrefix(a.Adaptation_Set.Lang, f.lang) {
+         return strings.HasPrefix(a.Codecs, f.codec)
+      }
+      return false
    })
    return f.DASH_Get(reps, index)
 }
