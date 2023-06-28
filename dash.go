@@ -8,28 +8,8 @@ import (
    "fmt"
    "net/url"
    "os"
+   net_http "net/http"
 )
-
-type Stream struct {
-   Client_ID string
-   Info bool
-   Namer
-   Private_Key string
-   base *url.URL
-   widevine.Poster
-}
-
-func (s *Stream) DASH(ref string) ([]dash.Representer, error) {
-   client := http.Default_Client
-   client.CheckRedirect = nil
-   res, err := client.Get(ref)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   s.base = res.Request.URL
-   return dash.Representers(res.Body)
-}
 
 func (s Stream) DASH_Get(items []dash.Representer, index int) error {
    if s.Info {
@@ -52,14 +32,14 @@ func (s Stream) DASH_Get(items []dash.Representer, index int) error {
       return err
    }
    defer file.Close()
-   client := http.Default_Client
-   client.CheckRedirect = nil
-   req, err := http.Get_Parse(item.Segment_Template.Get_Initialization())
+   req, err := net_http.NewRequest(
+      "GET", item.Segment_Template.Get_Initialization(), nil,
+   )
    if err != nil {
       return err
    }
-   req.URL = s.base.ResolveReference(req.URL)
-   res, err := client.Do(req)
+   req.URL = s.Base.ResolveReference(req.URL)
+   res, err := new(net_http.Client).Do(req)
    if err != nil {
       return err
    }
@@ -90,13 +70,12 @@ func (s Stream) DASH_Get(items []dash.Representer, index int) error {
    if err != nil {
       return err
    }
-   client.Log_Level = 0
    for _, ref := range media {
-      req.URL, err = s.base.Parse(ref)
+      req.URL, err = s.Base.Parse(ref)
       if err != nil {
          return err
       }
-      res, err := client.Do(req)
+      res, err := new(net_http.Client).Do(req)
       if err != nil {
          return err
       }
@@ -110,4 +89,13 @@ func (s Stream) DASH_Get(items []dash.Representer, index int) error {
       }
    }
    return nil
+}
+
+type Stream struct {
+   Base *url.URL
+   Client_ID string
+   Info bool
+   Namer
+   Private_Key string
+   widevine.Poster
 }

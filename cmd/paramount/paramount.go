@@ -10,6 +10,7 @@ import (
    "io"
    "os"
    "strings"
+   net_http "net/http"
 )
 
 func (f flags) dash(token *paramount.App_Token) error {
@@ -17,11 +18,12 @@ func (f flags) dash(token *paramount.App_Token) error {
    if err != nil {
       return err
    }
-   res, err := http.Get_Parse(ref)
+   res, err := net_http.Get(ref)
    if err != nil {
       return err
    }
    defer res.Body.Close()
+   f.Base = res.Request.URL
    reps, err := dash.Representers(res.Body)
    if err != nil {
       return err

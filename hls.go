@@ -24,7 +24,7 @@ func (s *Stream) HLS(ref string) (*hls.Master, error) {
       return nil, err
    }
    defer res.Body.Close()
-   s.base = res.Request.URL
+   s.Base = res.Request.URL
    return hls.New_Scanner(res.Body).Master()
 }
 
@@ -49,7 +49,7 @@ func hls_get[T hls.Mixed](str Stream, items []T, index int) error {
       return err
    }
    defer file.Close()
-   ref, err := str.base.Parse(item.URI())
+   ref, err := str.Base.Parse(item.URI())
    if err != nil {
       return err
    }
