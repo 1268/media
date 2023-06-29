@@ -8,24 +8,6 @@ import (
    "time"
 )
 
-func Home() (string, error) {
-   dir, err := os.UserHomeDir()
-   if err != nil {
-      return "", err
-   }
-   return filepath.Join(dir, "2a", "mech"), nil
-}
-
-func Clean(path string) string {
-   mapping := func(r rune) rune {
-      if strings.ContainsRune(`"*/:<>?\|`, r) {
-         return '-'
-      }
-      return r
-   }
-   return strings.Map(mapping, path)
-}
-
 func Name(n Namer) (string, error) {
    b := new(strings.Builder)
    title := Clean(n.Title())
@@ -51,6 +33,24 @@ func Name(n Namer) (string, error) {
       fmt.Fprint(b, title)
    }
    return b.String(), nil
+}
+
+func Home() (string, error) {
+   dir, err := os.UserHomeDir()
+   if err != nil {
+      return "", err
+   }
+   return filepath.Join(dir, "2a", "mech"), nil
+}
+
+func Clean(path string) string {
+   mapping := func(r rune) rune {
+      if strings.ContainsRune(`"*/:<>?\|`, r) {
+         return '-'
+      }
+      return r
+   }
+   return strings.Map(mapping, path)
 }
 
 type Namer interface {

@@ -10,15 +10,23 @@ import (
    "time"
 )
 
+type Item struct {
+   Series_Title string `json:"seriesTitle"`
+   Season_Num string `json:"seasonNum"`
+   Episode_Num string `json:"episodeNum"`
+   Label string
+   Air_Date_ISO string `json:"_airDateISO"`
+}
+
+func (i Item) Date() (time.Time, error) {
+   return time.Parse("2006-01-02T15:04:05-07:00", i.Air_Date_ISO)
+}
+
 // some items stupidly have the show and episode title combined:
 // paramountplus.com/shows/video/H87tz3NIw_Ymtcj4zZlWUivmzAPBnMYZ
 func (i Item) Series() string {
    before, _, _ := strings.Cut(i.Series_Title, " - ")
    return before
-}
-
-func (i Item) Date() (time.Time, error) {
-   return time.Parse("2006-01-02T15:04:05-0700", i.Media_Available_Date)
 }
 
 func (i Item) Season() (int64, error) {
@@ -27,15 +35,6 @@ func (i Item) Season() (int64, error) {
 
 func (i Item) Episode() (int64, error) {
    return strconv.ParseInt(i.Episode_Num, 10, 64)
-}
-
-type Item struct {
-   Series_Title string `json:"seriesTitle"`
-   Season_Num string `json:"seasonNum"`
-   Episode_Num string `json:"episodeNum"`
-   Label string
-   // 2023-01-15T19:00:00-0800
-   Media_Available_Date string `json:"mediaAvailableDate"`
 }
 
 func (i Item) Title() string {
