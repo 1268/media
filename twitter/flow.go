@@ -1,3 +1,5 @@
+// Support for this software's development was paid for by
+// Fredrick R. Brennan's Modular Font Editor K Foundation, Inc.
 package twitter
 
 import (
