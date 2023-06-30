@@ -5,7 +5,6 @@ import (
    "2a.pages.dev/mech/paramount"
    "2a.pages.dev/rosso/http"
    "flag"
-   "path/filepath"
 )
 
 type flags struct {
@@ -31,7 +30,7 @@ func main() {
    // c
    flag.StringVar(&f.codec, "c", "mp4a", "audio codec")
    // client
-   f.Client_ID = filepath.Join(home, "client_id.bin")
+   f.Client_ID = home + "/client_id.bin"
    flag.StringVar(&f.Client_ID, "client", f.Client_ID, "client ID")
    // d
    flag.BoolVar(&f.dash_cenc, "d", false, "DASH_CENC")
@@ -40,7 +39,7 @@ func main() {
    // i
    flag.BoolVar(&f.Info, "i", false, "information")
    // key
-   f.Private_Key = filepath.Join(home, "private_key.pem")
+   f.Private_Key = home + "/private_key.pem"
    flag.StringVar(&f.Private_Key, "key", f.Private_Key, "private key")
    // language
    flag.StringVar(&f.lang, "language", "en", "audio language")
