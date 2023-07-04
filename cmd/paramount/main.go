@@ -5,6 +5,7 @@ import (
    "2a.pages.dev/mech/paramount"
    "2a.pages.dev/rosso/http"
    "flag"
+   "os"
 )
 
 type flags struct {
@@ -18,7 +19,7 @@ type flags struct {
 }
 
 func main() {
-   home, err := mech.Home()
+   home, err := os.UserHomeDir()
    if err != nil {
       panic(err)
    }

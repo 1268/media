@@ -3,8 +3,6 @@ package gem
 import (
    "2a.pages.dev/mech"
    "fmt"
-   "os"
-   "strings"
    "testing"
 )
 

@@ -4,6 +4,7 @@ import (
    "2a.pages.dev/mech"
    "2a.pages.dev/rosso/http"
    "flag"
+   "os"
    "path/filepath"
 )
 
@@ -16,7 +17,7 @@ type flags struct {
 }
 
 func main() {
-   home, err := mech.Home()
+   home, err := os.UserHomeDir()
    if err != nil {
       panic(err)
    }

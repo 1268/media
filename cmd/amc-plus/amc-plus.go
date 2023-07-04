@@ -4,6 +4,7 @@ import (
    "2a.pages.dev/mech/amc-plus"
    "2a.pages.dev/rosso/dash"
    "2a.pages.dev/rosso/slices"
+   "net/http"
    "os"
 )
 
@@ -37,7 +38,12 @@ func (f flags) download() error {
       return err
    }
    f.Poster = play
-   reps, err := f.DASH(play.HTTP_DASH().Src)
+   res, err := http.Get(play.HTTP_DASH().Src)
+   if err != nil {
+      return err
+   }
+   defer res.Body.Close()
+   reps, err := dash.Representers(res.Body)
    if err != nil {
       return err
    }

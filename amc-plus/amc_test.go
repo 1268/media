@@ -4,59 +4,58 @@ import (
    "2a.pages.dev/mech"
    "2a.pages.dev/mech/widevine"
    "encoding/base64"
-   "encoding/json"
    "os"
    "testing"
 )
 
 func Test_Login(t *testing.T) {
-   home, err := mech.Home()
-   if err != nil {
-      t.Fatal(err)
-   }
-   u, err := user(home + "/amc.json")
-   if err != nil {
-      t.Fatal(err)
-   }
    auth, err := Unauth()
+   if err != nil {
+      t.Fatal(err)
+   }
+   home, err := os.UserHomeDir()
+   if err != nil {
+      t.Fatal(err)
+   }
+   u, err := mech.User(home + "/amc-plus/user.json")
    if err != nil {
       t.Fatal(err)
    }
    if err := auth.Login(u["username"], u["password"]); err != nil {
       t.Fatal(err)
    }
-   if err := auth.Write_File(home + "/amc.json"); err != nil {
+   if err := auth.Write_File(home + "/amc-plus/auth.json"); err != nil {
       t.Fatal(err)
    }
 }
 
 func Test_Refresh(t *testing.T) {
-   home, err := mech.Home()
+   home, err := os.UserHomeDir()
    if err != nil {
       t.Fatal(err)
    }
-   auth, err := Read_Auth(home + "/amc.json")
+   auth, err := Read_Auth(home + "/amc-plus/auth.json")
    if err != nil {
       t.Fatal(err)
    }
    if err := auth.Refresh(); err != nil {
       t.Fatal(err)
    }
-   if err := auth.Write_File(home + "/amc.json"); err != nil {
+   if err := auth.Write_File(home + "/amc-plus/auth.json"); err != nil {
       t.Fatal(err)
    }
 }
 
 func Test_Post(t *testing.T) {
-   home, err := mech.Home()
+   home, err := os.UserHomeDir()
    if err != nil {
       t.Fatal(err)
    }
-   private_key, err := os.ReadFile(home + "/private_key.pem")
+   private_key, err := os.ReadFile(home + "/widevine/private_key.pem")
    if err != nil {
       t.Fatal(err)
    }
-   client_ID, err := os.ReadFile(home + "/client_id.bin")
+   client_ID, err := os.ReadFile(home + "/widevine/client_id.bin")
    if err != nil {
       t.Fatal(err)
    }
@@ -69,7 +68,7 @@ func Test_Post(t *testing.T) {
    if err != nil {
       t.Fatal(err)
    }
-   auth, err := Read_Auth(home + "/amc.json")
+   auth, err := Read_Auth(home + "/amc-plus/auth.json")
    if err != nil {
       t.Fatal(err)
    }

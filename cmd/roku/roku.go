@@ -4,6 +4,7 @@ import (
    "2a.pages.dev/mech/roku"
    "2a.pages.dev/rosso/dash"
    "2a.pages.dev/rosso/slices"
+   "net/http"
    "strings"
 )
 
@@ -19,7 +20,12 @@ func (f flags) DASH(content *roku.Content) error {
       }
       f.Namer = content
    }
-   reps, err := f.Stream.DASH(content.DASH().URL)
+   res, err := http.Get(content.DASH().URL)
+   if err != nil {
+      return err
+   }
+   defer res.Body.Close()
+   reps, err := dash.Representers(res.Body)
    if err != nil {
       return err
    }

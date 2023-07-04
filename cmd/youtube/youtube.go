@@ -1,7 +1,6 @@
 package main
 
 import (
-   "2a.pages.dev/mech"
    "2a.pages.dev/mech/youtube"
    "2a.pages.dev/rosso/slices"
    "fmt"
@@ -18,7 +17,7 @@ func (f flags) player() (*youtube.Player, error) {
       f.r.Android_Embed()
    case 2:
       f.r.Android_Check()
-      home, err := mech.Home()
+      home, err := os.UserHomeDir()
       if err != nil {
          return nil, err
       }
@@ -102,7 +101,7 @@ func (f flags) do_refresh() error {
    if err != nil {
       return err
    }
-   home, err := mech.Home()
+   home, err := os.UserHomeDir()
    if err != nil {
       return err
    }

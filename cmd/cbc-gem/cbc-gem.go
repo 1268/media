@@ -1,39 +1,23 @@
 package main
 
 import (
-   "2a.pages.dev/mech"
-   "2a.pages.dev/mech/cbc"
+   "2a.pages.dev/mech/cbc-gem"
    "2a.pages.dev/rosso/hls"
    "2a.pages.dev/rosso/slices"
+   "os"
    "strings"
 )
 
-func (f flags) profile() error {
-   home, err := mech.Home()
-   if err != nil {
-      return err
-   }
-   login, err := cbc.New_Token(f.email, f.password)
-   if err != nil {
-      return err
-   }
-   profile, err := login.Profile()
-   if err != nil {
-      return err
-   }
-   return profile.Write_File(home + "/cbc.json")
-}
-
 func (f *flags) master() (*hls.Master, error) {
-   home, err := mech.Home()
+   home, err := os.UserHomeDir()
    if err != nil {
       return nil, err
    }
-   profile, err := cbc.Read_Profile(home + "/cbc.json")
+   profile, err := gem.Read_Profile(home + "/cbc-gem/profile.json")
    if err != nil {
       return nil, err
    }
-   gem, err := cbc.New_Catalog_Gem(f.address)
+   gem, err := gem.New_Catalog_Gem(f.address)
    if err != nil {
       return nil, err
    }
@@ -43,6 +27,22 @@ func (f *flags) master() (*hls.Master, error) {
    }
    f.Namer = gem.Structured_Metadata
    return f.HLS(media.URL)
+}
+
+func (f flags) profile() error {
+   login, err := gem.New_Token(f.email, f.password)
+   if err != nil {
+      return err
+   }
+   profile, err := login.Profile()
+   if err != nil {
+      return err
+   }
+   home, err := os.UserHomeDir()
+   if err != nil {
+      return err
+   }
+   return profile.Write_File(home + "/cbc-gem/profile.json")
 }
 
 func (f flags) download() error {
