@@ -4,10 +4,59 @@ import (
    "2a.pages.dev/mech"
    "2a.pages.dev/mech/widevine"
    "encoding/base64"
+   "encoding/json"
    "os"
-   "strings"
    "testing"
 )
+
+func Test_Login(t *testing.T) {
+   home, err := mech.Home()
+   if err != nil {
+      t.Fatal(err)
+   }
+   u, err := user(home + "/amc.json")
+   if err != nil {
+      t.Fatal(err)
+   }
+   auth, err := Unauth()
+   if err != nil {
+      t.Fatal(err)
+   }
+   if err := auth.Login(u["username"], u["password"]); err != nil {
+      t.Fatal(err)
+   }
+   if err := auth.Write_File(home + "/amc.json"); err != nil {
+      t.Fatal(err)
+   }
+}
+
+func Test_Refresh(t *testing.T) {
+   home, err := mech.Home()
+   if err != nil {
+      t.Fatal(err)
+   }
+   auth, err := Read_Auth(home + "/amc.json")
+   if err != nil {
+      t.Fatal(err)
+   }
+   if err := auth.Refresh(); err != nil {
+      t.Fatal(err)
+   }
+   if err := auth.Write_File(home + "/amc.json"); err != nil {
+      t.Fatal(err)
+   }
+}
+func user(name string) (map[string]string, error) {
+   b, err := os.ReadFile(name)
+   if err != nil {
+      return nil, err
+   }
+   var m map[string]string
+   if err := json.Unmarshal(b, &m); err != nil {
+      return nil, err
+   }
+   return m, nil
+}
 
 func Test_Post(t *testing.T) {
    home, err := mech.Home()
@@ -48,48 +97,3 @@ func Test_Post(t *testing.T) {
    }
 }
 
-func user_info(name string) ([]string, error) {
-   text, err := os.ReadFile(name)
-   if err != nil {
-      return nil, err
-   }
-   return strings.Split(string(text), "\n"), nil
-}
-
-func Test_Login(t *testing.T) {
-   home, err := mech.Home()
-   if err != nil {
-      t.Fatal(err)
-   }
-   user, err := user_info(home + "/amc.txt")
-   if err != nil {
-      t.Fatal(err)
-   }
-   auth, err := Unauth()
-   if err != nil {
-      t.Fatal(err)
-   }
-   if err := auth.Login(user[0], user[1]); err != nil {
-      t.Fatal(err)
-   }
-   if err := auth.Write_File(home + "/amc.json"); err != nil {
-      t.Fatal(err)
-   }
-}
-
-func Test_Refresh(t *testing.T) {
-   home, err := mech.Home()
-   if err != nil {
-      t.Fatal(err)
-   }
-   auth, err := Read_Auth(home + "/amc.json")
-   if err != nil {
-      t.Fatal(err)
-   }
-   if err := auth.Refresh(); err != nil {
-      t.Fatal(err)
-   }
-   if err := auth.Write_File(home + "/amc.json"); err != nil {
-      t.Fatal(err)
-   }
-}

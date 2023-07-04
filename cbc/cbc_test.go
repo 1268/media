@@ -8,16 +8,28 @@ import (
    "testing"
 )
 
+func user(name string) (map[string]string, error) {
+   b, err := os.ReadFile(name)
+   if err != nil {
+      return nil, err
+   }
+   var m map[string]string
+   if err := json.Unmarshal(b, &m); err != nil {
+      return nil, err
+   }
+   return m, nil
+}
+
 func Test_New_Profile(t *testing.T) {
    home, err := mech.Home()
    if err != nil {
       t.Fatal(err)
    }
-   user, err := user_info(home + "/cbc.txt")
+   u, err := user(home + "/gem.cbc.ca/user.json")
    if err != nil {
       t.Fatal(err)
    }
-   tok, err := New_Token(user[0], user[1])
+   tok, err := New_Token(u["username"], u["password"])
    if err != nil {
       t.Fatal(err)
    }
@@ -28,24 +40,16 @@ func Test_New_Profile(t *testing.T) {
    fmt.Printf("%+v\n", pro)
 }
 
-func user_info(name string) ([]string, error) {
-   text, err := os.ReadFile(name)
-   if err != nil {
-      return nil, err
-   }
-   return strings.Split(string(text), "\n"), nil
-}
-
 func Test_Profile(t *testing.T) {
    home, err := mech.Home()
    if err != nil {
       t.Fatal(err)
    }
-   user, err := user_info(home + "/cbc.txt")
+   u, err := user(home + "/gem.cbc.ca/user.json")
    if err != nil {
       t.Fatal(err)
    }
-   tok, err := New_Token(user[0], user[1])
+   tok, err := New_Token(u[0], u[1])
    if err != nil {
       t.Fatal(err)
    }

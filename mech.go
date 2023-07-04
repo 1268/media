@@ -2,19 +2,9 @@ package mech
 
 import (
    "fmt"
-   "os"
-   "path/filepath"
    "strings"
    "time"
 )
-
-func Home() (string, error) {
-   dir, err := os.UserHomeDir()
-   if err != nil {
-      return "", err
-   }
-   return filepath.ToSlash(dir + "/2a/mech"), nil
-}
 
 func Name(n Namer) (string, error) {
    b := new(strings.Builder)
