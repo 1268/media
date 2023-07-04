@@ -1,7 +1,7 @@
 package main
 
 import (
-   "2a.pages.dev/mech/amc"
+   "2a.pages.dev/mech/amc-plus"
    "2a.pages.dev/rosso/dash"
    "2a.pages.dev/rosso/slices"
    "os"

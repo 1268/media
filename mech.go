@@ -1,10 +1,24 @@
 package mech
 
 import (
+   "encoding/json"
    "fmt"
+   "os"
    "strings"
    "time"
 )
+
+func User(name string) (map[string]string, error) {
+   b, err := os.ReadFile(name)
+   if err != nil {
+      return nil, err
+   }
+   var m map[string]string
+   if err := json.Unmarshal(b, &m); err != nil {
+      return nil, err
+   }
+   return m, nil
+}
 
 func Name(n Namer) (string, error) {
    b := new(strings.Builder)
