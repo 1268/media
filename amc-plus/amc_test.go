@@ -1,9 +1,40 @@
 package amc
 
 import (
+   "2a.pages.dev/mech"
+   "fmt"
    "os"
    "testing"
+   "time"
 )
+
+func Test_Content(t *testing.T) {
+   Set_Env()
+   var auth Auth_ID
+   {
+      b, err := os.ReadFile(os.Getenv("AMC_PLUS"))
+      if err != nil {
+         t.Fatal(err)
+      }
+      auth.Unmarshal(b)
+   }
+   for _, test := range tests {
+      con, err := auth.Content(test.address)
+      if err != nil {
+         t.Fatal(err)
+      }
+      vid, err := con.Video()
+      if err != nil {
+         t.Fatal(err)
+      }
+      name, err := mech.Name(vid)
+      if err != nil {
+         t.Fatal(err)
+      }
+      fmt.Println(name)
+      time.Sleep(time.Second)
+   }
+}
 
 func Test_Refresh(t *testing.T) {
    Set_Env()
