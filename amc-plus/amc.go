@@ -10,7 +10,7 @@ import (
    "time"
 )
 
-func (a *Auth) Login(email, password string) error {
+func (a *Auth_ID) Login(email, password string) error {
    body, err := json.Marshal(map[string]string{
       "email": email,
       "password": password,
@@ -146,7 +146,7 @@ type Playback struct {
 }
 
 // This accepts full URL or path only.
-func (a Auth) Content(ref string) (*Content, error) {
+func (a Auth_ID) Content(ref string) (*Content, error) {
    req, err := http.NewRequest("GET", "https://gw.cds.amcn.com", nil)
    if err != nil {
       return nil, err
@@ -185,7 +185,7 @@ func (a Auth) Content(ref string) (*Content, error) {
    return con, nil
 }
 
-func (a Auth) Playback(ref string) (*Playback, error) {
+func (a Auth_ID) Playback(ref string) (*Playback, error) {
    body, err := func() ([]byte, error) {
       var s struct {
          Ad_Tags struct {
@@ -248,7 +248,7 @@ func (a Auth) Playback(ref string) (*Playback, error) {
    return &play, nil
 }
 
-func (a *Auth) Refresh() error {
+func (a *Auth_ID) Refresh() error {
    req, err := http.NewRequest(
       "POST",
       "https://gw.cds.amcn.com/auth-orchestration-id/api/v1/refresh",
@@ -266,7 +266,7 @@ func (a *Auth) Refresh() error {
    return json.NewDecoder(res.Body).Decode(a)
 }
 
-func Unauth() (*Auth, error) {
+func Unauth() (*Auth_ID, error) {
    req, err := http.NewRequest(
       "POST", "https://gw.cds.amcn.com/auth-orchestration-id/api/v1/unauth",
       nil,
@@ -286,9 +286,9 @@ func Unauth() (*Auth, error) {
       return nil, err
    }
    defer res.Body.Close()
-   a := new(Auth)
-   if err := json.NewDecoder(res.Body).Decode(a); err != nil {
+   auth := new(Auth_ID)
+   if err := json.NewDecoder(res.Body).Decode(auth); err != nil {
       return nil, err
    }
-   return a, nil
+   return auth, nil
 }
