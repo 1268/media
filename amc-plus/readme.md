@@ -42,23 +42,22 @@ HTTP/2.0 200
 use an email like this:
 
 ~~~
-2023-05-28@mailsac.com
+2023-07-04@mailsac.com
 ~~~
 
 1. https://amcplus.com/create
 2. enter EMAIL
 3. enter PASSWORD
-4. uncheck Yes! I would like to receive updates
-5. click CREATE ACCOUNT
-6. click MONTHLY
-7. enter Name ON CARD
-8. enter CARD NUMBER
-9. enter EXPIRATION DATE
-10. enter CVC
-11. enter POSTAL CODE
-12. click START FREE TRIAL
-13. click START WATCHING NOW
-14. click SETTINGS
-15. click Subscription
-16. click CANCEL
-17. click NO THANKS, CANCEL AMC+
+4. click CREATE ACCOUNT
+5. click MONTHLY
+6. enter Name ON CARD
+7. enter CARD NUMBER
+8. enter EXPIRATION DATE
+9. enter CVC
+10. enter POSTAL CODE
+11. click START FREE TRIAL
+12. click START WATCHING NOW
+13. click SETTINGS
+14. click Subscription
+15. click CANCEL
+16. click NO THANKS, CANCEL AMC+

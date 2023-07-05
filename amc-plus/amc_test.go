@@ -1,5 +1,32 @@
 package amc
 
+import (
+   "os"
+   "testing"
+)
+
+func Test_Refresh(t *testing.T) {
+   Set_Env()
+   var auth Auth_ID
+   {
+      b, err := os.ReadFile(os.Getenv("AMC_PLUS"))
+      if err != nil {
+         t.Fatal(err)
+      }
+      auth.Unmarshal(b)
+   }
+   if err := auth.Refresh(); err != nil {
+      t.Fatal(err)
+   }
+   {
+      b, err := auth.Marshal()
+      if err != nil {
+         t.Fatal(err)
+      }
+      os.WriteFile(os.Getenv("AMC_PLUS"), b, 0666)
+   }
+}
+
 var tests = []struct {
    address string
    key string

@@ -43,6 +43,9 @@ func (a *Auth_ID) Login(email, password string) error {
       return err
    }
    defer res.Body.Close()
+   if res.StatusCode != http.StatusOK {
+      return errors.New(res.Status)
+   }
    return json.NewDecoder(res.Body).Decode(a)
 }
 
@@ -181,6 +184,9 @@ func (a Auth_ID) Content(ref string) (*Content, error) {
       return nil, err
    }
    defer res.Body.Close()
+   if res.StatusCode != http.StatusOK {
+      return nil, errors.New(res.Status)
+   }
    con := new(Content)
    if err := json.NewDecoder(res.Body).Decode(con); err != nil {
       return nil, err
@@ -235,6 +241,9 @@ func (a Auth_ID) Playback(ref string) (*Playback, error) {
       return nil, err
    }
    defer res.Body.Close()
+   if res.StatusCode != http.StatusOK {
+      return nil, errors.New(res.Status)
+   }
    var play Playback
    {
       var s struct {
@@ -269,6 +278,9 @@ func (a *Auth_ID) Refresh() error {
       return err
    }
    defer res.Body.Close()
+   if res.StatusCode != http.StatusOK {
+      return errors.New(res.Status)
+   }
    return json.NewDecoder(res.Body).Decode(a)
 }
 
@@ -292,6 +304,9 @@ func Unauth() (*Auth_ID, error) {
       return nil, err
    }
    defer res.Body.Close()
+   if res.StatusCode != http.StatusOK {
+      return nil, errors.New(res.Status)
+   }
    auth := new(Auth_ID)
    if err := json.NewDecoder(res.Body).Decode(auth); err != nil {
       return nil, err

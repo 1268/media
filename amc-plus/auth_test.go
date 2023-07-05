@@ -10,6 +10,34 @@ import (
    "time"
 )
 
+func Test_Content(t *testing.T) {
+   Set_Env()
+   var auth Auth_ID
+   {
+      b, err := os.ReadFile(os.Getenv("AMC_PLUS"))
+      if err != nil {
+         t.Fatal(err)
+      }
+      auth.Unmarshal(b)
+   }
+   for _, test := range tests {
+      con, err := auth.Content(test.address)
+      if err != nil {
+         t.Fatal(err)
+      }
+      vid, err := con.Video()
+      if err != nil {
+         t.Fatal(err)
+      }
+      name, err := mech.Name(vid)
+      if err != nil {
+         t.Fatal(err)
+      }
+      fmt.Println(name)
+      time.Sleep(time.Second)
+   }
+}
+
 func Test_Login(t *testing.T) {
    home, err := os.UserHomeDir()
    if err != nil {
@@ -77,60 +105,3 @@ func Test_Post(t *testing.T) {
       t.Fatal(keys)
    }
 }
-
-func Test_Content(t *testing.T) {
-   home, err := os.UserHomeDir()
-   if err != nil {
-      t.Fatal(err)
-   }
-   var auth Auth_ID
-   {
-      b, err := os.ReadFile(home + "/amc-plus/auth.json")
-      if err != nil {
-         t.Fatal(err)
-      }
-      auth.Unmarshal(b)
-   }
-   for _, test := range tests {
-      con, err := auth.Content(test.address)
-      if err != nil {
-         t.Fatal(err)
-      }
-      vid, err := con.Video()
-      if err != nil {
-         t.Fatal(err)
-      }
-      name, err := mech.Name(vid)
-      if err != nil {
-         t.Fatal(err)
-      }
-      fmt.Println(name)
-      time.Sleep(time.Second)
-   }
-}
-
-func Test_Refresh(t *testing.T) {
-   home, err := os.UserHomeDir()
-   if err != nil {
-      t.Fatal(err)
-   }
-   var auth Auth_ID
-   {
-      b, err := os.ReadFile(home + "/amc-plus/auth.json")
-      if err != nil {
-         t.Fatal(err)
-      }
-      auth.Unmarshal(b)
-   }
-   if err := auth.Refresh(); err != nil {
-      t.Fatal(err)
-   }
-   {
-      b, err := auth.Marshal()
-      if err != nil {
-         t.Fatal(err)
-      }
-      os.WriteFile(home + "/amc-plus/auth.json", b, 0666)
-   }
-}
-
