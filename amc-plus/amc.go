@@ -15,6 +15,9 @@ func (a *Auth_ID) Login(email, password string) error {
       "email": email,
       "password": password,
    })
+   if err != nil {
+      return err
+   }
    req, err := http.NewRequest(
       "POST", "https://gw.cds.amcn.com/auth-orchestration-id/api/v1/login",
       bytes.NewReader(body),
@@ -201,6 +204,9 @@ func (a Auth_ID) Playback(ref string) (*Playback, error) {
       s.Ad_Tags.URL = "-"
       return json.MarshalIndent(s, "", " ")
    }()
+   if err != nil {
+      return nil, err
+   }
    req, err := http.NewRequest(
       "POST", "https://gw.cds.amcn.com/playback-id/api/v1/playback/",
       bytes.NewReader(body),
