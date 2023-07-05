@@ -1,6 +1,7 @@
 package amc
 
 import (
+   "bytes"
    "encoding/json"
    "errors"
    "net/http"
@@ -8,6 +9,39 @@ import (
    "strings"
    "time"
 )
+
+func (a *Auth) Login(email, password string) error {
+   body, err := json.Marshal(map[string]string{
+      "email": email,
+      "password": password,
+   })
+   req, err := http.NewRequest(
+      "POST", "https://gw.cds.amcn.com/auth-orchestration-id/api/v1/login",
+      bytes.NewReader(body),
+   )
+   if err != nil {
+      return err
+   }
+   req.Header = http.Header{
+      "Authorization": {"Bearer " + a.Data.Access_Token},
+      "Content-Type": {"application/json"},
+      "X-Amcn-Device-Ad-ID": {"-"},
+      "X-Amcn-Device-ID": {"-"},
+      "X-Amcn-Language": {"en"},
+      "X-Amcn-Network": {"amcplus"},
+      "X-Amcn-Platform": {"web"},
+      "X-Amcn-Service-Group-ID": {"10"},
+      "X-Amcn-Service-ID": {"amcplus"},
+      "X-Amcn-Tenant": {"amcn"},
+      "X-Ccpa-Do-Not-Sell": {"doNotPassData"},
+   }
+   res, err := new(http.Transport).RoundTrip(req)
+   if err != nil {
+      return err
+   }
+   defer res.Body.Close()
+   return json.NewDecoder(res.Body).Decode(a)
+}
 
 func (p Playback) HTTP_DASH() *Source {
    for _, source := range p.sources {
@@ -111,49 +145,26 @@ type Playback struct {
    sources []Source
 }
 
-func (p *Playback) body(res *http.Response) error {
-   var s struct {
-      Data struct {
-         Playback_JSON_Data struct {
-            Sources []Source
-         } `json:"playbackJsonData"`
-      }
-   }
-   err := json.NewDecoder(res.Body).Decode(&s)
-   if err != nil {
-      return err
-   }
-   p.sources = s.Data.Playback_JSON_Data.Sources
-   return nil
-}
-
-/////////////////////////////////////////////
-
 // This accepts full URL or path only.
 func (a Auth) Content(ref string) (*Content, error) {
+   req, err := http.NewRequest("GET", "https://gw.cds.amcn.com", nil)
+   if err != nil {
+      return nil, err
+   }
+   req.URL.Path = "/content-compiler-cr/api/v1/content/amcn/amcplus/path"
    // Shows must use `path`, and movies must use `path/watch`. If trial has
    // expired, you will get `.data.type` of `redirect`. You can remove the
    // `/watch` to resolve this, but the resultant response will still be
    // missing `video-player-ap`.
-   url_path := func(r *http.Request) error {
+   {
       p, err := url.Parse(ref)
       if err != nil {
-         return err
+         return nil, err
       }
       if strings.HasPrefix(p.Path, "/movies/") {
-         r.URL.Path += "/watch"
+         req.URL.Path += "/watch"
       }
-      r.URL.Path += p.Path
-      return nil
-   }
-   req := http.Get(&url.URL{
-      Scheme: "https",
-      Host: "gw.cds.amcn.com",
-      Path: "/content-compiler-cr/api/v1/content/amcn/amcplus/path",
-   })
-   err := url_path(req)
-   if err != nil {
-      return nil, err
+      req.URL.Path += p.Path
    }
    // If you request once with headers, you can request again without any
    // headers for 10 minutes, but then headers are required again
@@ -162,7 +173,7 @@ func (a Auth) Content(ref string) (*Content, error) {
       "X-Amcn-Network": {"amcplus"},
       "X-Amcn-Tenant": {"amcn"},
    }
-   res, err := http.Default_Client.Do(req)
+   res, err := new(http.Transport).RoundTrip(req)
    if err != nil {
       return nil, err
    }
@@ -175,8 +186,7 @@ func (a Auth) Content(ref string) (*Content, error) {
 }
 
 func (a Auth) Playback(ref string) (*Playback, error) {
-   // request body
-   req_body := func(r *http.Request) error {
+   body, err := func() ([]byte, error) {
       var s struct {
          Ad_Tags struct {
             Lat int `json:"lat"`
@@ -189,34 +199,20 @@ func (a Auth) Playback(ref string) (*Playback, error) {
       }
       s.Ad_Tags.Mode = "on-demand"
       s.Ad_Tags.URL = "-"
-      b, err := json.MarshalIndent(s, "", " ")
-      if err != nil {
-         return err
-      }
-      r.Body_Bytes(b)
-      return nil
-   }
-   // request URL path
-   req_URL_path := func(r *http.Request) error {
-      _, nID, found := strings.Cut(ref, "--")
-      if !found {
-         return errors.New("nid not found")
-      }
-      r.URL.Path += nID
-      return nil
-   }
-   req := http.Post(&url.URL{
-      Scheme: "https",
-      Host: "gw.cds.amcn.com",
-      Path: "/playback-id/api/v1/playback/",
-   })
-   err := req_URL_path(req)
+      return json.MarshalIndent(s, "", " ")
+   }()
+   req, err := http.NewRequest(
+      "POST", "https://gw.cds.amcn.com/playback-id/api/v1/playback/",
+      bytes.NewReader(body),
+   )
    if err != nil {
       return nil, err
    }
-   if err := req_body(req); err != nil {
-      return nil, err
+   _, nID, found := strings.Cut(ref, "--")
+   if !found {
+      return nil, errors.New("nid not found")
    }
+   req.URL.Path += nID
    req.Header = http.Header{
       "Authorization": {"Bearer " + a.Data.Access_Token},
       "Content-Type": {"application/json"},
@@ -228,69 +224,41 @@ func (a Auth) Playback(ref string) (*Playback, error) {
       "X-Amcn-Tenant": {"amcn"},
       "X-Ccpa-Do-Not-Sell": {"doNotPassData"},
    }
-   res, err := http.Default_Client.Do(req)
+   res, err := new(http.Transport).RoundTrip(req)
    if err != nil {
       return nil, err
    }
    defer res.Body.Close()
-   var p Playback
-   if err := p.body(res); err != nil {
-      return nil, err
-   }
-   p.Header = res.Header
-   return &p, nil
-}
-
-func (a *Auth) Login(email, password string) error {
-   body := func(r *http.Request) error {
-      b, err := json.Marshal(map[string]string{
-         "email": email,
-         "password": password,
-      })
-      if err != nil {
-         return err
+   var play Playback
+   {
+      var s struct {
+         Data struct {
+            Playback_JSON_Data struct {
+               Sources []Source
+            } `json:"playbackJsonData"`
+         }
       }
-      r.Body_Bytes(b)
-      return nil
+      err := json.NewDecoder(res.Body).Decode(&s)
+      if err != nil {
+         return nil, err
+      }
+      play.sources = s.Data.Playback_JSON_Data.Sources
    }
-   req := http.Post(&url.URL{
-      Scheme: "https",
-      Host: "gw.cds.amcn.com",
-      Path: "/auth-orchestration-id/api/v1/login",
-   })
-   req.Header = http.Header{
-      "Authorization": {"Bearer " + a.Data.Access_Token},
-      "Content-Type": {"application/json"},
-      "X-Amcn-Device-Ad-ID": {"-"},
-      "X-Amcn-Device-ID": {"-"},
-      "X-Amcn-Language": {"en"},
-      "X-Amcn-Network": {"amcplus"},
-      "X-Amcn-Platform": {"web"},
-      "X-Amcn-Service-Group-ID": {"10"},
-      "X-Amcn-Service-ID": {"amcplus"},
-      "X-Amcn-Tenant": {"amcn"},
-      "X-Ccpa-Do-Not-Sell": {"doNotPassData"},
-   }
-   err := body(req)
-   if err != nil {
-      return err
-   }
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return err
-   }
-   defer res.Body.Close()
-   return json.NewDecoder(res.Body).Decode(a)
+   play.Header = res.Header
+   return &play, nil
 }
 
 func (a *Auth) Refresh() error {
-   req := http.Post(&url.URL{
-      Scheme: "https",
-      Host: "gw.cds.amcn.com",
-      Path: "/auth-orchestration-id/api/v1/refresh",
-   })
+   req, err := http.NewRequest(
+      "POST",
+      "https://gw.cds.amcn.com/auth-orchestration-id/api/v1/refresh",
+      nil,
+   )
+   if err != nil {
+      return err
+   }
    req.Header.Set("Authorization", "Bearer " + a.Data.Refresh_Token)
-   res, err := http.Default_Client.Do(req)
+   res, err := new(http.Transport).RoundTrip(req)
    if err != nil {
       return err
    }
@@ -299,11 +267,13 @@ func (a *Auth) Refresh() error {
 }
 
 func Unauth() (*Auth, error) {
-   req := http.Post(&url.URL{
-      Scheme: "https",
-      Host: "gw.cds.amcn.com",
-      Path: "/auth-orchestration-id/api/v1/unauth",
-   })
+   req, err := http.NewRequest(
+      "POST", "https://gw.cds.amcn.com/auth-orchestration-id/api/v1/unauth",
+      nil,
+   )
+   if err != nil {
+      return nil, err
+   }
    req.Header = http.Header{
       "X-Amcn-Device-ID": {"-"},
       "X-Amcn-Language": {"en"},
@@ -311,7 +281,7 @@ func Unauth() (*Auth, error) {
       "X-Amcn-Platform": {"web"},
       "X-Amcn-Tenant": {"amcn"},
    }
-   res, err := http.Default_Client.Do(req)
+   res, err := new(http.Transport).RoundTrip(req)
    if err != nil {
       return nil, err
    }
