@@ -1,10 +1,10 @@
 package mech
 
 import (
-   "2a.pages.dev/mech/widevine"
    "2a.pages.dev/rosso/dash"
    "2a.pages.dev/rosso/http"
    "2a.pages.dev/rosso/mp4"
+   "2a.pages.dev/stream/widevine"
    "fmt"
    "net/url"
    "os"

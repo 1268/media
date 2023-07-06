@@ -2,7 +2,7 @@ package amc
 
 import (
    "2a.pages.dev/mech"
-   "2a.pages.dev/mech/widevine"
+   "2a.pages.dev/stream/widevine"
    "encoding/base64"
    "os"
    "testing"
