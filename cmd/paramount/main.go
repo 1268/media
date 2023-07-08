@@ -30,18 +30,12 @@ func main() {
    flag.IntVar(&f.bandwidth, "bandwidth", 5_000_000, "maximum bandwidth")
    // c
    flag.StringVar(&f.codec, "c", "mp4a", "audio codec")
-   // client
-   f.Client_ID = home + "/client_id.bin"
-   flag.StringVar(&f.Client_ID, "client", f.Client_ID, "client ID")
    // d
    flag.BoolVar(&f.dash_cenc, "d", false, "DASH_CENC")
    // h
    flag.IntVar(&f.height, "h", 720, "maximum height")
    // i
    flag.BoolVar(&f.Info, "i", false, "information")
-   // key
-   f.Private_Key = home + "/private_key.pem"
-   flag.StringVar(&f.Private_Key, "key", f.Private_Key, "private key")
    // language
    flag.StringVar(&f.lang, "language", "en", "audio language")
    // log
@@ -49,6 +43,12 @@ func main() {
       &http.Default_Client.Log_Level, "log",
       http.Default_Client.Log_Level, "log level",
    )
+   // client
+   f.Client_ID = home + "/widevine/client_id.bin"
+   flag.StringVar(&f.Client_ID, "client", f.Client_ID, "client ID")
+   // key
+   f.Private_Key = home + "/widevine/private_key.pem"
+   flag.StringVar(&f.Private_Key, "key", f.Private_Key, "private key")
    flag.Parse()
    if f.content_ID != "" {
       token, err := paramount.New_App_Token()

@@ -24,18 +24,12 @@ func main() {
    var f flags
    // a
    flag.StringVar(&f.address, "a", "", "address")
-   // client
-   f.Client_ID = filepath.Join(home, "client_id.bin")
-   flag.StringVar(&f.Client_ID, "client", f.Client_ID, "client ID")
    // e
    flag.StringVar(&f.email, "e", "", "email")
    // h
    flag.IntVar(&f.height, "h", 1080, "maximum height")
    // i
    flag.BoolVar(&f.Info, "i", false, "information")
-   // key
-   f.Private_Key = filepath.Join(home, "private_key.pem")
-   flag.StringVar(&f.Private_Key, "key", f.Private_Key, "private key")
    // log
    flag.IntVar(
       &http.Default_Client.Log_Level, "log",
@@ -43,6 +37,12 @@ func main() {
    )
    // p
    flag.StringVar(&f.password, "p", "", "password")
+   // client
+   f.Client_ID = home + "/widevine/client_id.bin"
+   flag.StringVar(&f.Client_ID, "client", f.Client_ID, "client ID")
+   // key
+   f.Private_Key = home + "/widevine/private_key.pem"
+   flag.StringVar(&f.Private_Key, "key", f.Private_Key, "private key")
    flag.Parse()
    if f.email != "" {
       err := f.login()

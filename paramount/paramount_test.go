@@ -11,6 +11,62 @@ import (
    "time"
 )
 
+func Test_Post(t *testing.T) {
+   home, err := os.UserHomeDir()
+   if err != nil {
+      t.Fatal(err)
+   }
+   private_key, err := os.ReadFile(home + "/widevine/private_key.pem")
+   if err != nil {
+      t.Fatal(err)
+   }
+   client_ID, err := os.ReadFile(home + "/widevine/client_id.bin")
+   if err != nil {
+      t.Fatal(err)
+   }
+   test := tests[0]
+   pssh, err := base64.StdEncoding.DecodeString(test.pssh)
+   if err != nil {
+      t.Fatal(err)
+   }
+   mod, err := widevine.New_Module(private_key, client_ID, pssh)
+   if err != nil {
+      t.Fatal(err)
+   }
+   token, err := New_App_Token()
+   if err != nil {
+      t.Fatal(err)
+   }
+   sess, err := token.Session(test.content_ID)
+   if err != nil {
+      t.Fatal(err)
+   }
+   keys, err := mod.Post(sess)
+   if err != nil {
+      t.Fatal(err)
+   }
+   if keys.Content().String() != test.key {
+      t.Fatal(keys)
+   }
+}
+
+func Test_Secrets(t *testing.T) {
+   for _, secret := range app_secrets {
+      token, err := app_token_with(secret)
+      if err != nil {
+         t.Fatal(err)
+      }
+      if _, err := token.Item(tests[0].content_ID); err != nil {
+         t.Fatal(err)
+      }
+      time.Sleep(99 * time.Millisecond)
+   }
+}
+
+const (
+   episode = iota
+   movie
+)
 var tests = []struct{
    asset func(string)(string,error) // Downloadable
    content int // Movie
@@ -65,59 +121,3 @@ func Test_Media(t *testing.T) {
    }
 }
 
-func Test_Post(t *testing.T) {
-   home, err := mech.Home()
-   if err != nil {
-      t.Fatal(err)
-   }
-   private_key, err := os.ReadFile(home + "/private_key.pem")
-   if err != nil {
-      t.Fatal(err)
-   }
-   client_ID, err := os.ReadFile(home + "/client_id.bin")
-   if err != nil {
-      t.Fatal(err)
-   }
-   test := tests[0]
-   pssh, err := base64.StdEncoding.DecodeString(test.pssh)
-   if err != nil {
-      t.Fatal(err)
-   }
-   mod, err := widevine.New_Module(private_key, client_ID, pssh)
-   if err != nil {
-      t.Fatal(err)
-   }
-   token, err := New_App_Token()
-   if err != nil {
-      t.Fatal(err)
-   }
-   sess, err := token.Session(test.content_ID)
-   if err != nil {
-      t.Fatal(err)
-   }
-   keys, err := mod.Post(sess)
-   if err != nil {
-      t.Fatal(err)
-   }
-   if keys.Content().String() != test.key {
-      t.Fatal(keys)
-   }
-}
-
-func Test_Secrets(t *testing.T) {
-   for _, secret := range app_secrets {
-      token, err := app_token_with(secret)
-      if err != nil {
-         t.Fatal(err)
-      }
-      if _, err := token.Item(tests[0].content_ID); err != nil {
-         t.Fatal(err)
-      }
-      time.Sleep(99 * time.Millisecond)
-   }
-}
-
-const (
-   episode = iota
-   movie
-)
