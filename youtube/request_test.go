@@ -1,7 +1,6 @@
 package youtube
 
 import (
-   "2a.pages.dev/mech"
    "encoding/json"
    "fmt"
    "os"
@@ -10,10 +9,6 @@ import (
 )
 
 func Test_Android_Check(t *testing.T) {
-   home, err := mech.Home()
-   if err != nil {
-      t.Fatal(err)
-   }
    tok, err := Read_Token(home + "/youtube.json")
    if err != nil {
       t.Fatal(err)
@@ -37,6 +32,7 @@ var android_embeds = []string{
    "HtVdAasjOgU",
    "WaOKSUlf4TM",
 }
+
 func Test_Android(t *testing.T) {
    var req Request
    req.Android()

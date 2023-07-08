@@ -2,7 +2,7 @@ package roku
 
 import (
    "2a.pages.dev/rosso/http"
-   "2a.pages.dev/rosso/json"
+   "encoding/json"
    "net/url"
    "strings"
    "time"

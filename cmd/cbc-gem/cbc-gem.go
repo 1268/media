@@ -1,9 +1,9 @@
 package main
 
 import (
-   "2a.pages.dev/mech/cbc-gem"
    "2a.pages.dev/rosso/hls"
-   "2a.pages.dev/rosso/slices"
+   "encoding.pages.dev/slices"
+   "mechanize.pages.dev/cbc-gem"
    "os"
    "strings"
 )

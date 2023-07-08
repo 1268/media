@@ -1,9 +1,9 @@
 package main
 
 import (
-   "2a.pages.dev/mech/amc-plus"
    "2a.pages.dev/rosso/dash"
-   "2a.pages.dev/rosso/slices"
+   "encoding.pages.dev/slices"
+   "mechanize.pages.dev/amc-plus"
    "net/http"
    "os"
 )

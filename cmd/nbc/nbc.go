@@ -3,7 +3,7 @@ package main
 import (
    "2a.pages.dev/mech/nbc"
    "2a.pages.dev/rosso/hls"
-   "2a.pages.dev/rosso/slices"
+   "encoding.pages.dev/slices"
    "strings"
 )
 

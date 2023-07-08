@@ -1,7 +1,7 @@
 package youtube
 
 import (
-   "2a.pages.dev/mech"
+   "mechanize.pages.dev"
    "strings"
    "time"
 )

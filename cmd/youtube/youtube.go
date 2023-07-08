@@ -2,7 +2,7 @@ package main
 
 import (
    "2a.pages.dev/mech/youtube"
-   "2a.pages.dev/rosso/slices"
+   "encoding.pages.dev/slices"
    "fmt"
    "os"
    "strings"

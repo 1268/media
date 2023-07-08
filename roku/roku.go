@@ -2,7 +2,7 @@ package roku
 
 import (
    "2a.pages.dev/rosso/http"
-   "2a.pages.dev/rosso/json"
+   "encoding.pages.dev/json"
    "io"
    "net/url"
 )

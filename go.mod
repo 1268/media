@@ -1,10 +1,12 @@
-module 2a.pages.dev/mech
+module mechanize.pages.dev
 
 go 1.20
 
 require (
+	2a.pages.dev/mech v1.5.3
 	2a.pages.dev/rosso v1.7.8
 	2a.pages.dev/stream v1.0.1
+	encoding.pages.dev v1.9.3
 	protobuf.pages.dev v1.0.0
 )
 

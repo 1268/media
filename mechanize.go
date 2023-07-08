@@ -1,4 +1,4 @@
-package mech
+package mechanize
 
 import (
    "encoding/json"

@@ -1,4 +1,4 @@
-package mech
+package mechanize
 
 import (
    "2a.pages.dev/rosso/hls"

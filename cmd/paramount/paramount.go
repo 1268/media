@@ -5,7 +5,7 @@ import (
    "2a.pages.dev/mech/paramount"
    "2a.pages.dev/rosso/dash"
    "2a.pages.dev/rosso/http"
-   "2a.pages.dev/rosso/slices"
+   "encoding.pages.dev/slices"
    "fmt"
    "io"
    "os"

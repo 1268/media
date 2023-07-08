@@ -2,7 +2,7 @@ package bandcamp
 
 import (
    "2a.pages.dev/rosso/http"
-   "2a.pages.dev/rosso/xml"
+   "encoding.pages.dev/xml"
    "encoding/json"
    "io"
    "net/url"
