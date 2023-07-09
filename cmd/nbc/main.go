@@ -1,14 +1,14 @@
 package main
 
 import (
-   "2a.pages.dev/mech"
    "2a.pages.dev/rosso/http"
    "flag"
+   "mechanize.pages.dev"
 )
 
 type flags struct {
    guid int64
-   mech.Stream
+   mechanize.Stream
    resolution string
    bandwidth int64
 }

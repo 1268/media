@@ -1,9 +1,9 @@
 package amc
 
 import (
-   "2a.pages.dev/mech"
    "2a.pages.dev/stream/widevine"
    "encoding/base64"
+   "mechanize.pages.dev"
    "os"
    "testing"
 )
@@ -60,7 +60,7 @@ func Test_Login(t *testing.T) {
    if err != nil {
       t.Fatal(err)
    }
-   u, err := mech.User(home + "/amc-plus/user.json")
+   u, err := mechanize.User(home + "/amc-plus/user.json")
    if err != nil {
       t.Fatal(err)
    }

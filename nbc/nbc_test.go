@@ -1,7 +1,7 @@
 package nbc
 
 import (
-   "2a.pages.dev/mech"
+   "mechanize.pages.dev"
    "fmt"
    "testing"
    "time"
@@ -20,7 +20,7 @@ func Test_Meta(t *testing.T) {
       if err != nil {
          t.Fatal(err)
       }
-      name, err := mech.Name(meta)
+      name, err := mechanize.Name(meta)
       if err != nil {
          t.Fatal(err)
       }

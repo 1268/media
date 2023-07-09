@@ -1,8 +1,8 @@
 package amc
 
 import (
-   "2a.pages.dev/mech"
    "fmt"
+   "mechanize.pages.dev"
    "os"
    "testing"
    "time"
@@ -27,7 +27,7 @@ func Test_Content(t *testing.T) {
       if err != nil {
          t.Fatal(err)
       }
-      name, err := mech.Name(vid)
+      name, err := mechanize.Name(vid)
       if err != nil {
          t.Fatal(err)
       }

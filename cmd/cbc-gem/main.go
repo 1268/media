@@ -1,16 +1,16 @@
 package main
 
 import (
-   "2a.pages.dev/mech"
    "2a.pages.dev/rosso/http"
    "flag"
+   "mechanize.pages.dev"
 )
 
 type flags struct {
    address string
    bandwidth int64
    email string
-   mech.Stream
+   mechanize.Stream
    name string
    password string
    resolution string

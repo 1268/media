@@ -1,16 +1,11 @@
 package gem
 
 import (
-   "2a.pages.dev/mech"
    "fmt"
    "testing"
 )
 
 func Test_New_Profile(t *testing.T) {
-   home, err := mech.Home()
-   if err != nil {
-      t.Fatal(err)
-   }
    u, err := user(home + "/gem.cbc.ca/user.json")
    if err != nil {
       t.Fatal(err)
@@ -27,10 +22,6 @@ func Test_New_Profile(t *testing.T) {
 }
 
 func Test_Profile(t *testing.T) {
-   home, err := mech.Home()
-   if err != nil {
-      t.Fatal(err)
-   }
    u, err := user(home + "/gem.cbc.ca/user.json")
    if err != nil {
       t.Fatal(err)

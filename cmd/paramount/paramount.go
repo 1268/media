@@ -1,13 +1,13 @@
 package main
 
 import (
-   "2a.pages.dev/mech"
-   "2a.pages.dev/mech/paramount"
    "2a.pages.dev/rosso/dash"
    "2a.pages.dev/rosso/http"
    "encoding.pages.dev/slices"
    "fmt"
    "io"
+   "mechanize.pages.dev"
+   "mechanize.pages.dev/paramount"
    "os"
    "strings"
    net_http "net/http"
@@ -80,7 +80,7 @@ func (f flags) downloadable(token *paramount.App_Token) error {
       fmt.Println(ref)
       return nil
    }
-   name, err := mech.Name(item)
+   name, err := mechanize.Name(item)
    if err != nil {
       return err
    }

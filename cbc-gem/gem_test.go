@@ -1,9 +1,9 @@
 package gem
 
 import (
-   "2a.pages.dev/mech"
    "encoding/json"
    "fmt"
+   "mechanize.pages.dev"
    "os"
    "testing"
    "time"
@@ -16,10 +16,6 @@ var links = []string{
 }
 
 func Test_Gem(t *testing.T) {
-   home, err := mech.Home()
-   if err != nil {
-      t.Fatal(err)
-   }
    pro, err := Read_Profile(home + "/cbc.json")
    if err != nil {
       t.Fatal(err)
@@ -32,7 +28,7 @@ func Test_Gem(t *testing.T) {
          t.Fatal(err)
       }
       enc.Encode(gem.Item())
-      name, err := mech.Name(gem.Structured_Metadata)
+      name, err := mechanize.Name(gem.Structured_Metadata)
       if err != nil {
          t.Fatal(err)
       }

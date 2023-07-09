@@ -1,15 +1,15 @@
 package main
 
 import (
-   "2a.pages.dev/mech"
-   "2a.pages.dev/mech/paramount"
    "2a.pages.dev/rosso/http"
    "flag"
+   "mechanize.pages.dev"
+   "mechanize.pages.dev/paramount"
    "os"
 )
 
 type flags struct {
-   mech.Stream
+   mechanize.Stream
    bandwidth int
    codec string
    content_ID string

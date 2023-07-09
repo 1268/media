@@ -2,10 +2,10 @@ package youtube
 
 import (
    "2a.pages.dev/rosso/http"
-   "2a.pages.dev/rosso/strconv"
    "fmt"
    "io"
    "mime"
+   "strconv.pages.dev"
 )
 
 type Format struct {

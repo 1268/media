@@ -1,10 +1,10 @@
 package main
 
 import (
-   "2a.pages.dev/mech"
-   "2a.pages.dev/mech/roku"
    "2a.pages.dev/rosso/http"
    "flag"
+   "mechanize.pages.dev"
+   "mechanize.pages.dev/roku"
    "os"
 )
 
@@ -14,7 +14,7 @@ type flags struct {
    height int
    id string
    lang string
-   mech.Stream
+   mechanize.Stream
 }
 
 func main() {

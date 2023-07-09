@@ -1,9 +1,9 @@
 package main
 
 import (
-   "2a.pages.dev/mech/nbc"
    "2a.pages.dev/rosso/hls"
    "encoding.pages.dev/slices"
+   "mechanize.pages.dev/nbc"
    "strings"
 )
 
