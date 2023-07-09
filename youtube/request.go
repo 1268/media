@@ -1,9 +1,9 @@
 package youtube
 
 import (
-   "2a.pages.dev/rosso/http"
    "encoding.pages.dev/json"
    "io"
+   "net/http"
    "net/url"
    "path"
    "strconv"

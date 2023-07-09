@@ -1,14 +1,13 @@
 package mechanize
 
 import (
-   "2a.pages.dev/rosso/dash"
-   "2a.pages.dev/rosso/http"
-   "2a.pages.dev/rosso/mp4"
+   "2a.pages.dev/stream/dash"
+   "2a.pages.dev/stream/mp4"
    "2a.pages.dev/stream/widevine"
    "fmt"
+   "net/http"
    "net/url"
    "os"
-   net_http "net/http"
 )
 
 func (s Stream) DASH_Get(items []dash.Representer, index int) error {
@@ -32,14 +31,14 @@ func (s Stream) DASH_Get(items []dash.Representer, index int) error {
       return err
    }
    defer file.Close()
-   req, err := net_http.NewRequest(
+   req, err := http.NewRequest(
       "GET", item.Segment_Template.Get_Initialization(), nil,
    )
    if err != nil {
       return err
    }
    req.URL = s.Base.ResolveReference(req.URL)
-   res, err := new(net_http.Client).Do(req)
+   res, err := new(http.Client).Do(req)
    if err != nil {
       return err
    }
@@ -75,7 +74,7 @@ func (s Stream) DASH_Get(items []dash.Representer, index int) error {
       if err != nil {
          return err
       }
-      res, err := new(net_http.Client).Do(req)
+      res, err := new(http.Client).Do(req)
       if err != nil {
          return err
       }

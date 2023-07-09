@@ -1,7 +1,6 @@
 package twitter
 
 import (
-   "2a.pages.dev/rosso/http"
    "encoding/json"
    "os"
    "testing"

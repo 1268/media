@@ -1,7 +1,6 @@
 package main
 
 import (
-   "2a.pages.dev/rosso/http"
    "flag"
    "mechanize.pages.dev"
 )

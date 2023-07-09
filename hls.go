@@ -1,31 +1,17 @@
 package mechanize
 
 import (
-   "2a.pages.dev/rosso/hls"
-   "2a.pages.dev/rosso/http"
+   "2a.pages.dev/stream/hls"
    "fmt"
    "io"
+   "net/http"
    "os"
 )
 
-func (s Stream) HLS_Streams(items []hls.Stream, index int) error {
-   return hls_get(s, items, index)
-}
-
-func (s Stream) HLS_Media(items []hls.Media, index int) error {
-   return hls_get(s, items, index)
-}
-
-func (s *Stream) HLS(ref string) (*hls.Master, error) {
-   client := http.Default_Client
-   client.CheckRedirect = nil
-   res, err := client.Get(ref)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   s.Base = res.Request.URL
-   return hls.New_Scanner(res.Body).Master()
+var client = http.Client{
+   CheckRedirect: func(*http.Request, []*http.Request) error {
+      return http.ErrUseLastResponse
+   },
 }
 
 func hls_get[T hls.Mixed](str Stream, items []T, index int) error {
@@ -49,12 +35,12 @@ func hls_get[T hls.Mixed](str Stream, items []T, index int) error {
       return err
    }
    defer file.Close()
-   ref, err := str.Base.Parse(item.URI())
+   req, err := http.NewRequest("GET", item.URI(), nil)
    if err != nil {
       return err
    }
-   req := http.Get(ref)
-   res, err := http.Default_Client.Do(req)
+   req.URL = str.Base.ResolveReference(req.URL)
+   res, err := client.Do(req)
    if err != nil {
       return err
    }
@@ -65,7 +51,7 @@ func hls_get[T hls.Mixed](str Stream, items []T, index int) error {
    }
    var block *hls.Block
    if seg.Key != "" {
-      res, err := http.Default_Client.Get(seg.Key)
+      res, err := client.Get(seg.Key)
       if err != nil {
          return err
       }
@@ -80,15 +66,12 @@ func hls_get[T hls.Mixed](str Stream, items []T, index int) error {
       }
    }
    pro := http.Progress_Chunks(file, len(seg.URI))
-   client := http.Default_Client
-   client.CheckRedirect = nil
-   client.Log_Level = 0
    for _, ref := range seg.URI {
       req.URL, err = res.Request.URL.Parse(ref)
       if err != nil {
          return err
       }
-      res, err := client.Do(req)
+      res, err := new(http.Client).Do(req)
       if err != nil {
          return err
       }
@@ -113,4 +96,21 @@ func hls_get[T hls.Mixed](str Stream, items []T, index int) error {
       }
    }
    return nil
+}
+func (s Stream) HLS_Streams(items []hls.Stream, index int) error {
+   return hls_get(s, items, index)
+}
+
+func (s Stream) HLS_Media(items []hls.Media, index int) error {
+   return hls_get(s, items, index)
+}
+
+func (s *Stream) HLS(ref string) (*hls.Master, error) {
+   res, err := http.Get(ref)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   s.Base = res.Request.URL
+   return hls.New_Scanner(res.Body).Master()
 }

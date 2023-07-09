@@ -1,10 +1,10 @@
 package bandcamp
 
 import (
-   "2a.pages.dev/rosso/http"
    "encoding.pages.dev/xml"
    "encoding/json"
    "io"
+   "net/http"
    "net/url"
    "strconv"
    "time"

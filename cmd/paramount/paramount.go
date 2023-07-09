@@ -1,8 +1,7 @@
 package main
 
 import (
-   "2a.pages.dev/rosso/dash"
-   "2a.pages.dev/rosso/http"
+   "2a.pages.dev/stream/dash"
    "encoding.pages.dev/slices"
    "fmt"
    "io"

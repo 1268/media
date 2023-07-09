@@ -1,9 +1,9 @@
 package paramount
 
 import (
-   "2a.pages.dev/rosso/http"
    "encoding/json"
    "errors"
+   "net/http"
    "net/url"
    "strconv"
    "strings"

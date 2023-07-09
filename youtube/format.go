@@ -1,7 +1,6 @@
 package youtube
 
 import (
-   "2a.pages.dev/rosso/http"
    "fmt"
    "io"
    "mime"
