@@ -1,6 +1,6 @@
 package youtube
 
-import "protobuf.pages.dev"
+import "154.pages.dev/encoding/protobuf"
 
 var Upload_Date = map[string]protobuf.Varint{
    "Last hour": 1,

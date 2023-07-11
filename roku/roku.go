@@ -1,7 +1,7 @@
 package roku
 
 import (
-   "encoding.pages.dev/json"
+   "154.pages.dev/encoding/json"
    "io"
    "net/http"
    "net/url"

@@ -1,7 +1,7 @@
 package roku
 
 import (
-   "2a.pages.dev/stream/widevine"
+   "154.pages.dev/widevine"
    "encoding/base64"
    "encoding/json"
    "os"

@@ -1,20 +1,20 @@
 package main
 
 import (
+   "154.pages.dev/media"
+   "154.pages.dev/media/paramount"
    "flag"
-   "mechanize.pages.dev"
-   "mechanize.pages.dev/paramount"
    "os"
 )
 
 type flags struct {
-   mechanize.Stream
    bandwidth int
    codec string
    content_ID string
    dash_cenc bool
    height int
    lang string
+   media.Stream
 }
 
 func main() {

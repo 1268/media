@@ -1,9 +1,9 @@
 package media
 
 import (
-   "2a.pages.dev/stream/dash"
-   "2a.pages.dev/stream/mp4"
-   "2a.pages.dev/stream/widevine"
+   "154.pages.dev/encoding/dash"
+   "154.pages.dev/encoding/mp4"
+   "154.pages.dev/widevine"
    "fmt"
    "net/http"
    "net/url"

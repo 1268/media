@@ -1,13 +1,13 @@
 package main
 
 import (
+   "154.pages.dev/media"
    "flag"
-   "mechanize.pages.dev"
 )
 
 type flags struct {
    guid int64
-   mechanize.Stream
+   media.Stream
    resolution string
    bandwidth int64
 }

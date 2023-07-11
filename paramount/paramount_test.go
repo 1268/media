@@ -1,7 +1,7 @@
 package paramount
 
 import (
-   "2a.pages.dev/stream/widevine"
+   "154.pages.dev/widevine"
    "encoding/base64"
    "fmt"
    "net/http"

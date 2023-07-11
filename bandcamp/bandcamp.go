@@ -1,7 +1,7 @@
 package bandcamp
 
 import (
-   "encoding.pages.dev/xml"
+   "154.pages.dev/encoding/xml"
    "encoding/json"
    "io"
    "net/http"

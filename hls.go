@@ -1,7 +1,7 @@
 package media
 
 import (
-   "2a.pages.dev/stream/hls"
+   "154.pages.dev/encoding/hls"
    "fmt"
    "io"
    "net/http"

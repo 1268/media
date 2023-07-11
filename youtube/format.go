@@ -1,10 +1,10 @@
 package youtube
 
 import (
+   "154.pages.dev/strconv"
    "fmt"
    "io"
    "mime"
-   "strconv.pages.dev"
 )
 
 type Format struct {
