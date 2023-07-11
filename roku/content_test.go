@@ -1,9 +1,9 @@
 package roku
 
 import (
+   "154.pages.dev/media"
    "encoding/json"
    "fmt"
-   "mechanize.pages.dev"
    "os"
    "testing"
    "time"
@@ -17,7 +17,7 @@ func Test_Content(t *testing.T) {
       if err != nil {
          t.Fatal(err)
       }
-      name, err := mechanize.Name(con)
+      name, err := media.Name(con)
       if err != nil {
          t.Fatal(err)
       }

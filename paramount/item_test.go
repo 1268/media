@@ -1,7 +1,7 @@
 package paramount
 
 import (
-   "mechanize.pages.dev"
+   "154.pages.dev/media"
    "fmt"
    "testing"
    "time"
@@ -17,7 +17,7 @@ func Test_Item(t *testing.T) {
       if err != nil {
          t.Fatal(err)
       }
-      name, err := mechanize.Name(item)
+      name, err := media.Name(item)
       if err != nil {
          t.Fatal(err)
       }

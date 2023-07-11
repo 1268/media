@@ -1,4 +1,4 @@
-package mechanize
+package media
 
 import (
    "encoding/json"

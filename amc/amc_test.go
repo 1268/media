@@ -1,8 +1,8 @@
 package amc
 
 import (
+   "154.pages.dev/media"
    "fmt"
-   "mechanize.pages.dev"
    "os"
    "testing"
    "time"
@@ -27,7 +27,7 @@ func Test_Content(t *testing.T) {
       if err != nil {
          t.Fatal(err)
       }
-      name, err := mechanize.Name(vid)
+      name, err := media.Name(vid)
       if err != nil {
          t.Fatal(err)
       }

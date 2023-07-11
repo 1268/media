@@ -1,9 +1,9 @@
 package main
 
 import (
+   "154.pages.dev/media"
+   "154.pages.dev/media/roku"
    "flag"
-   "mechanize.pages.dev"
-   "mechanize.pages.dev/roku"
    "os"
 )
 
@@ -13,7 +13,7 @@ type flags struct {
    height int
    id string
    lang string
-   mechanize.Stream
+   media.Stream
 }
 
 func main() {

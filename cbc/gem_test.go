@@ -1,9 +1,9 @@
 package gem
 
 import (
+   "154.pages.dev/media"
    "encoding/json"
    "fmt"
-   "mechanize.pages.dev"
    "os"
    "testing"
    "time"
@@ -28,7 +28,7 @@ func Test_Gem(t *testing.T) {
          t.Fatal(err)
       }
       enc.Encode(gem.Item())
-      name, err := mechanize.Name(gem.Structured_Metadata)
+      name, err := media.Name(gem.Structured_Metadata)
       if err != nil {
          t.Fatal(err)
       }

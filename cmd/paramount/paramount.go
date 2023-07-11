@@ -1,15 +1,14 @@
 package main
 
 import (
-   "2a.pages.dev/stream/dash"
-   "encoding.pages.dev/slices"
+   "154.pages.dev/encoding/dash"
+   "154.pages.dev/media"
+   "154.pages.dev/media/paramount"
    "fmt"
    "io"
-   "mechanize.pages.dev"
-   "mechanize.pages.dev/paramount"
+   "net/http"
    "os"
    "strings"
-   net_http "net/http"
 )
 
 func (f flags) dash(token *paramount.App_Token) error {
@@ -79,7 +78,7 @@ func (f flags) downloadable(token *paramount.App_Token) error {
       fmt.Println(ref)
       return nil
    }
-   name, err := mechanize.Name(item)
+   name, err := media.Name(item)
    if err != nil {
       return err
    }

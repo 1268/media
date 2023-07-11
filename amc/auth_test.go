@@ -1,12 +1,37 @@
 package amc
 
 import (
-   "2a.pages.dev/stream/widevine"
+   "154.pages.dev/media"
+   "154.pages.dev/widevine"
    "encoding/base64"
-   "mechanize.pages.dev"
    "os"
    "testing"
 )
+
+func Test_Login(t *testing.T) {
+   home, err := os.UserHomeDir()
+   if err != nil {
+      t.Fatal(err)
+   }
+   auth, err := Unauth()
+   if err != nil {
+      t.Fatal(err)
+   }
+   u, err := media.User(home + "/amc-plus/user.json")
+   if err != nil {
+      t.Fatal(err)
+   }
+   if err := auth.Login(u["username"], u["password"]); err != nil {
+      t.Fatal(err)
+   }
+   {
+      b, err := auth.Marshal()
+      if err != nil {
+         t.Fatal(err)
+      }
+      os.WriteFile(home + "/amc-plus/auth.json", b, 0666)
+   }
+}
 
 func Test_Post(t *testing.T) {
    home, err := os.UserHomeDir()
@@ -51,27 +76,3 @@ func Test_Post(t *testing.T) {
    }
 }
 
-func Test_Login(t *testing.T) {
-   home, err := os.UserHomeDir()
-   if err != nil {
-      t.Fatal(err)
-   }
-   auth, err := Unauth()
-   if err != nil {
-      t.Fatal(err)
-   }
-   u, err := mechanize.User(home + "/amc-plus/user.json")
-   if err != nil {
-      t.Fatal(err)
-   }
-   if err := auth.Login(u["username"], u["password"]); err != nil {
-      t.Fatal(err)
-   }
-   {
-      b, err := auth.Marshal()
-      if err != nil {
-         t.Fatal(err)
-      }
-      os.WriteFile(home + "/amc-plus/auth.json", b, 0666)
-   }
-}

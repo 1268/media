@@ -1,50 +1,36 @@
 package main
 
 import (
+   "154.pages.dev/media"
    "flag"
-   "mechanize.pages.dev"
-   "os"
-   "path/filepath"
 )
 
 type flags struct {
    address string
+   bandwidth int64
    email string
-   mechanize.Stream
+   media.Stream
+   name string
    password string
-   height int
+   resolution string
 }
 
 func main() {
-   home, err := os.UserHomeDir()
-   if err != nil {
-      panic(err)
-   }
    var f flags
-   // a
    flag.StringVar(&f.address, "a", "", "address")
-   // e
+   flag.Int64Var(&f.bandwidth, "b", 3_000_000, "maximum bandwidth")
    flag.StringVar(&f.email, "e", "", "email")
-   // h
-   flag.IntVar(&f.height, "h", 1080, "maximum height")
-   // i
    flag.BoolVar(&f.Info, "i", false, "information")
-   // log
    flag.IntVar(
       &http.Default_Client.Log_Level, "log",
       http.Default_Client.Log_Level, "log level",
    )
-   // p
+   flag.StringVar(&f.name, "n", "English", "audio name")
    flag.StringVar(&f.password, "p", "", "password")
-   // client
-   f.Client_ID = home + "/widevine/client_id.bin"
-   flag.StringVar(&f.Client_ID, "client", f.Client_ID, "client ID")
-   // key
-   f.Private_Key = home + "/widevine/private_key.pem"
-   flag.StringVar(&f.Private_Key, "key", f.Private_Key, "private key")
+   flag.StringVar(&f.resolution, "r", "720", "resolution")
    flag.Parse()
    if f.email != "" {
-      err := f.login()
+      err := f.profile()
       if err != nil {
          panic(err)
       }

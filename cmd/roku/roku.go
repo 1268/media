@@ -1,9 +1,8 @@
 package main
 
 import (
-   "2a.pages.dev/stream/dash"
-   "encoding.pages.dev/slices"
-   "mechanize.pages.dev/roku"
+   "154.pages.dev/encoding/dash"
+   "154.pages.dev/media/roku"
    "net/http"
    "strings"
 )

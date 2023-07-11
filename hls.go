@@ -1,4 +1,4 @@
-package mechanize
+package media
 
 import (
    "2a.pages.dev/stream/hls"

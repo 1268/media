@@ -1,9 +1,8 @@
 package main
 
 import (
-   "encoding.pages.dev/slices"
+   "154.pages.dev/media/youtube"
    "fmt"
-   "mechanize.pages.dev/youtube"
    "os"
    "strings"
 )

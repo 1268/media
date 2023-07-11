@@ -1,9 +1,8 @@
 package main
 
 import (
-   "2a.pages.dev/stream/hls"
-   "encoding.pages.dev/slices"
-   "mechanize.pages.dev/cbc-gem"
+   "154.pages.dev/encoding/hls"
+   "154.pages.dev/media/cbc"
    "os"
    "strings"
 )
