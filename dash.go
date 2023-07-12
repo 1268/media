@@ -3,6 +3,7 @@ package media
 import (
    "154.pages.dev/encoding/dash"
    "154.pages.dev/encoding/mp4"
+   "154.pages.dev/http/option"
    "154.pages.dev/widevine"
    "fmt"
    "net/http"
@@ -48,7 +49,6 @@ func (s Stream) DASH_Get(items []dash.Representer, index int) error {
       return err
    }
    media := item.Segment_Template.Get_Media()
-   pro := http.Progress_Chunks(file, len(media))
    private_key, err := os.ReadFile(s.Private_Key)
    if err != nil {
       return err
@@ -69,6 +69,8 @@ func (s Stream) DASH_Get(items []dash.Representer, index int) error {
    if err != nil {
       return err
    }
+   key := keys.Content().Key
+   pro := option.New_Progress(len(media))
    for _, ref := range media {
       req.URL, err = s.Base.Parse(ref)
       if err != nil {
@@ -78,9 +80,7 @@ func (s Stream) DASH_Get(items []dash.Representer, index int) error {
       if err != nil {
          return err
       }
-      pro.Add_Chunk(res.ContentLength)
-      err = dec.Segment(res.Body, pro, keys.Content().Key)
-      if err != nil {
+      if err := dec.Segment(pro.Reader(res), file, key); err != nil {
          return err
       }
       if err := res.Body.Close(); err != nil {

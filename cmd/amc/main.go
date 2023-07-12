@@ -29,11 +29,6 @@ func main() {
    flag.IntVar(&f.height, "h", 1080, "maximum height")
    // i
    flag.BoolVar(&f.Info, "i", false, "information")
-   // log
-   flag.IntVar(
-      &http.Default_Client.Log_Level, "log",
-      http.Default_Client.Log_Level, "log level",
-   )
    // p
    flag.StringVar(&f.password, "p", "", "password")
    // client

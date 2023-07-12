@@ -9,52 +9,6 @@ import (
    "strconv"
 )
 
-func (r *Request) Set(s string) error {
-   ref, err := url.Parse(s)
-   if err != nil {
-      return err
-   }
-   r.Video_ID = ref.Query().Get("v")
-   if r.Video_ID == "" {
-      r.Video_ID = path.Base(ref.Path)
-   }
-   return nil
-}
-
-func (r Request) String() string {
-   return r.Video_ID
-}
-
-func new_config() (*config, error) {
-   req := http.Get(&url.URL{
-      Scheme: "https",
-      Host: "m.youtube.com",
-   })
-   req.Header.Set("User-Agent", "iPad")
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   con := new(config)
-   {
-      s, err := io.ReadAll(res.Body)
-      if err != nil {
-         return nil, err
-      }
-      sep := []byte("\nytcfg.set(")
-      if err := json.Cut(s, sep, con); err != nil {
-         return nil, err
-      }
-   }
-   return con, nil
-}
-
-const (
-   api_key = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
-   mweb_version = "2.20230405.01.00"
-)
-
 func (r Request) Search(query string) (*Search, error) {
    body := func(req *http.Request) error {
       p := New_Params()
@@ -188,3 +142,48 @@ func (r *Request) Android_Embed() {
    r.Context.Client.Name = "ANDROID_EMBEDDED_PLAYER"
    r.Context.Client.Version = max_android.String()
 }
+func (r *Request) Set(s string) error {
+   ref, err := url.Parse(s)
+   if err != nil {
+      return err
+   }
+   r.Video_ID = ref.Query().Get("v")
+   if r.Video_ID == "" {
+      r.Video_ID = path.Base(ref.Path)
+   }
+   return nil
+}
+
+func (r Request) String() string {
+   return r.Video_ID
+}
+
+func new_config() (*config, error) {
+   req := http.Get(&url.URL{
+      Scheme: "https",
+      Host: "m.youtube.com",
+   })
+   req.Header.Set("User-Agent", "iPad")
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   con := new(config)
+   {
+      s, err := io.ReadAll(res.Body)
+      if err != nil {
+         return nil, err
+      }
+      sep := []byte("\nytcfg.set(")
+      if err := json.Cut(s, sep, con); err != nil {
+         return nil, err
+      }
+   }
+   return con, nil
+}
+
+const (
+   api_key = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+   mweb_version = "2.20230405.01.00"
+)

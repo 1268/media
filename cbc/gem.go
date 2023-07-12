@@ -10,20 +10,19 @@ import (
 func New_Catalog_Gem(ref string) (*Catalog_Gem, error) {
    // you can also use `phone_android`, but it returns combined number and name:
    // 3. Beauty Hath Strange Power
-   req := http.Get(&url.URL{
-      Scheme: "https",
-      Host: "services.radio-canada.ca",
-      Path: "/ott/catalog/v2/gem/show",
-      RawQuery: "device=web",
-   })
+   req, err := http.NewRequest("GET", "https://services.radio-canada.ca", nil)
+   if err != nil {
+      return nil, err
+   }
    {
       p, err := url.Parse(ref)
       if err != nil {
          return nil, err
       }
-      req.URL.Path += p.Path
+      req.URL.Path = "/ott/catalog/v2/gem/show" + p.Path
    }
-   res, err := http.Default_Client.Do(req)
+   req.URL.RawQuery = "device=web"
+   res, err := new(http.Transport).RoundTrip(req)
    if err != nil {
       return nil, err
    }
