@@ -1,4 +1,4 @@
-# Mech
+# Media
 
 > Listen, um, I don’t really know what’s going on here, but I’m leaving. I
 > don’t know where exactly, but I’m gonna start over. Come with me.
@@ -12,10 +12,10 @@ Download media or send API requests
 ## How to install?
 
 This module works with Windows, macOS or Linux. First, [download Go][2] and
-extract archive. Then download Mech Zip and extract archive. Then navigate to:
+extract archive. Then download Media Zip and extract archive. Then navigate to:
 
 ~~~
-mech-main/cmd/youtube
+media-main/cmd/youtube
 ~~~
 
 and enter:

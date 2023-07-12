@@ -6,6 +6,14 @@ import (
    "time"
 )
 
+func (p Player) Name() string {
+   var b strings.Builder
+   b.WriteString(p.Video_Details.Author)
+   b.WriteString(sep_big)
+   b.WriteString(mech.Clean(p.Video_Details.Title))
+   return b.String()
+}
+
 func (i Image) URL(id string) *url.URL {
    var u url.URL
    u.Scheme = "http"
@@ -79,14 +87,6 @@ var Images = []Image{
    {Width:1280, Height:720, Name:"maxres3.webp"},
 }
 const sep_big = " - "
-
-func (p Player) Name() string {
-   var b strings.Builder
-   b.WriteString(p.Video_Details.Author)
-   b.WriteString(sep_big)
-   b.WriteString(mech.Clean(p.Video_Details.Title))
-   return b.String()
-}
 
 type Player struct {
    Microformat struct {
