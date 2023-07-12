@@ -4,7 +4,6 @@ import (
    "154.pages.dev/media"
    "flag"
    "os"
-   "path/filepath"
 )
 
 type flags struct {

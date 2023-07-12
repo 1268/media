@@ -82,16 +82,6 @@ func Test_Search(t *testing.T) {
    }
 }
 
-func Test_Config(t *testing.T) {
-   con, err := new_config()
-   if err != nil {
-      t.Fatal(err)
-   }
-   enc := json.NewEncoder(os.Stdout)
-   enc.SetIndent("", " ")
-   enc.Encode(con)
-}
-
 var androids = []string{
    "H1BuwMTrtLQ", // content check
    "zv9NimPx3Es",
