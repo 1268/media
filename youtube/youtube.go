@@ -1,6 +1,7 @@
 package youtube
 
 import (
+   "154.pages.dev/media"
    "net/url"
    "strings"
    "time"
@@ -10,7 +11,7 @@ func (p Player) Name() string {
    var b strings.Builder
    b.WriteString(p.Video_Details.Author)
    b.WriteString(sep_big)
-   b.WriteString(mech.Clean(p.Video_Details.Title))
+   b.WriteString(media.Clean(p.Video_Details.Title))
    return b.String()
 }
 

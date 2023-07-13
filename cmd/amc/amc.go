@@ -3,7 +3,7 @@ package main
 import (
    "154.pages.dev/encoding/dash"
    "154.pages.dev/media/amc"
-   "golang.org/x/exp/slices"
+   "154.pages.dev/slices"
    "net/http"
    "os"
 )
@@ -13,15 +13,23 @@ func (f flags) download() error {
    if err != nil {
       return err
    }
-   auth, err := amc.Read_Auth(home + "/amcplus.com/auth.json")
-   if err != nil {
-      return err
+   var auth amc.Auth
+   {
+      b, err := os.ReadFile(home + "/amc/auth.json")
+      if err != nil {
+         return err
+      }
+      auth.Unmarshal(b)
    }
    if err := auth.Refresh(); err != nil {
       return err
    }
-   if err := auth.Write_File(home + "/amc.json"); err != nil {
-      return err
+   {
+      b, err := auth.Marshal()
+      if err != nil {
+         return err
+      }
+      os.WriteFile(home + "/amc/auth.json", b, 0666)
    }
    if !f.Info {
       content, err := auth.Content(f.address)
@@ -49,11 +57,11 @@ func (f flags) download() error {
    }
    // video
    {
-      reps := slices.Delete(slices.Clone(reps), dash.Audio)
-      slices.Sort(reps, func(a, b dash.Representer) bool {
-         return b.Height < a.Height
+      reps := slices.DeleteFunc(slices.Clone(reps), dash.Audio)
+      slices.SortFunc(reps, func(a, b dash.Representer) int {
+         return b.Height - a.Height
       })
-      index := slices.Index(reps, func(a dash.Representer) bool {
+      index := slices.IndexFunc(reps, func(a dash.Representer) bool {
          return a.Height <= f.height
       })
       err := f.DASH_Get(reps, index)
@@ -62,7 +70,7 @@ func (f flags) download() error {
       }
    }
    // audio
-   return f.DASH_Get(slices.Delete(reps, dash.Video), 0)
+   return f.DASH_Get(slices.DeleteFunc(reps, dash.Video), 0)
 }
 
 func (f flags) login() error {
@@ -77,5 +85,13 @@ func (f flags) login() error {
    if err != nil {
       return err
    }
-   return auth.Write_File(home + "/amcplus.com/auth.json")
+   {
+      b, err := auth.Marshal()
+      if err != nil {
+         return err
+      }
+      os.WriteFile(home + "/amc/auth.json", b, 0666)
+   }
+   return nil
 }
+

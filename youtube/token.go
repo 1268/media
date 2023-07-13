@@ -8,21 +8,35 @@ import (
    "strings"
 )
 
+func New_Device_Code() (*Device_Code, error) {
+   res, err := http.PostForm(
+      "https://oauth2.googleapis.com/device/code",
+      url.Values{
+         "client_id": {client_ID},
+         "scope": {"https://www.googleapis.com/auth/youtube"},
+      },
+   )
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   code := new(Device_Code)
+   if err := json.NewDecoder(res.Body).Decode(code); err != nil {
+      return nil, err
+   }
+   return code, nil
+}
+
 func (t *Token) Refresh() error {
-   body := url.Values{
-      "client_id": {client_ID},
-      "client_secret": {client_secret},
-      "grant_type": {"refresh_token"},
-      "refresh_token": {t.Refresh_Token},
-   }.Encode()
-   req := http.Post(&url.URL{
-      Scheme: "https",
-      Host: "oauth2.googleapis.com",
-      Path: "/token",
-   })
-   req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-   req.Body_String(body)
-   res, err := http.Default_Client.Do(req)
+   res, err := http.PostForm(
+      "https://oauth2.googleapis.com/token",
+      url.Values{
+         "client_id": {client_ID},
+         "client_secret": {client_secret},
+         "grant_type": {"refresh_token"},
+         "refresh_token": {t.Refresh_Token},
+      },
+   )
    if err != nil {
       return err
    }
@@ -31,20 +45,15 @@ func (t *Token) Refresh() error {
 }
 
 func (d Device_Code) Token() (*Token, error) {
-   body := url.Values{
-      "client_id": {client_ID},
-      "client_secret": {client_secret},
-      "device_code": {d.Device_Code},
-      "grant_type":  {"urn:ietf:params:oauth:grant-type:device_code"},
-   }.Encode()
-   req := http.Post(&url.URL{
-      Scheme: "https",
-      Host: "oauth2.googleapis.com",
-      Path: "/token",
-   })
-   req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-   req.Body_String(body)
-   res, err := http.Default_Client.Do(req)
+   res, err := http.PostForm(
+      "https://oauth2.googleapis.com/token",
+      url.Values{
+         "client_id": {client_ID},
+         "client_secret": {client_secret},
+         "device_code": {d.Device_Code},
+         "grant_type":  {"urn:ietf:params:oauth:grant-type:device_code"},
+      },
+   )
    if err != nil {
       return nil, err
    }
@@ -97,28 +106,3 @@ type Token struct {
    Error string
    Refresh_Token string
 }
-
-func New_Device_Code() (*Device_Code, error) {
-   body := url.Values{
-      "client_id": {client_ID},
-      "scope": {"https://www.googleapis.com/auth/youtube"},
-   }.Encode()
-   req := http.Post(&url.URL{
-      Scheme: "https",
-      Host: "oauth2.googleapis.com",
-      Path: "/device/code",
-   })
-   req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-   req.Body_String(body)
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   code := new(Device_Code)
-   if err := json.NewDecoder(res.Body).Decode(code); err != nil {
-      return nil, err
-   }
-   return code, nil
-}
-

@@ -10,29 +10,23 @@ import (
 )
 
 func (r Request) Player(tok *Token) (*Player, error) {
-   body := func(req *http.Request) error {
-      r.Context.Client.Android_SDK_Version = 99
-      b, err := json.MarshalIndent(r, "", " ")
-      if err != nil {
-         return err
-      }
-      req.Body_Bytes(b)
-      return nil
+   r.Context.Client.Android_SDK_Version = 99
+   body, err := json.MarshalIndent(r, "", " ")
+   if err != nil {
+      return nil, err
    }
-   req := http.Post(&url.URL{
-      Scheme: "https",
-      Host: "www.youtube.com",
-      Path: "/youtubei/v1/player",
-   })
+   req, err := http.NewRequest(
+      "POST", "https://www.youtube.com/youtubei/v1/player",
+      bytes.NewReader(body),
+   )
+   if err != nil {
+      return nil, err
+   }
    req.Header.Set("User-Agent", user_agent + r.Context.Client.Version)
    if tok != nil {
       req.Header.Set("Authorization", "Bearer " + tok.Access_Token)
    }
-   err := body(req)
-   if err != nil {
-      return nil, err
-   }
-   res, err := http.Default_Client.Do(req)
+   res, err := new(http.Transport).RoundTrip(req)
    if err != nil {
       return nil, err
    }

@@ -1,7 +1,5 @@
 # Twitter
 
-https://github.com/virezox/mech/tree/6c5d82a8
-
 Authorizing a request:
 
 https://developer.twitter.com/docs/authentication/oauth-1-0a/authorizing-a-request
