@@ -1,8 +1,8 @@
 package youtube
 
 import (
+   "bytes"
    "encoding/json"
-   "io"
    "net/http"
    "net/url"
    "path"
