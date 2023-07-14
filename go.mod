@@ -5,7 +5,6 @@ go 1.20
 require (
 	154.pages.dev/encoding v1.9.5
 	154.pages.dev/http v1.0.2
-	154.pages.dev/slices v1.0.2
 	154.pages.dev/strconv v1.0.2
 	154.pages.dev/widevine v1.0.2
 )
