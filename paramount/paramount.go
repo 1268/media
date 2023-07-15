@@ -11,61 +11,14 @@ import (
    "strconv"
 )
 
-func location(content_ID string, query url.Values) (string, error) {
-   url_path := func(b []byte) string {
-      b = append(b, "/s/"...)
-      b = append(b, cms_account_id...)
-      b = append(b, "/media/guid/"...)
-      b = strconv.AppendInt(b, aid, 10)
-      b = append(b, '/')
-      b = append(b, content_ID...)
-      return string(b)
-   }
-   req := http.Get(&url.URL{
-      Scheme: "http",
-      Host: "link.theplatform.com",
-      Path: url_path(nil),
-      RawQuery: query.Encode(),
-   })
-   client := http.Default_Client
-   client.Status = http.StatusFound
-   res, err := client.Do(req)
-   if err != nil {
-      return "", err
-   }
-   defer res.Body.Close()
-   return res.Header.Get("Location"), nil
-}
-
-const (
-   aid = 2198311517
-   cms_account_id = "dJ5BDC"
-)
-
-func DASH_CENC(content_ID string) (string, error) {
-   query := url.Values{
-      "assetTypes": {"DASH_CENC"},
-      "formats": {"MPEG-DASH"},
-   }
-   return location(content_ID, query)
-}
-
-func Downloadable(content_ID string) (string, error) {
-   query := url.Values{
-      "assetTypes": {"Downloadable"},
-      "formats": {"MPEG4"},
-   }
-   return location(content_ID, query)
-}
-
 func (at App_Token) Session(content_ID string) (*Session, error) {
-   req := http.Get(&url.URL{
-      Scheme: "https",
-      Host: "www.paramountplus.com",
-      Path: "/apps-api/v3.0/androidphone/irdeto-control/anonymous-session-token.json",
-      RawQuery: "at=" + url.QueryEscape(at.value),
-   })
-   res, err := http.Default_Client.Do(req)
+   req, err := http.NewRequest("GET", "https://www.paramountplus.com", nil)
+   if err != nil {
+      return nil, err
+   }
+   req.URL.Path = "/apps-api/v3.0/androidphone/irdeto-control/anonymous-session-token.json"
+   req.URL.RawQuery = "at=" + at.value
+   res, err := new(http.Transport).RoundTrip(req)
    if err != nil {
       return nil, err
    }
@@ -158,6 +111,7 @@ func (s Session) Request_URL() string {
 func (Session) Response_Body(b []byte) ([]byte, error) {
    return b, nil
 }
+
 func app_token_with(app_secret string) (*App_Token, error) {
    key, err := hex.DecodeString(secret_key)
    if err != nil {
@@ -194,5 +148,50 @@ func pad(b []byte) []byte {
 
 type App_Token struct {
    value string
+}
+
+func location(content_ID string, query url.Values) (string, error) {
+   req, err := http.NewRequest("GET", "http://link.theplatform.com", nil)
+   if err != nil {
+      return "", err
+   }
+   {
+      var b []byte
+      b = append(b, "/s/"...)
+      b = append(b, cms_account_id...)
+      b = append(b, "/media/guid/"...)
+      b = strconv.AppendInt(b, aid, 10)
+      b = append(b, '/')
+      b = append(b, content_ID...)
+      req.URL.Path = string(b)
+   }
+   req.URL.RawQuery = query.Encode()
+   res, err := new(http.Transport).RoundTrip(req)
+   if err != nil {
+      return "", err
+   }
+   defer res.Body.Close()
+   return res.Header.Get("Location"), nil
+}
+
+const (
+   aid = 2198311517
+   cms_account_id = "dJ5BDC"
+)
+
+func DASH_CENC(content_ID string) (string, error) {
+   query := url.Values{
+      "assetTypes": {"DASH_CENC"},
+      "formats": {"MPEG-DASH"},
+   }
+   return location(content_ID, query)
+}
+
+func Downloadable(content_ID string) (string, error) {
+   query := url.Values{
+      "assetTypes": {"Downloadable"},
+      "formats": {"MPEG4"},
+   }
+   return location(content_ID, query)
 }
 

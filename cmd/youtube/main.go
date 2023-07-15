@@ -29,11 +29,6 @@ func main() {
    flag.StringVar(&f.audio_t, "at", "opus", "audio type")
    // i
    flag.BoolVar(&f.info, "i", false, "information")
-   // log
-   flag.IntVar(
-      &http.Default_Client.Log_Level, "log",
-      http.Default_Client.Log_Level, "log level",
-   )
    // r
    {
       var b strings.Builder

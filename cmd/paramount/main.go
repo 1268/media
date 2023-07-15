@@ -37,11 +37,6 @@ func main() {
    flag.BoolVar(&f.Info, "i", false, "information")
    // language
    flag.StringVar(&f.lang, "language", "en", "audio language")
-   // log
-   flag.IntVar(
-      &http.Default_Client.Log_Level, "log",
-      http.Default_Client.Log_Level, "log level",
-   )
    // client
    f.Client_ID = home + "/widevine/client_id.bin"
    flag.StringVar(&f.Client_ID, "client", f.Client_ID, "client ID")

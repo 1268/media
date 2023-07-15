@@ -4,11 +4,34 @@ import (
    "encoding/json"
    "errors"
    "net/http"
-   "net/url"
    "strconv"
    "strings"
    "time"
 )
+
+func (at App_Token) Item(content_ID string) (*Item, error) {
+   req, err := http.NewRequest("GET", "https://www.paramountplus.com", nil)
+   if err != nil {
+      return nil, err
+   }
+   req.URL.Path = "/apps-api/v2.0/androidphone/video/cid/" + content_ID + ".json"
+   req.URL.RawQuery = "at=" + at.value
+   res, err := new(http.Transport).RoundTrip(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   var video struct {
+      Item_List []Item `json:"itemList"`
+   }
+   if err := json.NewDecoder(res.Body).Decode(&video); err != nil {
+      return nil, err
+   }
+   if len(video.Item_List) == 0 {
+      return nil, errors.New("itemList length is zero")
+   }
+   return &video.Item_List[0], nil
+}
 
 type Item struct {
    Series_Title string `json:"seriesTitle"`
@@ -39,28 +62,4 @@ func (i Item) Episode() (int64, error) {
 
 func (i Item) Title() string {
    return i.Label
-}
-
-func (at App_Token) Item(content_ID string) (*Item, error) {
-   req := http.Get(&url.URL{
-      Scheme: "https",
-      Host: "www.paramountplus.com",
-      Path: "/apps-api/v2.0/androidphone/video/cid/" + content_ID + ".json",
-      RawQuery: "at=" + url.QueryEscape(at.value),
-   })
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   var video struct {
-      Item_List []Item `json:"itemList"`
-   }
-   if err := json.NewDecoder(res.Body).Decode(&video); err != nil {
-      return nil, err
-   }
-   if len(video.Item_List) == 0 {
-      return nil, errors.New("itemList length is zero")
-   }
-   return &video.Item_List[0], nil
 }

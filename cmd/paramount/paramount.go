@@ -2,9 +2,11 @@ package main
 
 import (
    "154.pages.dev/encoding/dash"
+   "154.pages.dev/http/option"
    "154.pages.dev/media"
    "154.pages.dev/media/paramount"
    "fmt"
+   "golang.org/x/exp/slices"
    "io"
    "net/http"
    "os"
@@ -16,7 +18,7 @@ func (f flags) dash(token *paramount.App_Token) error {
    if err != nil {
       return err
    }
-   res, err := net_http.Get(ref)
+   res, err := http.Get(ref)
    if err != nil {
       return err
    }
@@ -39,11 +41,11 @@ func (f flags) dash(token *paramount.App_Token) error {
    }
    // video
    {
-      reps := slices.Delete(slices.Clone(reps), dash.Not(dash.Video))
-      slices.Sort(reps, func(a, b dash.Representer) bool {
+      reps := slices.DeleteFunc(slices.Clone(reps), dash.Not(dash.Video))
+      slices.SortFunc(reps, func(a, b dash.Representer) bool {
          return b.Bandwidth < a.Bandwidth
       })
-      index := slices.Index(reps, func(a dash.Representer) bool {
+      index := slices.IndexFunc(reps, func(a dash.Representer) bool {
          if a.Height <= f.height {
             return a.Bandwidth <= f.bandwidth
          }
@@ -55,8 +57,8 @@ func (f flags) dash(token *paramount.App_Token) error {
       }
    }
    // audio
-   reps = slices.Delete(reps, dash.Not(dash.Audio))
-   index := slices.Index(reps, func(a dash.Representer) bool {
+   reps = slices.DeleteFunc(reps, dash.Not(dash.Audio))
+   index := slices.IndexFunc(reps, func(a dash.Representer) bool {
       if strings.HasPrefix(a.Adaptation_Set.Lang, f.lang) {
          return strings.HasPrefix(a.Codecs, f.codec)
       }
@@ -64,7 +66,6 @@ func (f flags) dash(token *paramount.App_Token) error {
    })
    return f.DASH_Get(reps, index)
 }
-
 func (f flags) downloadable(token *paramount.App_Token) error {
    item, err := token.Item(f.content_ID)
    if err != nil {
@@ -82,9 +83,7 @@ func (f flags) downloadable(token *paramount.App_Token) error {
    if err != nil {
       return err
    }
-   client := http.Default_Client
-   client.CheckRedirect = nil
-   res, err := client.Get(ref)
+   res, err := http.Get(ref)
    if err != nil {
       return err
    }
@@ -94,9 +93,10 @@ func (f flags) downloadable(token *paramount.App_Token) error {
       return err
    }
    defer file.Close()
-   pro := http.Progress_Bytes(file, res.ContentLength)
-   if _, err := io.Copy(pro, res.Body); err != nil {
+   pro := option.Progress_Length(res.ContentLength)
+   if _, err := io.Copy(file, pro.Reader(res)); err != nil {
       return err
    }
    return nil
 }
+
