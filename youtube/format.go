@@ -9,6 +9,38 @@ import (
    "net/http"
 )
 
+func (f Format) Encode(w io.Writer) error {
+   req, err := http.Get_Parse(f.URL)
+   if err != nil {
+      return err
+   }
+   val := req.URL.Query()
+   if err != nil {
+      return err
+   }
+   pro := http.Progress_Bytes(w, f.Content_Length)
+   client := http.Default_Client
+   client.CheckRedirect = nil
+   client.Log_Level = 0
+   var pos int64
+   for pos < f.Content_Length {
+      val.Set("range", fmt.Sprint(pos, "-", pos+chunk-1))
+      req.URL.RawQuery = val.Encode()
+      res, err := client.Do(req)
+      if err != nil {
+         return err
+      }
+      if _, err := io.Copy(pro, res.Body); err != nil {
+         return err
+      }
+      if err := res.Body.Close(); err != nil {
+         return err
+      }
+      pos += chunk
+   }
+   return nil
+}
+
 var Upload_Date = map[string]protobuf.Varint{
    "Last hour": 1,
    "Today": 2,
@@ -123,36 +155,4 @@ func (f Format) Ext() (string, error) {
       return ".webm", nil
    }
    return "", fmt.Errorf(f.MIME_Type)
-}
-
-func (f Format) Encode(w io.Writer) error {
-   req, err := http.Get_Parse(f.URL)
-   if err != nil {
-      return err
-   }
-   val := req.URL.Query()
-   if err != nil {
-      return err
-   }
-   pro := http.Progress_Bytes(w, f.Content_Length)
-   client := http.Default_Client
-   client.CheckRedirect = nil
-   client.Log_Level = 0
-   var pos int64
-   for pos < f.Content_Length {
-      val.Set("range", fmt.Sprint(pos, "-", pos+chunk-1))
-      req.URL.RawQuery = val.Encode()
-      res, err := client.Do(req)
-      if err != nil {
-         return err
-      }
-      if _, err := io.Copy(pro, res.Body); err != nil {
-         return err
-      }
-      if err := res.Body.Close(); err != nil {
-         return err
-      }
-      pos += chunk
-   }
-   return nil
 }
