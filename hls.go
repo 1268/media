@@ -84,7 +84,7 @@ func hls_get[T hls.Mixed](str Stream, items []T, index int) error {
          return err
       }
    }
-   pro := option.New_Progress(len(seg.URI))
+   pro := option.Progress_Parts(seg.URI)
    for _, ref := range seg.URI {
       req.URL, err = res.Request.URL.Parse(ref)
       if err != nil {

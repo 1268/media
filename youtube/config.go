@@ -4,9 +4,6 @@ import (
    "154.pages.dev/encoding/json"
    "io"
    "net/http"
-   "net/url"
-   "path"
-   "strconv"
 )
 
 type config struct {
@@ -16,24 +13,24 @@ type config struct {
 }
 
 func new_config() (*config, error) {
-   req := http.Get(&url.URL{
-      Scheme: "https",
-      Host: "m.youtube.com",
-   })
+   req, err := http.NewRequest("GET", "https://m.youtube.com", nil)
+   if err != nil {
+      return nil, err
+   }
    req.Header.Set("User-Agent", "iPad")
-   res, err := http.Default_Client.Do(req)
+   res, err := new(http.Transport).RoundTrip(req)
    if err != nil {
       return nil, err
    }
    defer res.Body.Close()
    con := new(config)
    {
+      sep := json.Split("\nytcfg.set(")
       s, err := io.ReadAll(res.Body)
       if err != nil {
          return nil, err
       }
-      sep := []byte("\nytcfg.set(")
-      if err := json.Cut(s, sep, con); err != nil {
+      if _, err := sep.After(s, con); err != nil {
          return nil, err
       }
    }

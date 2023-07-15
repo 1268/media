@@ -7,36 +7,6 @@ import (
    "net/url"
 )
 
-func New_Cross_Site() (*Cross_Site, error) {
-   // this has smaller body than www.roku.com
-   req := http.Get(&url.URL{
-      Scheme: "https",
-      Host: "therokuchannel.roku.com",
-   })
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   var site Cross_Site
-   for _, cook := range res.Cookies() {
-      if cook.Name == "_csrf" {
-         site.cookie = cook
-      }
-   }
-   {
-      s, err := io.ReadAll(res.Body)
-      if err != nil {
-         return nil, err
-      }
-      sep := []byte("\tcsrf:")
-      if err := json.Cut(s, sep, &site.token); err != nil {
-         return nil, err
-      }
-   }
-   return &site, nil
-}
-
 func (c Cross_Site) Playback(id string) (*Playback, error) {
    body := func(r *http.Request) error {
       m := map[string]string{
@@ -107,3 +77,33 @@ func (Playback) Request_Body(buf []byte) ([]byte, error) {
 func (Playback) Response_Body(buf []byte) ([]byte, error) {
    return buf, nil
 }
+func New_Cross_Site() (*Cross_Site, error) {
+   // this has smaller body than www.roku.com
+   req := http.Get(&url.URL{
+      Scheme: "https",
+      Host: "therokuchannel.roku.com",
+   })
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   var site Cross_Site
+   for _, cook := range res.Cookies() {
+      if cook.Name == "_csrf" {
+         site.cookie = cook
+      }
+   }
+   {
+      s, err := io.ReadAll(res.Body)
+      if err != nil {
+         return nil, err
+      }
+      sep := []byte("\tcsrf:")
+      if err := json.Cut(s, sep, &site.token); err != nil {
+         return nil, err
+      }
+   }
+   return &site, nil
+}
+

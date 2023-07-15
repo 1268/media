@@ -3,33 +3,10 @@ package main
 import (
    "154.pages.dev/media/youtube"
    "fmt"
+   "golang.org/x/exp/slices"
    "os"
    "strings"
 )
-
-func (f flags) player() (*youtube.Player, error) {
-   var token *youtube.Token
-   switch f.request {
-   case 0:
-      f.r.Android()
-   case 1:
-      f.r.Android_Embed()
-   case 2:
-      f.r.Android_Check()
-      home, err := os.UserHomeDir()
-      if err != nil {
-         return nil, err
-      }
-      token, err = youtube.Read_Token(home + "/youtube.json")
-      if err != nil {
-         return nil, err
-      }
-      if err := token.Refresh(); err != nil {
-         return nil, err
-      }
-   }
-   return f.r.Player(token)
-}
 
 func (f flags) download() error {
    play, err := f.player()
@@ -37,7 +14,7 @@ func (f flags) download() error {
       return err
    }
    forms := play.Streaming_Data.Adaptive_Formats
-   slices.Sort(forms, func(a, b youtube.Format) bool {
+   slices.SortFunc(forms, func(a, b youtube.Format) bool {
       return b.Bitrate < a.Bitrate
    })
    if f.info {
@@ -50,7 +27,7 @@ func (f flags) download() error {
    } else {
       fmt.Printf("%+v\n", play.Playability_Status)
       // video
-      index := slices.Index(forms, func(a youtube.Format) bool {
+      index := slices.IndexFunc(forms, func(a youtube.Format) bool {
          // 1080p60
          if strings.HasPrefix(a.Quality_Label, f.video_q) {
             return strings.Contains(a.MIME_Type, f.video_t)
@@ -62,7 +39,7 @@ func (f flags) download() error {
          return err
       }
       // audio
-      index = slices.Index(forms, func(a youtube.Format) bool {
+      index = slices.IndexFunc(forms, func(a youtube.Format) bool {
          if a.Audio_Quality == f.audio_q {
             return strings.Contains(a.MIME_Type, f.audio_t)
          }
@@ -106,3 +83,27 @@ func (f flags) do_refresh() error {
    }
    return token.Write_File(home + "/youtube.json")
 }
+func (f flags) player() (*youtube.Player, error) {
+   var token *youtube.Token
+   switch f.request {
+   case 0:
+      f.r.Android()
+   case 1:
+      f.r.Android_Embed()
+   case 2:
+      f.r.Android_Check()
+      home, err := os.UserHomeDir()
+      if err != nil {
+         return nil, err
+      }
+      token, err = youtube.Read_Token(home + "/youtube.json")
+      if err != nil {
+         return nil, err
+      }
+      if err := token.Refresh(); err != nil {
+         return nil, err
+      }
+   }
+   return f.r.Player(token)
+}
+

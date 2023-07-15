@@ -2,6 +2,7 @@ package youtube
 
 import (
    "154.pages.dev/encoding/protobuf"
+   "154.pages.dev/http/option"
    "154.pages.dev/strconv"
    "fmt"
    "io"
@@ -10,7 +11,7 @@ import (
 )
 
 func (f Format) Encode(w io.Writer) error {
-   req, err := http.Get_Parse(f.URL)
+   req, err := http.NewRequest("GET", f.URL, nil)
    if err != nil {
       return err
    }
@@ -18,15 +19,12 @@ func (f Format) Encode(w io.Writer) error {
    if err != nil {
       return err
    }
-   pro := http.Progress_Bytes(w, f.Content_Length)
-   client := http.Default_Client
-   client.CheckRedirect = nil
-   client.Log_Level = 0
+   pro := option.Progress_Length(f.Content_Length)
    var pos int64
    for pos < f.Content_Length {
       val.Set("range", fmt.Sprint(pos, "-", pos+chunk-1))
       req.URL.RawQuery = val.Encode()
-      res, err := client.Do(req)
+      res, err := new(http.Client).Do(req)
       if err != nil {
          return err
       }

@@ -70,7 +70,7 @@ func (s Stream) DASH_Get(items []dash.Representer, index int) error {
       return err
    }
    key := keys.Content().Key
-   pro := option.New_Progress(len(media))
+   pro := option.Progress_Parts(media)
    for _, ref := range media {
       req.URL, err = s.Base.Parse(ref)
       if err != nil {
