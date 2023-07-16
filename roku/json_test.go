@@ -2,6 +2,8 @@ package roku
 
 import (
    "154.pages.dev/media"
+   "154.pages.dev/widevine"
+   "encoding/base64"
    "encoding/json"
    "fmt"
    "os"
@@ -9,22 +11,20 @@ import (
    "time"
 )
 
-func Test_Content(t *testing.T) {
+func Test_Playback(t *testing.T) {
+   site, err := New_Cross_Site()
+   if err != nil {
+      t.Fatal(err)
+   }
    enc := json.NewEncoder(os.Stdout)
+   enc.SetEscapeHTML(false)
    enc.SetIndent("", " ")
    for _, test := range tests {
-      con, err := New_Content(test.playback_ID)
+      play, err := site.Playback(test.playback_ID)
       if err != nil {
          t.Fatal(err)
       }
-      name, err := media.Name(con)
-      if err != nil {
-         t.Fatal(err)
-      }
-      fmt.Println(name)
-      if err := enc.Encode(con.DASH()); err != nil {
-         t.Fatal(err)
-      }
+      enc.Encode(play)
       time.Sleep(time.Second)
    }
 }

@@ -9,6 +9,29 @@ import (
    "strings"
 )
 
+func (t Token) Profile() (*Profile, error) {
+   req := http.Get(&url.URL{
+      Scheme: "https",
+      Host: "services.radio-canada.ca",
+      Path: "/ott/subscription/v2/gem/Subscriber/profile",
+      RawQuery: "device=phone_android",
+   })
+   req.Header.Set("Authorization", "Bearer " + t.Access_Token)
+   res, err := http.Default_Client.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   pro := new(Profile)
+   if err := json.NewDecoder(res.Body).Decode(pro); err != nil {
+      return nil, err
+   }
+   return pro, nil
+}
+
+type Token struct {
+   Access_Token string
+}
 const manifest_type = "desktop"
 
 func (p Profile) Media(item *Lineup_Item) (*Media, error) {
@@ -108,28 +131,4 @@ func Read_Profile(name string) (*Profile, error) {
 
 type Profile struct {
    Claims_Token string `json:"claimsToken"`
-}
-
-func (t Token) Profile() (*Profile, error) {
-   req := http.Get(&url.URL{
-      Scheme: "https",
-      Host: "services.radio-canada.ca",
-      Path: "/ott/subscription/v2/gem/Subscriber/profile",
-      RawQuery: "device=phone_android",
-   })
-   req.Header.Set("Authorization", "Bearer " + t.Access_Token)
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   pro := new(Profile)
-   if err := json.NewDecoder(res.Body).Decode(pro); err != nil {
-      return nil, err
-   }
-   return pro, nil
-}
-
-type Token struct {
-   Access_Token string
 }
