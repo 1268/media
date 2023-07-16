@@ -4,43 +4,9 @@ package twitter
 
 import (
    "encoding/json"
+   "net/http"
    "net/url"
 )
-
-const (
-   consumer_key = "3nVuSoBZnx6U4vzUxf5w"
-   consumer_secret = "Bcs59EFbbsdF6Sl9Ng71smgStWEGwXXKSjYvPVt7qys"
-)
-
-type flow struct {
-   Flow_Token *string `json:"flow_token"`
-   Input_Flow_Data *flow_data `json:"input_flow_data"`
-   Subtasks []subtask
-}
-
-func (f flow) open_account() *subtask {
-   for _, task := range f.Subtasks {
-      if task.Open_Account != nil {
-         return &task
-      }
-   }
-   return nil
-}
-
-type flow_data struct {
-   Flow_Context struct {
-      Start_Location struct {
-         Location string `json:"location"`
-      } `json:"start_location"`
-   } `json:"flow_context"`
-}
-
-type subtask struct {
-   Open_Account *struct {
-      OAuth_Token string
-      OAuth_Token_Secret string
-   }
-}
 
 func access_token() (string, error) {
    req := http.Post(&url.URL{
@@ -146,3 +112,38 @@ func (f *flow) next_link(access_token, guest_token string) error {
    defer res.Body.Close()
    return json.NewDecoder(res.Body).Decode(f)
 }
+const (
+   consumer_key = "3nVuSoBZnx6U4vzUxf5w"
+   consumer_secret = "Bcs59EFbbsdF6Sl9Ng71smgStWEGwXXKSjYvPVt7qys"
+)
+
+type flow struct {
+   Flow_Token *string `json:"flow_token"`
+   Input_Flow_Data *flow_data `json:"input_flow_data"`
+   Subtasks []subtask
+}
+
+func (f flow) open_account() *subtask {
+   for _, task := range f.Subtasks {
+      if task.Open_Account != nil {
+         return &task
+      }
+   }
+   return nil
+}
+
+type flow_data struct {
+   Flow_Context struct {
+      Start_Location struct {
+         Location string `json:"location"`
+      } `json:"start_location"`
+   } `json:"flow_context"`
+}
+
+type subtask struct {
+   Open_Account *struct {
+      OAuth_Token string
+      OAuth_Token_Secret string
+   }
+}
+

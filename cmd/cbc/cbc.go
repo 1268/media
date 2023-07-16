@@ -14,13 +14,13 @@ func (f flags) download() error {
       return err
    }
    // video
-   master.Stream = slices.Delete(master.Stream, func(a hls.Stream) bool {
+   master.Stream = slices.DeleteFunc(master.Stream, func(a hls.Stream) bool {
       return a.Resolution == ""
    })
-   slices.Sort(master.Stream, func(a, b hls.Stream) bool {
+   slices.SortFunc(master.Stream, func(a, b hls.Stream) bool {
       return b.Bandwidth < a.Bandwidth
    })
-   index := slices.Index(master.Stream, func(a hls.Stream) bool {
+   index := slices.IndexFunc(master.Stream, func(a hls.Stream) bool {
       if strings.HasSuffix(a.Resolution, f.resolution) {
          return a.Bandwidth <= f.bandwidth
       }
@@ -30,10 +30,10 @@ func (f flags) download() error {
       return err
    }
    // audio
-   master.Media = slices.Delete(master.Media, func(a hls.Media) bool {
+   master.Media = slices.DeleteFunc(master.Media, func(a hls.Media) bool {
       return a.Type != "AUDIO"
    })
-   index = slices.Index(master.Media, func(a hls.Media) bool {
+   index = slices.IndexFunc(master.Media, func(a hls.Media) bool {
       return a.Name == f.name
    })
    return f.HLS_Media(master.Media, index)

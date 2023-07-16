@@ -3,6 +3,7 @@ package main
 import (
    "154.pages.dev/encoding/hls"
    "154.pages.dev/media/nbc"
+   "golang.org/x/exp/slices"
    "strings"
 )
 
@@ -21,10 +22,10 @@ func (f flags) download() error {
       return err
    }
    // video and audio
-   slices.Sort(master.Stream, func(a, b hls.Stream) bool {
+   slices.SortFunc(master.Stream, func(a, b hls.Stream) bool {
       return b.Bandwidth < a.Bandwidth
    })
-   index := slices.Index(master.Stream, func(a hls.Stream) bool {
+   index := slices.IndexFunc(master.Stream, func(a hls.Stream) bool {
       if strings.HasSuffix(a.Resolution, f.resolution) {
          return a.Bandwidth <= f.bandwidth
       }
