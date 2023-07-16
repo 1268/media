@@ -4,7 +4,6 @@ import (
    "encoding/base64"
    "fmt"
    "testing"
-   "testing"
 )
 
 func (p Params) to_string() string {

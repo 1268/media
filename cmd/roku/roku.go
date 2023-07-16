@@ -3,6 +3,7 @@ package main
 import (
    "154.pages.dev/encoding/dash"
    "154.pages.dev/media/roku"
+   "golang.org/x/exp/slices"
    "net/http"
    "strings"
 )
@@ -30,8 +31,8 @@ func (f flags) DASH(content *roku.Content) error {
    }
    // video
    {
-      reps := slices.Delete(slices.Clone(reps), dash.Not(dash.Video))
-      index := slices.Index(reps, func(r dash.Representer) bool {
+      reps := slices.DeleteFunc(slices.Clone(reps), dash.Not(dash.Video))
+      index := slices.IndexFunc(reps, func(r dash.Representer) bool {
          if r.Bandwidth <= f.bandwidth {
             return r.Height <= f.height
          }
@@ -43,8 +44,8 @@ func (f flags) DASH(content *roku.Content) error {
       }
    }
    // audio
-   reps = slices.Delete(reps, dash.Not(dash.Audio))
-   index := slices.Index(reps, func(r dash.Representer) bool {
+   reps = slices.DeleteFunc(reps, dash.Not(dash.Audio))
+   index := slices.IndexFunc(reps, func(r dash.Representer) bool {
       return strings.Contains(r.Codecs, f.codec)
    })
    return f.DASH_Get(reps, index)

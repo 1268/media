@@ -1,6 +1,7 @@
 package roku
 
 import (
+   "bytes"
    "encoding/json"
    "net/http"
    "net/url"
@@ -8,24 +9,24 @@ import (
 )
 
 func (c Cross_Site) Playback(id string) (*Playback, error) {
-   body := func(r *http.Request) error {
+   body, err := func() ([]byte, error) {
       m := map[string]string{
          "mediaFormat": "mpeg-dash",
          "providerId": "rokuavod",
          "rokuId": id,
       }
-      b, err := json.MarshalIndent(m, "", " ")
-      if err != nil {
-         return err
-      }
-      r.Body_Bytes(b)
-      return nil
+      return json.MarshalIndent(m, "", " ")
+   }()
+   if err != nil {
+      return nil, err
    }
-   req := http.Post(&url.URL{
-      Scheme: "https",
-      Host: "therokuchannel.roku.com",
-      Path: "/api/v3/playback",
-   })
+   req, err := http.NewRequest(
+      "POST", "https://therokuchannel.roku.com/api/v3/playback",
+      bytes.NewReader(body),
+   )
+   if err != nil {
+      return nil, err
+   }
    // we could use Request.AddCookie, but we would need to call it after this,
    // otherwise it would be clobbered
    req.Header = http.Header{
@@ -33,11 +34,7 @@ func (c Cross_Site) Playback(id string) (*Playback, error) {
       "Content-Type": {"application/json"},
       "Cookie": {c.cookie.Raw},
    }
-   err := body(req)
-   if err != nil {
-      return nil, err
-   }
-   res, err := http.Default_Client.Do(req)
+   res, err := new(http.Transport).RoundTrip(req)
    if err != nil {
       return nil, err
    }

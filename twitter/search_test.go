@@ -7,7 +7,6 @@ import (
 )
 
 func Test_Search(t *testing.T) {
-   http.Default_Client.Log_Level = 2
    access, err := access_token()
    if err != nil {
       t.Fatal(err)

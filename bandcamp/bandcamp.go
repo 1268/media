@@ -8,62 +8,15 @@ import (
    "time"
 )
 
-func new_tralbum(typ byte, id int) (*Tralbum, error) {
-   req := http.Get(&url.URL{
-      Scheme: "http",
-      Host: "bandcamp.com",
-      Path: "/api/mobile/24/tralbum_details",
-      RawQuery: url.Values{
-         "band_id": {"1"},
-         "tralbum_id": {strconv.Itoa(id)},
-         "tralbum_type": {string(typ)},
-      }.Encode(),
-   })
-   res, err := http.Default_Client.Do(req)
+func new_band(id int) (*Band, error) {
+   req, err := http.NewRequest(
+      "GET", "http://bandcamp.com/api/mobile/24/band_details", nil,
+   )
    if err != nil {
       return nil, err
    }
-   defer res.Body.Close()
-   tralb := new(Tralbum)
-   if err := json.NewDecoder(res.Body).Decode(tralb); err != nil {
-      return nil, err
-   }
-   return tralb, nil
-}
-
-func (t Tralbum) Date() time.Time {
-   return time.Unix(t.Release_Date, 0)
-}
-
-type invalid_type struct {
-   value string
-}
-
-func (i invalid_type) Error() string {
-   var b []byte
-   b = append(b, "invalid type "...)
-   b = strconv.AppendQuote(b, i.value)
-   return string(b)
-}
-
-const (
-   JPEG = iota
-   PNG
-)
-
-type Band struct {
-   Name string
-   Discography []Item
-}
-
-func new_band(id int) (*Band, error) {
-   req := http.Get(&url.URL{
-      Scheme: "http",
-      Host: "bandcamp.com",
-      Path: "/api/mobile/24/band_details",
-      RawQuery: "band_id=" + strconv.Itoa(id),
-   })
-   res, err := http.Default_Client.Do(req)
+   req.URL.RawQuery = "band_id=" + strconv.Itoa(id)
+   res, err := new(http.Transport).RoundTrip(req)
    if err != nil {
       return nil, err
    }
@@ -190,3 +143,52 @@ type Track struct {
       MP3_128 string `json:"mp3-128"`
    }
 }
+func new_tralbum(typ byte, id int) (*Tralbum, error) {
+   req, err := http.NewRequest(
+      "GET", "http://bandcamp.com/api/mobile/24/tralbum_details", nil,
+   )
+   if err != nil {
+      return nil, err
+   }
+   req.URL.RawQuery = url.Values{
+      "band_id": {"1"},
+      "tralbum_id": {strconv.Itoa(id)},
+      "tralbum_type": {string(typ)},
+   }.Encode()
+   res, err := new(http.Transport).RoundTrip(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   tralb := new(Tralbum)
+   if err := json.NewDecoder(res.Body).Decode(tralb); err != nil {
+      return nil, err
+   }
+   return tralb, nil
+}
+
+func (t Tralbum) Date() time.Time {
+   return time.Unix(t.Release_Date, 0)
+}
+
+type invalid_type struct {
+   value string
+}
+
+func (i invalid_type) Error() string {
+   var b []byte
+   b = append(b, "invalid type "...)
+   b = strconv.AppendQuote(b, i.value)
+   return string(b)
+}
+
+const (
+   JPEG = iota
+   PNG
+)
+
+type Band struct {
+   Name string
+   Discography []Item
+}
+

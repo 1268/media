@@ -9,10 +9,13 @@ import (
 )
 
 func Test_Content(t *testing.T) {
-   Set_Env()
    var auth Auth_ID
    {
-      b, err := os.ReadFile(os.Getenv("AMC_PLUS"))
+      s, err := os.UserHomeDir()
+      if err != nil {
+         t.Fatal(err)
+      }
+      b, err := os.ReadFile(s + "/amc/auth.json")
       if err != nil {
          t.Fatal(err)
       }
@@ -37,10 +40,13 @@ func Test_Content(t *testing.T) {
 }
 
 func Test_Refresh(t *testing.T) {
-   Set_Env()
    var auth Auth_ID
    {
-      b, err := os.ReadFile(os.Getenv("AMC_PLUS"))
+      s, err := os.UserHomeDir()
+      if err != nil {
+         t.Fatal(err)
+      }
+      b, err := os.ReadFile(s + "/amc/auth.json")
       if err != nil {
          t.Fatal(err)
       }

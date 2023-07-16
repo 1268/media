@@ -2,10 +2,8 @@ package youtube
 
 import (
    "encoding/json"
-   "fmt"
    "os"
    "testing"
-   "time"
 )
 
 func Test_Config(t *testing.T) {

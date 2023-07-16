@@ -21,12 +21,12 @@ func New_Cross_Site() (*Cross_Site, error) {
       }
    }
    {
+      sep := json.Split("\tcsrf:")
       s, err := io.ReadAll(res.Body)
       if err != nil {
          return nil, err
       }
-      sep := []byte("\tcsrf:")
-      if err := json.Cut(s, sep, &site.token); err != nil {
+      if _, err := sep.After(s, &site.token); err != nil {
          return nil, err
       }
    }

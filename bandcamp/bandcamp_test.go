@@ -3,7 +3,6 @@ package bandcamp
 import (
    "fmt"
    "testing"
-   "time"
 )
 
 const art_ID = 3809045440

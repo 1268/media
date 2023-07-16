@@ -1,12 +1,18 @@
 package gem
 
 import (
+   "154.pages.dev/media"
    "fmt"
+   "os"
    "testing"
 )
 
 func Test_New_Profile(t *testing.T) {
-   u, err := user(home + "/gem.cbc.ca/user.json")
+   home, err := os.UserHomeDir()
+   if err != nil {
+      t.Fatal(err)
+   }
+   u, err := media.User(home + "/cbc/user.json")
    if err != nil {
       t.Fatal(err)
    }
@@ -22,11 +28,15 @@ func Test_New_Profile(t *testing.T) {
 }
 
 func Test_Profile(t *testing.T) {
-   u, err := user(home + "/gem.cbc.ca/user.json")
+   home, err := os.UserHomeDir()
    if err != nil {
       t.Fatal(err)
    }
-   tok, err := New_Token(u[0], u[1])
+   u, err := media.User(home + "/cbc/user.json")
+   if err != nil {
+      t.Fatal(err)
+   }
+   tok, err := New_Token(u["username"], u["password"])
    if err != nil {
       t.Fatal(err)
    }

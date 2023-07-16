@@ -9,6 +9,10 @@ import (
 )
 
 func Test_Android_Check(t *testing.T) {
+   home, err := os.UserHomeDir()
+   if err != nil {
+      t.Fatal(err)
+   }
    tok, err := Read_Token(home + "/youtube.json")
    if err != nil {
       t.Fatal(err)
