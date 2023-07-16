@@ -3,10 +3,41 @@ package main
 import (
    "154.pages.dev/encoding/hls"
    "154.pages.dev/media/cbc"
+   "golang.org/x/exp/slices"
    "os"
    "strings"
 )
 
+func (f flags) download() error {
+   master, err := f.master()
+   if err != nil {
+      return err
+   }
+   // video
+   master.Stream = slices.Delete(master.Stream, func(a hls.Stream) bool {
+      return a.Resolution == ""
+   })
+   slices.Sort(master.Stream, func(a, b hls.Stream) bool {
+      return b.Bandwidth < a.Bandwidth
+   })
+   index := slices.Index(master.Stream, func(a hls.Stream) bool {
+      if strings.HasSuffix(a.Resolution, f.resolution) {
+         return a.Bandwidth <= f.bandwidth
+      }
+      return false
+   })
+   if err := f.HLS_Streams(master.Stream, index); err != nil {
+      return err
+   }
+   // audio
+   master.Media = slices.Delete(master.Media, func(a hls.Media) bool {
+      return a.Type != "AUDIO"
+   })
+   index = slices.Index(master.Media, func(a hls.Media) bool {
+      return a.Name == f.name
+   })
+   return f.HLS_Media(master.Media, index)
+}
 func (f *flags) master() (*hls.Master, error) {
    home, err := os.UserHomeDir()
    if err != nil {
@@ -44,33 +75,3 @@ func (f flags) profile() error {
    return profile.Write_File(home + "/cbc-gem/profile.json")
 }
 
-func (f flags) download() error {
-   master, err := f.master()
-   if err != nil {
-      return err
-   }
-   // video
-   master.Stream = slices.Delete(master.Stream, func(a hls.Stream) bool {
-      return a.Resolution == ""
-   })
-   slices.Sort(master.Stream, func(a, b hls.Stream) bool {
-      return b.Bandwidth < a.Bandwidth
-   })
-   index := slices.Index(master.Stream, func(a hls.Stream) bool {
-      if strings.HasSuffix(a.Resolution, f.resolution) {
-         return a.Bandwidth <= f.bandwidth
-      }
-      return false
-   })
-   if err := f.HLS_Streams(master.Stream, index); err != nil {
-      return err
-   }
-   // audio
-   master.Media = slices.Delete(master.Media, func(a hls.Media) bool {
-      return a.Type != "AUDIO"
-   })
-   index = slices.Index(master.Media, func(a hls.Media) bool {
-      return a.Name == f.name
-   })
-   return f.HLS_Media(master.Media, index)
-}
