@@ -9,73 +9,23 @@ import (
    "time"
 )
 
-func Resolve(ref string) (*Track, error) {
-   req := http.Get(&url.URL{
-      Scheme: "https",
-      Host: "api-v2.soundcloud.com",
-      Path: "/resolve",
-      RawQuery: "client_id=" + client_ID + "&url=" + ref,
-   })
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   var solve struct {
-      Track
-   }
-   if err := json.NewDecoder(res.Body).Decode(&solve); err != nil {
-      return nil, err
-   }
-   return &solve.Track, nil
-}
-
-func New_Track(id int) (*Track, error) {
-   req := http.Get(&url.URL{
-      Scheme: "https",
-      Host: "api-v2.soundcloud.com",
-      Path: "/tracks/" + strconv.Itoa(id),
-      RawQuery: "client_id=" + client_ID,
-   })
-   res, err := http.Default_Client.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   tra := new(Track)
-   if err := json.NewDecoder(res.Body).Decode(tra); err != nil {
-      return nil, err
-   }
-   return tra, nil
-}
-
-// i1.sndcdn.com/artworks-000308141235-7ep8lo-large.jpg
-func (t Track) Artwork() string {
-   if t.Artwork_URL == "" {
-      t.Artwork_URL = t.User.Avatar_URL
-   }
-   return strings.Replace(t.Artwork_URL, "large", "t500x500", 1)
-}
-
-func (t Track) Time() (time.Time, error) {
-   return time.Parse(time.RFC3339, t.Display_Date)
-}
-
 // Also available is "hls", but all transcodings are quality "sq".
 // Same for "api-mobile.soundcloud.com".
 func (t Track) Progressive() (*Media, error) {
-   var ref string
-   for _, code := range t.Media.Transcodings {
-      if code.Format.Protocol == "progressive" {
-         ref = code.URL
+   ref := func() string {
+      for _, code := range t.Media.Transcodings {
+         if code.Format.Protocol == "progressive" {
+            return code.URL
+         }
       }
+      return ""
    }
-   req, err := http.Get_Parse(ref)
+   req, err := http.NewRequest("GET", ref(), nil)
    if err != nil {
       return nil, err
    }
    req.URL.RawQuery = "client_id=" + client_ID
-   res, err := http.Default_Client.Do(req)
+   res, err := new(http.Transport).RoundTrip(req)
    if err != nil {
       return nil, err
    }
@@ -160,3 +110,59 @@ type Track struct {
       }
    }
 }
+func Resolve(ref string) (*Track, error) {
+   req, err := http.NewRequest(
+      "GET", "https://api-v2.soundcloud.com/resolve", nil,
+   )
+   if err != nil {
+      return nil, err
+   }
+   req.URL.RawQuery = url.Values{
+      "client_id": {client_ID},
+      "url": {ref},
+   }.Encode()
+   res, err := new(http.Transport).RoundTrip(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   var solve struct {
+      Track Track
+   }
+   if err := json.NewDecoder(res.Body).Decode(&solve); err != nil {
+      return nil, err
+   }
+   return &solve.Track, nil
+}
+
+func New_Track(id int) (*Track, error) {
+   req, err := http.NewRequest("GET", "https://api-v2.soundcloud.com", nil)
+   if err != nil {
+      return nil, err
+   }
+   req.URL.Path = "/tracks/" + strconv.Itoa(id)
+   req.URL.RawQuery = "client_id=" + client_ID
+   res, err := new(http.Transport).RoundTrip(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   tra := new(Track)
+   if err := json.NewDecoder(res.Body).Decode(tra); err != nil {
+      return nil, err
+   }
+   return tra, nil
+}
+
+// i1.sndcdn.com/artworks-000308141235-7ep8lo-large.jpg
+func (t Track) Artwork() string {
+   if t.Artwork_URL == "" {
+      t.Artwork_URL = t.User.Avatar_URL
+   }
+   return strings.Replace(t.Artwork_URL, "large", "t500x500", 1)
+}
+
+func (t Track) Time() (time.Time, error) {
+   return time.Parse(time.RFC3339, t.Display_Date)
+}
+

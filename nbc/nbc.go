@@ -11,36 +11,6 @@ import (
    "time"
 )
 
-func (m Metadata) Title() string {
-   return m.Secondary_Title
-}
-
-func (m Metadata) Series() string {
-   return m.Series_Short_Title
-}
-
-func (m Metadata) Season() (int64, error) {
-   return m.Season_Number, nil
-}
-
-func (m Metadata) Episode() (int64, error) {
-   return m.Episode_Number, nil
-}
-
-func (m Metadata) Date() (time.Time, error) {
-   return time.Parse(time.RFC3339, m.Air_Date)
-}
-
-type Metadata struct {
-   MPX_Account_ID string `json:"mpxAccountId"`
-   MPX_GUID string `json:"mpxGuid"`
-   Series_Short_Title string `json:"seriesShortTitle"`
-   Season_Number int64 `json:"seasonNumber,string"`
-   Episode_Number int64 `json:"episodeNumber,string"`
-   Secondary_Title string `json:"secondaryTitle"`
-   Air_Date string `json:"airDate"`
-}
-
 func New_Metadata(guid int64) (*Metadata, error) {
    body := func(r *http.Request) error {
       var p page_request
@@ -204,3 +174,33 @@ type video_request struct {
       Account_ID string `json:"accountId"`
    } `json:"mpx"`
 }
+func (m Metadata) Title() string {
+   return m.Secondary_Title
+}
+
+func (m Metadata) Series() string {
+   return m.Series_Short_Title
+}
+
+func (m Metadata) Season() (int64, error) {
+   return m.Season_Number, nil
+}
+
+func (m Metadata) Episode() (int64, error) {
+   return m.Episode_Number, nil
+}
+
+func (m Metadata) Date() (time.Time, error) {
+   return time.Parse(time.RFC3339, m.Air_Date)
+}
+
+type Metadata struct {
+   MPX_Account_ID string `json:"mpxAccountId"`
+   MPX_GUID string `json:"mpxGuid"`
+   Series_Short_Title string `json:"seriesShortTitle"`
+   Season_Number int64 `json:"seasonNumber,string"`
+   Episode_Number int64 `json:"episodeNumber,string"`
+   Secondary_Title string `json:"secondaryTitle"`
+   Air_Date string `json:"airDate"`
+}
+
