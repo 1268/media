@@ -26,11 +26,10 @@ func (f flags) download() error {
       }
    } else {
       fmt.Printf("%+v\n", play.Playability_Status)
-      // video
+      // need to do audio first, because URLs expire quickly
       index := slices.IndexFunc(forms, func(a youtube.Format) bool {
-         // 1080p60
-         if strings.HasPrefix(a.Quality_Label, f.video_q) {
-            return strings.Contains(a.MIME_Type, f.video_t)
+         if a.Audio_Quality == f.audio_q {
+            return strings.Contains(a.MIME_Type, f.audio_t)
          }
          return false
       })
@@ -38,17 +37,15 @@ func (f flags) download() error {
       if err != nil {
          return err
       }
-      // audio
+      // video
       index = slices.IndexFunc(forms, func(a youtube.Format) bool {
-         if a.Audio_Quality == f.audio_q {
-            return strings.Contains(a.MIME_Type, f.audio_t)
+         // 1080p60
+         if strings.HasPrefix(a.Quality_Label, f.video_q) {
+            return strings.Contains(a.MIME_Type, f.video_t)
          }
          return false
       })
-      err = f.encode(forms[index], play.Name())
-      if err != nil {
-         return err
-      }
+      return f.encode(forms[index], play.Name())
    }
    return nil
 }
