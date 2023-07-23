@@ -28,7 +28,7 @@ func (f Format) Encode(w io.Writer) error {
       if err != nil {
          return err
       }
-      if _, err := io.Copy(pro, res.Body); err != nil {
+      if _, err := io.Copy(w, pro.Reader(res)); err != nil {
          return err
       }
       if err := res.Body.Close(); err != nil {

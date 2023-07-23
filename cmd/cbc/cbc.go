@@ -38,12 +38,13 @@ func (f flags) download() error {
    })
    return f.HLS_Media(master.Media, index)
 }
+
 func (f *flags) master() (*hls.Master, error) {
    home, err := os.UserHomeDir()
    if err != nil {
       return nil, err
    }
-   profile, err := gem.Read_Profile(home + "/cbc-gem/profile.json")
+   profile, err := gem.Read_Profile(home + "/cbc/profile.json")
    if err != nil {
       return nil, err
    }
@@ -72,6 +73,5 @@ func (f flags) profile() error {
    if err != nil {
       return err
    }
-   return profile.Write_File(home + "/cbc-gem/profile.json")
+   return profile.Write_File(home + "/cbc/profile.json")
 }
-
