@@ -111,6 +111,7 @@ func New_Params() Params {
    p.Message[2] = make(protobuf.Message)
    return p
 }
+
 type Format struct {
    Quality_Label string `json:"qualityLabel"`
    Audio_Quality string `json:"audioQuality"`
