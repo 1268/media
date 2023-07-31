@@ -5,6 +5,14 @@ import (
    "net/url"
 )
 
+type next_data struct {
+   Props struct {
+      Page_Props struct {
+         Page_Data []byte
+      } `json:"pageProps"`
+   }
+}
+
 func video(ref string) (*http.Response, error) {
    return http.Get(ref)
 }
