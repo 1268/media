@@ -2,8 +2,7 @@ package max
 
 import (
    "154.pages.dev/http/option"
-   "encoding/json"
-   "os"
+   "strings"
    "testing"
 )
 
@@ -20,11 +19,11 @@ func Test_Web(t *testing.T) {
    if err != nil {
       t.Fatal(err)
    }
-   med, err := page.media()
+   m, err := page.media()
    if err != nil {
       t.Fatal(err)
    }
-   enc := json.NewEncoder(os.Stdout)
-   enc.SetIndent("", " ")
-   enc.Encode(med)
+   if !strings.HasSuffix(m.Media.Desktop.Unprotected.Unencrypted.URL, "master_cl_de.m3u8") {
+      t.Fatal(m)
+   }
 }
