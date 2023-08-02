@@ -18,6 +18,33 @@ type media struct {
    }
 }
 
+type next_data struct {
+   Props struct {
+      Page_Props struct {
+         Page_Data string `json:"pageData"`
+      } `json:"pageProps"`
+   }
+}
+
+func (n next_data) page_data() (*page_data, error) {
+   page := new(page_data)
+   err := json.Unmarshal([]byte(n.Props.Page_Props.Page_Data), page)
+   if err != nil {
+      return nil, err
+   }
+   return page, nil
+}
+
+type page_data struct {
+   Mappings []struct {
+      Property string
+      Value string
+   }
+   Page struct {
+      Media_App_ID string
+   }
+}
+
 func (p page_data) media() (*media, error) {
    req, err := http.NewRequest("GET", "https://medium.ngtv.io/v2/media/", nil)
    if err != nil {
@@ -41,22 +68,6 @@ func (p page_data) media() (*media, error) {
    return med, nil
 }
 
-type page_data struct {
-   Mappings []struct {
-      Property string
-      Value string
-   }
-   Page struct {
-      Media_App_ID string
-   }
-}
-
-type value struct {
-   Value struct {
-      Large string
-   }
-}
-
 func (p page_data) video_URL() (*value, error) {
    for _, m := range p.Mappings {
       if m.Property == "videoUrl" {
@@ -71,19 +82,8 @@ func (p page_data) video_URL() (*value, error) {
    return nil, errors.New("videoUrl not found")
 }
 
-type next_data struct {
-   Props struct {
-      Page_Props struct {
-         Page_Data string `json:"pageData"`
-      } `json:"pageProps"`
+type value struct {
+   Value struct {
+      Large string
    }
-}
-
-func (n next_data) page_data() (*page_data, error) {
-   page := new(page_data)
-   err := json.Unmarshal([]byte(n.Props.Page_Props.Page_Data), page)
-   if err != nil {
-      return nil, err
-   }
-   return page, nil
 }
