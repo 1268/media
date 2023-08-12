@@ -13,18 +13,16 @@ func New_Params(ref string) (*Params, error) {
       return nil, err
    }
    defer res.Body.Close()
+   text, err := io.ReadAll(res.Body)
+   if err != nil {
+      return nil, err
+   }
+   _, text = xml.Cut(text, nil, []byte(`<p id="report-account-vm"`))
    var p struct {
       Report_Params []byte `xml:"data-tou-report-params,attr"`
    }
-   {
-      sep := xml.Split(`<p id="report-account-vm"`)
-      s, err := io.ReadAll(res.Body)
-      if err != nil {
-         return nil, err
-      }
-      if _, err := sep.Before(s, &p); err != nil {
-         return nil, err
-      }
+   if err := xml.Unmarshal(text, &p); err != nil {
+      return nil, err
    }
    param := new(Params)
    if err := json.Unmarshal(p.Report_Params, param); err != nil {
