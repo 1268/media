@@ -2,7 +2,11 @@ package youtube
 
 import (
    "154.pages.dev/encoding/json"
+   "154.pages.dev/http/option"
+   "154.pages.dev/strconv"
+   "fmt"
    "io"
+   "mime"
    "net/http"
 )
 

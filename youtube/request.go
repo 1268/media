@@ -9,6 +9,57 @@ import (
    "strconv"
 )
 
+func (r Request) Search(query string) (*Search, error) {
+   body, err := func() ([]byte, error) {
+      p := New_Params()
+      p.Type(Type["Video"])
+      r.Params = p.Marshal()
+      r.Query = query
+      return json.MarshalIndent(r, "", " ")
+   }()
+   if err != nil {
+      return nil, err
+   }
+   req, err := http.NewRequest(
+      "POST", "https://www.youtube.com/youtubei/v1/search",
+      bytes.NewReader(body),
+   )
+   if err != nil {
+      return nil, err
+   }
+   req.Header.Set("X-Goog-API-Key", api_key)
+   res, err := new(http.Transport).RoundTrip(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   search := new(Search)
+   if err := json.NewDecoder(res.Body).Decode(search); err != nil {
+      return nil, err
+   }
+   return search, nil
+}
+
+type version struct {
+   major int64
+   minor int64
+   patch int64
+}
+
+var max_android = version{18, 22, 99}
+
+func (v version) String() string {
+   var b []byte
+   b = strconv.AppendInt(b, v.major, 10)
+   b = append(b, '.')
+   b = strconv.AppendInt(b, v.minor, 10)
+   b = append(b, '.')
+   b = strconv.AppendInt(b, v.patch, 10)
+   return string(b)
+}
+
+const user_agent = "com.google.android.youtube/"
+
 func (r Request) Player(tok *Token) (*Player, error) {
    r.Context.Client.Android_SDK_Version = 99
    body, err := json.MarshalIndent(r, "", " ")
@@ -96,54 +147,3 @@ const (
    api_key = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
    mweb_version = "2.20230405.01.00"
 )
-func (r Request) Search(query string) (*Search, error) {
-   body, err := func() ([]byte, error) {
-      p := New_Params()
-      p.Type(Type["Video"])
-      r.Params = p.Marshal()
-      r.Query = query
-      return json.MarshalIndent(r, "", " ")
-   }()
-   if err != nil {
-      return nil, err
-   }
-   req, err := http.NewRequest(
-      "POST", "https://www.youtube.com/youtubei/v1/search",
-      bytes.NewReader(body),
-   )
-   if err != nil {
-      return nil, err
-   }
-   req.Header.Set("X-Goog-API-Key", api_key)
-   res, err := new(http.Transport).RoundTrip(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   search := new(Search)
-   if err := json.NewDecoder(res.Body).Decode(search); err != nil {
-      return nil, err
-   }
-   return search, nil
-}
-
-type version struct {
-   major int64
-   minor int64
-   patch int64
-}
-
-var max_android = version{18, 22, 99}
-
-func (v version) String() string {
-   var b []byte
-   b = strconv.AppendInt(b, v.major, 10)
-   b = append(b, '.')
-   b = strconv.AppendInt(b, v.minor, 10)
-   b = append(b, '.')
-   b = strconv.AppendInt(b, v.patch, 10)
-   return string(b)
-}
-
-const user_agent = "com.google.android.youtube/"
-
