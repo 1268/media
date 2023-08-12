@@ -15,27 +15,30 @@ func New_Cross_Site() (*Cross_Site, error) {
    }
    defer res.Body.Close()
    var site Cross_Site
-   for _, cook := range res.Cookies() {
-      if cook.Name == "_csrf" {
-         site.cookie = cook
-      }
+   site.cookies = res.Cookies()
+   text, err := io.ReadAll(res.Body)
+   if err != nil {
+      return nil, err
    }
-   {
-      sep := json.Split("\tcsrf:")
-      s, err := io.ReadAll(res.Body)
-      if err != nil {
-         return nil, err
-      }
-      if _, err := sep.After(s, &site.token); err != nil {
-         return nil, err
-      }
+   _, text = json.Cut(text, []byte("\tcsrf:"), nil)
+   if err := json.Unmarshal(text, &site.token); err != nil {
+      return nil, err
    }
    return &site, nil
 }
 
 type Cross_Site struct {
-   cookie *http.Cookie // has own String method
+   cookies []*http.Cookie
    token string
+}
+
+func (c Cross_Site) csrf() *http.Cookie {
+   for _, cookie := range c.cookies {
+      if cookie.Name == "_csrf" {
+         return cookie
+      }
+   }
+   return nil
 }
 
 func (c Content) Title() string {

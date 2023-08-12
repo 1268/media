@@ -12,16 +12,15 @@ func new_next_data() (*next_data, error) {
       return nil, err
    }
    defer res.Body.Close()
+   text, err := io.ReadAll(res.Body)
+   if err != nil {
+      return nil, err
+   }
+   before := []byte(` id="__NEXT_DATA__" type="application/json">`)
+   _, text = json.Cut(text, before, nil)
    next := new(next_data)
-   {
-      sep := json.Split(` id="__NEXT_DATA__" type="application/json">`)
-      s, err := io.ReadAll(res.Body)
-      if err != nil {
-         return nil, err
-      }
-      if _, err := sep.After(s, next); err != nil {
-         return nil, err
-      }
+   if err := json.Unmarshal(text, next); err != nil {
+      return nil, err
    }
    return next, nil
 }

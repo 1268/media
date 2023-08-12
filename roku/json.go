@@ -32,7 +32,7 @@ func (c Cross_Site) Playback(id string) (*Playback, error) {
    req.Header = http.Header{
       "CSRF-Token": {c.token},
       "Content-Type": {"application/json"},
-      "Cookie": {c.cookie.Raw},
+      "Cookie": {c.csrf().Raw},
    }
    res, err := new(http.Transport).RoundTrip(req)
    if err != nil {
