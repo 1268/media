@@ -11,8 +11,9 @@ import (
 
 func (r Request) Search(query string) (*Search, error) {
    body, err := func() ([]byte, error) {
-      p := New_Params()
-      p.Type(Type["Video"])
+      var p parameters
+      p.Filter = new(filter)
+      p.Filter.Type = values["TYPE"]["Video"]
       r.Params = p.Marshal()
       r.Query = query
       return json.MarshalIndent(r, "", " ")

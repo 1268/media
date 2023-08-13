@@ -50,14 +50,30 @@ type filter struct {
 }
 
 type parameters struct {
-   Sort_By *uint64 // 1
+   Sort_By uint64 // 1
    Filter *filter
 }
 
-func (p parameters) MarshalBinary() ([]byte, error) {
+func (p parameters) Marshal() []byte {
    var m protobuf.Message
-   if p.Sort_By != nil {
-      m = append(m, protobuf.Number(1).Varint(*p.Sort_By))
+   if p.Sort_By >= 1 {
+      m = append(m, protobuf.Number(1).Varint(p.Sort_By))
    }
-   return m.Append(nil), nil
+   if p.Filter != nil {
+      var f []protobuf.Field
+      if p.Filter.Upload_Date >= 1 {
+         f = append(f, protobuf.Number(1).Varint(p.Filter.Upload_Date))
+      }
+      if p.Filter.Type >= 1 {
+         f = append(f, protobuf.Number(2).Varint(p.Filter.Type))
+      }
+      if p.Filter.Duration >= 1 {
+         f = append(f, protobuf.Number(3).Varint(p.Filter.Duration))
+      }
+      for _, feature := range p.Filter.Features {
+         f = append(f, protobuf.Number(feature).Bool(true))
+      }
+      m = append(m, protobuf.Number(2).Prefix(f...))
+   }
+   return m.Append(nil)
 }
