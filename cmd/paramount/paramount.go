@@ -6,10 +6,10 @@ import (
    "154.pages.dev/media"
    "154.pages.dev/media/paramount"
    "fmt"
-   "golang.org/x/exp/slices"
    "io"
    "net/http"
    "os"
+   "slices"
    "strings"
 )
 
@@ -42,8 +42,8 @@ func (f flags) dash(token *paramount.App_Token) error {
    // video
    {
       reps := slices.DeleteFunc(slices.Clone(reps), dash.Not(dash.Video))
-      slices.SortFunc(reps, func(a, b dash.Representer) bool {
-         return b.Bandwidth < a.Bandwidth
+      slices.SortFunc(reps, func(a, b dash.Representer) int {
+         return b.Bandwidth - a.Bandwidth
       })
       index := slices.IndexFunc(reps, func(a dash.Representer) bool {
          if a.Height <= f.height {

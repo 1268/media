@@ -3,8 +3,8 @@ package main
 import (
    "154.pages.dev/media/youtube"
    "fmt"
-   "golang.org/x/exp/slices"
    "os"
+   "slices"
    "strings"
 )
 
@@ -14,8 +14,8 @@ func (f flags) download() error {
       return err
    }
    forms := play.Streaming_Data.Adaptive_Formats
-   slices.SortFunc(forms, func(a, b youtube.Format) bool {
-      return b.Bitrate < a.Bitrate
+   slices.SortFunc(forms, func(a, b youtube.Format) int {
+      return int(b.Bitrate - a.Bitrate)
    })
    if f.info {
       for i, form := range forms {

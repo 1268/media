@@ -3,8 +3,8 @@ package main
 import (
    "154.pages.dev/encoding/hls"
    "154.pages.dev/media/cbc"
-   "golang.org/x/exp/slices"
    "os"
+   "slices"
    "strings"
 )
 
@@ -17,8 +17,8 @@ func (f flags) download() error {
    master.Stream = slices.DeleteFunc(master.Stream, func(a hls.Stream) bool {
       return a.Resolution == ""
    })
-   slices.SortFunc(master.Stream, func(a, b hls.Stream) bool {
-      return b.Bandwidth < a.Bandwidth
+   slices.SortFunc(master.Stream, func(a, b hls.Stream) int {
+      return int(b.Bandwidth - a.Bandwidth)
    })
    index := slices.IndexFunc(master.Stream, func(a hls.Stream) bool {
       if strings.HasSuffix(a.Resolution, f.resolution) {

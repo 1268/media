@@ -43,37 +43,37 @@ var values = map[string]map[string]uint64{
 }
 
 type filter struct {
-   Upload_Date uint64 // 2 1
-   Type uint64 // 2 2
-   Duration uint64 // 2 3
-   Features []uint64 // 2
+   Upload_Date uint64 // 1
+   Type uint64 // 2
+   Duration uint64 // 3
+   Features []uint64
 }
 
 type parameters struct {
    Sort_By uint64 // 1
-   Filter *filter
+   Filter *filter // 2
 }
 
 func (p parameters) Marshal() []byte {
    var m protobuf.Message
    if p.Sort_By >= 1 {
-      m = append(m, protobuf.Number(1).Varint(p.Sort_By))
+      m.Add_Varint(1, p.Sort_By)
    }
    if p.Filter != nil {
-      var f []protobuf.Field
-      if p.Filter.Upload_Date >= 1 {
-         f = append(f, protobuf.Number(1).Varint(p.Filter.Upload_Date))
-      }
-      if p.Filter.Type >= 1 {
-         f = append(f, protobuf.Number(2).Varint(p.Filter.Type))
-      }
-      if p.Filter.Duration >= 1 {
-         f = append(f, protobuf.Number(3).Varint(p.Filter.Duration))
-      }
-      for _, feature := range p.Filter.Features {
-         f = append(f, protobuf.Number(feature).Bool(true))
-      }
-      m = append(m, protobuf.Number(2).Prefix(f...))
+      m.Add(2, func(m *protobuf.Message) {
+         if p.Filter.Upload_Date >= 1 {
+            m.Add_Varint(1, p.Filter.Upload_Date)
+         }
+         if p.Filter.Type >= 1 {
+            m.Add_Varint(2, p.Filter.Type)
+         }
+         if p.Filter.Duration >= 1 {
+            m.Add_Varint(3, p.Filter.Duration)
+         }
+         for _, feature := range p.Filter.Features {
+            m.Add_Bool(protobuf.Number(feature), true)
+         }
+      })
    }
    return m.Append(nil)
 }

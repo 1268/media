@@ -1,13 +1,12 @@
 module 154.pages.dev/media
 
-go 1.20
+go 1.21.0
 
 require (
-	154.pages.dev/encoding v1.11.0
+	154.pages.dev/encoding v1.11.1
 	154.pages.dev/http v1.0.7
 	154.pages.dev/strconv v1.0.3
-	154.pages.dev/widevine v1.0.3
-	golang.org/x/exp v0.0.0-20230713183714-613f0c0eb8a1
+	154.pages.dev/widevine v1.0.4
 )
 
 require (

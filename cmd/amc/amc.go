@@ -3,9 +3,9 @@ package main
 import (
    "154.pages.dev/encoding/dash"
    "154.pages.dev/media/amc"
-   "golang.org/x/exp/slices"
    "net/http"
    "os"
+   "slices"
 )
 
 func (f flags) download() error {
@@ -58,8 +58,8 @@ func (f flags) download() error {
    // video
    {
       reps := slices.DeleteFunc(slices.Clone(reps), dash.Audio)
-      slices.SortFunc(reps, func(a, b dash.Representer) bool {
-         return b.Height < a.Height
+      slices.SortFunc(reps, func(a, b dash.Representer) int {
+         return b.Height - a.Height
       })
       index := slices.IndexFunc(reps, func(a dash.Representer) bool {
          return a.Height <= f.height
