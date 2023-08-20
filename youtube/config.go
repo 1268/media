@@ -10,6 +10,35 @@ import (
    "net/http"
 )
 
+func (f Format) Encode(w io.Writer) error {
+   req, err := http.NewRequest("GET", f.URL, nil)
+   if err != nil {
+      return err
+   }
+   val := req.URL.Query()
+   if err != nil {
+      return err
+   }
+   pro := option.Progress_Length(f.Content_Length)
+   var pos int64
+   for pos < f.Content_Length {
+      val.Set("range", fmt.Sprint(pos, "-", pos+chunk-1))
+      req.URL.RawQuery = val.Encode()
+      res, err := new(http.Client).Do(req)
+      if err != nil {
+         return err
+      }
+      if _, err := io.Copy(w, pro.Reader(res)); err != nil {
+         return err
+      }
+      if err := res.Body.Close(); err != nil {
+         return err
+      }
+      pos += chunk
+   }
+   return nil
+}
+
 type Format struct {
    Quality_Label string `json:"qualityLabel"`
    Audio_Quality string `json:"audioQuality"`
@@ -52,35 +81,6 @@ func (f Format) Ext() (string, error) {
       return ".webm", nil
    }
    return "", fmt.Errorf(f.MIME_Type)
-}
-
-func (f Format) Encode(w io.Writer) error {
-   req, err := http.NewRequest("GET", f.URL, nil)
-   if err != nil {
-      return err
-   }
-   val := req.URL.Query()
-   if err != nil {
-      return err
-   }
-   pro := option.Progress_Length(f.Content_Length)
-   var pos int64
-   for pos < f.Content_Length {
-      val.Set("range", fmt.Sprint(pos, "-", pos+chunk-1))
-      req.URL.RawQuery = val.Encode()
-      res, err := new(http.Client).Do(req)
-      if err != nil {
-         return err
-      }
-      if _, err := io.Copy(w, pro.Reader(res)); err != nil {
-         return err
-      }
-      if err := res.Body.Close(); err != nil {
-         return err
-      }
-      pos += chunk
-   }
-   return nil
 }
 
 func new_config() (*config, error) {
