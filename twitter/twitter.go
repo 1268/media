@@ -1,3 +1,5 @@
+// Support for this software's development was paid for by
+// Fredrick R. Brennan's Modular Font Editor K Foundation, Inc.
 package twitter
 
 import (
@@ -7,15 +9,33 @@ import (
    "strconv"
 )
 
-type tweet_result struct {
-   Video struct {
-      Variants []struct {
-         Src string
+func (t Tweet_Result) Video_MP4() []Variant {
+   var variants []Variant
+   for _, media := range t.Media_Details {
+      for _, variant := range media.Video_Info.Variants {
+         if variant.Content_Type == "video/mp4" {
+            variants = append(variants, variant)
+         }
       }
    }
+   return variants
 }
 
-func new_tweet_result(id int64) (*tweet_result, error) {
+type Tweet_Result struct {
+   Media_Details []struct {
+      Video_Info struct {
+         Variants []Variant
+      }
+   } `json:"mediaDetails"`
+}
+
+type Variant struct {
+   Bitrate int
+   Content_Type string
+   URL string
+}
+
+func New_Tweet_Result(id int64) (*Tweet_Result, error) {
    req, err := http.NewRequest("GET", "https://cdn.syndication.twimg.com", nil)
    if err != nil {
       return nil, err
@@ -24,14 +44,13 @@ func new_tweet_result(id int64) (*tweet_result, error) {
    req.URL.RawQuery = url.Values{
       "id": {strconv.FormatInt(id, 10)},
       "token": {"-"},
-      //token=!
    }.Encode()
    res, err := http.DefaultClient.Do(req)
    if err != nil {
       return nil, err
    }
    defer res.Body.Close()
-   tweet := new(tweet_result)
+   tweet := new(Tweet_Result)
    if err := json.NewDecoder(res.Body).Decode(tweet); err != nil {
       return nil, err
    }
