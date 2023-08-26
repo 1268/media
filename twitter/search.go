@@ -4,6 +4,7 @@ package twitter
 
 import (
    "encoding/json"
+   "errors"
    "net/http"
    "net/url"
 )
@@ -33,6 +34,9 @@ func (x subtask) search(q string) (*search, error) {
       return nil, err
    }
    defer res.Body.Close()
+   if res.StatusCode != http.StatusOK {
+      return nil, errors.New(res.Status)
+   }
    s := new(search)
    if err := json.NewDecoder(res.Body).Decode(s); err != nil {
       return nil, err

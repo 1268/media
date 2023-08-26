@@ -5,9 +5,49 @@ package twitter
 import (
    "bytes"
    "encoding/json"
+   "errors"
    "net/http"
    "strings"
 )
+
+func welcome(access_token, guest_token string) (*flow, error) {
+   body, err := func() ([]byte, error) {
+      var f flow
+      f.Input_Flow_Data = new(flow_data)
+      f.Input_Flow_Data.Flow_Context.Start_Location.Location = "splash_screen"
+      return json.MarshalIndent(f, "", " ")
+   }()
+   if err != nil {
+      return nil, err
+   }
+   req, err := http.NewRequest(
+      "POST",
+      "https://api.twitter.com/1.1/onboarding/task.json?flow_name=welcome",
+      bytes.NewReader(body),
+   )
+   if err != nil {
+      return nil, err
+   }
+   req.Header = http.Header{
+      "Authorization": {"Bearer " + access_token},
+      "Content-Type": {"application/json"},
+      "User-Agent": {"TwitterAndroid/99"},
+      "X-Guest-Token": {guest_token},
+   }
+   res, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   if res.StatusCode != http.StatusOK {
+      return nil, errors.New(res.Status)
+   }
+   f := new(flow)
+   if err := json.NewDecoder(res.Body).Decode(f); err != nil {
+      return nil, err
+   }
+   return f, nil
+}
 
 func (f *flow) next_link(access_token, guest_token string) error {
    body, err := json.MarshalIndent(f, "", " ")
@@ -31,7 +71,19 @@ func (f *flow) next_link(access_token, guest_token string) error {
       return err
    }
    defer res.Body.Close()
+   if res.StatusCode != http.StatusOK {
+      return errors.New(res.Status)
+   }
    return json.NewDecoder(res.Body).Decode(f)
+}
+
+func (f flow) open_account() *subtask {
+   for _, task := range f.Subtasks {
+      if task.Open_Account != nil {
+         return &task
+      }
+   }
+   return nil
 }
 
 const (
@@ -43,15 +95,6 @@ type flow struct {
    Flow_Token *string `json:"flow_token"`
    Input_Flow_Data *flow_data `json:"input_flow_data"`
    Subtasks []subtask
-}
-
-func (f flow) open_account() *subtask {
-   for _, task := range f.Subtasks {
-      if task.Open_Account != nil {
-         return &task
-      }
-   }
-   return nil
 }
 
 type flow_data struct {
@@ -84,6 +127,9 @@ func access_token() (string, error) {
       return "", err
    }
    defer res.Body.Close()
+   if res.StatusCode != http.StatusOK {
+      return "", errors.New(res.Status)
+   }
    var s struct {
       Access_Token string
    }
@@ -106,6 +152,9 @@ func guest_token(access_token string) (string, error) {
       return "", err
    }
    defer res.Body.Close()
+   if res.StatusCode != http.StatusOK {
+      return "", errors.New(res.Status)
+   }
    var s struct {
       Guest_Token string
    }
@@ -114,40 +163,3 @@ func guest_token(access_token string) (string, error) {
    }
    return s.Guest_Token, nil
 }
-
-func welcome(access_token, guest_token string) (*flow, error) {
-   body, err := func() ([]byte, error) {
-      var f flow
-      f.Input_Flow_Data = new(flow_data)
-      f.Input_Flow_Data.Flow_Context.Start_Location.Location = "splash_screen"
-      return json.MarshalIndent(f, "", " ")
-   }()
-   if err != nil {
-      return nil, err
-   }
-   req, err := http.NewRequest(
-      "POST",
-      "https://api.twitter.com/1.1/onboarding/task.json?flow_name=welcome",
-      bytes.NewReader(body),
-   )
-   if err != nil {
-      return nil, err
-   }
-   req.Header = http.Header{
-      "Authorization": {"Bearer " + access_token},
-      "Content-Type": {"application/json"},
-      "User-Agent": {"TwitterAndroid/99"},
-      "X-Guest-Token": {guest_token},
-   }
-   res, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   f := new(flow)
-   if err := json.NewDecoder(res.Body).Decode(f); err != nil {
-      return nil, err
-   }
-   return f, nil
-}
-
