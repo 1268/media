@@ -28,7 +28,7 @@ func (x subtask) search(q string) (*search, error) {
       }
       req.Header.Set("Authorization", o.sign(req.Method, req.URL))
    }
-   res, err := new(http.Transport).RoundTrip(req)
+   res, err := http.DefaultClient.Do(req)
    if err != nil {
       return nil, err
    }

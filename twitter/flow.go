@@ -26,7 +26,7 @@ func (f *flow) next_link(access_token, guest_token string) error {
       "Content-Type": {"application/json"},
       "X-Guest-Token": {guest_token},
    }
-   res, err := new(http.Transport).RoundTrip(req)
+   res, err := http.DefaultClient.Do(req)
    if err != nil {
       return err
    }
@@ -79,7 +79,7 @@ func access_token() (string, error) {
    }
    req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
    req.SetBasicAuth(consumer_key, consumer_secret)
-   res, err := new(http.Transport).RoundTrip(req)
+   res, err := http.DefaultClient.Do(req)
    if err != nil {
       return "", err
    }
@@ -101,7 +101,7 @@ func guest_token(access_token string) (string, error) {
       return "", err
    }
    req.Header.Set("Authorization", "Bearer " + access_token)
-   res, err := new(http.Transport).RoundTrip(req)
+   res, err := http.DefaultClient.Do(req)
    if err != nil {
       return "", err
    }
@@ -139,7 +139,7 @@ func welcome(access_token, guest_token string) (*flow, error) {
       "User-Agent": {"TwitterAndroid/99"},
       "X-Guest-Token": {guest_token},
    }
-   res, err := new(http.Transport).RoundTrip(req)
+   res, err := http.DefaultClient.Do(req)
    if err != nil {
       return nil, err
    }
