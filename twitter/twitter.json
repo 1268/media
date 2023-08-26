@@ -1,0 +1,160 @@
+{
+  "__typename": "Tweet",
+  "lang": "fa",
+  "favorite_count": 25026,
+  "possibly_sensitive": true,
+  "created_at": "2022-10-05T05:39:20.000Z",
+  "display_text_range": [
+    0,
+    163
+  ],
+  "entities": {
+    "hashtags": [
+      {
+        "indices": [
+          152,
+          163
+        ],
+        "text": "مهسا_امینی"
+      }
+    ],
+    "urls": [],
+    "user_mentions": [],
+    "symbols": [],
+    "media": [
+      {
+        "display_url": "pic.twitter.com/Cz4NhUeaWB",
+        "expanded_url": "https://twitter.com/1500tasvir/status/1577533879283585025/video/1",
+        "indices": [
+          164,
+          187
+        ],
+        "url": "https://t.co/Cz4NhUeaWB"
+      }
+    ]
+  },
+  "id_str": "1577533879283585025",
+  "text": "در پاسخ اعتراضات دانش‌آموزان، مسئولین مدرسه‌ از یک بسیجی خواستند تا برای آنها سخنرانی کند. دانش‌آموزان روبروی او ایستاده و شعار می‌دهند بسیجی برو گمشو.\n#مهسا_امینی https://t.co/Cz4NhUeaWB",
+  "user": {
+    "id_str": "1327959581960658945",
+    "name": "+۱۵۰۰تصویر",
+    "profile_image_url_https": "https://pbs.twimg.com/profile_images/1693604631631269888/Cv9nVlVZ_normal.jpg",
+    "screen_name": "1500tasvir",
+    "verified": false,
+    "is_blue_verified": true,
+    "profile_image_shape": "Circle"
+  },
+  "edit_control": {
+    "edit_tweet_ids": [
+      "1577533879283585025"
+    ],
+    "editable_until_msecs": "1664950160000",
+    "is_edit_eligible": true,
+    "edits_remaining": "5"
+  },
+  "mediaDetails": [
+    {
+      "additional_media_info": {},
+      "display_url": "pic.twitter.com/Cz4NhUeaWB",
+      "expanded_url": "https://twitter.com/1500tasvir/status/1577533879283585025/video/1",
+      "ext_media_availability": {
+        "status": "Available"
+      },
+      "ext_media_stats": {
+        "view_count": 10525882
+      },
+      "indices": [
+        164,
+        187
+      ],
+      "media_url_https": "https://pbs.twimg.com/ext_tw_video_thumb/1577533837206241280/pu/img/WmEILCDHiB9a_MTa.jpg",
+      "original_info": {
+        "height": 360,
+        "width": 640
+      },
+      "sizes": {
+        "large": {
+          "h": 360,
+          "resize": "fit",
+          "w": 640
+        },
+        "medium": {
+          "h": 360,
+          "resize": "fit",
+          "w": 640
+        },
+        "small": {
+          "h": 360,
+          "resize": "fit",
+          "w": 640
+        },
+        "thumb": {
+          "h": 150,
+          "resize": "crop",
+          "w": 150
+        }
+      },
+      "type": "video",
+      "url": "https://t.co/Cz4NhUeaWB",
+      "video_info": {
+        "aspect_ratio": [
+          16,
+          9
+        ],
+        "duration_millis": 16253,
+        "variants": [
+          {
+            "content_type": "application/x-mpegURL",
+            "url": "https://video.twimg.com/ext_tw_video/1577533837206241280/pu/pl/0Eva6YOJCkbAobgD.m3u8?tag=12&container=fmp4&v=270"
+          },
+          {
+            "bitrate": 256000,
+            "content_type": "video/mp4",
+            "url": "https://video.twimg.com/ext_tw_video/1577533837206241280/pu/vid/480x270/OpiMPCL46jH0V3Ef.mp4?tag=12"
+          },
+          {
+            "bitrate": 832000,
+            "content_type": "video/mp4",
+            "url": "https://video.twimg.com/ext_tw_video/1577533837206241280/pu/vid/640x360/7kyn4AAm3V8zfL82.mp4?tag=12"
+          }
+        ]
+      }
+    }
+  ],
+  "photos": [],
+  "video": {
+    "aspectRatio": [
+      16,
+      9
+    ],
+    "contentType": "media_entity",
+    "durationMs": 16253,
+    "mediaAvailability": {
+      "status": "available"
+    },
+    "poster": "https://pbs.twimg.com/ext_tw_video_thumb/1577533837206241280/pu/img/WmEILCDHiB9a_MTa.jpg",
+    "variants": [
+      {
+        "type": "application/x-mpegURL",
+        "src": "https://video.twimg.com/ext_tw_video/1577533837206241280/pu/pl/0Eva6YOJCkbAobgD.m3u8?tag=12&container=fmp4&v=270"
+      },
+      {
+        "type": "video/mp4",
+        "src": "https://video.twimg.com/ext_tw_video/1577533837206241280/pu/vid/480x270/OpiMPCL46jH0V3Ef.mp4?tag=12"
+      },
+      {
+        "type": "video/mp4",
+        "src": "https://video.twimg.com/ext_tw_video/1577533837206241280/pu/vid/640x360/7kyn4AAm3V8zfL82.mp4?tag=12"
+      }
+    ],
+    "videoId": {
+      "type": "tweet",
+      "id": "1577533879283585025"
+    },
+    "viewCount": 10525882
+  },
+  "conversation_count": 753,
+  "news_action_type": "conversation",
+  "isEdited": false,
+  "isStaleEdit": false
+}
