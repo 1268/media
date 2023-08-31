@@ -4,6 +4,7 @@ import (
    "encoding/json"
    "errors"
    "net/http"
+   "net/url"
    "strconv"
    "strings"
    "time"
@@ -15,12 +16,18 @@ func (at App_Token) Item(content_ID string) (*Item, error) {
       return nil, err
    }
    req.URL.Path = "/apps-api/v2.0/androidphone/video/cid/" + content_ID + ".json"
-   req.URL.RawQuery = "at=" + at.value
-   res, err := new(http.Transport).RoundTrip(req)
+   req.URL.RawQuery = url.Values{
+      // this needs to be encoded
+      "at": {at.value},
+   }.Encode()
+   res, err := http.DefaultClient.Do(req)
    if err != nil {
       return nil, err
    }
    defer res.Body.Close()
+   if res.StatusCode != http.StatusOK {
+      return nil, errors.New(res.Status)
+   }
    var video struct {
       Item_List []Item `json:"itemList"`
    }

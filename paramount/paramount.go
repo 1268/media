@@ -6,6 +6,7 @@ import (
    "encoding/base64"
    "encoding/hex"
    "encoding/json"
+   "errors"
    "net/http"
    "net/url"
    "strconv"
@@ -17,12 +18,18 @@ func (at App_Token) Session(content_ID string) (*Session, error) {
       return nil, err
    }
    req.URL.Path = "/apps-api/v3.0/androidphone/irdeto-control/anonymous-session-token.json"
-   req.URL.RawQuery = "at=" + at.value
-   res, err := new(http.Transport).RoundTrip(req)
+   req.URL.RawQuery = url.Values{
+      // this needs to be encoded
+      "at": {at.value},
+   }.Encode()
+   res, err := http.DefaultClient.Do(req)
    if err != nil {
       return nil, err
    }
    defer res.Body.Close()
+   if res.StatusCode != http.StatusOK {
+      return nil, errors.New(res.Status)
+   }
    sess := new(Session)
    if err := json.NewDecoder(res.Body).Decode(sess); err != nil {
       return nil, err
@@ -166,11 +173,14 @@ func location(content_ID string, query url.Values) (string, error) {
       req.URL.Path = string(b)
    }
    req.URL.RawQuery = query.Encode()
-   res, err := new(http.Transport).RoundTrip(req)
+   res, err := http.DefaultClient.Do(req)
    if err != nil {
       return "", err
    }
    defer res.Body.Close()
+   if res.StatusCode != http.StatusFound {
+      return "", errors.New(res.Status)
+   }
    return res.Header.Get("Location"), nil
 }
 

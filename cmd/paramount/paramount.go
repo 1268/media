@@ -66,6 +66,7 @@ func (f flags) dash(token *paramount.App_Token) error {
    })
    return f.DASH_Get(reps, index)
 }
+
 func (f flags) downloadable(token *paramount.App_Token) error {
    item, err := token.Item(f.content_ID)
    if err != nil {

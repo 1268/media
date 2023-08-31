@@ -1,6 +1,7 @@
 package main
 
 import (
+   "154.pages.dev/http/option"
    "154.pages.dev/media"
    "154.pages.dev/media/paramount"
    "flag"
@@ -45,6 +46,8 @@ func main() {
    flag.StringVar(&f.Private_Key, "key", f.Private_Key, "private key")
    flag.Parse()
    if f.content_ID != "" {
+      option.No_Location()
+      option.Verbose()
       token, err := paramount.New_App_Token()
       if err != nil {
          panic(err)
