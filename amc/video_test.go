@@ -30,11 +30,11 @@ func Test_Content(t *testing.T) {
       if err != nil {
          t.Fatal(err)
       }
-      name, err := media.Name(vid)
+      format, err := media.Format(vid)
       if err != nil {
          t.Fatal(err)
       }
-      fmt.Println(name)
+      fmt.Println(format)
       time.Sleep(time.Second)
    }
 }

@@ -39,7 +39,7 @@ func (s Stream) DASH_Get(items []dash.Representer, index int) error {
       return err
    }
    req.URL = s.Base.ResolveReference(req.URL)
-   res, err := new(http.Client).Do(req)
+   res, err := http.DefaultClient.Do(req)
    if err != nil {
       return err
    }
@@ -76,7 +76,7 @@ func (s Stream) DASH_Get(items []dash.Representer, index int) error {
       if err != nil {
          return err
       }
-      res, err := new(http.Client).Do(req)
+      res, err := http.DefaultClient.Do(req)
       if err != nil {
          return err
       }
