@@ -1,6 +1,7 @@
 package main
 
 import (
+   "154.pages.dev/http/option"
    "154.pages.dev/media"
    "flag"
    "os"
@@ -37,6 +38,8 @@ func main() {
    f.Private_Key = home + "/widevine/private_key.pem"
    flag.StringVar(&f.Private_Key, "key", f.Private_Key, "private key")
    flag.Parse()
+   option.No_Location()
+   option.Verbose()
    if f.email != "" {
       err := f.login()
       if err != nil {

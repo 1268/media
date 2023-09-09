@@ -5,11 +5,135 @@ import (
    "encoding/json"
    "errors"
    "net/http"
+   "net/http/httputil"
    "net/url"
    "strings"
    "time"
 )
 
+func (a Auth_ID) Playback(ref string) (*Playback, error) {
+   body, err := func() ([]byte, error) {
+      var s struct {
+         Ad_Tags struct {
+            Lat int `json:"lat"`
+            Mode string `json:"mode"`
+            PPID int `json:"ppid"`
+            Player_Height int `json:"playerHeight"`
+            Player_Width int `json:"playerWidth"`
+            URL string `json:"url"`
+         } `json:"adtags"`
+      }
+      s.Ad_Tags.Mode = "on-demand"
+      s.Ad_Tags.URL = "-"
+      return json.MarshalIndent(s, "", " ")
+   }()
+   if err != nil {
+      return nil, err
+   }
+   req, err := http.NewRequest(
+      "POST", "https://gw.cds.amcn.com/playback-id/api/v1/playback/",
+      bytes.NewReader(body),
+   )
+   if err != nil {
+      return nil, err
+   }
+   _, nID, found := strings.Cut(ref, "--")
+   if !found {
+      return nil, errors.New("nid not found")
+   }
+   req.URL.Path += nID
+   req.Header = http.Header{
+      "Authorization": {"Bearer " + a.Data.Access_Token},
+      "Content-Type": {"application/json"},
+      "X-Amcn-Device-Ad-ID": {"-"},
+      "X-Amcn-Language": {"en"},
+      "X-Amcn-Network": {"amcplus"},
+      "X-Amcn-Platform": {"web"},
+      "X-Amcn-Service-ID": {"amcplus"},
+      "X-Amcn-Tenant": {"amcn"},
+      "X-Ccpa-Do-Not-Sell": {"doNotPassData"},
+   }
+   res, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   if res.StatusCode != http.StatusOK {
+      b, err := httputil.DumpResponse(res, true)
+      if err != nil {
+         return nil, err
+      }
+      return nil, errors.New(string(b))
+   }
+   var play Playback
+   {
+      var s struct {
+         Data struct {
+            Playback_JSON_Data struct {
+               Sources []Source
+            } `json:"playbackJsonData"`
+         }
+      }
+      err := json.NewDecoder(res.Body).Decode(&s)
+      if err != nil {
+         return nil, err
+      }
+      play.sources = s.Data.Playback_JSON_Data.Sources
+   }
+   play.Header = res.Header
+   return &play, nil
+}
+
+func (a *Auth_ID) Refresh() error {
+   req, err := http.NewRequest(
+      "POST",
+      "https://gw.cds.amcn.com/auth-orchestration-id/api/v1/refresh",
+      nil,
+   )
+   if err != nil {
+      return err
+   }
+   req.Header.Set("Authorization", "Bearer " + a.Data.Refresh_Token)
+   res, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return err
+   }
+   defer res.Body.Close()
+   if res.StatusCode != http.StatusOK {
+      return errors.New(res.Status)
+   }
+   return json.NewDecoder(res.Body).Decode(a)
+}
+
+func Unauth() (*Auth_ID, error) {
+   req, err := http.NewRequest(
+      "POST", "https://gw.cds.amcn.com/auth-orchestration-id/api/v1/unauth",
+      nil,
+   )
+   if err != nil {
+      return nil, err
+   }
+   req.Header = http.Header{
+      "X-Amcn-Device-ID": {"-"},
+      "X-Amcn-Language": {"en"},
+      "X-Amcn-Network": {"amcplus"},
+      "X-Amcn-Platform": {"web"},
+      "X-Amcn-Tenant": {"amcn"},
+   }
+   res, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer res.Body.Close()
+   if res.StatusCode != http.StatusOK {
+      return nil, errors.New(res.Status)
+   }
+   auth := new(Auth_ID)
+   if err := json.NewDecoder(res.Body).Decode(auth); err != nil {
+      return nil, err
+   }
+   return auth, nil
+}
 func (a *Auth_ID) Login(email, password string) error {
    body, err := json.Marshal(map[string]string{
       "email": email,
@@ -194,122 +318,3 @@ func (a Auth_ID) Content(ref string) (*Content, error) {
    return con, nil
 }
 
-func (a Auth_ID) Playback(ref string) (*Playback, error) {
-   body, err := func() ([]byte, error) {
-      var s struct {
-         Ad_Tags struct {
-            Lat int `json:"lat"`
-            Mode string `json:"mode"`
-            PPID int `json:"ppid"`
-            Player_Height int `json:"playerHeight"`
-            Player_Width int `json:"playerWidth"`
-            URL string `json:"url"`
-         } `json:"adtags"`
-      }
-      s.Ad_Tags.Mode = "on-demand"
-      s.Ad_Tags.URL = "-"
-      return json.MarshalIndent(s, "", " ")
-   }()
-   if err != nil {
-      return nil, err
-   }
-   req, err := http.NewRequest(
-      "POST", "https://gw.cds.amcn.com/playback-id/api/v1/playback/",
-      bytes.NewReader(body),
-   )
-   if err != nil {
-      return nil, err
-   }
-   _, nID, found := strings.Cut(ref, "--")
-   if !found {
-      return nil, errors.New("nid not found")
-   }
-   req.URL.Path += nID
-   req.Header = http.Header{
-      "Authorization": {"Bearer " + a.Data.Access_Token},
-      "Content-Type": {"application/json"},
-      "X-Amcn-Device-Ad-ID": {"-"},
-      "X-Amcn-Language": {"en"},
-      "X-Amcn-Network": {"amcplus"},
-      "X-Amcn-Platform": {"web"},
-      "X-Amcn-Service-ID": {"amcplus"},
-      "X-Amcn-Tenant": {"amcn"},
-      "X-Ccpa-Do-Not-Sell": {"doNotPassData"},
-   }
-   res, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   if res.StatusCode != http.StatusOK {
-      return nil, errors.New(res.Status)
-   }
-   var play Playback
-   {
-      var s struct {
-         Data struct {
-            Playback_JSON_Data struct {
-               Sources []Source
-            } `json:"playbackJsonData"`
-         }
-      }
-      err := json.NewDecoder(res.Body).Decode(&s)
-      if err != nil {
-         return nil, err
-      }
-      play.sources = s.Data.Playback_JSON_Data.Sources
-   }
-   play.Header = res.Header
-   return &play, nil
-}
-
-func (a *Auth_ID) Refresh() error {
-   req, err := http.NewRequest(
-      "POST",
-      "https://gw.cds.amcn.com/auth-orchestration-id/api/v1/refresh",
-      nil,
-   )
-   if err != nil {
-      return err
-   }
-   req.Header.Set("Authorization", "Bearer " + a.Data.Refresh_Token)
-   res, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return err
-   }
-   defer res.Body.Close()
-   if res.StatusCode != http.StatusOK {
-      return errors.New(res.Status)
-   }
-   return json.NewDecoder(res.Body).Decode(a)
-}
-
-func Unauth() (*Auth_ID, error) {
-   req, err := http.NewRequest(
-      "POST", "https://gw.cds.amcn.com/auth-orchestration-id/api/v1/unauth",
-      nil,
-   )
-   if err != nil {
-      return nil, err
-   }
-   req.Header = http.Header{
-      "X-Amcn-Device-ID": {"-"},
-      "X-Amcn-Language": {"en"},
-      "X-Amcn-Network": {"amcplus"},
-      "X-Amcn-Platform": {"web"},
-      "X-Amcn-Tenant": {"amcn"},
-   }
-   res, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer res.Body.Close()
-   if res.StatusCode != http.StatusOK {
-      return nil, errors.New(res.Status)
-   }
-   auth := new(Auth_ID)
-   if err := json.NewDecoder(res.Body).Decode(auth); err != nil {
-      return nil, err
-   }
-   return auth, nil
-}
