@@ -38,7 +38,7 @@ func (a *Auth_ID) Login(email, password string) error {
       "X-Amcn-Tenant": {"amcn"},
       "X-Ccpa-Do-Not-Sell": {"doNotPassData"},
    }
-   res, err := new(http.Transport).RoundTrip(req)
+   res, err := http.DefaultClient.Do(req)
    if err != nil {
       return err
    }
@@ -179,7 +179,7 @@ func (a Auth_ID) Content(ref string) (*Content, error) {
       "X-Amcn-Network": {"amcplus"},
       "X-Amcn-Tenant": {"amcn"},
    }
-   res, err := new(http.Transport).RoundTrip(req)
+   res, err := http.DefaultClient.Do(req)
    if err != nil {
       return nil, err
    }
@@ -236,7 +236,7 @@ func (a Auth_ID) Playback(ref string) (*Playback, error) {
       "X-Amcn-Tenant": {"amcn"},
       "X-Ccpa-Do-Not-Sell": {"doNotPassData"},
    }
-   res, err := new(http.Transport).RoundTrip(req)
+   res, err := http.DefaultClient.Do(req)
    if err != nil {
       return nil, err
    }
@@ -273,7 +273,7 @@ func (a *Auth_ID) Refresh() error {
       return err
    }
    req.Header.Set("Authorization", "Bearer " + a.Data.Refresh_Token)
-   res, err := new(http.Transport).RoundTrip(req)
+   res, err := http.DefaultClient.Do(req)
    if err != nil {
       return err
    }
@@ -299,7 +299,7 @@ func Unauth() (*Auth_ID, error) {
       "X-Amcn-Platform": {"web"},
       "X-Amcn-Tenant": {"amcn"},
    }
-   res, err := new(http.Transport).RoundTrip(req)
+   res, err := http.DefaultClient.Do(req)
    if err != nil {
       return nil, err
    }
