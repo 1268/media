@@ -7,12 +7,6 @@
 >
 > [Nightmares on Wax (2018)](//youtube.com/watch?v=Vc-XzhnwpVc)
 
-https://justwatch.com/us/provider/amc-plus
-
-## Android client
-
-https://play.google.com/store/apps/details?id=com.amcplus.amcfullepisodes
-
 ## TRY 7 DAYS FREE
 
 if you try to sign up using the web client without these:
@@ -42,7 +36,7 @@ HTTP/2.0 200
 use an email like this:
 
 ~~~
-2023-07-04@mailsac.com
+2023-09-09@mailsac.com
 ~~~
 
 1. https://amcplus.com/create
@@ -61,3 +55,7 @@ use an email like this:
 14. click Subscription
 15. click CANCEL
 16. click NO THANKS, CANCEL AMC+
+
+## Android client
+
+https://play.google.com/store/apps/details?id=com.amcplus.amcfullepisodes

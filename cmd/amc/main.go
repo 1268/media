@@ -38,7 +38,7 @@ func main() {
    f.Private_Key = home + "/widevine/private_key.pem"
    flag.StringVar(&f.Private_Key, "key", f.Private_Key, "private key")
    flag.Parse()
-   option.No_Location()
+   // location needed for DASH file
    option.Verbose()
    if f.email != "" {
       err := f.login()

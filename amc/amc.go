@@ -4,13 +4,26 @@ import (
    "bytes"
    "encoding/json"
    "errors"
+   "io"
    "net/http"
-   "net/http/httputil"
    "net/url"
    "strings"
-   "time"
 )
 
+type Auth_ID struct {
+   Data struct {
+      Access_Token string
+      Refresh_Token string
+   }
+}
+
+func (a Auth_ID) Marshal() ([]byte, error) {
+   return json.MarshalIndent(a, "", " ")
+}
+
+func (a *Auth_ID) Unmarshal(text []byte) error {
+   return json.Unmarshal(text, a)
+}
 func (a Auth_ID) Playback(ref string) (*Playback, error) {
    body, err := func() ([]byte, error) {
       var s struct {
@@ -59,7 +72,7 @@ func (a Auth_ID) Playback(ref string) (*Playback, error) {
    }
    defer res.Body.Close()
    if res.StatusCode != http.StatusOK {
-      b, err := httputil.DumpResponse(res, true)
+      b, err := io.ReadAll(res.Body)
       if err != nil {
          return nil, err
       }
@@ -67,6 +80,7 @@ func (a Auth_ID) Playback(ref string) (*Playback, error) {
    }
    var play Playback
    {
+      // {"success":false,"status":400,"error":"Content not found"}
       var s struct {
          Data struct {
             Playback_JSON_Data struct {
@@ -134,6 +148,7 @@ func Unauth() (*Auth_ID, error) {
    }
    return auth, nil
 }
+
 func (a *Auth_ID) Login(email, password string) error {
    body, err := json.Marshal(map[string]string{
       "email": email,
@@ -192,54 +207,6 @@ type Source struct {
    }
    Src string
    Type string
-}
-
-func (c Content) Video() (*Video, error) {
-   for _, child := range c.Data.Children {
-      if child.Type == "video-player-ap" {
-         var s struct {
-            Current_Video Video `json:"currentVideo"`
-         }
-         err := json.Unmarshal(child.Properties, &s)
-         if err != nil {
-            return nil, err
-         }
-         return &s.Current_Video, nil
-      }
-   }
-   return nil, errors.New("video-player-ap not present")
-}
-
-func (v Video) Season() (int64, error) {
-   return v.Meta.Season, nil
-}
-
-func (v Video) Episode() (int64, error) {
-   return v.Meta.Episode_Number, nil
-}
-
-func (v Video) Series() string {
-   return v.Meta.Show_Title
-}
-
-type Video struct {
-   Meta struct {
-      Show_Title string `json:"showTitle"`
-      Season int64 `json:",string"`
-      Episode_Number int64 `json:"episodeNumber"`
-      Airdate string // 1996-01-01T00:00:00.000Z
-   }
-   Text struct {
-      Title string
-   }
-}
-
-func (v Video) Title() string {
-   return v.Text.Title
-}
-
-func (v Video) Date() (time.Time, error) {
-   return time.Parse(time.RFC3339, v.Meta.Airdate)
 }
 
 type Content struct {

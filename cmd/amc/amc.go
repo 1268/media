@@ -3,6 +3,7 @@ package main
 import (
    "154.pages.dev/encoding/dash"
    "154.pages.dev/media/amc"
+   "errors"
    "net/http"
    "os"
    "slices"
@@ -51,6 +52,9 @@ func (f flags) download() error {
       return err
    }
    defer res.Body.Close()
+   if res.StatusCode != http.StatusOK {
+      return errors.New(res.Status)
+   }
    reps, err := dash.Representers(res.Body)
    if err != nil {
       return err
