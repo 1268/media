@@ -2,11 +2,103 @@ package media
 
 import (
    "encoding/json"
-   "fmt"
    "os"
-   "strings"
+   "strconv"
    "time"
 )
+
+type Namer interface {
+   Series() string
+   Season() (int64, error)
+   Episode() (int64, error)
+   Title() string
+   Date() (time.Time, error)
+}
+
+func Format(n Namer) (string, error) {
+   var b []byte
+   b = append(b, "series: "...)
+   b = append(b, n.Series()...)
+   b = append(b, "\nseason: "...)
+   {
+      s, err := n.Season()
+      if err != nil {
+         return "", err
+      }
+      b = strconv.AppendInt(b, s, 10)
+   }
+   b = append(b, "\nepisode: "...)
+   {
+      e, err := n.Episode()
+      if err != nil {
+         return "", err
+      }
+      b = strconv.AppendInt(b, e, 10)
+   }
+   b = append(b, "\ntitle: "...)
+   b = append(b, n.Title()...)
+   b = append(b, "\ndate: "...)
+   {
+      d, err := n.Date()
+      if err != nil {
+         return "", err
+      }
+      b = append(b, d.String()...)
+   }
+   return string(b), nil
+}
+
+func Name(n Namer) (string, error) {
+   var b []byte
+   title := Clean(n.Title())
+   if season, err := n.Season(); err != nil {
+      b = append(b, title...)
+      b = append(b, " - "...)
+      {
+         d, err := n.Date()
+         if err != nil {
+            return "", err
+         }
+         b = d.AppendFormat(b, "2006")
+      }
+   } else {
+      b = append(b, n.Series()...)
+      b = append(b, " - S"...)
+      b = strconv.AppendInt(b, season, 10)
+      b = append(b, " E"...)
+      {
+         e, err := n.Episode()
+         if err != nil {
+            return "", err
+         }
+         b = strconv.AppendInt(b, e, 10)
+      }
+      b = append(b, " - "...)
+      b = append(b, title...)
+   }
+   return string(b), nil
+}
+
+func Clean(path string) string {
+   m := map[byte]bool{
+      '"': true,
+      '*': true,
+      '/': true,
+      ':': true,
+      '<': true,
+      '>': true,
+      '?': true,
+      '\\': true,
+      '|': true,
+   }
+   b := []byte(path)
+   for k, v := range b {
+      if m[v] {
+         b[k] = '-'
+      }
+   }
+   return string(b)
+}
 
 func User(name string) (map[string]string, error) {
    b, err := os.ReadFile(name)
@@ -20,47 +112,3 @@ func User(name string) (map[string]string, error) {
    return m, nil
 }
 
-func Name(n Namer) (string, error) {
-   b := new(strings.Builder)
-   title := Clean(n.Title())
-   if season, err := n.Season(); err != nil {
-      date, err := n.Date()
-      if err != nil {
-         return "", err
-      }
-      fmt.Fprint(b, title)
-      fmt.Fprint(b, " - ")
-      fmt.Fprint(b, date.Year())
-   } else {
-      fmt.Fprint(b, n.Series())
-      fmt.Fprint(b, " - S")
-      fmt.Fprint(b, season)
-      fmt.Fprint(b, " E")
-      episode, err := n.Episode()
-      if err != nil {
-         return "", err
-      }
-      fmt.Fprint(b, episode)
-      fmt.Fprint(b, " - ")
-      fmt.Fprint(b, title)
-   }
-   return b.String(), nil
-}
-
-func Clean(path string) string {
-   mapping := func(r rune) rune {
-      if strings.ContainsRune(`"*/:<>?\|`, r) {
-         return '-'
-      }
-      return r
-   }
-   return strings.Map(mapping, path)
-}
-
-type Namer interface {
-   Series() string
-   Season() (int64, error)
-   Episode() (int64, error)
-   Title() string
-   Date() (time.Time, error)
-}
