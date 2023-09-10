@@ -69,8 +69,9 @@ func (s Stream) DASH_Get(items []dash.Representer, index int) error {
    if err != nil {
       return err
    }
-   key := keys.Content().Key
+   option.Silent()
    pro := option.Progress_Parts(media)
+   key := keys.Content().Key
    for _, ref := range media {
       req.URL, err = s.Base.Parse(ref)
       if err != nil {
