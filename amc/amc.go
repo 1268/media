@@ -24,6 +24,7 @@ func (a Auth_ID) Marshal() ([]byte, error) {
 func (a *Auth_ID) Unmarshal(text []byte) error {
    return json.Unmarshal(text, a)
 }
+
 func (a Auth_ID) Playback(ref string) (*Playback, error) {
    body, err := func() ([]byte, error) {
       var s struct {
@@ -94,7 +95,7 @@ func (a Auth_ID) Playback(ref string) (*Playback, error) {
       }
       play.sources = s.Data.Playback_JSON_Data.Sources
    }
-   play.Header = res.Header
+   play.h = res.Header
    return &play, nil
 }
 
@@ -231,15 +232,9 @@ func (Playback) Response_Body(b []byte) ([]byte, error) {
 }
 
 func (p Playback) Request_Header() http.Header {
-   token := p.Get("X-AMCN-BC-JWT")
-   head := make(http.Header)
-   head.Set("bcov-auth", token)
-   return head
-}
-
-type Playback struct {
-   http.Header
-   sources []Source
+   h := make(http.Header)
+   h.Set("bcov-auth", p.h.Get("X-AMCN-BC-JWT"))
+   return h
 }
 
 // This accepts full URL or path only.
@@ -285,3 +280,7 @@ func (a Auth_ID) Content(ref string) (*Content, error) {
    return con, nil
 }
 
+type Playback struct {
+   h http.Header
+   sources []Source
+}

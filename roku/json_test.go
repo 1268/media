@@ -9,6 +9,24 @@ import (
    "time"
 )
 
+func Test_Playback(t *testing.T) {
+   site, err := New_Cross_Site()
+   if err != nil {
+      t.Fatal(err)
+   }
+   enc := json.NewEncoder(os.Stdout)
+   enc.SetEscapeHTML(false)
+   enc.SetIndent("", " ")
+   for _, test := range tests {
+      play, err := site.Playback(test.playback_ID)
+      if err != nil {
+         t.Fatal(err)
+      }
+      enc.Encode(play)
+      time.Sleep(time.Second)
+   }
+}
+
 var tests = map[key]struct {
    key string
    playback_ID string
@@ -42,6 +60,7 @@ type key struct {
    media_type int
    content_ID bool
 }
+
 func Test_Content(t *testing.T) {
    enc := json.NewEncoder(os.Stdout)
    enc.SetIndent("", " ")
@@ -58,24 +77,6 @@ func Test_Content(t *testing.T) {
       if err := enc.Encode(con.DASH()); err != nil {
          t.Fatal(err)
       }
-      time.Sleep(time.Second)
-   }
-}
-
-func Test_Playback(t *testing.T) {
-   site, err := New_Cross_Site()
-   if err != nil {
-      t.Fatal(err)
-   }
-   enc := json.NewEncoder(os.Stdout)
-   enc.SetEscapeHTML(false)
-   enc.SetIndent("", " ")
-   for _, test := range tests {
-      play, err := site.Playback(test.playback_ID)
-      if err != nil {
-         t.Fatal(err)
-      }
-      enc.Encode(play)
       time.Sleep(time.Second)
    }
 }

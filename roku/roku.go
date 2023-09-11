@@ -7,6 +7,30 @@ import (
    "time"
 )
 
+type Playback struct {
+   DRM struct {
+      Widevine struct {
+         License_Server string `json:"licenseServer"`
+      }
+   }
+}
+
+func (p Playback) Request_URL() string {
+   return p.DRM.Widevine.License_Server
+}
+
+func (Playback) Request_Header() http.Header {
+   return nil
+}
+
+func (Playback) Request_Body(b []byte) ([]byte, error) {
+   return b, nil
+}
+
+func (Playback) Response_Body(b []byte) ([]byte, error) {
+   return b, nil
+}
+
 func New_Cross_Site() (*Cross_Site, error) {
    // this has smaller body than www.roku.com
    res, err := http.Get("https://therokuchannel.roku.com")
@@ -93,28 +117,4 @@ func (c Content) DASH() *Video {
       }
    }
    return nil
-}
-
-type Playback struct {
-   DRM struct {
-      Widevine struct {
-         License_Server string `json:"licenseServer"`
-      }
-   }
-}
-
-func (p Playback) Request_URL() string {
-   return p.DRM.Widevine.License_Server
-}
-
-func (Playback) Request_Header() http.Header {
-   return nil
-}
-
-func (Playback) Request_Body(buf []byte) ([]byte, error) {
-   return buf, nil
-}
-
-func (Playback) Response_Body(buf []byte) ([]byte, error) {
-   return buf, nil
 }

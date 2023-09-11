@@ -14,6 +14,7 @@ type flags struct {
    id string
    lang string
    media.Stream
+   trace bool
 }
 
 func main() {
@@ -22,24 +23,19 @@ func main() {
       panic(err)
    }
    var f flags
-   // b
    flag.StringVar(&f.id, "b", "", "ID")
-   // bandwidth
    flag.IntVar(&f.bandwidth, "bandwidth", 4_000_000, "maximum bandwidth")
-   // c
    flag.StringVar(&f.codec, "c", "mp4a", "audio codec")
-   // h
+   flag.StringVar(
+      &f.Client_ID, "client", home + "/widevine/client_id.bin", "client ID",
+   )
    flag.IntVar(&f.height, "h", 1080, "maximum height")
-   // i
    flag.BoolVar(&f.Info, "i", false, "information")
-   // language
+   flag.StringVar(
+      &f.Private_Key, "key", home + "/widevine/private_key.pem", "private key",
+   )
    flag.StringVar(&f.lang, "language", "en", "audio language")
-   // client
-   f.Client_ID = home + "/widevine/client_id.bin"
-   flag.StringVar(&f.Client_ID, "client", f.Client_ID, "client ID")
-   // key
-   f.Private_Key = home + "/widevine/private_key.pem"
-   flag.StringVar(&f.Private_Key, "key", f.Private_Key, "private key")
+   flag.BoolVar(&f.trace, "t", false, "trace")
    flag.Parse()
    if f.id != "" {
       content, err := roku.New_Content(f.id)

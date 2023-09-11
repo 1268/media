@@ -12,6 +12,29 @@ import (
    "strconv"
 )
 
+type Session struct {
+   URL string
+   LS_Session string
+}
+
+func (Session) Request_Body(b []byte) ([]byte, error) {
+   return b, nil
+}
+
+func (s Session) Request_Header() http.Header {
+   h := make(http.Header)
+   h.Set("Authorization", "Bearer " + s.LS_Session)
+   return h
+}
+
+func (s Session) Request_URL() string {
+   return s.URL
+}
+
+func (Session) Response_Body(b []byte) ([]byte, error) {
+   return b, nil
+}
+
 func (at App_Token) Session(content_ID string) (*Session, error) {
    req, err := http.NewRequest("GET", "https://www.paramountplus.com", nil)
    if err != nil {
@@ -94,29 +117,6 @@ var app_secrets = map[app_details]string{
 func New_App_Token() (*App_Token, error) {
    app := app_details{"12.0.44", 211204450}
    return app_token_with(app_secrets[app])
-}
-
-type Session struct {
-   URL string
-   LS_Session string
-}
-
-func (Session) Request_Body(b []byte) ([]byte, error) {
-   return b, nil
-}
-
-func (s Session) Request_Header() http.Header {
-   head := make(http.Header)
-   head.Set("Authorization", "Bearer " + s.LS_Session)
-   return head
-}
-
-func (s Session) Request_URL() string {
-   return s.URL
-}
-
-func (Session) Response_Body(b []byte) ([]byte, error) {
-   return b, nil
 }
 
 func app_token_with(app_secret string) (*App_Token, error) {
