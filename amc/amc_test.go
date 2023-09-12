@@ -1,39 +1,33 @@
 package amc
 
 import (
-   "154.pages.dev/media"
+   "154.pages.dev/http/option"
    "154.pages.dev/widevine"
    "encoding/base64"
+   "fmt"
    "os"
    "testing"
 )
 
-func Test_Login(t *testing.T) {
-   home, err := os.UserHomeDir()
-   if err != nil {
-      t.Fatal(err)
-   }
-   auth, err := Unauth()
-   if err != nil {
-      t.Fatal(err)
-   }
-   u, err := media.User(home + "/amc-plus/user.json")
-   if err != nil {
-      t.Fatal(err)
-   }
-   if err := auth.Login(u["username"], u["password"]); err != nil {
-      t.Fatal(err)
-   }
-   {
-      b, err := auth.Marshal()
-      if err != nil {
-         t.Fatal(err)
-      }
-      os.WriteFile(home + "/amc-plus/auth.json", b, 0666)
-   }
+const (
+   episode = iota
+   movie
+)
+
+var tests = []struct {
+   address string
+   pssh string
+} {
+   // amcplus.com/shows/orphan-black/episodes/season-1-instinct--1011152
+   episode: {
+      address: "/shows/orphan-black/episodes/season-1-instinct--1011152",
+      pssh: "AAAAVnBzc2gAAAAA7e+LqXnWSs6jyCfc1R0h7QAAADYIARIQuC5UBJ1cQS2w6wxWli1eSxoNd2lkZXZpbmVfdGVzdCIIMTIzNDU2NzgyB2RlZmF1bHQ=",
+   },
+   // amcplus.com/movies/nocebo--1061554
+   movie: {address: "/movies/nocebo--1061554"},
 }
 
-func Test_Post(t *testing.T) {
+func Test_Key(t *testing.T) {
    home, err := os.UserHomeDir()
    if err != nil {
       t.Fatal(err)
@@ -57,46 +51,21 @@ func Test_Post(t *testing.T) {
    }
    var auth Auth_ID
    {
-      b, err := os.ReadFile(home + "/amc-plus/auth.json")
+      b, err := os.ReadFile(home + "/amc/auth.json")
       if err != nil {
          t.Fatal(err)
       }
       auth.Unmarshal(b)
    }
+   option.No_Location()
+   option.Verbose()
    play, err := auth.Playback(test.address)
    if err != nil {
       t.Fatal(err)
    }
-   keys, err := mod.Post(play)
+   key, err := mod.Key(play)
    if err != nil {
       t.Fatal(err)
    }
-   if keys.Content().String() != test.key {
-      t.Fatal(keys)
-   }
-}
-
-func Test_Refresh(t *testing.T) {
-   var auth Auth_ID
-   {
-      s, err := os.UserHomeDir()
-      if err != nil {
-         t.Fatal(err)
-      }
-      b, err := os.ReadFile(s + "/amc/auth.json")
-      if err != nil {
-         t.Fatal(err)
-      }
-      auth.Unmarshal(b)
-   }
-   if err := auth.Refresh(); err != nil {
-      t.Fatal(err)
-   }
-   {
-      b, err := auth.Marshal()
-      if err != nil {
-         t.Fatal(err)
-      }
-      os.WriteFile(os.Getenv("AMC_PLUS"), b, 0666)
-   }
+   fmt.Printf("%x\n", key)
 }

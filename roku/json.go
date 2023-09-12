@@ -3,6 +3,7 @@ package roku
 import (
    "bytes"
    "encoding/json"
+   "errors"
    "net/http"
    "net/url"
    "strings"
@@ -34,11 +35,14 @@ func (c Cross_Site) Playback(id string) (*Playback, error) {
       "Content-Type": {"application/json"},
       "Cookie": {c.csrf().Raw},
    }
-   res, err := new(http.Transport).RoundTrip(req)
+   res, err := http.DefaultClient.Do(req)
    if err != nil {
       return nil, err
    }
    defer res.Body.Close()
+   if res.StatusCode != http.StatusOK {
+      return nil, errors.New(res.Status)
+   }
    play := new(Playback)
    if err := json.NewDecoder(res.Body).Decode(play); err != nil {
       return nil, err
@@ -74,11 +78,14 @@ func New_Content(id string) (*Content, error) {
       homescreen := url.PathEscape(expand.String())
       req.URL = req.URL.JoinPath(homescreen)
    }
-   res, err := new(http.Transport).RoundTrip(req)
+   res, err := http.DefaultClient.Do(req)
    if err != nil {
       return nil, err
    }
    defer res.Body.Close()
+   if res.StatusCode != http.StatusOK {
+      return nil, errors.New(res.Status)
+   }
    var con Content
    if err := json.NewDecoder(res.Body).Decode(&con.s); err != nil {
       return nil, err

@@ -11,7 +11,7 @@ import (
    "os"
 )
 
-func (s Stream) DASH_Get(items []dash.Representer, index int) error {
+func (s Stream) DASH_Get(items []dash.Representation, index int) error {
    if s.Info {
       for i, item := range items {
          fmt.Println()
@@ -33,7 +33,7 @@ func (s Stream) DASH_Get(items []dash.Representer, index int) error {
    }
    defer file.Close()
    req, err := http.NewRequest(
-      "GET", item.Segment_Template.Get_Initialization(), nil,
+      "GET", item.Initialization(), nil,
    )
    if err != nil {
       return err
@@ -48,7 +48,6 @@ func (s Stream) DASH_Get(items []dash.Representer, index int) error {
    if err := dec.Init(res.Body, file); err != nil {
       return err
    }
-   media := item.Segment_Template.Get_Media()
    private_key, err := os.ReadFile(s.Private_Key)
    if err != nil {
       return err
@@ -65,13 +64,14 @@ func (s Stream) DASH_Get(items []dash.Representer, index int) error {
    if err != nil {
       return err
    }
-   keys, err := mod.Post(s.Poster)
+   key, err := mod.Key(s.Poster)
    if err != nil {
       return err
    }
-   option.Silent()
+   f := option.Silent()
+   defer f()
+   media := item.Media()
    pro := option.Progress_Parts(media)
-   key := keys.Content().Key
    for _, ref := range media {
       req.URL, err = s.Base.Parse(ref)
       if err != nil {

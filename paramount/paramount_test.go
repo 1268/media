@@ -40,12 +40,12 @@ func Test_Post(t *testing.T) {
    if err != nil {
       t.Fatal(err)
    }
-   keys, err := mod.Post(sess)
+   key, err := mod.Key(sess)
    if err != nil {
       t.Fatal(err)
    }
-   if keys.Content().String() != test.key {
-      t.Fatal(keys)
+   if fmt.Sprintf("%x", key) != test.key {
+      t.Fatal(key)
    }
 }
 

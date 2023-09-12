@@ -2,6 +2,7 @@ package roku
 
 import (
    "154.pages.dev/encoding/json"
+   "errors"
    "io"
    "net/http"
    "time"
@@ -38,6 +39,9 @@ func New_Cross_Site() (*Cross_Site, error) {
       return nil, err
    }
    defer res.Body.Close()
+   if res.StatusCode != http.StatusOK {
+      return nil, errors.New(res.Status)
+   }
    var site Cross_Site
    site.cookies = res.Cookies()
    text, err := io.ReadAll(res.Body)

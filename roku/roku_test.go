@@ -3,6 +3,7 @@ package roku
 import (
    "154.pages.dev/widevine"
    "encoding/base64"
+   "encoding/hex"
    "os"
    "testing"
 )
@@ -38,12 +39,12 @@ func Test_Post(t *testing.T) {
          if err != nil {
             t.Fatal(err)
          }
-         keys, err := mod.Post(play)
+         key, err := mod.Key(play)
          if err != nil {
             t.Fatal(err)
          }
-         if keys.Content().String() != test.key {
-            t.Fatal(keys)
+         if hex.EncodeToString(key) != test.key {
+            t.Fatal(key)
          }
       }
    }

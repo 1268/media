@@ -1,11 +1,11 @@
-154.pages.dev/encoding v1.12.3 h1:U2jr3srYS5obJhpKA8gHaJNEAO7KquP7mb3yXhlpIl4=
-154.pages.dev/encoding v1.12.3/go.mod h1:eb4VBnDAfkwQo2hQB9v52r0ZJv2SelK04SjKwG/lR/k=
-154.pages.dev/http v1.0.9 h1:bbXW9SAni4OvKcQ4cyg9INAgMnQKjOrlg+PcGqcSGIo=
-154.pages.dev/http v1.0.9/go.mod h1:ZTqoOYeukWZ4IqTp01EtccVWZQVAoAyHkB7lEzeqUwA=
+154.pages.dev/encoding v1.12.4 h1:W63mDoG3y4VoeFrdf6JHUx/BR8s/D6a2hulFh0z8Aik=
+154.pages.dev/encoding v1.12.4/go.mod h1:eb4VBnDAfkwQo2hQB9v52r0ZJv2SelK04SjKwG/lR/k=
+154.pages.dev/http v1.1.0 h1:WuKjDgoUxREY+J8JxZ6I6iiJ2hR31RuMnXD7HJE3U8s=
+154.pages.dev/http v1.1.0/go.mod h1:ZTqoOYeukWZ4IqTp01EtccVWZQVAoAyHkB7lEzeqUwA=
 154.pages.dev/strconv v1.0.4 h1:zPObc9UEerZD8lX7NINR2nDNbwPUAA+M63G/+OBy5GI=
 154.pages.dev/strconv v1.0.4/go.mod h1:HPQpZS7s8hlNlF5X2DNlT3qft3mN4rluNJW+GjbTf9I=
-154.pages.dev/widevine v1.1.1 h1:fqKALzGUw35epe9hTI9hCI9CmqJNLl14vAL10F69dLw=
-154.pages.dev/widevine v1.1.1/go.mod h1:SOPAIBByqMcvVFFszy6n0uKYLNLxdSp4lCNOq9qfMLY=
+154.pages.dev/widevine v1.1.2 h1:2Rz12jBMGUcCvWwGd3HX04PfVxFMY09z2upsOgxy/MM=
+154.pages.dev/widevine v1.1.2/go.mod h1:SOPAIBByqMcvVFFszy6n0uKYLNLxdSp4lCNOq9qfMLY=
 github.com/Eyevinn/mp4ff v0.38.0 h1:9DrGxg0qDTsjJuj7MoE0a8IWZP8AnwfRd98csXgrWhs=
 github.com/Eyevinn/mp4ff v0.38.0/go.mod h1:w/6GSa5ghZ1VavzJK6McQ2/flx8mKtcrKDr11SsEweA=
 github.com/chmike/cmac-go v1.1.0 h1:aF73ZAEx9N2WdQc93DOJ2fMsBDAGqUtuenjMJMb3kEI=
