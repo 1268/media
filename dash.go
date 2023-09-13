@@ -71,7 +71,7 @@ func (s Stream) DASH_Get(items []dash.Representation, index int) error {
    f := option.Silent()
    defer f()
    media := item.Media()
-   pro := option.Progress_Parts(media)
+   pro := option.Progress_Parts(len(media))
    for _, ref := range media {
       req.URL, err = s.Base.Parse(ref)
       if err != nil {
