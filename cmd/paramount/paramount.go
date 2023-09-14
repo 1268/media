@@ -24,7 +24,7 @@ func (f flags) dash(token *paramount.App_Token) error {
    }
    defer res.Body.Close()
    f.Base = res.Request.URL
-   reps, err := dash.Representers(res.Body)
+   reps, err := dash.Representations(res.Body)
    if err != nil {
       return err
    }

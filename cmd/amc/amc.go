@@ -55,13 +55,13 @@ func (f flags) download() error {
    if res.StatusCode != http.StatusOK {
       return errors.New(res.Status)
    }
-   reps, err := dash.Representers(res.Body)
+   reps, err := dash.Representations(res.Body)
    if err != nil {
       return err
    }
    // video
    {
-      reps := slices.DeleteFunc(slices.Clone(reps), dash.Audio)
+      reps := slices.DeleteFunc(slices.Clone(reps), dash.Not(dash.Video))
       slices.SortFunc(reps, func(a, b dash.Representation) int {
          return b.Height - a.Height
       })
@@ -74,7 +74,7 @@ func (f flags) download() error {
       }
    }
    // audio
-   return f.DASH_Get(slices.DeleteFunc(reps, dash.Video), 0)
+   return f.DASH_Get(slices.DeleteFunc(reps, dash.Not(dash.Audio)), 0)
 }
 
 func (f flags) login() error {

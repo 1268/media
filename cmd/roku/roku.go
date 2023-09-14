@@ -30,7 +30,7 @@ func (f flags) DASH(content *roku.Content) error {
       return errors.New(res.Status)
    }
    f.s.Base = res.Request.URL
-   reps, err := dash.Representers(res.Body)
+   reps, err := dash.Representations(res.Body)
    if err != nil {
       return err
    }

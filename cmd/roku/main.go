@@ -38,7 +38,11 @@ func main() {
    flag.StringVar(&f.lang, "language", "en", "audio language")
    flag.BoolVar(&f.trace, "t", false, "trace")
    flag.Parse()
-   option.Verbose()
+   if f.trace {
+      option.Trace()
+   } else {
+      option.Verbose()
+   }
    if f.id != "" {
       content, err := roku.New_Content(f.id)
       if err != nil {
