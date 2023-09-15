@@ -24,7 +24,7 @@ func (f Format) Encode(w io.Writer) error {
    for pos < f.Content_Length {
       val.Set("range", fmt.Sprint(pos, "-", pos+chunk-1))
       req.URL.RawQuery = val.Encode()
-      res, err := new(http.Client).Do(req)
+      res, err := http.DefaultClient.Do(req)
       if err != nil {
          return err
       }

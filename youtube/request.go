@@ -29,7 +29,7 @@ func (r Request) Search(query string) (*Search, error) {
       return nil, err
    }
    req.Header.Set("X-Goog-API-Key", api_key)
-   res, err := new(http.Transport).RoundTrip(req)
+   res, err := http.DefaultClient.Do(req)
    if err != nil {
       return nil, err
    }
@@ -78,7 +78,7 @@ func (r Request) Player(tok *Token) (*Player, error) {
    if tok != nil {
       req.Header.Set("Authorization", "Bearer " + tok.Access_Token)
    }
-   res, err := new(http.Transport).RoundTrip(req)
+   res, err := http.DefaultClient.Do(req)
    if err != nil {
       return nil, err
    }

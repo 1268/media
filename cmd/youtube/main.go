@@ -1,6 +1,7 @@
 package main
 
 import (
+   "154.pages.dev/http/option"
    "154.pages.dev/media/youtube"
    "flag"
    "strings"
@@ -19,17 +20,11 @@ type flags struct {
 
 func main() {
    var f flags
-   // a
    flag.Var(&f.r, "a", "address")
-   // b
    flag.StringVar(&f.r.Video_ID, "b", "", "video ID")
-   // aq
    flag.StringVar(&f.audio_q, "aq", "AUDIO_QUALITY_MEDIUM", "audio quality")
-   // at
    flag.StringVar(&f.audio_t, "at", "opus", "audio type")
-   // i
    flag.BoolVar(&f.info, "i", false, "information")
-   // r
    {
       var b strings.Builder
       b.WriteString("0: Android\n")
@@ -37,13 +32,12 @@ func main() {
       b.WriteString("2: Android check")
       flag.IntVar(&f.request, "r", 0, b.String())
    }
-   // refresh
    flag.BoolVar(&f.refresh, "refresh", false, "create OAuth refresh token")
-   // vq
    flag.StringVar(&f.video_q, "vq", "1080p", "video quality")
-   // vt
    flag.StringVar(&f.video_t, "vt", "vp9", "video type")
    flag.Parse()
+   option.No_Location()
+   option.Verbose()
    if f.refresh {
       err := f.do_refresh()
       if err != nil {
