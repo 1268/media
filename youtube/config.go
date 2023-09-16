@@ -20,6 +20,8 @@ func (f Format) Encode(w io.Writer) error {
       return err
    }
    pro := option.Progress_Length(f.Content_Length)
+   fn := option.Silent()
+   defer fn()
    var pos int64
    for pos < f.Content_Length {
       val.Set("range", fmt.Sprint(pos, "-", pos+chunk-1))
