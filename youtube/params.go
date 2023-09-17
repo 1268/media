@@ -1,6 +1,6 @@
 package youtube
 
-import "154.pages.dev/encoding/protobuf"
+import "154.pages.dev/protobuf"
 
 var values = map[string]map[string]uint64{
    "UPLOAD DATE": map[string]uint64{
