@@ -87,6 +87,7 @@ var Images = []Image{
    {Width:1280, Height:720, Name:"maxres2.webp"},
    {Width:1280, Height:720, Name:"maxres3.webp"},
 }
+
 const sep_big = " - "
 
 type Player struct {
@@ -123,14 +124,6 @@ func (p Player) Duration() time.Duration {
 func (p Player) Publish_Date() string {
    return p.Microformat.Player_Microformat_Renderer.Publish_Date
 }
-
-// YouTube on TV
-const (
-   client_ID =
-      "861556708454-d6dlm3lh05idd8npek18k6be8ba3oc68" +
-      ".apps.googleusercontent.com"
-   client_secret = "SboVhoG9s0rNafixCSGGKXAT"
-)
 
 func (s Search) Items() []Item {
    var items []Item
