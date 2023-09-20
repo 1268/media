@@ -16,6 +16,7 @@ type flags struct {
    request int
    video_q string
    video_t string
+   trace bool
 }
 
 func main() {
@@ -35,9 +36,14 @@ func main() {
    flag.BoolVar(&f.refresh, "refresh", false, "create OAuth refresh token")
    flag.StringVar(&f.video_q, "vq", "1080p", "video quality")
    flag.StringVar(&f.video_t, "vt", "vp9", "video type")
+   flag.BoolVar(&f.trace, "t", false, "trace")
    flag.Parse()
    option.No_Location()
-   option.Verbose()
+   if f.trace {
+      option.Trace()
+   } else {
+      option.Verbose()
+   }
    if f.refresh {
       err := f.do_refresh()
       if err != nil {
