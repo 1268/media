@@ -71,7 +71,7 @@ func (p parameters) Marshal() []byte {
             m.Add_Varint(3, p.Filter.Duration)
          }
          for _, feature := range p.Filter.Features {
-            m.Add_Bool(protobuf.Number(feature), true)
+            m.Add_Varint(protobuf.Number(feature), 1)
          }
       })
    }
