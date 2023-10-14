@@ -3,40 +3,12 @@ package amc
 import (
    "154.pages.dev/http"
    "154.pages.dev/stream"
+   "encoding/json"
    "fmt"
    "os"
    "testing"
    "time"
 )
-
-func Test_Login(t *testing.T) {
-   auth, err := Unauth()
-   if err != nil {
-      t.Fatal(err)
-   }
-   home, err := func() (string, error) {
-      s, err := os.UserHomeDir()
-      if err != nil {
-         return "", err
-      }
-      return s + "/amc/", nil
-   }()
-   if err != nil {
-      t.Fatal(err)
-   }
-   u, err := http.User(home + "user.json")
-   if err != nil {
-      t.Fatal(err)
-   }
-   if err := auth.Login(u.Username, u.Password); err != nil {
-      t.Fatal(err)
-   }
-   text, err := auth.Marshal()
-   if err != nil {
-      t.Fatal(err)
-   }
-   os.WriteFile(home + "auth.json", text, 0666)
-}
 
 func Test_Content(t *testing.T) {
    var auth Auth_ID
@@ -62,7 +34,7 @@ func Test_Content(t *testing.T) {
       if err != nil {
          t.Fatal(err)
       }
-      name, err := stream.Name(vid)
+      name, err := stream.Format_Film(vid)
       if err != nil {
          t.Fatal(err)
       }
@@ -95,3 +67,36 @@ func Test_Refresh(t *testing.T) {
       os.WriteFile(home + "/amc/auth.json", b, 0666)
    }
 }
+func user(s string) (map[string]string, error) {
+   b, err := os.ReadFile(s)
+   if err != nil {
+      return nil, err
+   }
+   var m map[string]string
+   json.Unmarshal(b, &m)
+   return m, nil
+}
+
+func Test_Login(t *testing.T) {
+   auth, err := Unauth()
+   if err != nil {
+      t.Fatal(err)
+   }
+   home, err := os.UserHomeDir()
+   if err != nil {
+      t.Fatal(err)
+   }
+   u, err := user(home + "/amc/user.json")
+   if err != nil {
+      t.Fatal(err)
+   }
+   if err := auth.Login(u["username"], u["password"]); err != nil {
+      t.Fatal(err)
+   }
+   text, err := auth.Marshal()
+   if err != nil {
+      t.Fatal(err)
+   }
+   os.WriteFile(home + "/amc/auth.json", text, 0666)
+}
+

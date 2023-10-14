@@ -16,7 +16,7 @@ func Test_Content(t *testing.T) {
       if err != nil {
          t.Fatal(err)
       }
-      name, err := stream.Name(con)
+      name, err := stream.Format_Film(con)
       if err != nil {
          t.Fatal(err)
       }

@@ -2,6 +2,7 @@ package main
 
 import (
    "154.pages.dev/media/roku"
+   "154.pages.dev/stream"
    "154.pages.dev/stream/dash"
    "errors"
    "net/http"
@@ -19,9 +20,10 @@ func (f flags) DASH(content *roku.Content) error {
       if err != nil {
          return err
       }
-      f.s.Name, err = func() (string, error) {
-         return stream.Film(content)
-      }()
+      f.s.Name, err = stream.Format_Film(content)
+      if err != nil {
+         return err
+      }
    }
    res, err := http.Get(content.DASH().URL)
    if err != nil {

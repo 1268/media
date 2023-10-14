@@ -19,9 +19,9 @@ func (f flags) download() error {
    }
    f.s.Name, err = func() (string, error) {
       if meta.Episode_Number != nil {
-         return stream.Episode(meta)
+         return stream.Format_Episode(meta)
       }
-      return stream.Film(meta)
+      return stream.Format_Film(meta)
    }()
    if err != nil {
       return err

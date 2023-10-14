@@ -33,7 +33,10 @@ func (f flags) dash(token *paramount.App_Token) error {
       if err != nil {
          return err
       }
-      f.s.Namer = item
+      f.s.Name, err = stream.Format_Film(item)
+      if err != nil {
+         return err
+      }
       f.s.Poster, err = token.Session(f.content_ID)
       if err != nil {
          return err
@@ -80,7 +83,7 @@ func (f flags) downloadable(token *paramount.App_Token) error {
       fmt.Println(ref)
       return nil
    }
-   name, err := stream.Name(item)
+   name, err := stream.Format_Film(item)
    if err != nil {
       return err
    }
@@ -100,3 +103,4 @@ func (f flags) downloadable(token *paramount.App_Token) error {
    }
    return nil
 }
+

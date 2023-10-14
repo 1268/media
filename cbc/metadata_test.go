@@ -25,7 +25,7 @@ func Test_Stream(t *testing.T) {
       }
       item := gem.Item()
       fmt.Printf("%+v\n", item)
-      name, err := stream.Film(gem.Structured_Metadata)
+      name, err := stream.Format_Film(gem.Structured_Metadata)
       if err != nil {
          t.Fatal(err)
       }

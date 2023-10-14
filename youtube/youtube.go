@@ -110,8 +110,6 @@ var Images = []Image{
    {Width:1280, Height:720, Name:"maxres3.webp"},
 }
 
-const sep_big = " - "
-
 func (p Player) Time() (time.Time, error) {
    return time.Parse(time.DateOnly, p.Publish_Date())
 }

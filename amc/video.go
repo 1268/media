@@ -34,6 +34,10 @@ type Video struct {
    }
 }
 
+func (v Video) Series() string {
+   return v.Meta.Show_Title
+}
+
 func (v Video) Season() (int64, error) {
    return v.Meta.Season, nil
 }
@@ -48,11 +52,4 @@ func (v Video) Title() string {
 
 func (v Video) Date() (time.Time, error) {
    return time.Parse(time.RFC3339, v.Meta.Airdate)
-}
-
-func (v Video) Series() (string, bool) {
-   if v.Meta.Show_Title != "" {
-      return v.Meta.Show_Title, true
-   }
-   return "", false
 }

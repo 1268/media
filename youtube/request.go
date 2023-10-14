@@ -10,13 +10,11 @@ import (
 
 type Request struct {
    Content_Check_OK bool `json:"contentCheckOk,omitempty"`
-   Video_ID string `json:"videoId,omitempty"`
-   Racy_Check_OK bool `json:"racyCheckOk,omitempty"`
    Context struct {
       Client struct {
-         Name string `json:"clientName"`
-         Version string `json:"clientVersion"`
          Android_SDK_Version int `json:"androidSdkVersion"`
+         Client_Name string `json:"clientName"`
+         Client_Version string `json:"clientVersion"`
          // need this to get the correct:
          // This video requires payment to watch
          // instead of the invalid:
@@ -25,6 +23,8 @@ type Request struct {
          OS_Version string `json:"osVersion"`
       } `json:"client"`
    } `json:"context"`
+   Racy_Check_OK bool `json:"racyCheckOk,omitempty"`
+   Video_ID string `json:"videoId,omitempty"`
 }
 
 func (r Request) Player(tok *Token) (*Player, error) {
@@ -41,7 +41,7 @@ func (r Request) Player(tok *Token) (*Player, error) {
    if err != nil {
       return nil, err
    }
-   req.Header.Set("User-Agent", user_agent + r.Context.Client.Version)
+   req.Header.Set("User-Agent", user_agent + r.Context.Client.Client_Version)
    if tok != nil {
       req.Header.Set("Authorization", "Bearer " + tok.Access_Token)
    }
@@ -59,20 +59,20 @@ func (r Request) Player(tok *Token) (*Player, error) {
 
 func (r *Request) Android() {
    r.Content_Check_OK = true
-   r.Context.Client.Name = "ANDROID"
-   r.Context.Client.Version = android_youtube
+   r.Context.Client.Client_Name = "ANDROID"
+   r.Context.Client.Client_Version = android_youtube
 }
 
 func (r *Request) Android_Check() {
    r.Content_Check_OK = true
-   r.Context.Client.Name = "ANDROID"
-   r.Context.Client.Version = android_youtube
+   r.Context.Client.Client_Name = "ANDROID"
+   r.Context.Client.Client_Version = android_youtube
    r.Racy_Check_OK = true
 }
 
 func (r *Request) Android_Embed() {
-   r.Context.Client.Name = "ANDROID_EMBEDDED_PLAYER"
-   r.Context.Client.Version = android_youtube
+   r.Context.Client.Client_Name = "ANDROID_EMBEDDED_PLAYER"
+   r.Context.Client.Client_Version = android_youtube
 }
 
 const android_youtube = "18.39.41"
@@ -80,8 +80,8 @@ const android_youtube = "18.39.41"
 const user_agent = "com.google.android.youtube/"
 
 func (r *Request) Mobile_Web() {
-   r.Context.Client.Name = "MWEB"
-   r.Context.Client.Version = mweb_version
+   r.Context.Client.Client_Name = "MWEB"
+   r.Context.Client.Client_Version = mweb_version
 }
 
 func (r *Request) Set(s string) error {

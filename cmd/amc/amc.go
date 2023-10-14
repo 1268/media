@@ -2,6 +2,7 @@ package main
 
 import (
    "154.pages.dev/media/amc"
+   "154.pages.dev/stream"
    "154.pages.dev/stream/dash"
    "errors"
    "net/http"
@@ -37,7 +38,11 @@ func (f flags) download() error {
       if err != nil {
          return err
       }
-      f.s.Namer, err = content.Video()
+      video, err := content.Video()
+      if err != nil {
+         return err
+      }
+      f.s.Name, err = stream.Format_Film(video)
       if err != nil {
          return err
       }

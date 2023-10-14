@@ -13,7 +13,7 @@ func Test_Meta(t *testing.T) {
       if err != nil {
          t.Fatal(err)
       }
-      name, err := stream.Name(meta)
+      name, err := stream.Format_Film(meta)
       if err != nil {
          t.Fatal(err)
       }

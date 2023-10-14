@@ -2,6 +2,7 @@ package main
 
 import (
    "154.pages.dev/media/youtube"
+   "154.pages.dev/stream"
    "fmt"
    "net/http"
    "os"
@@ -9,6 +10,48 @@ import (
    "strings"
    option "154.pages.dev/http"
 )
+
+func (f flags) download() error {
+   play, err := f.player()
+   if err != nil {
+      return err
+   }
+   forms := play.Streaming_Data.Adaptive_Formats
+   slices.SortFunc(forms, func(a, b youtube.Format) int {
+      return int(b.Bitrate - a.Bitrate)
+   })
+   if f.info {
+      for i, form := range forms {
+         if i >= 1 {
+            fmt.Println()
+         }
+         fmt.Println(form)
+      }
+   } else {
+      fmt.Printf("%+v\n", play.Playability_Status)
+      // need to do audio first, because URLs expire quickly
+      index := slices.IndexFunc(forms, func(a youtube.Format) bool {
+         if a.Audio_Quality == f.audio_q {
+            return strings.Contains(a.MIME_Type, f.audio_t)
+         }
+         return false
+      })
+      err := encode(forms[index], stream.Format_Video(play))
+      if err != nil {
+         return err
+      }
+      // video
+      index = slices.IndexFunc(forms, func(a youtube.Format) bool {
+         // 1080p60
+         if strings.HasPrefix(a.Quality_Label, f.video_q) {
+            return strings.Contains(a.MIME_Type, f.video_t)
+         }
+         return false
+      })
+      return encode(forms[index], stream.Format_Video(play))
+   }
+   return nil
+}
 
 func encode(f youtube.Format, name string) error {
    file, err := func() (*os.File, error) {
@@ -85,44 +128,3 @@ func (f flags) player() (*youtube.Player, error) {
    return f.r.Player(token)
 }
 
-func (f flags) download() error {
-   play, err := f.player()
-   if err != nil {
-      return err
-   }
-   forms := play.Streaming_Data.Adaptive_Formats
-   slices.SortFunc(forms, func(a, b youtube.Format) int {
-      return int(b.Bitrate - a.Bitrate)
-   })
-   if f.info {
-      for i, form := range forms {
-         if i >= 1 {
-            fmt.Println()
-         }
-         fmt.Println(form)
-      }
-   } else {
-      fmt.Printf("%+v\n", play.Playability_Status)
-      // need to do audio first, because URLs expire quickly
-      index := slices.IndexFunc(forms, func(a youtube.Format) bool {
-         if a.Audio_Quality == f.audio_q {
-            return strings.Contains(a.MIME_Type, f.audio_t)
-         }
-         return false
-      })
-      err := encode(forms[index], play.Name())
-      if err != nil {
-         return err
-      }
-      // video
-      index = slices.IndexFunc(forms, func(a youtube.Format) bool {
-         // 1080p60
-         if strings.HasPrefix(a.Quality_Label, f.video_q) {
-            return strings.Contains(a.MIME_Type, f.video_t)
-         }
-         return false
-      })
-      return encode(forms[index], play.Name())
-   }
-   return nil
-}
