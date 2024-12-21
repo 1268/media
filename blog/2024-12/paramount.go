@@ -1,6 +1,13 @@
 package main
 
 import (
+   "flag"
+   "fmt"
+   "io"
+   "net/http"
+   "net/url"
+   "strings"
+   "time"
 )
 
 func get(content_id, asset_type string) error {
@@ -33,6 +40,25 @@ func get(content_id, asset_type string) error {
    if count != 1 {
       return fmt.Errorf("Period = %v", count)
    }
+   fields := strings.FieldsFunc(data, func(r rune) bool {
+      switch r {
+      case '"',
+      ':',
+      '=':
+         return true
+      }
+      return false
+   })
+   kids := map[string]struct{}{}
+   for i, field := range fields {
+      if field == "default_KID" {
+         kid := fields[i+1]
+         kids[kid] = struct{}{}
+      }
+   }
+   if len(kids) != 1 {
+      return fmt.Errorf("default_KID = %v", kids)
+   }
    return nil
 }
 
@@ -49,9 +75,10 @@ func main() {
    content_id := flag.String("c", "", "content ID")
    flag.Parse()
    if *content_id != "" {
-      err := get(*content_id)
-      if err != nil {
-         panic(err)
+      for _, asset_type := range asset_types {
+         err := get(*content_id, asset_type)
+         fmt.Println(err, asset_type)
+         time.Sleep(time.Second)
       }
    } else {
       flag.Usage()

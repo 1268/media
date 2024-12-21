@@ -24,12 +24,6 @@ create Android 9 device
 
 ## france
 
-~~~
-url = https://www.rakuten.tv/fr/movies/jerry-maguire
-monetization = ADS
-country = France
-~~~
-
 1. S'inscrire (sign up)
 2. Votre adresse électronique (your e-mail address)
    - fr-2024-5-20@mailsac.com
@@ -38,12 +32,6 @@ country = France
 5. Créez un compte (create an account)
 
 ## sweden
-
-~~~
-url = https://www.rakuten.tv/se/movies/i-heart-huckabees
-monetization = ADS
-country = Sweden
-~~~
 
 smart proxy:
 
