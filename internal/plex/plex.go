@@ -56,7 +56,7 @@ func (f *flags) download() error {
       switch f.representation {
       case "":
          if _, ok := rep.Ext(); ok {
-            fmt.Print(rep, "\n\n")
+            fmt.Print(&rep, "\n\n")
          }
       case rep.Id:
          f.s.Namer = &plex.Namer{match}

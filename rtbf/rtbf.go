@@ -11,121 +11,27 @@ import (
    "strings"
 )
 
-func (e *Entitlement) Wrap(data []byte) ([]byte, error) {
-   req, err := http.NewRequest(
-      "POST", "https://rbm-rtbf.live.ott.irdeto.com", bytes.NewReader(data),
-   )
-   if err != nil {
-      return nil, err
-   }
-   req.URL.Path = "/licenseServer/widevine/v1/rbm-rtbf/license"
-   req.URL.RawQuery = url.Values{
-      "contentId":  {e.AssetId},
-      "ls_session": {e.PlayToken},
-   }.Encode()
-   req.Header.Set("content-type", "application/x-protobuf")
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   return io.ReadAll(resp.Body)
-}
-
-func (e *Entitlement) Dash() (string, bool) {
-   for _, format := range e.Formats {
-      if format.Format == "DASH" {
-         return format.MediaLocator, true
-      }
-   }
-   return "", false
-}
-
-type Entitlement struct {
-   AssetId   string
-   PlayToken string
-   Formats   []struct {
-      Format       string
-      MediaLocator string
-   }
-}
-
-func (AuvioLogin) Marshal(id, password string) ([]byte, error) {
-   resp, err := http.PostForm(
-      "https://login.auvio.rtbf.be/accounts.login", url.Values{
-         "APIKey":   {api_key},
-         "loginID":  {id},
-         "password": {password},
-      },
-   )
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   return io.ReadAll(resp.Body)
-}
-
-func (a Address) Page() (*AuvioPage, error) {
-   resp, err := http.Get(
-      "https://bff-service.rtbf.be/auvio/v1.23/pages" + a.Path,
-   )
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   if resp.StatusCode != http.StatusOK {
-      return nil, errors.New(resp.Status)
-   }
-   var value struct {
-      Data struct {
-         Content AuvioPage
-      }
-   }
-   err = json.NewDecoder(resp.Body).Decode(&value)
-   if err != nil {
-      return nil, err
-   }
-   return &value.Data.Content, nil
-}
-
-func (a *Address) Set(s string) error {
-   s = strings.TrimPrefix(s, "https://")
-   a.Path = strings.TrimPrefix(s, "auvio.rtbf.be")
-   return nil
-}
-
-type AuvioAuth struct {
-   SessionToken string
-}
-
-type WebToken struct {
-   ErrorMessage string
-   IdToken      string `json:"id_token"`
-}
-
 func (w *WebToken) Auth() (*AuvioAuth, error) {
-   var value struct {
-      Device struct {
-         DeviceId string `json:"deviceId"`
-         Type     string `json:"type"`
-      } `json:"device"`
-      Jwt string `json:"jwt"`
+   value := map[string]any{
+      "device": map[string]string{
+         "deviceId": "",
+         "type": "WEB",
+      },
+      "jwt": w.IdToken,
    }
-   value.Device.Type = "WEB"
-   value.Jwt = w.IdToken
    data, err := json.Marshal(value)
    if err != nil {
       return nil, err
    }
-   web := func() string {
-      var b strings.Builder
-      b.WriteString("https://exposure.api.redbee.live")
-      b.WriteString("/v2/customer/RTBF/businessunit/Auvio/auth/gigyaLogin")
-      return b.String()
-   }
-   resp, err := http.Post(
-      web(), "application/json", bytes.NewReader(data),
+   req, err := http.NewRequest(
+      "POST", "https://exposure.api.redbee.live", bytes.NewReader(data),
    )
+   if err != nil {
+      return nil, err
+   }
+   req.URL.Path = "/v2/customer/RTBF/businessunit/Auvio/auth/gigyaLogin"
+   req.Header.Set("content-type", "application/json")
+   resp, err := http.DefaultClient.Do(req)
    if err != nil {
       return nil, err
    }
@@ -309,4 +215,95 @@ func (s *Subtitle) UnmarshalText(data []byte) error {
       }
    }
    return nil
+}
+func (e *Entitlement) Wrap(data []byte) ([]byte, error) {
+   req, err := http.NewRequest(
+      "POST", "https://rbm-rtbf.live.ott.irdeto.com", bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   req.URL.Path = "/licenseServer/widevine/v1/rbm-rtbf/license"
+   req.URL.RawQuery = url.Values{
+      "contentId":  {e.AssetId},
+      "ls_session": {e.PlayToken},
+   }.Encode()
+   req.Header.Set("content-type", "application/x-protobuf")
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   return io.ReadAll(resp.Body)
+}
+
+func (e *Entitlement) Dash() (string, bool) {
+   for _, format := range e.Formats {
+      if format.Format == "DASH" {
+         return format.MediaLocator, true
+      }
+   }
+   return "", false
+}
+
+type Entitlement struct {
+   AssetId   string
+   PlayToken string
+   Formats   []struct {
+      Format       string
+      MediaLocator string
+   }
+}
+
+func (AuvioLogin) Marshal(id, password string) ([]byte, error) {
+   resp, err := http.PostForm(
+      "https://login.auvio.rtbf.be/accounts.login", url.Values{
+         "APIKey":   {api_key},
+         "loginID":  {id},
+         "password": {password},
+      },
+   )
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   return io.ReadAll(resp.Body)
+}
+
+func (a Address) Page() (*AuvioPage, error) {
+   resp, err := http.Get(
+      "https://bff-service.rtbf.be/auvio/v1.23/pages" + a.Path,
+   )
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   if resp.StatusCode != http.StatusOK {
+      return nil, errors.New(resp.Status)
+   }
+   var value struct {
+      Data struct {
+         Content AuvioPage
+      }
+   }
+   err = json.NewDecoder(resp.Body).Decode(&value)
+   if err != nil {
+      return nil, err
+   }
+   return &value.Data.Content, nil
+}
+
+func (a *Address) Set(s string) error {
+   s = strings.TrimPrefix(s, "https://")
+   a.Path = strings.TrimPrefix(s, "auvio.rtbf.be")
+   return nil
+}
+
+type AuvioAuth struct {
+   SessionToken string
+}
+
+type WebToken struct {
+   ErrorMessage string
+   IdToken      string `json:"id_token"`
 }

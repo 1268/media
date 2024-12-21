@@ -191,6 +191,7 @@ func (s *Stream) segment_template(
    }
    return nil
 }
+
 func write_segment(data, key []byte) ([]byte, error) {
    if key == nil {
       return data, nil
