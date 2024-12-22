@@ -6,9 +6,34 @@ import (
    "errors"
    "io"
    "net/http"
-   "net/url"
    "strconv"
 )
+
+type poster struct {
+   video_manifest *video_manifest
+   web_token *web_token
+}
+
+func (p poster) Wrap(data []byte) ([]byte, error) {
+   req, err := http.NewRequest(
+      "POST", "https://www.kanopy.com", bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   req.URL.Path = "/kapi/licenses/widevine/" + p.video_manifest.DrmLicenseId
+   req.Header = http.Header{
+      "authorization": {"Bearer " + p.web_token.Jwt},
+      "user-agent": {user_agent},
+      "x-version": {x_version},
+   }
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   return io.ReadAll(resp.Body)
+}
 
 type videos_response struct {
    Video *struct {
@@ -40,6 +65,7 @@ func (w *web_token) videos(id int64) (*videos_response, error) {
    }
    return videos, nil
 }
+
 type video_manifest struct {
    DrmLicenseId string
    ManifestType string
@@ -171,34 +197,4 @@ func (web_token) marshal(email, password string) ([]byte, error) {
 
 func (w *web_token) unmarshal(data []byte) error {
    return json.Unmarshal(data, w)
-}
-
-func (*poster) WrapRequest(b []byte) ([]byte, error) {
-   return b, nil
-}
-
-func (*poster) UnwrapResponse(b []byte) ([]byte, error) {
-   return b, nil
-}
-
-func (p *poster) RequestHeader() (http.Header, error) {
-   h := http.Header{
-      "authorization": {"Bearer " + p.token.Jwt},
-      "user-agent": {user_agent},
-      "x-version": {x_version},
-   }
-   return h, nil
-}
-
-type poster struct {
-   manifest *video_manifest
-   token *web_token
-}
-
-func (p *poster) RequestUrl() (string, bool) {
-   var u url.URL
-   u.Scheme = "https"
-   u.Host = "www.kanopy.com"
-   u.Path = "/kapi/licenses/widevine/" + p.manifest.DrmLicenseId
-   return u.String(), true
 }
