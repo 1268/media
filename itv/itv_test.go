@@ -3,6 +3,7 @@ package itv
 import (
    "41.neocities.org/text"
    "41.neocities.org/widevine"
+   "bytes"
    "encoding/base64"
    "fmt"
    "os"
@@ -25,20 +26,6 @@ func TestLicense(t *testing.T) {
       t.Fatal(err)
    }
    for _, test := range tests {
-      var pssh widevine.Pssh
-      pssh.ContentId, err = base64.StdEncoding.DecodeString(test.content_id)
-      if err != nil {
-         t.Fatal(err)
-      }
-      pssh.KeyId, err = base64.StdEncoding.DecodeString(test.key_id)
-      if err != nil {
-         t.Fatal(err)
-      }
-      var module widevine.Module
-      err = module.New(private_key, client_id, pssh.Marshal())
-      if err != nil {
-         t.Fatal(err)
-      }
       discovery, err := test.legacy_id.Discovery()
       if err != nil {
          t.Fatal(err)
@@ -51,11 +38,47 @@ func TestLicense(t *testing.T) {
       if !ok {
          t.Fatal("resolution 1080")
       }
-      key, err := module.Key(file, pssh.KeyId)
+      var pssh widevine.PsshData
+      pssh.ContentId, err = base64.StdEncoding.DecodeString(test.content_id)
       if err != nil {
          t.Fatal(err)
       }
-      fmt.Printf("%x\n", key)
+      pssh.KeyId, err = base64.StdEncoding.DecodeString(test.key_id)
+      if err != nil {
+         t.Fatal(err)
+      }
+      var module widevine.Cdm
+      err = module.New(private_key, client_id, pssh.Marshal())
+      if err != nil {
+         t.Fatal(err)
+      }
+      data, err := module.RequestBody()
+      if err != nil {
+         t.Fatal(err)
+      }
+      data, err = file.Wrap(data)
+      if err != nil {
+         t.Fatal(err)
+      }
+      var body widevine.ResponseBody
+      err = body.Unmarshal(data)
+      if err != nil {
+         t.Fatal(err)
+      }
+      block, err := module.Block(body)
+      if err != nil {
+         t.Fatal(err)
+      }
+      containers := body.Container()
+      for {
+         container, ok := containers()
+         if !ok {
+            break
+         }
+         if bytes.Equal(container.Id(), pssh.KeyId) {
+            fmt.Printf("%x\n", container.Decrypt(block))
+         }
+      }
       time.Sleep(time.Second)
    }
 }

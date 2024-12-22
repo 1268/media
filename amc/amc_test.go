@@ -2,8 +2,6 @@ package amc
 
 import (
    "41.neocities.org/text"
-   "41.neocities.org/widevine"
-   "encoding/base64"
    "fmt"
    "os"
    "strings"

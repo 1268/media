@@ -1,9 +1,7 @@
 package cineMember
 
 import (
-   "fmt"
    "os"
-   "reflect"
    "strings"
    "testing"
 )

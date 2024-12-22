@@ -1,9 +1,7 @@
 package mubi
 
 import (
-   "fmt"
    "os"
-   "reflect"
    "testing"
 )
 
