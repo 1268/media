@@ -6,19 +6,25 @@ import (
    "strconv"
 )
 
-type videos_response struct {
-   Video *struct {
-      ProductionYear int
-      Title string
+type video_items struct {
+   List []struct {
+      Video struct {
+         VideoId int
+      }
    }
 }
 
-func (w *web_token) videos(id int64) (*videos_response, error) {
+func (w *web_token) items(video_id int64) (*video_items, error) {
    req, err := http.NewRequest("", "https://www.kanopy.com", nil)
    if err != nil {
       return nil, err
    }
-   req.URL.Path = "/kapi/videos/" + strconv.FormatInt(id, 10)
+   req.URL.Path = func() string {
+      b := []byte("/kapi/videos/")
+      b = strconv.AppendInt(b, video_id, 10)
+      b = append(b, "/items"...)
+      return string(b)
+   }()
    req.Header = http.Header{
       "authorization": {"Bearer " + w.Jwt},
       "user-agent": {user_agent},
@@ -29,10 +35,10 @@ func (w *web_token) videos(id int64) (*videos_response, error) {
       return nil, err
    }
    defer resp.Body.Close()
-   videos := &videos_response{}
-   err = json.NewDecoder(resp.Body).Decode(videos)
+   items := &video_items{}
+   err = json.NewDecoder(resp.Body).Decode(items)
    if err != nil {
       return nil, err
    }
-   return videos, nil
+   return items, nil
 }
