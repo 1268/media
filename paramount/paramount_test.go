@@ -18,40 +18,40 @@ var tests = []struct{
    key_id string
 }{
    {
-      content_id: "WNujiS5PHkY5wN9doNY6MSo_7G8uBUcX",
-      key_id: "bsT01+Q1Ta+39TayayKhBg==",
-      url: "paramountplus.com/shows/video/WNujiS5PHkY5wN9doNY6MSo_7G8uBUcX",
-      location: "australia",
-   },
-   {
-      content_id: "Y8sKvb2bIoeX4XZbsfjadF4GhNPwcjTQ",
-      key_id: "BsO37qHORXefruKryNAaVQ==",
-      location: "france",
-      url: "paramountplus.com/movies/video/Y8sKvb2bIoeX4XZbsfjadF4GhNPwcjTQ",
-   },
-   {
       content_id: "Oo75PgAbcmt9xqqn1AMoBAfo190Cfhqi",
       key_id: "3RyyVzthSSOklAXiQ2vyRw==",
-      location: "usa",
+      location: "US",
       url: "paramountplus.com/movies/video/Oo75PgAbcmt9xqqn1AMoBAfo190Cfhqi",
    },
    {
       content_id: "esJvFlqdrcS_kFHnpxSuYp449E7tTexD",
       key_id: "H94BVNcqT0WRKzTwzgd36w==",
+      location: "US",
       url: "paramountplus.com/shows/video/esJvFlqdrcS_kFHnpxSuYp449E7tTexD",
-      location: "usa",
    },
    {
       content_id: "rZ59lcp4i2fU4dAaZJ_iEgKqVg_ogrIf",
       key_id: "Sryog4HeT2CLHx38NftIMA==",
+      location: "US",
       url: "cbs.com/shows/video/rZ59lcp4i2fU4dAaZJ_iEgKqVg_ogrIf",
-      location: "usa",
+   },
+   {
+      content_id: "Y8sKvb2bIoeX4XZbsfjadF4GhNPwcjTQ",
+      key_id: "BsO37qHORXefruKryNAaVQ==",
+      location: "GB",
+      url: "paramountplus.com/movies/video/Y8sKvb2bIoeX4XZbsfjadF4GhNPwcjTQ",
    },
    {
       content_id: "ssc3CuuS4mrQ7EyVXILH0FEQSi5yBAsA",
       key_id: "",
-      location: "uk",
+      location: "GB",
       url: "paramountplus.com/shows/video/ssc3CuuS4mrQ7EyVXILH0FEQSi5yBAsA",
+   },
+   {
+      content_id: "WNujiS5PHkY5wN9doNY6MSo_7G8uBUcX",
+      key_id: "bsT01+Q1Ta+39TayayKhBg==",
+      location: "AU",
+      url: "paramountplus.com/shows/video/WNujiS5PHkY5wN9doNY6MSo_7G8uBUcX",
    },
 }
 
