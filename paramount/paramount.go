@@ -16,66 +16,6 @@ import (
    "time"
 )
 
-const secret_key = "302a6a0d70a7e9b967f91d39fef3e387816e3095925ae4537bce96063311f9c5"
-
-const encoding = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-
-func pad(b []byte) []byte {
-   length := aes.BlockSize - len(b) % aes.BlockSize
-   for high := byte(length); length >= 1; length-- {
-      b = append(b, high)
-   }
-   return b
-}
-
-func cms_account(id string) int64 {
-   var (
-      i = 0
-      j = 1
-   )
-   for _, value := range id {
-      i += strings.IndexRune(encoding, value) * j
-      j *= len(encoding)
-   }
-   return int64(i)
-}
-
-type AppToken struct {
-   Values url.Values
-}
-
-// must use app token and IP address for US
-func (a AppToken) Session(content_id string) (*SessionToken, error) {
-   req, err := http.NewRequest("", "https://www.paramountplus.com", nil)
-   if err != nil {
-      return nil, err
-   }
-   req.URL.Path = func() string {
-      var b strings.Builder
-      b.WriteString("/apps-api/v3.1/androidphone/irdeto-control")
-      b.WriteString("/anonymous-session-token.json")
-      return b.String()
-   }()
-   a.Values.Set("contentId", content_id)
-   req.URL.RawQuery = a.Values.Encode()
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   if resp.StatusCode != http.StatusOK {
-      var b strings.Builder
-      resp.Write(&b)
-      return nil, errors.New(b.String())
-   }
-   session := &SessionToken{}
-   err = json.NewDecoder(resp.Body).Decode(session)
-   if err != nil {
-      return nil, err
-   }
-   return session, nil
-}
-
 func (a *AppToken) New(app_secret string) error {
    key, err := hex.DecodeString(secret_key)
    if err != nil {
@@ -111,21 +51,36 @@ func (a *AppToken) ComCbsCa() error {
    return a.New("c0b1d5d6ed27a3f6")
 }
 
-type Number int
-
-func (n *Number) UnmarshalText(data []byte) error {
-   if len(data) >= 1 {
-      v, err := strconv.Atoi(string(data))
-      if err != nil {
-         return err
-      }
-      *n = Number(v)
+// must use app token and IP address for US
+func (a AppToken) Session(content_id string) (*SessionToken, error) {
+   req, err := http.NewRequest("", "https://www.paramountplus.com", nil)
+   if err != nil {
+      return nil, err
    }
-   return nil
-}
-
-func (n Number) MarshalText() ([]byte, error) {
-   return strconv.AppendInt(nil, int64(n), 10), nil
+   req.URL.Path = func() string {
+      var b strings.Builder
+      b.WriteString("/apps-api/v3.1/androidphone/irdeto-control")
+      b.WriteString("/anonymous-session-token.json")
+      return b.String()
+   }()
+   a.Values.Set("contentId", content_id)
+   req.URL.RawQuery = a.Values.Encode()
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   if resp.StatusCode != http.StatusOK {
+      var b strings.Builder
+      resp.Write(&b)
+      return nil, errors.New(b.String())
+   }
+   session := &SessionToken{}
+   err = json.NewDecoder(resp.Body).Decode(session)
+   if err != nil {
+      return nil, err
+   }
+   return session, nil
 }
 
 func (s *SessionToken) Wrap(data []byte) ([]byte, error) {
@@ -143,6 +98,51 @@ func (s *SessionToken) Wrap(data []byte) ([]byte, error) {
    }
    defer resp.Body.Close()
    return io.ReadAll(resp.Body)
+}
+
+const secret_key = "302a6a0d70a7e9b967f91d39fef3e387816e3095925ae4537bce96063311f9c5"
+
+const encoding = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+
+func pad(b []byte) []byte {
+   length := aes.BlockSize - len(b) % aes.BlockSize
+   for high := byte(length); length >= 1; length-- {
+      b = append(b, high)
+   }
+   return b
+}
+
+func cms_account(id string) int64 {
+   var (
+      i = 0
+      j = 1
+   )
+   for _, value := range id {
+      i += strings.IndexRune(encoding, value) * j
+      j *= len(encoding)
+   }
+   return int64(i)
+}
+
+type AppToken struct {
+   Values url.Values
+}
+
+type Number int
+
+func (n *Number) UnmarshalText(data []byte) error {
+   if len(data) >= 1 {
+      v, err := strconv.Atoi(string(data))
+      if err != nil {
+         return err
+      }
+      *n = Number(v)
+   }
+   return nil
+}
+
+func (n Number) MarshalText() ([]byte, error) {
+   return strconv.AppendInt(nil, int64(n), 10), nil
 }
 
 type SessionToken struct {

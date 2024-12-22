@@ -1,5 +1,7 @@
 # app secret
 
+## com.cbs.app
+
 start here:
 
 ~~~
@@ -154,7 +156,7 @@ if (m13005d != null && m13005d.length() != 0) {
 }
 ~~~
 
-`cookie_migration_secret`
+`cookie_migration_secret`:
 
 ~~~
 sources\com\paramount\android\pplus\migrations\internal\device\C6698a.java
