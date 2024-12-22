@@ -3,6 +3,7 @@ package ctv
 import (
    "41.neocities.org/text"
    "41.neocities.org/widevine"
+   "bytes"
    "encoding/base64"
    "fmt"
    "os"
@@ -23,13 +24,30 @@ func TestLicense(t *testing.T) {
    if err != nil {
       t.Fatal(err)
    }
-   var pssh widevine.Pssh
+   var pssh widevine.PsshData
    pssh.ContentId, err = base64.StdEncoding.DecodeString(content_id)
    if err != nil {
       t.Fatal(err)
    }
-   var module widevine.Module
+   var module widevine.Cdm
    err = module.New(private_key, client_id, pssh.Marshal())
+   if err != nil {
+      t.Fatal(err)
+   }
+   data, err := module.RequestBody()
+   if err != nil {
+      t.Fatal(err)
+   }
+   data, err = Wrapper{}.Wrap(data)
+   if err != nil {
+      t.Fatal(err)
+   }
+   var body widevine.ResponseBody
+   err = body.Unmarshal(data)
+   if err != nil {
+      t.Fatal(err)
+   }
+   block, err := module.Block(body)
    if err != nil {
       t.Fatal(err)
    }
@@ -37,11 +55,16 @@ func TestLicense(t *testing.T) {
    if err != nil {
       t.Fatal(err)
    }
-   key, err := module.Key(Client{}, key_id)
-   if err != nil {
-      t.Fatal(err)
+   containers := body.Container()
+   for {
+      container, ok := containers()
+      if !ok {
+         break
+      }
+      if bytes.Equal(container.Id(), key_id) {
+         fmt.Printf("%x\n", container.Decrypt(block))
+      }
    }
-   fmt.Printf("%x\n", key)
 }
 
 // ctv.ca/movies/the-girl-with-the-dragon-tattoo-2011

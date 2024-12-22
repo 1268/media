@@ -11,7 +11,7 @@ type Wrapper struct {
    Playback *Playback
 }
 
-func (w *Wrapper) Wrap(data []byte) ([]byte, error) {
+func (w Wrapper) Wrap(data []byte) ([]byte, error) {
    req, err := http.NewRequest(
       "POST", "https://client-api.magine.com/api/playback/v1/widevine/license",
       bytes.NewReader(data),
