@@ -44,102 +44,67 @@ SecretKeySpec secretKeySpec = new SecretKeySpec(b("302a6a0d70a7e9b967f91d39fef3e
 why do we need link.theplatform.com? because its the only anonymous option.
 logged out the web client has this request:
 
-https://www.paramountplus.com/shows/mayor-of-kingstown/video/xhr/episodes/page/0/size/18/xs/0/season/3
+https://paramountplus.com/shows/mayor-of-kingstown/video/xhr/episodes/page/0/size/18/xs/0/season/3
 
 logged in the web client embeds MPD in HTML:
 
-https://www.paramountplus.com/movies/video/dR90xyXDa88Qi5wq7GITtmVm0gcniSar
+https://paramountplus.com/movies/video/Oo75PgAbcmt9xqqn1AMoBAfo190Cfhqi
 
 Android client needs cookie for INTL requests:
 
-~~~
-GET https://www.paramountplus.com/apps-api/v3.1/androidphone/irdeto-control/anonymous-session-token.json?contentId=fmzz3juKlg4QZt9qKRI_C1GjVh6ysEZT&model=AOSP%20on%20IA%20Emulator&firmwareVersion=9&version=15.0.28&platform=PP_AndroidApp&locale=en-us&locale=en-us&at=ABBoPFHuygkRnnCKELRhypuq5uEAJvSiVATsY9xOASH88ibse11WuoLrFnSDf0Bv7EY%3D HTTP/2.0
+---
+
+paramountplus.com/movies/video/Y8sKvb2bIoeX4XZbsfjadF4GhNPwcjTQ
+content_id: "Y8sKvb2bIoeX4XZbsfjadF4GhNPwcjTQ",
+json.itemList[0].downloadCountrySet[0].code = "DE";
+json.itemList[0].downloadCountrySet[1].code = "MQ";
+json.itemList[0].downloadCountrySet[2].code = "IM";
+json.itemList[0].downloadCountrySet[3].code = "IT";
+json.itemList[0].downloadCountrySet[4].code = "BL";
+json.itemList[0].downloadCountrySet[5].code = "PM";
+json.itemList[0].downloadCountrySet[6].code = "VA";
+json.itemList[0].downloadCountrySet[7].code = "JE";
+json.itemList[0].downloadCountrySet[8].code = "FR";
+json.itemList[0].downloadCountrySet[9].code = "GG";
+json.itemList[0].downloadCountrySet[10].code = "IE";
+json.itemList[0].downloadCountrySet[11].code = "MF";
+json.itemList[0].downloadCountrySet[12].code = "SM";
+json.itemList[0].downloadCountrySet[13].code = "GF";
+json.itemList[0].downloadCountrySet[14].code = "GP";
+json.itemList[0].downloadCountrySet[15].code = "CH";
+json.itemList[0].downloadCountrySet[16].code = "YT";
+json.itemList[0].downloadCountrySet[17].code = "GB";
+json.itemList[0].downloadCountrySet[18].code = "AT";
+json.itemList[0].downloadCountrySet[19].code = "RE";
+
+content_id: "ssc3CuuS4mrQ7EyVXILH0FEQSi5yBAsA",
+json.itemList[0].downloadCountrySet[0].code = "JE";
+json.itemList[0].downloadCountrySet[1].code = "GB";
+json.itemList[0].downloadCountrySet[2].code = "IM";
+json.itemList[0].downloadCountrySet[3].code = "GG";
+json.itemList[0].downloadCountrySet[4].code = "IE";
+
+content_id: "WNujiS5PHkY5wN9doNY6MSo_7G8uBUcX",
+json.itemList[0].downloadCountrySet[0].code = "AU";
+
+need login
+GET https://www.intl.paramountplus.com/apps-api/v3.1/androidtv/irdeto-control/session-token.json?contentId=Y8sKvb2bIoeX4XZbsfjadF4GhNPwcjTQ&model=sdk_google_atv_x86&firmwareVersion=9&version=15.0.28&platform=PPINTL_AndroidTV&locale=en-us&at=ABBoPFHuygkRnnCKELRhypuq5uEAJvSiVATsY9xOASH88ibse11WuoLrFnSDf0Bv7EY%3D HTTP/2.0
 cookie: CBS_COM=N0Q5NkYyRTE2QTRGQUJEQTE1QkYzQTQwREVEMjQxNUY3RjYyQkM0MkVDMzM2OD...
-~~~
 
-and:
 
-~~~
-GET https://www.intl.paramountplus.com/apps-api/v3.1/androidtv/irdeto-control/session-token.json?contentId=fmzz3juKlg4QZt9qKRI_C1GjVh6ysEZT&model=sdk_google_atv_x86&firmwareVersion=9&version=15.0.28&platform=PPINTL_AndroidTV&locale=en-us&at=ABBoPFHuygkRnnCKELRhypuq5uEAJvSiVATsY9xOASH88ibse11WuoLrFnSDf0Bv7EY%3D HTTP/2.0
+
+
+works anon
+GET https://www.paramountplus.com/apps-api/v3.1/androidphone/irdeto-control/anonymous-session-token.json?contentId=Y8sKvb2bIoeX4XZbsfjadF4GhNPwcjTQ&model=AOSP%20on%20IA%20Emulator&firmwareVersion=9&version=15.0.28&platform=PP_AndroidApp&locale=en-us&locale=en-us&at=ABBoPFHuygkRnnCKELRhypuq5uEAJvSiVATsY9xOASH88ibse11WuoLrFnSDf0Bv7EY%3D HTTP/2.0
 cookie: CBS_COM=N0Q5NkYyRTE2QTRGQUJEQTE1QkYzQTQwREVEMjQxNUY3RjYyQkM0MkVDMzM2OD...
-~~~
 
-and:
-
-~~~
-GET https://www.intl.paramountplus.com/apps-api/v3.0/androidtv/movies/fmzz3juKlg4QZt9qKRI_C1GjVh6ysEZT.json?includeTrailerInfo=true&includeContentInfo=true&locale=en-us&at=ABDSbrWqqlbSWOrrXk8u9NaNdokPC88YiXcPvIFhPobM3a%2FJWNOSwiCMklwJDDJq4c0%3D HTTP/2.0
+works anon
+GET https://www.intl.paramountplus.com/apps-api/v3.0/androidtv/movies/Y8sKvb2bIoeX4XZbsfjadF4GhNPwcjTQ.json?includeTrailerInfo=true&includeContentInfo=true&locale=en-us&at=ABDSbrWqqlbSWOrrXk8u9NaNdokPC88YiXcPvIFhPobM3a%2FJWNOSwiCMklwJDDJq4c0%3D HTTP/2.0
 cookie: CBS_COM=N0Q5NkYyRTE2QTRGQUJEQTE1QkYzQTQwREVEMjQxNUY3RjYyQkM0MkVDMzM2OD...
-~~~
 
-and:
-
-~~~
-GET https://www.intl.paramountplus.com/apps-api/v2.0/androidtv/video/cid/fmzz3juKlg4QZt9qKRI_C1GjVh6ysEZT.json?locale=en-us&at=ABA3WXXZwgC0rQPN9WtWEUmpHsGCFJb6NP4tGjIFVLTuScgId9WA3LdC44hdHUJysQ0%3D HTTP/2.0
+works anon
+GET https://www.intl.paramountplus.com/apps-api/v2.0/androidtv/video/cid/Y8sKvb2bIoeX4XZbsfjadF4GhNPwcjTQ.json?locale=en-us&at=ABA3WXXZwgC0rQPN9WtWEUmpHsGCFJb6NP4tGjIFVLTuScgId9WA3LdC44hdHUJysQ0%3D HTTP/2.0
 cookie: CBS_COM=N0Q5NkYyRTE2QTRGQUJEQTE1QkYzQTQwREVEMjQxNUY3RjYyQkM0MkVDMzM2OD...
-~~~
 
-## aid
 
-If we take a video like this:
 
-<https://paramountplus.com/shows/video/vLJLNTktnWmP_KzDtTm9X7ki0SRvpZ2w>
-
-we can get the info like this:
-
-<https://paramountplus.com/apps-api/v2.0/androidphone/video/cid/vLJLNTktnWmP_KzDtTm9X7ki0SRvpZ2w.json?at=ABDSJZgxTScBBBO4aTPohedBu%2BEYBA1PYEHSGCtyFepqrLX%2BARQN5S9eZ8VWQ2zwNk8%3D>
-
-which includes everything we need:
-
-~~~
-"cmsAccountId": "dJ5BDC",
-"pid": "i_iqDzG1odu1",
-~~~
-
-but other videos:
-
-<https://paramountplus.com/shows/video/YxlqOUdP1zZaIs7FGXCaS1dJi7gGzxG_>
-
-are missing the `pid`:
-
-<https://paramountplus.com/apps-api/v2.0/androidphone/video/cid/YxlqOUdP1zZaIs7FGXCaS1dJi7gGzxG_.json?at=ABDSJZgxTScBBBO4aTPohedBu%2BEYBA1PYEHSGCtyFepqrLX%2BARQN5S9eZ8VWQ2zwNk8%3D>
-
-unless we request with cookie:
-
-~~~
-GET https://www.paramountplus.com/apps-api/v2.0/androidphone/video/cid/YxlqOUdP1zZaIs7FGXCaS1dJi7gGzxG_.json?at=ABAFzPkMhOzTnRSPIU8SHvxC3JgwGZ8eTCYf3NSJx3wm6fhNd5vz%2FfLw3TlCcaKYC%2Bc%3D HTTP/1.1
-cookie: CBS_COM=N0EwMjY0MDVENTU3MzJCNzJBMEQzMkIyMDQ0MjQyQUU6MTcxMjA5OTQwMTg2OT...
-~~~
-
-which we can get like this:
-
-~~~
-POST https://www.paramountplus.com/apps-api/v2.0/androidphone/auth/login.json?at=ABDFhCKlU... HTTP/1.1
-content-type: application/x-www-form-urlencoded
-
-j_username=EMAIL&j_password=PASSWORD
-~~~
-
-we can instead use the `aid`:
-
-<http://link.theplatform.com/s/dJ5BDC/media/guid/2198311517/YxlqOUdP1zZaIs7FGXCaS1dJi7gGzxG_>
-
-without authentication. Its a little messy though, because the current web client
-and Android client no longer use the `aid`, so who knows how long it will be
-around. Its in the Android source like this:
-
-~~~
-sources\com\cbs\downloader\impl\a.java
-String uri = new Uri.Builder().scheme(ProxyConfig.MATCH_HTTP).
-authority("link.theplatform.com").
-appendPath(Constants.APPBOY_PUSH_SUMMARY_TEXT_KEY).appendPath("dJ5BDC").
-appendPath(CommonUtil.Directory.MEDIA_ROOT).
-appendPath(DistributedTracing.NR_GUID_ATTRIBUTE).appendPath("2198311517").
-appendPath(contentId).appendQueryParameter("assetTypes", "DASH_CENC").
-appendQueryParameter("formats", "MPEG-DASH").
-appendQueryParameter("format", "smil").build().toString();
-~~~
-
-the last version using it is 12.0.28 (211202876). Or, if you already have a
-`pid`, you can get it like this:
-
-<http://link.theplatform.com/s/dJ5BDC/i_iqDzG1odu1?format=SMIL&Tracking=true>
