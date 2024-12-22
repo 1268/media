@@ -7,18 +7,6 @@ import (
    "time"
 )
 
-func TestMetadata(t *testing.T) {
-   for _, test := range tests {
-      var meta Metadata
-      err := meta.New(test.id)
-      if err != nil {
-         t.Fatal(err)
-      }
-      fmt.Printf("%q\n", text.Name(&meta))
-      time.Sleep(time.Second)
-   }
-}
-
 var tests = []struct{
    url string
    program string
@@ -47,6 +35,19 @@ var tests = []struct{
       url: "nbc.com/2-fast-2-furious/video/2-fast-2-furious/2957739",
    },
 }
+
+func TestMetadata(t *testing.T) {
+   for _, test := range tests {
+      var meta Metadata
+      err := meta.New(test.id)
+      if err != nil {
+         t.Fatal(err)
+      }
+      fmt.Printf("%q\n", text.Name(&meta))
+      time.Sleep(time.Second)
+   }
+}
+
 func TestOnDemand(t *testing.T) {
    for _, test := range tests {
       var meta Metadata
