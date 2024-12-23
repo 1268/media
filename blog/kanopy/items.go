@@ -6,15 +6,34 @@ import (
    "strconv"
 )
 
-type video_items struct {
-   List []struct {
-      Video struct {
-         VideoId int
-      }
+type video_item struct {
+   Playlist *struct {
+      Title string
+      VideoId int64
+   }
+   Video *struct {
+      Title string
+      VideoId int64
    }
 }
 
-func (w *web_token) items(video_id int64) (*video_items, error) {
+func (v *video_item) String() string {
+   var b []byte
+   if v.Video != nil {
+      b = append(b, "title = "...)
+      b = append(b, v.Video.Title...)
+      b = append(b, "\nvideo id = "...)
+      b = strconv.AppendInt(b, v.Video.VideoId, 10)
+   } else {
+      b = append(b, "title = "...)
+      b = append(b, v.Playlist.Title...)
+      b = append(b, "\nvideo id = "...)
+      b = strconv.AppendInt(b, v.Playlist.VideoId, 10)
+   }
+   return string(b)
+}
+
+func (w *web_token) items(video_id int64) ([]video_item, error) {
    req, err := http.NewRequest("", "https://www.kanopy.com", nil)
    if err != nil {
       return nil, err
@@ -35,10 +54,12 @@ func (w *web_token) items(video_id int64) (*video_items, error) {
       return nil, err
    }
    defer resp.Body.Close()
-   items := &video_items{}
-   err = json.NewDecoder(resp.Body).Decode(items)
+   var items struct {
+      List []video_item
+   }
+   err = json.NewDecoder(resp.Body).Decode(&items)
    if err != nil {
       return nil, err
    }
-   return items, nil
+   return items.List, nil
 }

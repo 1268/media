@@ -8,13 +8,6 @@ import (
    "time"
 )
 
-type transport struct{}
-
-func (transport) RoundTrip(req *http.Request) (*http.Response, error) {
-   fmt.Println(req.URL)
-   return http.DefaultTransport.RoundTrip(req)
-}
-
 func TestItems(t *testing.T) {
    http.DefaultClient.Transport = transport{}
    data, err := os.ReadFile("token.txt")
@@ -38,9 +31,19 @@ func TestItems(t *testing.T) {
             t.Fatal(err)
          }
          time.Sleep(time.Second)
-         for _, item := range items.List {
-            fmt.Printf("%+v\n", item)
+         for i, item := range items {
+            if i >= 1 {
+               fmt.Println()
+            }
+            fmt.Println(&item)
          }
       }
    }
+}
+
+type transport struct{}
+
+func (transport) RoundTrip(req *http.Request) (*http.Response, error) {
+   fmt.Println(req.URL)
+   return http.DefaultTransport.RoundTrip(req)
 }

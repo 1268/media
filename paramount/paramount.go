@@ -16,41 +16,6 @@ import (
    "time"
 )
 
-func (a *AppToken) New(app_secret string) error {
-   key, err := hex.DecodeString(secret_key)
-   if err != nil {
-      return err
-   }
-   block, err := aes.NewCipher(key)
-   if err != nil {
-      return err
-   }
-   var src []byte
-   src = append(src, '|')
-   src = append(src, app_secret...)
-   src = pad(src)
-   var iv [aes.BlockSize]byte
-   cipher.NewCBCEncrypter(block, iv[:]).CryptBlocks(src, src)
-   var dst []byte
-   dst = append(dst, 0, aes.BlockSize)
-   dst = append(dst, iv[:]...)
-   dst = append(dst, src...)
-   a.Values = url.Values{
-      "at": {base64.StdEncoding.EncodeToString(dst)},
-   }
-   return nil
-}
-
-// 15.0.28
-func (a *AppToken) ComCbsApp() error {
-   return a.New("a624d7b175f5626b")
-}
-
-// 15.0.28
-func (a *AppToken) ComCbsCa() error {
-   return a.New("c0b1d5d6ed27a3f6")
-}
-
 // must use app token and IP address for US
 func (a AppToken) Session(content_id string) (*SessionToken, error) {
    req, err := http.NewRequest("", "https://www.paramountplus.com", nil)
@@ -98,6 +63,41 @@ func (s *SessionToken) Wrap(data []byte) ([]byte, error) {
    }
    defer resp.Body.Close()
    return io.ReadAll(resp.Body)
+}
+
+func (a *AppToken) New(app_secret string) error {
+   key, err := hex.DecodeString(secret_key)
+   if err != nil {
+      return err
+   }
+   block, err := aes.NewCipher(key)
+   if err != nil {
+      return err
+   }
+   var src []byte
+   src = append(src, '|')
+   src = append(src, app_secret...)
+   src = pad(src)
+   var iv [aes.BlockSize]byte
+   cipher.NewCBCEncrypter(block, iv[:]).CryptBlocks(src, src)
+   var dst []byte
+   dst = append(dst, 0, aes.BlockSize)
+   dst = append(dst, iv[:]...)
+   dst = append(dst, src...)
+   a.Values = url.Values{
+      "at": {base64.StdEncoding.EncodeToString(dst)},
+   }
+   return nil
+}
+
+// 15.0.28
+func (a *AppToken) ComCbsApp() error {
+   return a.New("a624d7b175f5626b")
+}
+
+// 15.0.28
+func (a *AppToken) ComCbsCa() error {
+   return a.New("c0b1d5d6ed27a3f6")
 }
 
 const secret_key = "302a6a0d70a7e9b967f91d39fef3e387816e3095925ae4537bce96063311f9c5"
