@@ -1,0 +1,112 @@
+{
+  "list": [
+    {
+      "type": "playlist",
+      "playlist": {
+        "videoId": 14881163,
+        "title": "Wildfire: S1",
+        "descriptionHtml": "<p>WILDFIRE follows 18-year-old Kris Furillo who, after serving time at a teen detention center, is given the opportunity to start a new life training horses on the Ritter’s family ranch.</p>",
+        "images": {
+          "landscapes": {
+            "small": "https://static.kanopy.com/cdn-cgi/image/fit=cover,height=144,width=256/https://static-assets.kanopy.com/video-images/1813cd4e-2864-4789-97b7-62410dd62b8e.jpg",
+            "medium": "https://static.kanopy.com/cdn-cgi/image/fit=cover,height=270,width=480/https://static-assets.kanopy.com/video-images/1813cd4e-2864-4789-97b7-62410dd62b8e.jpg",
+            "large": "https://static.kanopy.com/cdn-cgi/image/fit=cover,height=540,width=960/https://static-assets.kanopy.com/video-images/1813cd4e-2864-4789-97b7-62410dd62b8e.jpg"
+          },
+          "posters": {
+            "small": "https://static.kanopy.com/cdn-cgi/image/fit=cover,height=357,width=252/https://static-assets.kanopy.com/video-images/22bcbbcd-37b1-460a-81e9-93e4938a6957.jpg",
+            "medium": "https://static.kanopy.com/cdn-cgi/image/fit=cover,height=680,width=480/https://static-assets.kanopy.com/video-images/22bcbbcd-37b1-460a-81e9-93e4938a6957.jpg",
+            "large": "https://static.kanopy.com/cdn-cgi/image/fit=cover,height=680,width=480/https://static-assets.kanopy.com/video-images/22bcbbcd-37b1-460a-81e9-93e4938a6957.jpg"
+          }
+        },
+        "hasBurntInCaptions": false,
+        "hasCaptions": true,
+        "captionLanguages": [
+          "en"
+        ],
+        "productionYear": 2005,
+        "taxonomies": {
+          "subjects": [
+            {
+              "termId": 9516,
+              "name": "TV Series"
+            },
+            {
+              "termId": 9513,
+              "name": "Movies"
+            }
+          ],
+          "tags": [
+            {
+              "termId": 30032,
+              "name": "New Additions"
+            },
+            {
+              "termId": 56848,
+              "name": "Newly Added Series"
+            }
+          ],
+          "filmmakers": [],
+          "cast": [
+            {
+              "termId": 30361,
+              "name": "Genevieve Padalecki"
+            },
+            {
+              "termId": 82466,
+              "name": "Nicole Tubiola"
+            },
+            {
+              "termId": 82467,
+              "name": "Nana Visitor"
+            },
+            {
+              "termId": 82468,
+              "name": "Greg Serano"
+            },
+            {
+              "termId": 82469,
+              "name": "Micah Alberti"
+            },
+            {
+              "termId": 82470,
+              "name": "Ryan Sypek"
+            }
+          ],
+          "languages": [
+            {
+              "termId": 929,
+              "name": "English"
+            }
+          ],
+          "supplier": {
+            "termId": 56925,
+            "name": "Lionsgate"
+          }
+        },
+        "starRating": {
+          "count": 0,
+          "average": 0
+        },
+        "isKids": false,
+        "durationSeconds": 34074,
+        "hasPublicPerformanceRights": false,
+        "ageRatingUs": "TV-14",
+        "ageRating": "TV-14",
+        "mpaaRating": "TV-14",
+        "isFree": false,
+        "isRequestable": false,
+        "ancestorVideoIds": [
+          14881161
+        ],
+        "alias": "wildfire-s1",
+        "feedId": 113077,
+        "needsTitleTreatment": false,
+        "isSilent": false,
+        "supplementalMaterial": [],
+        "playlistType": "playlist_episodic",
+        "playlistType2": "multi_title_episodic_playlist",
+        "itemCount": 13
+      }
+    }
+  ]
+}
