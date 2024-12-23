@@ -1,0 +1,102 @@
+{
+  "type": "video",
+  "video": {
+    "videoId": 14881167,
+    "title": "The Rescue",
+    "descriptionHtml": "<p>Kris Furillo is released from the juvenile detention center and begins working at the Ritter family ranch.</p>",
+    "images": {
+      "landscapes": {
+        "small": "https://static.kanopy.com/cdn-cgi/image/fit=cover,height=144,width=256/https://static-assets.kanopy.com/video-images/598bf133-8287-4578-b874-9afdc5b9b01b.jpeg",
+        "medium": "https://static.kanopy.com/cdn-cgi/image/fit=cover,height=270,width=480/https://static-assets.kanopy.com/video-images/598bf133-8287-4578-b874-9afdc5b9b01b.jpeg",
+        "large": "https://static.kanopy.com/cdn-cgi/image/fit=cover,height=540,width=960/https://static-assets.kanopy.com/video-images/598bf133-8287-4578-b874-9afdc5b9b01b.jpeg"
+      },
+      "posters": {
+        "large": "https://www.kanopy.com/kapi/videos/14881167/synthetic-poster.jpg",
+        "medium": "https://www.kanopy.com/kapi/videos/14881167/synthetic-poster.jpg",
+        "small": "https://static.kanopy.com/cdn-cgi/image/fit=cover,height=357,width=252/https://www.kanopy.com/kapi/videos/14881167/synthetic-poster.jpg"
+      }
+    },
+    "hasBurntInCaptions": false,
+    "hasCaptions": true,
+    "captionLanguages": [
+      "en"
+    ],
+    "productionYear": 2005,
+    "taxonomies": {
+      "subjects": [
+        {
+          "termId": 9516,
+          "name": "TV Series"
+        },
+        {
+          "termId": 9513,
+          "name": "Movies"
+        }
+      ],
+      "tags": [],
+      "filmmakers": [
+        {
+          "termId": 47925,
+          "name": "Steve Miner"
+        }
+      ],
+      "cast": [
+        {
+          "termId": 30361,
+          "name": "Genevieve Padalecki"
+        },
+        {
+          "termId": 82466,
+          "name": "Nicole Tubiola"
+        },
+        {
+          "termId": 82467,
+          "name": "Nana Visitor"
+        },
+        {
+          "termId": 82468,
+          "name": "Greg Serano"
+        },
+        {
+          "termId": 82469,
+          "name": "Micah Alberti"
+        },
+        {
+          "termId": 82470,
+          "name": "Ryan Sypek"
+        }
+      ],
+      "languages": [
+        {
+          "termId": 929,
+          "name": "English"
+        }
+      ],
+      "supplier": {
+        "termId": 56925,
+        "name": "Lionsgate"
+      }
+    },
+    "starRating": {
+      "count": 0,
+      "average": 0
+    },
+    "isKids": false,
+    "durationSeconds": 2691,
+    "hasPublicPerformanceRights": false,
+    "ageRatingUs": "TV-14",
+    "ageRating": "TV-14",
+    "mpaaRating": "TV-14",
+    "isFree": false,
+    "isRequestable": false,
+    "ancestorVideoIds": [
+      14881163,
+      14881161
+    ],
+    "alias": "rescue-1",
+    "feedId": 113079,
+    "needsTitleTreatment": false,
+    "isSilent": false,
+    "supplementalMaterial": []
+  }
+}
