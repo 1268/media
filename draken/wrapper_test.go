@@ -46,12 +46,13 @@ func TestLicense(t *testing.T) {
       if err != nil {
          t.Fatal(err)
       }
-      var pssh widevine.PsshData
-      pssh.ContentId, err = base64.StdEncoding.DecodeString(film.content_id)
+      key_id, err := base64.StdEncoding.DecodeString(film.key_id)
       if err != nil {
          t.Fatal(err)
       }
-      pssh.KeyId, err = base64.StdEncoding.DecodeString(film.key_id)
+      var pssh widevine.PsshData
+      pssh.KeyIds = [][]byte{key_id}
+      pssh.ContentId, err = base64.StdEncoding.DecodeString(film.content_id)
       if err != nil {
          t.Fatal(err)
       }
@@ -83,8 +84,8 @@ func TestLicense(t *testing.T) {
          if !ok {
             break
          }
-         if bytes.Equal(container.Id(), pssh.KeyId) {
-            fmt.Printf("%x\n", container.Decrypt(block))
+         if bytes.Equal(container.Id(), key_id) {
+            fmt.Printf("%x\n", container.Key(block))
          }
       }
       time.Sleep(time.Second)

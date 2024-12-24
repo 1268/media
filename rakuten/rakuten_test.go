@@ -32,12 +32,13 @@ func (m *movie_test) license() ([]byte, error) {
    if err != nil {
       return nil, err
    }
-   var pssh widevine.PsshData
-   pssh.ContentId, err = base64.StdEncoding.DecodeString(m.content_id)
+   key_id, err := base64.StdEncoding.DecodeString(m.key_id)
    if err != nil {
       return nil, err
    }
-   pssh.KeyId, err = base64.StdEncoding.DecodeString(m.key_id)
+   var pssh widevine.PsshData
+   pssh.KeyIds = [][]byte{key_id}
+   pssh.ContentId, err = base64.StdEncoding.DecodeString(m.content_id)
    if err != nil {
       return nil, err
    }
@@ -69,8 +70,8 @@ func (m *movie_test) license() ([]byte, error) {
       if !ok {
          return nil, errors.New("ResponseBody.Container")
       }
-      if bytes.Equal(container.Id(), pssh.KeyId) {
-         return container.Decrypt(block), nil
+      if bytes.Equal(container.Id(), key_id) {
+         return container.Key(block), nil
       }
    }
 }

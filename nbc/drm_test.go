@@ -10,7 +10,7 @@ import (
    "time"
 )
 
-func TestLicense(t *testing.T) {
+func TestWrap(t *testing.T) {
    home, err := os.UserHomeDir()
    if err != nil {
       t.Fatal(err)
@@ -26,11 +26,12 @@ func TestLicense(t *testing.T) {
    var proxy DrmProxy
    proxy.New()
    for _, test := range tests {
-      var pssh widevine.PsshData
-      pssh.KeyId, err = hex.DecodeString(test.key_id)
+      key_id, err := hex.DecodeString(test.key_id)
       if err != nil {
          t.Fatal(err)
       }
+      var pssh widevine.PsshData
+      pssh.KeyIds = [][]byte{key_id}
       var module widevine.Cdm
       err = module.New(private_key, client_id, pssh.Marshal())
       if err != nil {
@@ -59,8 +60,8 @@ func TestLicense(t *testing.T) {
          if !ok {
             break
          }
-         if bytes.Equal(container.Id(), pssh.KeyId) {
-            fmt.Printf("%x\n", container.Decrypt(block))
+         if bytes.Equal(container.Id(), key_id) {
+            fmt.Printf("%x\n", container.Key(block))
          }
       }
       time.Sleep(time.Second)

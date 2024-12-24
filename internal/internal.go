@@ -17,16 +17,6 @@ import (
    "strings"
 )
 
-// wikipedia.org/wiki/Dynamic_Adaptive_Streaming_over_HTTP
-type Stream struct {
-   ClientId string
-   PrivateKey string
-   key_id []byte
-   pssh []byte
-   Namer text.Namer
-   Wrapper widevine.Wrapper
-}
-
 func (s *Stream) key() ([]byte, error) {
    if s.key_id == nil {
       return nil, nil
@@ -40,7 +30,9 @@ func (s *Stream) key() ([]byte, error) {
       return nil, err
    }
    if s.pssh == nil {
-      s.pssh = widevine.PsshData{KeyId: s.key_id}.Marshal()
+      var pssh widevine.PsshData
+      pssh.KeyIds = [][]byte{s.key_id}
+      s.pssh = pssh.Marshal()
    }
    var module widevine.Cdm
    err = module.New(private_key, client_id, s.pssh)
@@ -71,7 +63,7 @@ func (s *Stream) key() ([]byte, error) {
          return nil, errors.New("ResponseBody.Container")
       }
       if bytes.Equal(container.Id(), s.key_id) {
-         key := container.Decrypt(block)
+         key := container.Key(block)
          slog.Info(
             "CDM",
             "PSSH", base64.StdEncoding.EncodeToString(s.pssh),
@@ -375,4 +367,13 @@ func write_sidx(req *http.Request, index dash.Range) ([]sidx.Reference, error) {
       return nil, err
    }
    return file.Sidx.Reference, nil
+}
+// wikipedia.org/wiki/Dynamic_Adaptive_Streaming_over_HTTP
+type Stream struct {
+   ClientId string
+   PrivateKey string
+   key_id []byte
+   pssh []byte
+   Namer text.Namer
+   Wrapper widevine.Wrapper
 }

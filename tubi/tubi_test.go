@@ -52,11 +52,12 @@ func TestLicense(t *testing.T) {
       if !ok {
          t.Fatal("VideoContent.Video")
       }
-      var pssh widevine.PsshData
-      pssh.KeyId, err = base64.StdEncoding.DecodeString(test.key_id)
+      key_id, err := base64.StdEncoding.DecodeString(test.key_id)
       if err != nil {
          t.Fatal(err)
       }
+      var pssh widevine.PsshData
+      pssh.KeyIds = [][]byte{key_id}
       var module widevine.Cdm
       err = module.New(private_key, client_id, pssh.Marshal())
       if err != nil {
@@ -85,8 +86,8 @@ func TestLicense(t *testing.T) {
          if !ok {
             t.Fatal("ResponseBody.Container")
          }
-         if bytes.Equal(container.Id(), pssh.KeyId) {
-            fmt.Printf("%x\n", container.Decrypt(block))
+         if bytes.Equal(container.Id(), key_id) {
+            fmt.Printf("%x\n", container.Key(block))
          }
       }
       time.Sleep(time.Second)
