@@ -25,19 +25,23 @@ func TestItems(t *testing.T) {
          t.Fatal(err)
       }
       time.Sleep(time.Second)
-      for _, ancestor := range video.AncestorVideoIds {
-         items, err := token.items(ancestor)
-         if err != nil {
-            t.Fatal(err)
-         }
-         time.Sleep(time.Second)
-         for i, item := range items {
-            if i >= 1 {
-               fmt.Println()
-            }
-            fmt.Println(&item)
-         }
+      if len(video.AncestorVideoIds) <= 1 {
+         continue
       }
+      // episodes
+      items, err := token.items(video.AncestorVideoIds[0])
+      if err != nil {
+         t.Fatal(err)
+      }
+      time.Sleep(time.Second)
+      fmt.Println(items.item(video.VideoId))
+      // seasons
+      items, err = token.items(video.AncestorVideoIds[1])
+      if err != nil {
+         t.Fatal(err)
+      }
+      time.Sleep(time.Second)
+      fmt.Println(items.item(video.AncestorVideoIds[0]))
    }
 }
 

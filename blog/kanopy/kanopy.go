@@ -13,6 +13,7 @@ type video_response struct {
    AncestorVideoIds []int64
    ProductionYear int
    Title string
+   VideoId int64
 }
 
 func (w *web_token) video(id int64) (*video_response, error) {
