@@ -11,7 +11,7 @@ import (
    "time"
 )
 
-func TestLicense(t *testing.T) {
+func TestWrap(t *testing.T) {
    home, err := os.UserHomeDir()
    if err != nil {
       t.Fatal(err)
@@ -62,7 +62,7 @@ func TestLicense(t *testing.T) {
          break
       }
       if bytes.Equal(container.Id(), key_id) {
-         fmt.Printf("%x\n", container.Decrypt(block))
+         fmt.Printf("%x\n", container.Key(block))
       }
    }
 }
