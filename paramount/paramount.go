@@ -150,28 +150,6 @@ type SessionToken struct {
    Url string
 }
 
-func (v *VideoItem) asset_type() string {
-   for _, country := range v.DownloadCountrySet {
-      if country.Code == "GB" {
-         return "DASH_CENC_PRECON"
-      }
-   }
-   return "DASH_CENC"
-}
-
-type VideoItem struct {
-   AirDateIso time.Time `json:"_airDateISO"`
-   CmsAccountId string
-   ContentId string
-   DownloadCountrySet []struct {
-      Code string
-   }
-   EpisodeNum Number
-   Label string
-   SeasonNum Number
-   SeriesTitle string
-}
-
 func (v *VideoItem) Show() string {
    if v.SeasonNum >= 1 {
       return v.SeriesTitle
@@ -253,4 +231,26 @@ func (v *VideoItem) Episode() int {
 
 func (v *VideoItem) Year() int {
    return v.AirDateIso.Year()
+}
+
+type VideoItem struct {
+   AirDateIso time.Time `json:"_airDateISO"`
+   CmsAccountId string
+   ContentId string
+   EpisodeNum Number
+   Label string
+   RegionalRatings []struct {
+      Region string
+   }
+   SeasonNum Number
+   SeriesTitle string
+}
+
+func (v *VideoItem) asset_type() string {
+   for _, rating := range v.RegionalRatings {
+      if rating.Region == "GB" {
+         return "DASH_CENC_PRECON"
+      }
+   }
+   return "DASH_CENC"
 }
