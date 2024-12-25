@@ -3,6 +3,14 @@
 - <https://wikipedia.org/wiki/Undecidable_problem>
 - https://iban.com/country-codes
 
+we cannot use `assetType` to decide:
+
+~~~
+rZ59lcp4i2fU4dAaZJ_iEgKqVg_ogrIf
+~~~
+
+can we use `rating` to decide?
+
 ## Oo75PgAbcmt9xqqn1AMoBAfo190Cfhqi
 
 ~~~
