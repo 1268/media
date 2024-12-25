@@ -42,10 +42,10 @@ var tests = []struct{
       url: "paramountplus.com/movies/video/Y8sKvb2bIoeX4XZbsfjadF4GhNPwcjTQ",
    },
    {
-      content_id: "ssc3CuuS4mrQ7EyVXILH0FEQSi5yBAsA",
-      key_id: "dGO/CGkjTsqRU2Kz7vIp3g==",
       location: "GB",
-      url: "paramountplus.com/shows/video/ssc3CuuS4mrQ7EyVXILH0FEQSi5yBAsA",
+      url: "paramountplus.com/shows/video/N5ySQTDzhLW2YyWGWuZvCb_wGsCQ_jCJ",
+      content_id: "N5ySQTDzhLW2YyWGWuZvCb_wGsCQ_jCJ",
+      key_id: "",
    },
    {
       content_id: "WNujiS5PHkY5wN9doNY6MSo_7G8uBUcX",
