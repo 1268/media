@@ -3,13 +3,21 @@
 - <https://wikipedia.org/wiki/Undecidable_problem>
 - https://iban.com/country-codes
 
-we cannot use `assetType` to decide:
+if we decide on `assetType`, these all pass:
+
+~~~
+Oo75PgAbcmt9xqqn1AMoBAfo190Cfhqi
+N5ySQTDzhLW2YyWGWuZvCb_wGsCQ_jCJ
+WNujiS5PHkY5wN9doNY6MSo_7G8uBUcX
+Y8sKvb2bIoeX4XZbsfjadF4GhNPwcjTQ
+esJvFlqdrcS_kFHnpxSuYp449E7tTexD
+~~~
+
+this one has multiple Period:
 
 ~~~
 rZ59lcp4i2fU4dAaZJ_iEgKqVg_ogrIf
 ~~~
-
-can we use `rating` to decide?
 
 ## Oo75PgAbcmt9xqqn1AMoBAfo190Cfhqi
 
