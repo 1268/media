@@ -150,35 +150,11 @@ type SessionToken struct {
    Url string
 }
 
-func (v *VideoItem) asset_type() string {
-   for _, rating := range v.RegionalRatings {
-      switch rating.Region {
-      case "CA", "GB":
-         return "DASH_CENC_PRECON"
-      }
-   }
-   return "DASH_CENC"
-}
-
 func (v *VideoItem) Show() string {
    if v.SeasonNum >= 1 {
       return v.SeriesTitle
    }
    return ""
-}
-
-// hard geo block
-func (v *VideoItem) Mpd() string {
-   data := []byte("https://link.theplatform.com/s/")
-   data = append(data, v.CmsAccountId...)
-   data = append(data, "/media/guid/"...)
-   data = strconv.AppendInt(data, cms_account(v.CmsAccountId), 10)
-   data = append(data, '/')
-   data = append(data, v.ContentId...)
-   data = append(data, "?assetTypes="...)
-   data = append(data, v.asset_type()...)
-   data = append(data, "&formats=MPEG-DASH"...)
-   return string(data)
 }
 
 func (v *VideoItem) Unmarshal(data []byte) error {
@@ -243,15 +219,27 @@ func (v *VideoItem) Year() int {
    return v.AirDateIso.Year()
 }
 
+// hard geo block
+func (v *VideoItem) Mpd() string {
+   b := []byte("https://link.theplatform.com/s/")
+   b = append(b, v.CmsAccountId...)
+   b = append(b, "/media/guid/"...)
+   b = strconv.AppendInt(b, cms_account(v.CmsAccountId), 10)
+   b = append(b, '/')
+   b = append(b, v.ContentId...)
+   b = append(b, "?assetTypes="...)
+   b = append(b, v.AssetType...)
+   b = append(b, "&formats=MPEG-DASH"...)
+   return string(b)
+}
+
 type VideoItem struct {
    AirDateIso time.Time `json:"_airDateISO"`
+   AssetType string
    CmsAccountId string
    ContentId string
    EpisodeNum Number
    Label string
-   RegionalRatings []struct {
-      Region string
-   }
    SeasonNum Number
    SeriesTitle string
 }

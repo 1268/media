@@ -9,11 +9,12 @@
 6. birthdate
 7. gender
 8. agree & continue
-9. card number
-10. expiration
-11. cvc
-12. zip code
-13. submit
+9. name on card
+10. card number
+11. expiration
+12. cvc
+13. zip code
+14. submit
 
 ## Android
 
