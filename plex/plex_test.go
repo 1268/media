@@ -3,7 +3,7 @@ package plex
 import (
    "41.neocities.org/widevine"
    "bytes"
-   "encoding/hex"
+   "encoding/base64"
    "fmt"
    "os"
    "testing"
@@ -43,7 +43,7 @@ func TestWrap(t *testing.T) {
       }
       fmt.Printf("%+v\n", part)
       if test.key_id != "" {
-         key_id, err := hex.DecodeString(test.key_id)
+         key_id, err := base64.StdEncoding.DecodeString(test.key_id)
          if err != nil {
             t.Fatal(err)
          }

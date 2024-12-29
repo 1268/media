@@ -7,7 +7,7 @@ import (
 )
 
 func TestAuthenticate(t *testing.T) {
-   username, password, ok := strings.Cut(os.Getenv("cine_member"), ":")
+   username, password, ok := strings.Cut(os.Getenv("cineMember"), ":")
    if !ok {
       t.Fatal("Getenv")
    }

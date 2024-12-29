@@ -14,9 +14,14 @@ var watch_tests = []struct{
    url string
 }{
    {
-      key_id: "4310a7c8094acab73fceab9d5494f36f",
-      path: "/movie/cruel-intentions",
-      url: "watch.plex.tv/movie/cruel-intentions",
+      key_id: "47yjtPAH46ndYmeLgBQbfw==",
+      path: "/watch/movie/southpaw-2015",
+      url: "watch.plex.tv/watch/movie/southpaw-2015",
+   },
+   {
+      url: "watch.plex.tv/movie/limitless",
+      path: "/movie/limitless",
+      key_id: "", // no DRM
    },
    {
       key_id: "", // no DRM

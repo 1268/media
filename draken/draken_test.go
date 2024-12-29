@@ -9,6 +9,26 @@ import (
    "time"
 )
 
+var films = []struct {
+   content_id string
+   custom_id string
+   key_id     string
+   url        string
+}{
+   {
+      content_id: "ODE0OTQ1NWMtY2IzZC00YjE1LTg1YTgtYjk1ZTNkMTU3MGI1",
+      custom_id: "michael-clayton",
+      key_id:     "e5WypDjIM1+4W74cf6rHIw==",
+      url:        "drakenfilm.se/film/michael-clayton",
+   },
+   {
+      content_id: "MTcxMzkzNTctZWQwYi00YTE2LThiZTYtNjllNDE4YzRiYTQw",
+      custom_id:        "the-card-counter",
+      key_id:     "ToV4wH2nlVZE8QYLmLywDg==",
+      url:        "drakenfilm.se/film/the-card-counter",
+   },
+}
+
 func TestLogin(t *testing.T) {
    username, password, ok := strings.Cut(os.Getenv("draken"), ":")
    if !ok {
@@ -32,24 +52,4 @@ func TestMovie(t *testing.T) {
       fmt.Printf("%q\n", name)
       time.Sleep(99 * time.Millisecond)
    }
-}
-
-var films = []struct {
-   content_id string
-   custom_id string
-   key_id     string
-   url        string
-}{
-   {
-      content_id: "ODE0OTQ1NWMtY2IzZC00YjE1LTg1YTgtYjk1ZTNkMTU3MGI1",
-      custom_id: "michael-clayton",
-      key_id:     "e5WypDjIM1+4W74cf6rHIw==",
-      url:        "drakenfilm.se/film/michael-clayton",
-   },
-   {
-      content_id: "MTcxMzkzNTctZWQwYi00YTE2LThiZTYtNjllNDE4YzRiYTQw",
-      custom_id:        "the-card-counter",
-      key_id:     "ToV4wH2nlVZE8QYLmLywDg==",
-      url:        "drakenfilm.se/film/the-card-counter",
-   },
 }

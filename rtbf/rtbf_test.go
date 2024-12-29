@@ -12,6 +12,23 @@ import (
    "time"
 )
 
+var tests = []struct{
+   key_id string
+   path   string
+   url    string
+}{
+   {
+      key_id: "Ma5jT/1dR8K/ljWx/1Pb4A==",
+      path: "/media/titanic-3286058",
+      url: "auvio.rtbf.be/media/titanic-3286058",
+   },
+   {
+      key_id: "xESyRLihQMacu++BvoakfA==",
+      path: "/media/agatha-christie-pourquoi-pas-evans-agatha-christie-pourquoi-pas-evans-3280380",
+      url:  "auvio.rtbf.be/media/agatha-christie-pourquoi-pas-evans-agatha-christie-pourquoi-pas-evans-3280380",
+   },
+}
+
 func TestWrap(t *testing.T) {
    home, err := os.UserHomeDir()
    if err != nil {
@@ -97,22 +114,6 @@ func TestWrap(t *testing.T) {
    }
 }
 
-var tests = []struct{
-   key_id string
-   path   string
-   url    string
-}{
-   {
-      key_id: "v6f4GpHISrWZcd6esgIvRw==",
-      path: "/emission/la-proposition-27866",
-      url: "auvio.rtbf.be/emission/la-proposition-27866",
-   },
-   {
-      key_id: "10kWa4A9SOSzHFpq1n1zUQ==",
-      path: "/media/grantchester-grantchester-s01-3194636",
-      url:  "auvio.rtbf.be/media/grantchester-grantchester-s01-3194636",
-   },
-}
 func TestWebToken(t *testing.T) {
    data, err := os.ReadFile("login.txt")
    if err != nil {
