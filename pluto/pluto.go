@@ -10,8 +10,6 @@ import (
    "strings"
 )
 
-type Wrapper struct{}
-
 func (Wrapper) Wrap(data []byte) ([]byte, error) {
    resp, err := http.Post(
       "https://service-concierge.clusters.pluto.tv/v1/wv/alt",
@@ -21,8 +19,17 @@ func (Wrapper) Wrap(data []byte) ([]byte, error) {
       return nil, err
    }
    defer resp.Body.Close()
-   return io.ReadAll(resp.Body)
+   data, err = io.ReadAll(resp.Body)
+   if err != nil {
+      return nil, err
+   }
+   if resp.StatusCode != http.StatusOK {
+      return nil, errors.New(string(data))
+   }
+   return data, nil
 }
+
+type Wrapper struct{}
 
 type Url struct {
    Url url.URL

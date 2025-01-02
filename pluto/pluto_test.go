@@ -10,6 +10,18 @@ import (
    "testing"
 )
 
+// the slug is useful as it sometimes contains the year, but its not worth
+// parsing since its sometimes missing
+var video_test = struct{
+   id     string
+   key_id string
+   url    string
+}{
+   id:     "5c4bb2b308d10f9a25bbc6af",
+   key_id: "AAAAAGbZBRrrxvnmpuNLhg==",
+   url:    "pluto.tv/us/on-demand/movies/5c4bb2b308d10f9a25bbc6af",
+}
+
 func TestWrap(t *testing.T) {
    home, err := os.UserHomeDir()
    if err != nil {
@@ -61,18 +73,6 @@ func TestWrap(t *testing.T) {
          fmt.Printf("%x\n", container.Key(block))
       }
    }
-}
-
-// the slug is useful as it sometimes contains the year, but its not worth
-// parsing since its sometimes missing
-var video_test = struct{
-   id     string
-   key_id string
-   url    string
-}{
-   id:     "675a0fa22678a50014690c3f",
-   key_id: "AAAAAGdaD6FuwTSRB/+yHg==",
-   url:    "pluto.tv/on-demand/movies/675a0fa22678a50014690c3f",
 }
 
 func TestClip(t *testing.T) {
