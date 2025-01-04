@@ -20,6 +20,9 @@ func (p *Playback) Wrap(data []byte) ([]byte, error) {
       return nil, err
    }
    defer resp.Body.Close()
+   if resp.StatusCode != http.StatusOK {
+      return nil, errors.New(resp.Status)
+   }
    return io.ReadAll(resp.Body)
 }
 
@@ -42,10 +45,10 @@ func (LinkLogin) Marshal(token *BoltToken) ([]byte, error) {
    return io.ReadAll(resp.Body)
 }
 
-func (v *LinkLogin) Playback(web *Address) (*Playback, error) {
+func (v *LinkLogin) Playback(watch *WatchUrl) (*Playback, error) {
    var body playback_request
    body.ConsumptionType = "streaming"
-   body.EditId = web.EditId
+   body.EditId = watch.EditId
    data, err := json.MarshalIndent(body, "", " ")
    if err != nil {
       return nil, err
@@ -133,15 +136,6 @@ type playback_request struct {
    UserPreferences   struct{} `json:"userPreferences"`   // required
 }
 
-func (d *DefaultRoutes) video() (*RouteInclude, bool) {
-   for _, include := range d.Included {
-      if include.Id == d.Data.Attributes.Url.VideoId {
-         return &include, true
-      }
-   }
-   return nil, false
-}
-
 func (d *DefaultRoutes) Season() int {
    if v, ok := d.video(); ok {
       return v.Attributes.SeasonNumber
@@ -183,35 +177,21 @@ func (d *DefaultRoutes) Show() string {
    return ""
 }
 
-type DefaultRoutes struct {
-   Data struct {
-      Attributes struct {
-         Url Address
-      }
-   }
-   Included []RouteInclude
-}
-
-func (a *Address) MarshalText() ([]byte, error) {
+func (w *WatchUrl) MarshalText() ([]byte, error) {
    var b bytes.Buffer
-   if a.VideoId != "" {
+   if w.VideoId != "" {
       b.WriteString("/video/watch/")
-      b.WriteString(a.VideoId)
+      b.WriteString(w.VideoId)
    }
-   if a.EditId != "" {
+   if w.EditId != "" {
       b.WriteByte('/')
-      b.WriteString(a.EditId)
+      b.WriteString(w.EditId)
    }
    return b.Bytes(), nil
 }
 
-type Address struct {
-   EditId  string
-   VideoId string
-}
-
-func (a *Address) UnmarshalText(text []byte) error {
-   s := string(text)
+func (w *WatchUrl) UnmarshalText(data []byte) error {
+   s := string(data)
    if !strings.Contains(s, "/video/watch/") {
       return errors.New("/video/watch/ not found")
    }
@@ -219,23 +199,64 @@ func (a *Address) UnmarshalText(text []byte) error {
    s = strings.TrimPrefix(s, "play.max.com")
    s = strings.TrimPrefix(s, "/video/watch/")
    var found bool
-   a.VideoId, a.EditId, found = strings.Cut(s, "/")
+   w.VideoId, w.EditId, found = strings.Cut(s, "/")
    if !found {
       return errors.New("/ not found")
    }
    return nil
 }
 
-func (v *LinkLogin) Routes(web *Address) (*DefaultRoutes, error) {
+type LinkLogin struct {
+   Data struct {
+      Attributes struct {
+         Token string
+      }
+   }
+}
+
+func (v *LinkLogin) Unmarshal(data []byte) error {
+   return json.Unmarshal(data, v)
+}
+
+type WatchUrl struct {
+   EditId  string
+   VideoId string
+}
+
+type DefaultRoutes struct {
+   Data struct {
+      Attributes struct {
+         Url WatchUrl
+      }
+   }
+   Included []RouteInclude
+}
+
+type Playback struct {
+   Drm struct {
+      Schemes struct {
+         Widevine struct {
+            LicenseUrl string
+         }
+      }
+   }
+   Fallback struct {
+      Manifest struct {
+         Url FallbackUrl
+      }
+   }
+}
+
+func (v *LinkLogin) Routes(watch *WatchUrl) (*DefaultRoutes, error) {
    req, err := http.NewRequest("", prd_api, nil)
    if err != nil {
       return nil, err
    }
    req.URL.Path = func() string {
-      text, _ := web.MarshalText()
+      data, _ := watch.MarshalText()
       var b strings.Builder
       b.WriteString("/cms/routes")
-      b.Write(text)
+      b.Write(data)
       return b.String()
    }()
    req.URL.RawQuery = url.Values{
@@ -262,38 +283,22 @@ func (v *LinkLogin) Routes(web *Address) (*DefaultRoutes, error) {
    return route, nil
 }
 
-type LinkLogin struct {
-   Data struct {
-      Attributes struct {
-         Token string
+func (d *DefaultRoutes) video() (*RouteInclude, bool) {
+   for _, include := range d.Included {
+      if include.Id == d.Data.Attributes.Url.VideoId {
+         return &include, true
       }
    }
+   return nil, false
 }
 
-func (v *LinkLogin) Unmarshal(data []byte) error {
-   return json.Unmarshal(data, v)
-}
+///
 
-type Url struct {
+type FallbackUrl struct {
    Data string
 }
 
-func (u *Url) UnmarshalText(text []byte) error {
-   u.Data = strings.Replace(string(text), "_fallback", "", 1)
+func (f *FallbackUrl) UnmarshalText(data []byte) error {
+   f.Data = strings.Replace(string(data), "_fallback", "", 1)
    return nil
-}
-
-type Playback struct {
-   Drm struct {
-      Schemes struct {
-         Widevine struct {
-            LicenseUrl string
-         }
-      }
-   }
-   Fallback struct {
-      Manifest struct {
-         Url Url
-      }
-   }
 }

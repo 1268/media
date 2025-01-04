@@ -3,13 +3,34 @@ package max
 import (
    "41.neocities.org/text"
    "41.neocities.org/widevine"
-   "bytes"
-   "encoding/hex"
+   "encoding/base64"
    "fmt"
    "os"
    "testing"
    "time"
 )
+
+var tests = []struct {
+   url        string
+   video_type string
+   key_id []string
+}{
+   {
+      url: "play.max.com/video/watch/5c762883-279e-40ed-ab84-43fdda9d88a0/560abdc4-ee5e-4f86-807e-38bb9feabe0e",
+      video_type: "MOVIE",
+      key_id: []string{
+         "AQC1NR9S5CJX8MEgkYbXpg==",
+         "AQFz3ZsVFjESfMh2rISgjw==",
+         "AQLexzSxi5gJMbgkQogYJQ==",
+         "AQW5UW421beBH+jIn3XASw==",
+      },
+   },
+   {
+      video_type: "EPISODE",
+      url: "play.max.com/video/watch/28ae9450-8192-4277-b661-e76eaad9b2e6/e19442fb-c7ac-4879-8d50-a301f613cb96",
+      key_id: []string{},
+   },
+}
 
 func TestLicense(t *testing.T) {
    home, err := os.UserHomeDir()
@@ -24,7 +45,7 @@ func TestLicense(t *testing.T) {
    if err != nil {
       t.Fatal(err)
    }
-   data, err := os.ReadFile("login.txt")
+   data, err := os.ReadFile(home + "/max.txt")
    if err != nil {
       t.Fatal(err)
    }
@@ -40,12 +61,15 @@ func TestLicense(t *testing.T) {
       if err != nil {
          t.Fatal(err)
       }
-      key_id, err := hex.DecodeString(test.key_id)
-      if err != nil {
-         t.Fatal(err)
-      }
+      fmt.Printf("%+v\n", play)
       var pssh widevine.PsshData
-      pssh.KeyIds = [][]byte{key_id}
+      for _, data := range test.key_id {
+         key_id, err := base64.StdEncoding.DecodeString(data)
+         if err != nil {
+            t.Fatal(err)
+         }
+         pssh.KeyIds = append(pssh.KeyIds, key_id)
+      }
       var module widevine.Cdm
       err = module.New(private_key, client_id, pssh.Marshal())
       if err != nil {
@@ -74,9 +98,10 @@ func TestLicense(t *testing.T) {
          if !ok {
             break
          }
-         if bytes.Equal(container.Id(), key_id) {
-            fmt.Printf("%x\n", container.Key(block))
-         }
+         fmt.Printf(
+            "%v %q %x\n",
+            container.Type(), container.TrackLabel(), container.Key(block),
+         )
       }
       time.Sleep(time.Second)
    }
@@ -105,22 +130,6 @@ func TestRoutes(t *testing.T) {
    }
 }
 
-var tests = []struct {
-   key_id string
-   url        string
-   video_type string
-}{
-   {
-      key_id: "0102f83e95fac43cf1662dd8e5b08d90",
-      url: "play.max.com/video/watch/c9e9bde1-1463-4c92-a25a-21451f3c5894/f1d899ac-1780-494a-a20d-caee55c9e262",
-      video_type: "MOVIE",
-   },
-   {
-      key_id: "0102d949c44f81b28fdb98d535c8bade",
-      url:        "play.max.com/video/watch/d0938760-d3ca-4c59-aea2-74ecbed42d17/2e7d1db4-2fd7-47fb-a7c3-a65b7c2e5d6f",
-      video_type: "EPISODE",
-   },
-}
 func TestLogin(t *testing.T) {
    data, err := os.ReadFile("token.txt")
    if err != nil {
