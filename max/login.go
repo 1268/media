@@ -11,6 +11,21 @@ import (
    "time"
 )
 
+type Playback struct {
+   Drm struct {
+      Schemes struct {
+         Widevine struct {
+            LicenseUrl string
+         }
+      }
+   }
+   Fallback struct {
+      Manifest struct {
+         Url Url
+      }
+   }
+}
+
 func (p *Playback) Wrap(data []byte) ([]byte, error) {
    resp, err := http.Post(
       p.Drm.Schemes.Widevine.LicenseUrl, "application/x-protobuf",
@@ -232,21 +247,6 @@ type DefaultRoutes struct {
    Included []RouteInclude
 }
 
-type Playback struct {
-   Drm struct {
-      Schemes struct {
-         Widevine struct {
-            LicenseUrl string
-         }
-      }
-   }
-   Fallback struct {
-      Manifest struct {
-         Url FallbackUrl
-      }
-   }
-}
-
 func (v *LinkLogin) Routes(watch *WatchUrl) (*DefaultRoutes, error) {
    req, err := http.NewRequest("", prd_api, nil)
    if err != nil {
@@ -292,13 +292,11 @@ func (d *DefaultRoutes) video() (*RouteInclude, bool) {
    return nil, false
 }
 
-///
-
-type FallbackUrl struct {
-   Data string
+type Url struct {
+   String string
 }
 
-func (f *FallbackUrl) UnmarshalText(data []byte) error {
-   f.Data = strings.Replace(string(data), "_fallback", "", 1)
+func (f *Url) UnmarshalText(data []byte) error {
+   f.String = strings.Replace(string(data), "_fallback", "", 1)
    return nil
 }

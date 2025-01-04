@@ -20,11 +20,11 @@ func (f *flags) download() error {
    if err != nil {
       return err
    }
-   play, err := login.Playback(&f.address)
+   play, err := login.Playback(&f.url)
    if err != nil {
       return err
    }
-   resp, err := http.Get(play.Fallback.Manifest.Url.Data)
+   resp, err := http.Get(play.Fallback.Manifest.Url.String)
    if err != nil {
       return err
    }
@@ -52,18 +52,13 @@ func (f *flags) download() error {
             continue
          }
       }
-      if rep.MimeType == "audio/mp4" {
-         if rep.GetAdaptationSet().Lang != f.lang {
-            continue
-         }
-      }
       switch f.representation {
       case "":
          if _, ok := rep.Ext(); ok {
             fmt.Print(&rep, "\n\n")
          }
       case rep.Id:
-         f.s.Namer, err = login.Routes(&f.address)
+         f.s.Namer, err = login.Routes(&f.url)
          if err != nil {
             return err
          }

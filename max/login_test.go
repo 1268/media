@@ -55,13 +55,13 @@ func TestLicense(t *testing.T) {
       t.Fatal(err)
    }
    for _, test := range tests {
-      var web Address
-      web.UnmarshalText([]byte(test.url))
-      play, err := login.Playback(&web)
+      var watch WatchUrl
+      watch.UnmarshalText([]byte(test.url))
+      play, err := login.Playback(&watch)
       if err != nil {
          t.Fatal(err)
       }
-      fmt.Printf("%+v\n", play)
+      fmt.Printf("%+v\n", play.Fallback)
       var pssh widevine.PsshData
       for _, data := range test.key_id {
          key_id, err := base64.StdEncoding.DecodeString(data)
@@ -98,10 +98,12 @@ func TestLicense(t *testing.T) {
          if !ok {
             break
          }
-         fmt.Printf(
-            "%v %q %x\n",
-            container.Type(), container.TrackLabel(), container.Key(block),
-         )
+         if container.Type() == 2 {
+            fmt.Printf(
+               "%q %x %x\n",
+               container.TrackLabel(), container.Id(), container.Key(block),
+            )
+         }
       }
       time.Sleep(time.Second)
    }
@@ -118,9 +120,9 @@ func TestRoutes(t *testing.T) {
       t.Fatal(err)
    }
    for _, test := range tests {
-      var web Address
-      web.UnmarshalText([]byte(test.url))
-      routes, err := login.Routes(&web)
+      var watch WatchUrl
+      watch.UnmarshalText([]byte(test.url))
+      routes, err := login.Routes(&watch)
       if err != nil {
          t.Fatal(err)
       }

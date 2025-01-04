@@ -22,7 +22,7 @@ func (f *flags) New() error {
 }
 
 type flags struct {
-   address        max.Address
+   url        max.WatchUrl
    home           string
    initiate       bool
    login          bool
@@ -39,7 +39,7 @@ func main() {
    if err != nil {
       panic(err)
    }
-   flag.TextVar(&f.address, "a", &f.address, "address")
+   flag.TextVar(&f.url, "a", &f.url, "URL")
    flag.StringVar(&f.s.ClientId, "c", f.s.ClientId, "client ID")
    flag.StringVar(&f.representation, "i", "", "representation")
    flag.BoolVar(
@@ -49,8 +49,8 @@ func main() {
    flag.BoolVar(
       &f.login, "login", false, "/authentication/linkDevice/login",
    )
-   flag.Uint64Var(&f.max_width, "max", 1280, "max width")
    flag.Uint64Var(&f.min_width, "min", 1024, "min width")
+   flag.Uint64Var(&f.max_width, "max", 1600, "max width")
    flag.StringVar(&f.lang, "n", "en-US", "lang")
    flag.Parse()
    text.Transport{}.Set(true)
@@ -65,7 +65,7 @@ func main() {
       if err != nil {
          panic(err)
       }
-   case f.address.VideoId != "":
+   case f.url.VideoId != "":
       err := f.download()
       if err != nil {
          panic(err)
