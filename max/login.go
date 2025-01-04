@@ -11,6 +11,18 @@ import (
    "time"
 )
 
+func (p *Playback) Wrap(data []byte) ([]byte, error) {
+   resp, err := http.Post(
+      p.Drm.Schemes.Widevine.LicenseUrl, "application/x-protobuf",
+      bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   return io.ReadAll(resp.Body)
+}
+
 // you must
 // /authentication/linkDevice/initiate
 // first or this will always fail
@@ -284,16 +296,4 @@ type Playback struct {
          Url Url
       }
    }
-}
-
-func (p *Playback) Wrap(data []byte) ([]byte, error) {
-   resp, err := http.Post(
-      p.Drm.Schemes.Widevine.LicenseUrl, "application/x-protobuf",
-      bytes.NewReader(data),
-   )
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   return io.ReadAll(resp.Body)
 }
