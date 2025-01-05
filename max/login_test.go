@@ -100,8 +100,11 @@ func TestLicense(t *testing.T) {
          }
          if container.Type() == 2 {
             fmt.Printf(
-               "%q %x %x\n",
-               container.TrackLabel(), container.Id(), container.Key(block),
+               "%q %v %x %x\n",
+               container.TrackLabel(),
+               container.SecurityLevel(),
+               container.Id(),
+               container.Key(block),
             )
          }
       }

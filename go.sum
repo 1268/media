@@ -6,8 +6,8 @@
 41.neocities.org/sofia v1.6.6/go.mod h1:sEkwYTmUFHqoL34OBDmyeQR7BrMNa8Z60PKYjOT5unQ=
 41.neocities.org/text v1.3.5 h1:0PwqWXKIgJghFO0Ft21Dd+esyThTwwBgmO0H+zWHgrQ=
 41.neocities.org/text v1.3.5/go.mod h1:0y7K0Lgi+FZD0UwnyS5+G4njXypzm/b98GU52s32KH0=
-41.neocities.org/widevine v1.5.9 h1:q9U1A3fHMKAUw6n5bMbUCxmwHM9irLPMN7vjbOZDzjM=
-41.neocities.org/widevine v1.5.9/go.mod h1:Vp96fAwngobYAaSTtgvQn7VMhzJJlbcWtn2+xmMxFxk=
+41.neocities.org/widevine v1.6.0 h1:yFHPV+KZ0AV1HgZxBRxSgKZuTAamJo29dezPnchuSDQ=
+41.neocities.org/widevine v1.6.0/go.mod h1:Vp96fAwngobYAaSTtgvQn7VMhzJJlbcWtn2+xmMxFxk=
 github.com/chmike/cmac-go v1.1.0 h1:aF73ZAEx9N2WdQc93DOJ2fMsBDAGqUtuenjMJMb3kEI=
 github.com/chmike/cmac-go v1.1.0/go.mod h1:wcIN7NRqWSKGuORzd4dReBkoBDE9ZBqfyTVxyDxGeUw=
 google.golang.org/protobuf v1.36.1 h1:yBPeRvTftaleIgM3PZ/WBIZ7XM/eEYAaEyCwvyjq/gk=

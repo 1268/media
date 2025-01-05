@@ -6,7 +6,7 @@ require (
 	41.neocities.org/dash v1.25.3
 	41.neocities.org/sofia v1.6.6
 	41.neocities.org/text v1.3.5
-	41.neocities.org/widevine v1.5.9
+	41.neocities.org/widevine v1.6.0
 )
 
 require (

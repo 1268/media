@@ -17,6 +17,34 @@ import (
    "strings"
 )
 
+func (s *Stream) Download(rep dash.Representation) error {
+   if data, ok := rep.Widevine(); ok {
+      var box pssh.Box
+      n, err := box.BoxHeader.Decode(data)
+      if err != nil {
+         return err
+      }
+      err = box.Read(data[n:])
+      if err != nil {
+         return err
+      }
+      s.pssh = box.Data
+   }
+   ext, ok := rep.Ext()
+   if !ok {
+      return errors.New("Representation.Ext")
+   }
+   base, ok := rep.GetBaseUrl()
+   if !ok {
+      return errors.New("Representation.GetBaseUrl")
+   }
+   if rep.SegmentBase != nil {
+      return s.segment_base(ext, base, rep.SegmentBase)
+   }
+   initial, _ := rep.Initialization()
+   return s.segment_template(ext, initial, base, rep.Media())
+}
+
 func (s *Stream) segment_template(
    ext, initial string, base *dash.BaseUrl, media []string,
 ) error {
@@ -287,33 +315,6 @@ type Stream struct {
    pssh []byte
    Namer text.Namer
    Wrapper widevine.Wrapper
-}
-func (s *Stream) Download(rep dash.Representation) error {
-   if data, ok := rep.Widevine(); ok {
-      var box pssh.Box
-      n, err := box.BoxHeader.Decode(data)
-      if err != nil {
-         return err
-      }
-      err = box.Read(data[n:])
-      if err != nil {
-         return err
-      }
-      s.pssh = box.Data
-   }
-   ext, ok := rep.Ext()
-   if !ok {
-      return errors.New("Representation.Ext")
-   }
-   base, ok := rep.GetBaseUrl()
-   if !ok {
-      return errors.New("Representation.GetBaseUrl")
-   }
-   if rep.SegmentBase != nil {
-      return s.segment_base(ext, base, rep.SegmentBase)
-   }
-   initial, _ := rep.Initialization()
-   return s.segment_template(ext, initial, base, rep.Media())
 }
 
 func (s *Stream) key() ([]byte, error) {
