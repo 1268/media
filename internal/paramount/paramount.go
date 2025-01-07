@@ -3,16 +3,19 @@ package main
 import (
    "41.neocities.org/dash"
    "41.neocities.org/media/paramount"
+   "encoding/xml"
    "errors"
    "fmt"
    "io"
    "net/http"
    "net/url"
    "os"
-   "sort"
+   "slices"
 )
 
 func (f *flags) do_read() error {
+   
+   
    data, err := os.ReadFile(f.content_id + "/request.txt")
    if err != nil {
       return err
@@ -22,24 +25,28 @@ func (f *flags) do_read() error {
    if err != nil {
       return err
    }
-   data, err = os.ReadFile(f.content_id + "/body.txt")
+   
+   
+   
+   data, err := os.ReadFile(f.content_id + "/body.txt")
    if err != nil {
       return err
    }
-   reps, err := dash.Unmarshal(data, &address)
+   var mpd dash.Mpd
+   err = xml.Unmarshal(data, &mpd)
    if err != nil {
       return err
    }
-   sort.Slice(reps, func(i, j int) bool {
-      return reps[i].Bandwidth < reps[j].Bandwidth
-   })
-   for _, rep := range reps {
+   represents := slices.SortedFunc(mpd.Representation(),
+      func(a, b dash.Representation) int {
+         return a.Bandwidth - b.Bandwidth
+      },
+   )
+   for _, represent := range represents {
       switch f.representation {
       case "":
-         if _, ok := rep.Ext(); ok {
-            fmt.Print(&rep, "\n\n")
-         }
-      case rep.Id:
+         fmt.Print(&represent, "\n\n")
+      case represent.Id:
          var token paramount.AppToken
          // INTL does NOT allow anonymous key request, so if you are INTL you
          // will need to use US VPN until someone codes the INTL login
@@ -61,7 +68,7 @@ func (f *flags) do_read() error {
             return err
          }
          f.s.Namer = &item
-         return f.s.Download(rep)
+         return f.s.Download(&represent)
       }
    }
    return nil

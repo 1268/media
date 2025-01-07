@@ -46,12 +46,9 @@ logged out web client is missing MPD:
 
 https://paramountplus.com/shows/mayor-of-kingstown/video/xhr/episodes/page/0/size/18/xs/0/season/3
 
-logged in the web client embeds MPD in HTML:
-
-https://paramountplus.com/movies/video/Oo75PgAbcmt9xqqn1AMoBAfo190Cfhqi
-
-with the below items, you need `gb-lon-ovpn-001` and Android cookie, else MPD
-will be missing. web cookie fails. get Android cookie:
+logged in the web client embeds MPD in HTML. with the below items, you need
+`gb-lon-ovpn-001` and Android cookie, else MPD will be missing. web cookie
+fails. get Android cookie:
 
 ~~~
 POST https://www.paramountplus.com/apps-api/v2.0/androidphone/auth/login.json?at=ABDFhCKlU... HTTP/1.1

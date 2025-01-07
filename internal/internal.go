@@ -15,61 +15,14 @@ import (
    "net/http"
    "net/url"
    "os"
+   "slices"
    "strings"
 )
-
-func (s *Stream) Download(represent dash.Representation) error {
-   var data []byte
-   for _, protect := range represent.ContentProtection {
-      if protect.SchemeIdUri.Widevine() {
-         data = protect.Pssh
-         break
-      }
-   }
-   var box pssh.Box
-   n, err := box.BoxHeader.Decode(data)
-   if err != nil {
-      return err
-   }
-   err = box.Read(data[n:])
-   if err != nil {
-      return err
-   }
-   s.pssh = box.Data
-   var ext string
-   switch *represent.MimeType {
-   case "audio/mp4":
-      ext = ".m4a"
-   case "text/vtt":
-      ext = ".vtt"
-   case "video/mp4":
-      ext = ".m4v"
-   }
-   if represent.SegmentBase != nil {
-      return s.segment_base(
-         ext,
-         represent.BaseUrl.Url,
-         represent.SegmentBase,
-      )
-   }
-   var initial *url.URL
-   if i := represent.SegmentTemplate.Initialization; i != nil {
-      initial, err = i.Url(&represent)
-      if err != nil {
-         return err
-      }
-   }
-   return s.segment_template(
-      ext,
-      initial,
-      represent.Media(),
-   )
-}
 
 func (s *Stream) segment_template(
    ext string,
    initial *url.URL,
-   media []string,
+   represent *dash.Representation,
 ) error {
    file, err := s.Create(ext)
    if err != nil {
@@ -103,17 +56,18 @@ func (s *Stream) segment_template(
       return err
    }
    var meter text.ProgressMeter
-   meter.Set(len(media))
    var transport text.Transport
    transport.Set(false)
    defer transport.Set(true)
-   for _, medium := range media {
-      req, err := http.NewRequest("", medium, nil)
+   segments := slices.Collect(represent.Segment())
+   meter.Set(len(segments))
+   for _, segment := range segments {
+      media, err := represent.SegmentTemplate.Media.Url(represent, segment)
       if err != nil {
          return err
       }
       data, err := func() ([]byte, error) {
-         resp, err := http.DefaultClient.Do(req)
+         resp, err := http.Get(media.String())
          if err != nil {
             return nil, err
          }
@@ -226,6 +180,7 @@ var Forward = []struct{
 {"United Kingdom", "25.0.0.0"},
 {"Venezuela", "190.72.0.0"},
 }
+
 func (s *Stream) segment_base(
    ext string,
    base *url.URL,
@@ -325,6 +280,7 @@ func write_sidx(req *http.Request, index dash.Range) ([]sidx.Reference, error) {
    }
    return file.Sidx.Reference, nil
 }
+
 // wikipedia.org/wiki/Dynamic_Adaptive_Streaming_over_HTTP
 type Stream struct {
    ClientId string
@@ -394,4 +350,51 @@ func (s *Stream) key() ([]byte, error) {
 
 func (s *Stream) Create(ext string) (*os.File, error) {
    return os.Create(text.Clean(text.Name(s.Namer)) + ext)
+}
+func (s *Stream) Download(represent *dash.Representation) error {
+   var data []byte
+   for _, protect := range represent.ContentProtection {
+      if protect.SchemeIdUri.Widevine() {
+         data = protect.Pssh
+         break
+      }
+   }
+   var box pssh.Box
+   n, err := box.BoxHeader.Decode(data)
+   if err != nil {
+      return err
+   }
+   err = box.Read(data[n:])
+   if err != nil {
+      return err
+   }
+   s.pssh = box.Data
+   var ext string
+   switch *represent.MimeType {
+   case "audio/mp4":
+      ext = ".m4a"
+   case "text/vtt":
+      ext = ".vtt"
+   case "video/mp4":
+      ext = ".m4v"
+   }
+   if represent.SegmentBase != nil {
+      return s.segment_base(
+         ext,
+         represent.BaseUrl.Url,
+         represent.SegmentBase,
+      )
+   }
+   var initial *url.URL
+   if i := represent.SegmentTemplate.Initialization; i != nil {
+      initial, err = i.Url(represent)
+      if err != nil {
+         return err
+      }
+   }
+   return s.segment_template(
+      ext,
+      initial,
+      represent,
+   )
 }

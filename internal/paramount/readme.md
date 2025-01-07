@@ -6,7 +6,7 @@
 if we decide on `assetType`, these all pass:
 
 ~~~
-Oo75PgAbcmt9xqqn1AMoBAfo190Cfhqi
+Jz8VfbFaeXDdi9PV8FIdzNybtSmImr7M
 N5ySQTDzhLW2YyWGWuZvCb_wGsCQ_jCJ
 WNujiS5PHkY5wN9doNY6MSo_7G8uBUcX
 Y8sKvb2bIoeX4XZbsfjadF4GhNPwcjTQ
@@ -19,16 +19,14 @@ this one has multiple Period:
 rZ59lcp4i2fU4dAaZJ_iEgKqVg_ogrIf
 ~~~
 
-## Oo75PgAbcmt9xqqn1AMoBAfo190Cfhqi
+## Jz8VfbFaeXDdi9PV8FIdzNybtSmImr7M
 
 ~~~
 United States of America (the)	US
-<nil> DASH_CENC
-<nil> DASH_CENC_HDR10
-<nil> DASH_CENC_PRECON
+DASH_CENC_HDR10
 ~~~
 
-https://paramountplus.com/movies/video/Oo75PgAbcmt9xqqn1AMoBAfo190Cfhqi
+https://paramountplus.com/movies/video/Jz8VfbFaeXDdi9PV8FIdzNybtSmImr7M
 
 ## esJvFlqdrcS\_kFHnpxSuYp449E7tTexD
 

@@ -18,12 +18,6 @@ var tests = []struct{
    url string
 }{
    {
-      content_id: "Oo75PgAbcmt9xqqn1AMoBAfo190Cfhqi",
-      key_id: "3RyyVzthSSOklAXiQ2vyRw==",
-      location: []string{"US"},
-      url: "paramountplus.com/movies/video/Oo75PgAbcmt9xqqn1AMoBAfo190Cfhqi",
-   },
-   {
       content_id: "esJvFlqdrcS_kFHnpxSuYp449E7tTexD",
       key_id: "H94BVNcqT0WRKzTwzgd36w==",
       location: []string{"US"},
