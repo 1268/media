@@ -3,6 +3,7 @@ package main
 import (
    "41.neocities.org/dash"
    "41.neocities.org/media/mubi"
+   "encoding/xml"
    "fmt"
    "io"
    "net/http"
@@ -19,6 +20,14 @@ func (f *flags) download() error {
    if err != nil {
       return err
    }
+   for _, text := range secure.TextTrackUrls {
+      switch f.representation {
+      case "":
+         fmt.Print(&text, "\n\n")
+      case text.Id:
+         return f.timed_text(text.Url)
+      }
+   }
    // github.com/golang/go/issues/18639
    // we dont need this until later, but you have to call before the first
    // request in the program
@@ -32,25 +41,13 @@ func (f *flags) download() error {
    if err != nil {
       return err
    }
-   reps, err := dash.Unmarshal(data, resp.Request.URL)
-   if err != nil {
-      return err
-   }
-   for _, rep := range secure.TextTrackUrls {
+   var mpd dash.Mpd
+   xml.Unmarshal(data, &mpd)
+   for represent := range mpd.Representation() {
       switch f.representation {
       case "":
-         fmt.Print(&rep, "\n\n")
-      case rep.Id:
-         return f.timed_text(rep.Url)
-      }
-   }
-   for _, rep := range reps {
-      switch f.representation {
-      case "":
-         if _, ok := rep.Ext(); ok {
-            fmt.Print(&rep, "\n\n")
-         }
-      case rep.Id:
+         fmt.Print(&represent, "\n\n")
+      case represent.Id:
          film, err := f.address.Film()
          if err != nil {
             return err
@@ -66,7 +63,7 @@ func (f *flags) download() error {
             return err
          }
          f.s.Wrapper = &auth
-         return f.s.Download(rep)
+         return f.s.Download(&represent)
       }
    }
    return nil
