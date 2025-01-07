@@ -18,176 +18,6 @@ import (
    "strings"
 )
 
-func (s *Stream) segment_base(
-   ext string,
-   base *url.URL,
-   segment *dash.SegmentBase,
-) error {
-   file, err := s.Create(ext)
-   if err != nil {
-      return err
-   }
-   defer file.Close()
-   data, _ := segment.Initialization.Range.MarshalText()
-   var req http.Request
-   req.URL = base
-   req.Header = http.Header{}
-   // need to use Set for lower case
-   req.Header.Set("range", "bytes=" + string(data))
-   resp, err := http.DefaultClient.Do(&req)
-   if err != nil {
-      return err
-   }
-   defer resp.Body.Close()
-   if resp.StatusCode != http.StatusPartialContent {
-      return errors.New(resp.Status)
-   }
-   data, err = io.ReadAll(resp.Body)
-   if err != nil {
-      return err
-   }
-   data, err = s.init_protect(data)
-   if err != nil {
-      return err
-   }
-   _, err = file.Write(data)
-   if err != nil {
-      return err
-   }
-   key, err := s.key()
-   if err != nil {
-      return err
-   }
-   references, err := write_sidx(&req, segment.IndexRange)
-   if err != nil {
-      return err
-   }
-   var meter text.ProgressMeter
-   meter.Set(len(references))
-   var transport text.Transport
-   transport.Set(false)
-   defer transport.Set(true)
-   for _, reference := range references {
-      segment.IndexRange.Start = segment.IndexRange.End + 1
-      segment.IndexRange.End += uint64(reference.Size())
-      data, _ := segment.IndexRange.MarshalText()
-      data, err = func() ([]byte, error) {
-         req.Header.Set("range", "bytes=" + string(data))
-         resp, err := http.DefaultClient.Do(&req)
-         if err != nil {
-            return nil, err
-         }
-         defer resp.Body.Close()
-         if resp.StatusCode != http.StatusPartialContent {
-            return nil, errors.New(resp.Status)
-         }
-         return io.ReadAll(meter.Reader(resp))
-      }()
-      if err != nil {
-         return err
-      }
-      data, err = write_segment(data, key)
-      if err != nil {
-         return err
-      }
-      _, err = file.Write(data)
-      if err != nil {
-         return err
-      }
-   }
-   return nil
-}
-
-func write_sidx(req *http.Request, index dash.Range) ([]sidx.Reference, error) {
-   data, _ := index.MarshalText()
-   req.Header.Set("range", "bytes=" + string(data))
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   data, err = io.ReadAll(resp.Body)
-   if err != nil {
-      return nil, err
-   }
-   var file container.File
-   err = file.Read(data)
-   if err != nil {
-      return nil, err
-   }
-   return file.Sidx.Reference, nil
-}
-// wikipedia.org/wiki/Dynamic_Adaptive_Streaming_over_HTTP
-type Stream struct {
-   ClientId string
-   PrivateKey string
-   key_id []byte
-   pssh []byte
-   Namer text.Namer
-   Wrapper widevine.Wrapper
-}
-
-func (s *Stream) key() ([]byte, error) {
-   if s.key_id == nil {
-      return nil, nil
-   }
-   private_key, err := os.ReadFile(s.PrivateKey)
-   if err != nil {
-      return nil, err
-   }
-   client_id, err := os.ReadFile(s.ClientId)
-   if err != nil {
-      return nil, err
-   }
-   if s.pssh == nil {
-      var pssh widevine.PsshData
-      pssh.KeyIds = [][]byte{s.key_id}
-      s.pssh = pssh.Marshal()
-   }
-   var module widevine.Cdm
-   err = module.New(private_key, client_id, s.pssh)
-   if err != nil {
-      return nil, err
-   }
-   data, err := module.RequestBody()
-   if err != nil {
-      return nil, err
-   }
-   data, err = s.Wrapper.Wrap(data)
-   if err != nil {
-      return nil, err
-   }
-   var body widevine.ResponseBody
-   err = body.Unmarshal(data)
-   if err != nil {
-      return nil, err
-   }
-   block, err := module.Block(body)
-   if err != nil {
-      return nil, err
-   }
-   containers := body.Container()
-   for {
-      container, ok := containers()
-      if !ok {
-         return nil, errors.New("ResponseBody.Container")
-      }
-      if bytes.Equal(container.Id(), s.key_id) {
-         key := container.Key(block)
-         slog.Info(
-            "CDM",
-            "PSSH", base64.StdEncoding.EncodeToString(s.pssh),
-            "key", base64.StdEncoding.EncodeToString(key),
-         )
-         return key, nil
-      }
-   }
-}
-
-func (s *Stream) Create(ext string) (*os.File, error) {
-   return os.Create(text.Clean(text.Name(s.Namer)) + ext)
-}
-
 func (s *Stream) Download(represent dash.Representation) error {
    var data []byte
    for _, protect := range represent.ContentProtection {
@@ -395,4 +225,173 @@ var Forward = []struct{
 {"Taiwan", "120.96.0.0"},
 {"United Kingdom", "25.0.0.0"},
 {"Venezuela", "190.72.0.0"},
+}
+func (s *Stream) segment_base(
+   ext string,
+   base *url.URL,
+   segment *dash.SegmentBase,
+) error {
+   file, err := s.Create(ext)
+   if err != nil {
+      return err
+   }
+   defer file.Close()
+   data, _ := segment.Initialization.Range.MarshalText()
+   var req http.Request
+   req.URL = base
+   req.Header = http.Header{}
+   // need to use Set for lower case
+   req.Header.Set("range", "bytes=" + string(data))
+   resp, err := http.DefaultClient.Do(&req)
+   if err != nil {
+      return err
+   }
+   defer resp.Body.Close()
+   if resp.StatusCode != http.StatusPartialContent {
+      return errors.New(resp.Status)
+   }
+   data, err = io.ReadAll(resp.Body)
+   if err != nil {
+      return err
+   }
+   data, err = s.init_protect(data)
+   if err != nil {
+      return err
+   }
+   _, err = file.Write(data)
+   if err != nil {
+      return err
+   }
+   key, err := s.key()
+   if err != nil {
+      return err
+   }
+   references, err := write_sidx(&req, segment.IndexRange)
+   if err != nil {
+      return err
+   }
+   var meter text.ProgressMeter
+   meter.Set(len(references))
+   var transport text.Transport
+   transport.Set(false)
+   defer transport.Set(true)
+   for _, reference := range references {
+      segment.IndexRange[0] = segment.IndexRange[1] + 1
+      segment.IndexRange[1] += uint64(reference.Size())
+      data, _ := segment.IndexRange.MarshalText()
+      data, err = func() ([]byte, error) {
+         req.Header.Set("range", "bytes=" + string(data))
+         resp, err := http.DefaultClient.Do(&req)
+         if err != nil {
+            return nil, err
+         }
+         defer resp.Body.Close()
+         if resp.StatusCode != http.StatusPartialContent {
+            return nil, errors.New(resp.Status)
+         }
+         return io.ReadAll(meter.Reader(resp))
+      }()
+      if err != nil {
+         return err
+      }
+      data, err = write_segment(data, key)
+      if err != nil {
+         return err
+      }
+      _, err = file.Write(data)
+      if err != nil {
+         return err
+      }
+   }
+   return nil
+}
+
+func write_sidx(req *http.Request, index dash.Range) ([]sidx.Reference, error) {
+   data, _ := index.MarshalText()
+   req.Header.Set("range", "bytes=" + string(data))
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   data, err = io.ReadAll(resp.Body)
+   if err != nil {
+      return nil, err
+   }
+   var file container.File
+   err = file.Read(data)
+   if err != nil {
+      return nil, err
+   }
+   return file.Sidx.Reference, nil
+}
+// wikipedia.org/wiki/Dynamic_Adaptive_Streaming_over_HTTP
+type Stream struct {
+   ClientId string
+   PrivateKey string
+   key_id []byte
+   pssh []byte
+   Namer text.Namer
+   Wrapper widevine.Wrapper
+}
+
+func (s *Stream) key() ([]byte, error) {
+   if s.key_id == nil {
+      return nil, nil
+   }
+   private_key, err := os.ReadFile(s.PrivateKey)
+   if err != nil {
+      return nil, err
+   }
+   client_id, err := os.ReadFile(s.ClientId)
+   if err != nil {
+      return nil, err
+   }
+   if s.pssh == nil {
+      var pssh widevine.PsshData
+      pssh.KeyIds = [][]byte{s.key_id}
+      s.pssh = pssh.Marshal()
+   }
+   var module widevine.Cdm
+   err = module.New(private_key, client_id, s.pssh)
+   if err != nil {
+      return nil, err
+   }
+   data, err := module.RequestBody()
+   if err != nil {
+      return nil, err
+   }
+   data, err = s.Wrapper.Wrap(data)
+   if err != nil {
+      return nil, err
+   }
+   var body widevine.ResponseBody
+   err = body.Unmarshal(data)
+   if err != nil {
+      return nil, err
+   }
+   block, err := module.Block(body)
+   if err != nil {
+      return nil, err
+   }
+   containers := body.Container()
+   for {
+      container, ok := containers()
+      if !ok {
+         return nil, errors.New("ResponseBody.Container")
+      }
+      if bytes.Equal(container.Id(), s.key_id) {
+         key := container.Key(block)
+         slog.Info(
+            "CDM",
+            "PSSH", base64.StdEncoding.EncodeToString(s.pssh),
+            "key", base64.StdEncoding.EncodeToString(key),
+         )
+         return key, nil
+      }
+   }
+}
+
+func (s *Stream) Create(ext string) (*os.File, error) {
+   return os.Create(text.Clean(text.Name(s.Namer)) + ext)
 }
