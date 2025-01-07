@@ -8,31 +8,25 @@ import (
    "fmt"
    "io"
    "net/http"
-   "net/url"
    "os"
    "slices"
 )
 
 func (f *flags) do_read() error {
-   
-   
    data, err := os.ReadFile(f.content_id + "/request.txt")
    if err != nil {
       return err
    }
-   var address url.URL
-   err = address.UnmarshalBinary(data)
-   if err != nil {
-      return err
-   }
-   
-   
-   
-   data, err := os.ReadFile(f.content_id + "/body.txt")
-   if err != nil {
-      return err
-   }
    var mpd dash.Mpd
+   mpd.BaseUrl = &dash.Url{}
+   err = mpd.BaseUrl.UnmarshalText(data)
+   if err != nil {
+      return err
+   }
+   data, err = os.ReadFile(f.content_id + "/body.txt")
+   if err != nil {
+      return err
+   }
    err = xml.Unmarshal(data, &mpd)
    if err != nil {
       return err

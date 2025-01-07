@@ -20,9 +20,7 @@ import (
 )
 
 func (s *Stream) segment_template(
-   ext string,
-   initial *url.URL,
-   represent *dash.Representation,
+   ext string, initial *url.URL, represent *dash.Representation,
 ) error {
    file, err := s.Create(ext)
    if err != nil {
@@ -59,7 +57,10 @@ func (s *Stream) segment_template(
    var transport text.Transport
    transport.Set(false)
    defer transport.Set(true)
-   segments := slices.Collect(represent.Segment())
+   var segments []int
+   for r := range represent.Representation() {
+      segments = slices.AppendSeq(segments, r.Segment())
+   }
    meter.Set(len(segments))
    for _, segment := range segments {
       media, err := represent.SegmentTemplate.Media.Url(represent, segment)
@@ -351,6 +352,7 @@ func (s *Stream) key() ([]byte, error) {
 func (s *Stream) Create(ext string) (*os.File, error) {
    return os.Create(text.Clean(text.Name(s.Namer)) + ext)
 }
+
 func (s *Stream) Download(represent *dash.Representation) error {
    var data []byte
    for _, protect := range represent.ContentProtection {
@@ -392,9 +394,5 @@ func (s *Stream) Download(represent *dash.Representation) error {
          return err
       }
    }
-   return s.segment_template(
-      ext,
-      initial,
-      represent,
-   )
+   return s.segment_template(ext, initial, represent)
 }
