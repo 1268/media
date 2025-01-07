@@ -3,6 +3,7 @@ package main
 import (
    "41.neocities.org/dash"
    "41.neocities.org/media/itv"
+   "encoding/xml"
    "errors"
    "fmt"
    "io"
@@ -45,18 +46,16 @@ func (f *flags) download() error {
    if err != nil {
       return err
    }
-   reps, err := dash.Unmarshal(data, resp.Request.URL)
-   if err != nil {
-      return err
-   }
-   for _, rep := range reps {
+   var mpd dash.Mpd
+   xml.Unmarshal(data, &mpd)
+   for represent := range mpd.Representation() {
       switch f.representation {
       case "":
-         fmt.Print(&rep, "\n\n")
-      case rep.Id:
+         fmt.Print(&represent, "\n\n")
+      case represent.Id:
          f.s.Namer = itv.Namer{discovery}
          f.s.Wrapper = file
-         return f.s.Download(rep)
+         return f.s.Download(&represent)
       }
    }
    return nil
