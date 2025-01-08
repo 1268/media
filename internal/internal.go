@@ -19,6 +19,50 @@ import (
    "strings"
 )
 
+func (s *Stream) Download(represent *dash.Representation) error {
+   var data []byte
+   for _, protect := range represent.ContentProtection {
+      if protect.SchemeIdUri.Widevine() {
+         data = protect.Pssh
+         break
+      }
+   }
+   var box pssh.Box
+   n, err := box.BoxHeader.Decode(data)
+   if err != nil {
+      return err
+   }
+   err = box.Read(data[n:])
+   if err != nil {
+      return err
+   }
+   s.pssh = box.Data
+   var ext string
+   switch *represent.MimeType {
+   case "audio/mp4":
+      ext = ".m4a"
+   case "text/vtt":
+      ext = ".vtt"
+   case "video/mp4":
+      ext = ".m4v"
+   }
+   if represent.SegmentBase != nil {
+      return s.segment_base(
+         ext,
+         represent.BaseUrl.Url,
+         represent.SegmentBase,
+      )
+   }
+   var initial *url.URL
+   if i := represent.SegmentTemplate.Initialization; i != nil {
+      initial, err = i.Url(represent)
+      if err != nil {
+         return err
+      }
+   }
+   return s.segment_template(ext, initial, represent)
+}
+
 func (s *Stream) segment_template(
    ext string, initial *url.URL, represent *dash.Representation,
 ) error {
@@ -351,48 +395,4 @@ func (s *Stream) key() ([]byte, error) {
 
 func (s *Stream) Create(ext string) (*os.File, error) {
    return os.Create(text.Clean(text.Name(s.Namer)) + ext)
-}
-
-func (s *Stream) Download(represent *dash.Representation) error {
-   var data []byte
-   for _, protect := range represent.ContentProtection {
-      if protect.SchemeIdUri.Widevine() {
-         data = protect.Pssh
-         break
-      }
-   }
-   var box pssh.Box
-   n, err := box.BoxHeader.Decode(data)
-   if err != nil {
-      return err
-   }
-   err = box.Read(data[n:])
-   if err != nil {
-      return err
-   }
-   s.pssh = box.Data
-   var ext string
-   switch *represent.MimeType {
-   case "audio/mp4":
-      ext = ".m4a"
-   case "text/vtt":
-      ext = ".vtt"
-   case "video/mp4":
-      ext = ".m4v"
-   }
-   if represent.SegmentBase != nil {
-      return s.segment_base(
-         ext,
-         represent.BaseUrl.Url,
-         represent.SegmentBase,
-      )
-   }
-   var initial *url.URL
-   if i := represent.SegmentTemplate.Initialization; i != nil {
-      initial, err = i.Url(represent)
-      if err != nil {
-         return err
-      }
-   }
-   return s.segment_template(ext, initial, represent)
 }
