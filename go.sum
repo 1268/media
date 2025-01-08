@@ -1,5 +1,5 @@
-41.neocities.org/dash v1.25.9 h1:HjmH1Yh9M94MVWc4jg2ZD7gPDZv8DKtX+UfKtkzyQGA=
-41.neocities.org/dash v1.25.9/go.mod h1:BoiwRQ49/m0Jyf98s8nO15CjAkBiKlAs27ljIMhBIJA=
+41.neocities.org/dash v1.26.0 h1:+tVurAuDsRAxrmt2RYtpl6baa04bPn+kiopOOJi92r8=
+41.neocities.org/dash v1.26.0/go.mod h1:BoiwRQ49/m0Jyf98s8nO15CjAkBiKlAs27ljIMhBIJA=
 41.neocities.org/protobuf v1.4.0 h1:mT5AUnprtZTfemwWVi97VjuiSl4B/tdaX1b/YH0o9dw=
 41.neocities.org/protobuf v1.4.0/go.mod h1:4D09L9uzZktpREGiKaEq4QD7GA5eMzcRPaFdHoKCQnI=
 41.neocities.org/sofia v1.6.6 h1:r4L5JPy1Nze9YuoLyDLBNjLsTu647qrxGPbz2MV31ec=
@@ -10,5 +10,5 @@
 41.neocities.org/widevine v1.6.0/go.mod h1:Vp96fAwngobYAaSTtgvQn7VMhzJJlbcWtn2+xmMxFxk=
 github.com/chmike/cmac-go v1.1.0 h1:aF73ZAEx9N2WdQc93DOJ2fMsBDAGqUtuenjMJMb3kEI=
 github.com/chmike/cmac-go v1.1.0/go.mod h1:wcIN7NRqWSKGuORzd4dReBkoBDE9ZBqfyTVxyDxGeUw=
-google.golang.org/protobuf v1.36.1 h1:yBPeRvTftaleIgM3PZ/WBIZ7XM/eEYAaEyCwvyjq/gk=
-google.golang.org/protobuf v1.36.1/go.mod h1:9fA7Ob0pmnwhb644+1+CVWFRbNajQ6iRojtC/QF5bRE=
+google.golang.org/protobuf v1.36.2 h1:R8FeyR1/eLmkutZOM5CWghmo5itiG9z0ktFlTVLuTmU=
+google.golang.org/protobuf v1.36.2/go.mod h1:9fA7Ob0pmnwhb644+1+CVWFRbNajQ6iRojtC/QF5bRE=

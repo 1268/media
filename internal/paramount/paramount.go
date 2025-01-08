@@ -3,7 +3,6 @@ package main
 import (
    "41.neocities.org/dash"
    "41.neocities.org/media/paramount"
-   "encoding/xml"
    "errors"
    "fmt"
    "io"
@@ -27,10 +26,7 @@ func (f *flags) do_read() error {
    if err != nil {
       return err
    }
-   err = xml.Unmarshal(data, &mpd)
-   if err != nil {
-      return err
-   }
+   mpd.Unmarshal(data)
    represents := slices.SortedFunc(mpd.Representation(),
       func(a, b dash.Representation) int {
          return a.Bandwidth - b.Bandwidth

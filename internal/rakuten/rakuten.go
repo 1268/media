@@ -2,7 +2,6 @@ package main
 
 import (
    "41.neocities.org/dash"
-   "encoding/xml"
    "fmt"
    "io"
    "net/http"
@@ -23,7 +22,7 @@ func (f *flags) download() error {
       return err
    }
    var mpd dash.Mpd
-   xml.Unmarshal(data, &mpd)
+   mpd.Unmarshal(data)
    for represent := range mpd.Representation() {
       switch f.representation {
       case "":

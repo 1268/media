@@ -7,7 +7,6 @@ import (
    "io"
    "net/http"
    "os"
-   "sort"
 )
 
 func (f *flags) download() error {
@@ -37,32 +36,24 @@ func (f *flags) download() error {
    if err != nil {
       return err
    }
-   reps, err := dash.Unmarshal(data, resp.Request.URL)
-   if err != nil {
-      return err
-   }
-   sort.Slice(reps, func(i, j int) bool {
-      return reps[i].Bandwidth < reps[j].Bandwidth
-   })
-   for _, rep := range reps {
-      if rep.GetAdaptationSet().GetPeriod().Id != "content-0" {
-         continue
-      }
-      if rep.Width < f.min_width {
-         if rep.GetMimeType() == "video/mp4" {
+   var mpd dash.Mpd
+   mpd.Unmarshal(data)
+   for represent := range mpd.Representation() {
+      if *represent.Width < f.min_width {
+         if *represent.MimeType == "video/mp4" {
             continue
          }
       }
       switch f.representation {
       case "":
-         fmt.Print(&rep, "\n\n")
-      case rep.Id:
+         fmt.Print(&represent, "\n\n")
+      case represent.Id:
          f.s.Namer, err = auth.Details(deep)
          if err != nil {
             return err
          }
          f.s.Wrapper = play
-         return f.s.Download(rep)
+         return f.s.Download(&represent)
       }
    }
    return nil

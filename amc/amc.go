@@ -11,6 +11,31 @@ import (
    "time"
 )
 
+func cache_hash() string {
+   return base64.StdEncoding.EncodeToString([]byte("ff="))
+}
+
+func (a *Address) Set(s string) error {
+   s = strings.TrimPrefix(s, "https://")
+   s = strings.TrimPrefix(s, "www.")
+   a.Path = strings.TrimPrefix(s, "amcplus.com")
+   var found bool
+   _, a.Nid, found = strings.Cut(a.Path, "--")
+   if !found {
+      return errors.New("--")
+   }
+   return nil
+}
+
+type Address struct {
+   Nid string
+   Path string
+}
+
+func (a *Address) String() string {
+   return a.Path
+}
+
 func (a *Authorization) Content(path string) (*ContentCompiler, error) {
    req, err := http.NewRequest("", "https://gw.cds.amcn.com", nil)
    if err != nil {
@@ -148,30 +173,6 @@ func (a *Authorization) Refresh() ([]byte, error) {
       return nil, errors.New(resp.Status)
    }
    return io.ReadAll(resp.Body)
-}
-func cache_hash() string {
-   return base64.StdEncoding.EncodeToString([]byte("ff="))
-}
-
-func (a *Address) Set(s string) error {
-   s = strings.TrimPrefix(s, "https://")
-   s = strings.TrimPrefix(s, "www.")
-   a.Path = strings.TrimPrefix(s, "amcplus.com")
-   var found bool
-   _, a.Nid, found = strings.Cut(a.Path, "--")
-   if !found {
-      return errors.New("--")
-   }
-   return nil
-}
-
-type Address struct {
-   Nid string
-   Path string
-}
-
-func (a *Address) String() string {
-   return a.Path
 }
 
 type ContentCompiler struct {

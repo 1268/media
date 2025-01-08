@@ -68,11 +68,6 @@ func (a *Authorization) Playback(nid string) (*Playback, error) {
    return &Playback{resp.Header, play.Data.PlaybackJsonData.Sources}, nil
 }
 
-type Playback struct {
-   Header http.Header
-   Sources []DataSource
-}
-
 type DataSource struct {
    KeySystems *struct {
       Widevine struct {
@@ -83,9 +78,9 @@ type DataSource struct {
    Type string
 }
 
-type Wrapper struct {
+type Playback struct {
    Header http.Header
-   Source DataSource
+   Sources []DataSource
 }
 
 func (p *Playback) Dash() (*Wrapper, bool) {
@@ -95,6 +90,11 @@ func (p *Playback) Dash() (*Wrapper, bool) {
       }
    }
    return nil, false
+}
+
+type Wrapper struct {
+   Header http.Header
+   Source DataSource
 }
 
 func (w *Wrapper) Wrap(data []byte) ([]byte, error) {
