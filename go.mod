@@ -3,7 +3,7 @@ module 41.neocities.org/media
 go 1.23.0
 
 require (
-	41.neocities.org/dash v1.26.0
+	41.neocities.org/dash v1.26.1
 	41.neocities.org/sofia v1.6.6
 	41.neocities.org/text v1.3.5
 	41.neocities.org/widevine v1.6.0
