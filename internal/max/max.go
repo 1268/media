@@ -7,6 +7,7 @@ import (
    "io"
    "net/http"
    "os"
+   "slices"
 )
 
 func (f *flags) download() error {
@@ -33,8 +34,14 @@ func (f *flags) download() error {
       return err
    }
    var mpd dash.Mpd
+   mpd.BaseUrl = &dash.Url{resp.Request.URL}
    mpd.Unmarshal(data)
-   for represent := range mpd.Representation() {
+   represents := slices.SortedFunc(mpd.Representation(),
+      func(a, b dash.Representation) int {
+         return a.Bandwidth - b.Bandwidth
+      },
+   )
+   for _, represent := range represents {
       if *represent.MimeType == "video/mp4" {
          if *represent.Width < f.min_width {
             continue
