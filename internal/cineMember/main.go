@@ -5,13 +5,11 @@ import (
    "41.neocities.org/media/internal"
    "41.neocities.org/text"
    "flag"
-   "log/slog"
    "os"
    "path/filepath"
 )
 
 func main() {
-   slog.SetLogLoggerLevel(slog.LevelDebug)
    var f flags
    err := f.New()
    if err != nil {

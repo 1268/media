@@ -20,23 +20,21 @@ import (
 )
 
 func (s *Stream) Download(represent *dash.Representation) error {
-   var data []byte
    for _, protect := range represent.ContentProtection {
       if protect.SchemeIdUri.Widevine() {
-         data = protect.Pssh
+         var box pssh.Box
+         n, err := box.BoxHeader.Decode(protect.Pssh)
+         if err != nil {
+            return err
+         }
+         err = box.Read(protect.Pssh[n:])
+         if err != nil {
+            return err
+         }
+         s.pssh = box.Data
          break
       }
    }
-   var box pssh.Box
-   n, err := box.BoxHeader.Decode(data)
-   if err != nil {
-      return err
-   }
-   err = box.Read(data[n:])
-   if err != nil {
-      return err
-   }
-   s.pssh = box.Data
    var ext string
    switch *represent.MimeType {
    case "audio/mp4":
