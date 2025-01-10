@@ -35,7 +35,10 @@ func (f *flags) download() error {
       return err
    }
    var mpd dash.Mpd
-   mpd.Unmarshal(data)
+   err = mpd.Unmarshal(data)
+   if err != nil {
+      return err
+   }
    for represent := range mpd.Representation() {
       switch f.representation {
       case "":
@@ -61,6 +64,7 @@ func (f *flags) download() error {
 func (f *flags) base() string {
    return path.Base(f.address.Path)
 }
+
 func (f *flags) write_user() error {
    data, err := cineMember.OperationUser{}.Marshal(f.email, f.password)
    if err != nil {

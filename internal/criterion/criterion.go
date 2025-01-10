@@ -44,6 +44,7 @@ func (f *flags) download() error {
       return err
    }
    var mpd dash.Mpd
+   mpd.BaseUrl = &dash.Url{resp.Request.URL}
    mpd.Unmarshal(data)
    represents := slices.SortedFunc(mpd.Representation(),
       func(a, b dash.Representation) int {

@@ -22,7 +22,7 @@ func main() {
    flag.StringVar(&f.email, "e", "", "email")
    flag.StringVar(&f.representation, "i", "", "representation")
    flag.StringVar(&f.s.PrivateKey, "k", f.s.PrivateKey, "private key")
-   flag.BoolVar(&f.play, "o", false, "operation play")
+   flag.BoolVar(&f.play, "w", false, "operation play")
    flag.StringVar(&f.password, "p", "", "password")
    flag.Parse()
    text.Transport{}.Set(true)
