@@ -13,6 +13,19 @@ import (
    "time"
 )
 
+var tests = []movie_test{
+   {
+      content_id: "MGU1MTgwMDA2Y2Q1MDhlZWMwMGQ1MzVmZWM2YzQyMGQtbWMtMC0xNDEtMC0w",
+      key_id:     "DlGAAGzVCO7ADVNf7GxCDQ==",
+      url:        "rakuten.tv/fr/movies/infidele",
+   },
+   {
+      content_id: "OWE1MzRhMWYxMmQ2OGUxYTIzNTlmMzg3MTBmZGRiNjUtbWMtMC0xNDctMC0w",
+      key_id:     "mlNKHxLWjhojWfOHEP3bZQ==",
+      url:        "rakuten.tv/se/movies/i-heart-huckabees",
+   },
+}
+
 func (m *movie_test) license() ([]byte, error) {
    var web Address
    web.Set(m.url)
@@ -98,19 +111,6 @@ func TestMovie(t *testing.T) {
       fmt.Printf("%q\n", name)
       time.Sleep(time.Second)
    }
-}
-
-var tests = []movie_test{
-   {
-      content_id: "MGU1MTgwMDA2Y2Q1MDhlZWMwMGQ1MzVmZWM2YzQyMGQtbWMtMC0xNDEtMC0w",
-      key_id:     "DlGAAGzVCO7ADVNf7GxCDQ==",
-      url:        "rakuten.tv/fr/movies/infidele",
-   },
-   {
-      content_id: "OWE1MzRhMWYxMmQ2OGUxYTIzNTlmMzg3MTBmZGRiNjUtbWMtMC0xNDctMC0w",
-      key_id:     "mlNKHxLWjhojWfOHEP3bZQ==",
-      url:        "rakuten.tv/se/movies/i-heart-huckabees",
-   },
 }
 
 func TestFr(t *testing.T) {
