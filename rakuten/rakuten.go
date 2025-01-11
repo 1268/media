@@ -58,13 +58,6 @@ func (*GizmoMovie) Episode() int {
    return 0
 }
 
-type GizmoMovie struct {
-   Data struct {
-      Title string
-      Year  int
-   }
-}
-
 func (g *GizmoMovie) Year() int {
    return g.Data.Year
 }
@@ -141,44 +134,18 @@ type OnDemand struct {
 // - rakuten.tv/fr/movies/infidele
 //    - fr
 //    - infidele
-// - rakuten.tv/uk/player/episodes/stream/hell-s-kitchen-usa-15/hell-s-kitchen-usa-15-1
-//    - uk
-//    - hell-s-kitchen-usa-15-1
+//    - /v3/movies/infidele
 type Address struct {
    ClassificationId int
    ContentId        string
    MarketCode       string
 }
 
-///
-
-func (a *Address) Set(s string) error {
-   s = strings.TrimPrefix(s, "https://")
-   s = strings.TrimPrefix(s, "www.")
-   s = strings.TrimPrefix(s, "rakuten.tv")
-   s = strings.TrimPrefix(s, "/")
-   var found bool
-   a.MarketCode, a.ContentId, found = strings.Cut(s, "/movies/")
-   if !found {
-      return errors.New("/movies/ not found")
+type GizmoMovie struct {
+   Data struct {
+      Title string
+      Year  int
    }
-   a.ClassificationId, found = classification_id[a.MarketCode]
-   if !found {
-      return errors.New("MarketCode not found")
-   }
-   return nil
-}
-
-func (a *Address) String() string {
-   var b strings.Builder
-   if a.MarketCode != "" {
-      b.WriteString(a.MarketCode)
-   }
-   if a.ContentId != "" {
-      b.WriteString("/movies/")
-      b.WriteString(a.ContentId)
-   }
-   return b.String()
 }
 
 func (a *Address) Movie() (*GizmoMovie, error) {
@@ -208,4 +175,33 @@ func (a *Address) Movie() (*GizmoMovie, error) {
       return nil, err
    }
    return movie, nil
+}
+
+func (a *Address) Set(s string) error {
+   s = strings.TrimPrefix(s, "https://")
+   s = strings.TrimPrefix(s, "www.")
+   s = strings.TrimPrefix(s, "rakuten.tv")
+   s = strings.TrimPrefix(s, "/")
+   var found bool
+   a.MarketCode, a.ContentId, found = strings.Cut(s, "/movies/")
+   if !found {
+      return errors.New("/movies/ not found")
+   }
+   a.ClassificationId, found = classification_id[a.MarketCode]
+   if !found {
+      return errors.New("MarketCode not found")
+   }
+   return nil
+}
+
+func (a *Address) String() string {
+   var b strings.Builder
+   if a.MarketCode != "" {
+      b.WriteString(a.MarketCode)
+   }
+   if a.ContentId != "" {
+      b.WriteString("/movies/")
+      b.WriteString(a.ContentId)
+   }
+   return b.String()
 }
