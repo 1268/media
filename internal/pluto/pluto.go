@@ -39,7 +39,11 @@ func (f *flags) download() error {
       return err
    }
    var mpd dash.Mpd
-   mpd.Unmarshal(data)
+   mpd.BaseUrl = &dash.Url{req.URL}
+   err = mpd.Unmarshal(data)
+   if err != nil {
+      return err
+   }
    for represent := range mpd.Representation() {
       switch f.representation {
       case "":

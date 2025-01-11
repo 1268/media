@@ -23,14 +23,8 @@ https://play.google.com/store/apps/details?id=com.cbs.app
 
 INTL:
 
-https://play.google.com/store/apps/details?id=com.cbs.ca
-
-## How to get app\_secret?
-
-~~~
-sources\com\cbs\app\dagger\DataLayerModule.java
-dataSourceConfiguration.setCbsAppSecret("a624d7b175f5626b");
-~~~
+- https://play.google.com/store/apps/details?id=com.cbs.ca
+- https://apkmirror.com/apk/viacomcbs-streaming/paramount-4
 
 ## How to get secret\_key?
 

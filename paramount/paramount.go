@@ -16,32 +16,20 @@ import (
    "time"
 )
 
-const secret_key = "302a6a0d70a7e9b967f91d39fef3e387816e3095925ae4537bce96063311f9c5"
-
-const encoding = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-
-func pad(b []byte) []byte {
-   length := aes.BlockSize - len(b) % aes.BlockSize
-   for high := byte(length); length >= 1; length-- {
-      b = append(b, high)
-   }
-   return b
+// these also work:
+// {
+//    "amazon_mobile": "c1353af7ed0252d8",
+//    "amazon_tablet": "c4abf90e3aa8131f",
+//    "google_mobile": "8c4edb1155a410e4"
+// }
+func (a *AppToken) ComCbsApp() error {
+   // 15.0.28
+   return a.New("a624d7b175f5626b")
 }
 
-func cms_account(id string) int64 {
-   var (
-      i = 0
-      j = 1
-   )
-   for _, value := range id {
-      i += strings.IndexRune(encoding, value) * j
-      j *= len(encoding)
-   }
-   return int64(i)
-}
-
-type AppToken struct {
-   Values url.Values
+func (a *AppToken) ComCbsCa() error {
+   // 15.0.28
+   return a.New("c0b1d5d6ed27a3f6")
 }
 
 func (a *AppToken) New(app_secret string) error {
@@ -69,14 +57,32 @@ func (a *AppToken) New(app_secret string) error {
    return nil
 }
 
-// 15.0.28
-func (a *AppToken) ComCbsApp() error {
-   return a.New("a624d7b175f5626b")
+const secret_key = "302a6a0d70a7e9b967f91d39fef3e387816e3095925ae4537bce96063311f9c5"
+
+const encoding = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+
+func pad(b []byte) []byte {
+   length := aes.BlockSize - len(b) % aes.BlockSize
+   for high := byte(length); length >= 1; length-- {
+      b = append(b, high)
+   }
+   return b
 }
 
-// 15.0.28
-func (a *AppToken) ComCbsCa() error {
-   return a.New("c0b1d5d6ed27a3f6")
+func cms_account(id string) int64 {
+   var (
+      i = 0
+      j = 1
+   )
+   for _, value := range id {
+      i += strings.IndexRune(encoding, value) * j
+      j *= len(encoding)
+   }
+   return int64(i)
+}
+
+type AppToken struct {
+   Values url.Values
 }
 
 // must use app token and IP address for US
