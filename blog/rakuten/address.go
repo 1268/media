@@ -5,18 +5,26 @@ import (
    "strings"
 )
 
-// - https://www.rakuten.tv/uk/player/episodes/stream/hell-s-kitchen-usa-15/hell-s-kitchen-usa-15-1
-//    - hell-s-kitchen-usa-15-1
-//    - /v3/seasons/hell-s-kitchen-usa-15
-// - https://www.rakuten.tv/fr/movies/infidele
-//    - infidele
-//    - /v3/movies/infidele
+var classification_id = map[string]int{
+   "cz": 272,
+   "dk": 283,
+   "fi": 284,
+   "fr": 23,
+   "ie": 41,
+   "it": 36,
+   "nl": 323,
+   "no": 286,
+   "pt": 64,
+   "se": 282,
+   "ua": 276,
+   "uk": 18,
+}
 
 type address struct {
-   episode string
    market_code string
    movie string
    season string
+   episode string
 }
 
 func (a *address) Set(data string) error {

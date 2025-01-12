@@ -33,7 +33,7 @@ a4 = aVar.a("ab7520c40734f8aa");
 
 ## paramount phone us
 
-~~~json
+~~~
 sources\com\cbs\app\dagger\DataLayerModule.java
 dataSourceConfiguration.setCbsAppSecret("4fb47ec1f5c17caa");
 
