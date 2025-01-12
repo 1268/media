@@ -11,6 +11,21 @@ import (
    "strings"
 )
 
+var classification_id = map[string]int{
+   "cz": 272,
+   "dk": 283,
+   "fi": 284,
+   "fr": 23,
+   "ie": 41,
+   "it": 36,
+   "nl": 323,
+   "no": 286,
+   "pt": 64,
+   "se": 282,
+   "ua": 276,
+   "uk": 18,
+}
+
 // geo block
 func (o *OnDemand) Info() (*StreamInfo, error) {
    data, err := json.MarshalIndent(o, "", " ")
@@ -68,20 +83,6 @@ func (a *Address) Hd() *OnDemand {
 
 func (a *Address) Fhd() *OnDemand {
    return a.video("FHD")
-}
-
-var classification_id = map[string]int{
-   "dk": 283,
-   "fi": 284,
-   "fr": 23,
-   "ie": 41,
-   "it": 36,
-   "nl": 323,
-   "no": 286,
-   "pt": 64,
-   "se": 282,
-   "ua": 276,
-   "uk": 18,
 }
 
 type StreamInfo struct {

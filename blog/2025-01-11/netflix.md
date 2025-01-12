@@ -21,3 +21,26 @@ name = Netflix
 size = 37.64 megabyte
 version code = 51230
 ~~~
+
+then:
+
+~~~
+adb install-multiple (Get-ChildItem *.apk)
+~~~
+
+results:
+
+~~~
+Sdk 35 crash after 12 seconds
+Sdk 34 crash after 12 seconds
+Sdk 33 (TIRAMISU) crash after 12 seconds
+Sdk 32 (android 12L) crash after 12 seconds
+Sdk 31
+Sdk 30
+Sdk 29 (android 10) crash after 12 seconds
+Sdk 28
+Sdk 27
+Sdk 26
+Sdk 25
+sdk 24 crash after password
+~~~

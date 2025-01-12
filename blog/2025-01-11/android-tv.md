@@ -1,6 +1,10 @@
 # Netflix (Android TV)
 
-## x86
+## 4K
+
+Android 12+, which means no intercept
+
+## 1080p x86
 
 ~~~
 > play -i com.netflix.ninja -leanback
@@ -20,7 +24,7 @@ version code = 0
 
 https://apkmirror.com/apk/netflix-inc/netflix-android-tv
 
-## x86 armeabi-v7a
+## 1080p x86 armeabi-v7a
 
 https://play.google.com/store/apps/details?id=com.netflix.ninja
 
@@ -55,7 +59,7 @@ works with Android 13, but:
 
 https://issuetracker.google.com/issues/331256113
 
-## armeabi-v7a armeabi-v7a
+## 1080p armeabi-v7a armeabi-v7a
 
 only Android 6 or 12 are available, which means either the app wont run, or it
 will run but we wont be able to intercept

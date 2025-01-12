@@ -30,7 +30,6 @@ type flags struct {
    s              internal.Stream
    min_width int64
    max_width int64
-   lang string
 }
 
 func main() {
@@ -51,7 +50,6 @@ func main() {
    )
    flag.Int64Var(&f.min_width, "min", 1024, "min width")
    flag.Int64Var(&f.max_width, "max", 1600, "max width")
-   flag.StringVar(&f.lang, "n", "en-US", "lang")
    flag.Parse()
    text.Transport{}.Set(true)
    switch {
