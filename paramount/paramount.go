@@ -16,14 +16,14 @@ import (
    "time"
 )
 
-// 15.0.28
+// 15.0.52
 func (a *AppToken) ComCbsApp() error {
-   return a.New("a624d7b175f5626b")
+   return a.New("4fb47ec1f5c17caa")
 }
 
-// 15.0.28
+// 15.0.52
 func (a *AppToken) ComCbsCa() error {
-   return a.New("c0b1d5d6ed27a3f6")
+   return a.New("e55edaeb8451f737")
 }
 
 func (a *AppToken) New(app_secret string) error {

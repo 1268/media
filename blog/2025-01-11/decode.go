@@ -2,7 +2,6 @@ package main
 
 import (
    "bufio"
-   "bytes"
    "fmt"
    "github.com/ugorji/go/codec"
    "io"
@@ -11,15 +10,16 @@ import (
 )
 
 func main() {
-   data, err := os.ReadFile("req.txt")
+   file, err := os.Open("req.txt")
    if err != nil {
       panic(err)
    }
-   req, err := http.ReadRequest(bufio.NewReader(bytes.NewReader(data)))
+   defer file.Close()
+   req, err := http.ReadRequest(bufio.NewReader(file))
    if err != nil {
       panic(err)
    }
-   data, err = io.ReadAll(req.Body)
+   data, err := io.ReadAll(req.Body)
    if err != nil {
       panic(err)
    }

@@ -10,6 +10,20 @@ import (
    "strings"
 )
 
+type gizmo_movie struct {
+   Title string
+   ViewOptions struct {
+      Public struct {
+         Trailers []struct {
+            AudioLanguages []struct {
+               Id string
+            } `json:"audio_languages"`
+         }
+      }
+   } `json:"view_options"`
+   Year  int
+}
+
 func (a *address) gizmo_movie() (*gizmo_movie, error) {
    req, err := http.NewRequest("", "https://gizmo.rakuten.tv", nil)
    if err != nil {
@@ -44,19 +58,14 @@ func (a *address) gizmo_movie() (*gizmo_movie, error) {
       resp.Write(&b)
       return nil, errors.New(b.String())
    }
-   movie := &gizmo_movie{}
-   err = json.NewDecoder(resp.Body).Decode(movie)
+   var value struct {
+      Data gizmo_movie
+   }
+   err = json.NewDecoder(resp.Body).Decode(&value)
    if err != nil {
       return nil, err
    }
-   return movie, nil
-}
-
-type gizmo_movie struct {
-   Data struct {
-      Title string
-      Year  int
-   }
+   return &value.Data, nil
 }
 
 func streamings() (*http.Response, error) {
