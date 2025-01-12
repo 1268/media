@@ -22,9 +22,8 @@ var classification_id = map[string]int{
 
 type address struct {
    market_code string
-   movie       string
    season      string
-   episode     string
+   content_id string
 }
 
 func (a *address) Set(data string) error {
@@ -37,10 +36,10 @@ func (a *address) Set(data string) error {
    if !found {
       return errors.New("market code not found")
    }
-   data, a.movie, found = strings.Cut(data, "movies/")
+   data, a.content_id, found = strings.Cut(data, "movies/")
    if !found {
       data = strings.TrimPrefix(data, "player/episodes/stream/")
-      a.season, a.episode, found = strings.Cut(data, "/")
+      a.season, a.content_id, found = strings.Cut(data, "/")
       if !found {
          return errors.New("episode not found")
       }

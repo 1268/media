@@ -31,12 +31,12 @@ func (a *address) metadata() (*metadata, error) {
    req.URL.Path = func() string {
       var b strings.Builder
       b.WriteString("/v3/")
-      if a.movie != "" {
-         b.WriteString("movies/")
-         b.WriteString(a.movie)
-      } else {
+      if a.season != "" {
          b.WriteString("seasons/")
          b.WriteString(a.season)
+      } else {
+         b.WriteString("movies/")
+         b.WriteString(a.content_id)
       }
       return b.String()
    }()

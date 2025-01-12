@@ -87,6 +87,12 @@ func (o *OnDemand) Info() (*StreamInfo, error) {
    return &value.Data.StreamInfos[0], nil
 }
 
+type StreamInfo struct {
+   LicenseUrl   string `json:"license_url"`
+   Url          string
+   VideoQuality string `json:"video_quality"`
+}
+
 func (*GizmoMovie) Show() string {
    return ""
 }
@@ -113,12 +119,6 @@ func (a *Address) Hd() *OnDemand {
 
 func (a *Address) Fhd() *OnDemand {
    return a.video("FHD")
-}
-
-type StreamInfo struct {
-   LicenseUrl   string `json:"license_url"`
-   Url          string
-   VideoQuality string `json:"video_quality"`
 }
 
 func (s *StreamInfo) Wrap(data []byte) ([]byte, error) {
