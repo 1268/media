@@ -18,9 +18,6 @@ func main() {
    req.URL.Scheme = "https"
    req.Body = io.NopCloser(body)
    req.Header["Content-Type"] = []string{"application/json"}
-   value := url.Values{}
-   value["device_identifier"] = []string{"web"}
-   req.URL.RawQuery = value.Encode()
    resp, err := http.DefaultClient.Do(&req)
    if err != nil {
       panic(err)
@@ -31,15 +28,17 @@ func main() {
 
 var body = strings.NewReader(`
 {
-   "audio_language": "SPA",
    "audio_quality": "2.0",
    "classification_id": "272",
    "content_id": "transvulcania-the-people-s-run",
    "content_type": "movies",
-   "device_serial": "not implemented",
-   "device_stream_video_quality": "HD",
-   "player": "web:DASH-CENC:WVM",
    "video_type": "stream",
-   "subtitle_language": "MIS"
+   "subtitle_language": "MIS",
+   "device_serial": "not implemented",
+   "device_identifier": "atvui40",
+   "player": "atvui40:DASH-CENC:WVM",
+   "device_stream_video_quality": "FHD",
+   
+   "audio_language": "SPA"
 }
 `)
