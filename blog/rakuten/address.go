@@ -22,9 +22,9 @@ var classification_id = map[string]int{
 
 type address struct {
    market_code string
-   movie string
-   season string
-   episode string
+   movie       string
+   season      string
+   episode     string
 }
 
 func (a *address) Set(data string) error {

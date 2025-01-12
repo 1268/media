@@ -1,90 +1,38 @@
 package rakuten
 
 import (
-   "encoding/json"
-   "errors"
    "io"
    "net/http"
    "net/url"
-   "strconv"
    "strings"
 )
 
-type gizmo_movie struct {
-   Title string
-   ViewOptions struct {
-      Public struct {
-         Trailers []struct {
-            AudioLanguages []struct {
-               Id string
-            } `json:"audio_languages"`
-         }
-      }
-   } `json:"view_options"`
-   Year  int
+type on_demand struct {
+   AudioLanguage            string `json:"audio_language"`
+   AudioQuality             string `json:"audio_quality"`
+   ClassificationId         int    `json:"classification_id"`
+   ContentId                string `json:"content_id"`
+   ContentType              string `json:"content_type"`
+   DeviceIdentifier         string `json:"device_identifier"`
+   DeviceSerial             string `json:"device_serial"`
+   DeviceStreamVideoQuality string `json:"device_stream_video_quality"`
+   Player                   string `json:"player"`
+   SubtitleLanguage         string `json:"subtitle_language"`
+   VideoType                string `json:"video_type"`
 }
 
-func (a *address) gizmo_movie() (*gizmo_movie, error) {
-   req, err := http.NewRequest("", "https://gizmo.rakuten.tv", nil)
-   if err != nil {
-      return nil, err
-   }
-   req.URL.Path = func() string {
-      var b strings.Builder
-      b.WriteString("/v3/")
-      if a.movie != "" {
-         b.WriteString("movies/")
-         b.WriteString(a.movie)
-      } else {
-         b.WriteString("seasons/")
-         b.WriteString(a.season)
-      }
-      return b.String()
-   }()
-   req.URL.RawQuery = url.Values{
-      "classification_id": {
-         strconv.Itoa(classification_id[a.market_code]),
-      },
-      "device_identifier": {"atvui40"},
-      "market_code":       {a.market_code},
-   }.Encode()
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   if resp.StatusCode != http.StatusOK {
-      var b strings.Builder
-      resp.Write(&b)
-      return nil, errors.New(b.String())
-   }
-   var value struct {
-      Data gizmo_movie
-   }
-   err = json.NewDecoder(resp.Body).Decode(&value)
-   if err != nil {
-      return nil, err
-   }
-   return &value.Data, nil
-}
-
-func streamings() (*http.Response, error) {
-   var body = strings.NewReader(`
-   {
-      "audio_quality": "2.0",
-      "classification_id": "272",
-      "content_id": "transvulcania-the-people-s-run",
-      "content_type": "movies",
-      "video_type": "stream",
-      "subtitle_language": "MIS",
-      "device_serial": "not implemented",
-      "device_identifier": "atvui40",
-      "player": "atvui40:DASH-CENC:WVM",
-      "device_stream_video_quality": "FHD",
-      
-      "audio_language": "SPA"
-   }
-   `)
+func (o *on_demand) streamings() (*http.Response, error) {
+   o.AudioLanguage = "SPA"
+   o.AudioQuality = "2.0"
+   o.ClassificationId = 272
+   o.ContentId = "transvulcania-the-people-s-run"
+   o.ContentType = "movies"
+   o.DeviceIdentifier = "atvui40"
+   o.DeviceSerial = "not implemented"
+   o.DeviceStreamVideoQuality = "FHD"
+   o.Player = "atvui40:DASH-CENC:WVM"
+   o.SubtitleLanguage = "MIS"
+   o.VideoType = "stream"
    var req http.Request
    req.Header = http.Header{}
    req.Method = "POST"
