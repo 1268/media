@@ -16,19 +16,13 @@ import (
    "time"
 )
 
-// these also work:
-// {
-//    "amazon_mobile": "c1353af7ed0252d8",
-//    "amazon_tablet": "c4abf90e3aa8131f",
-//    "google_mobile": "8c4edb1155a410e4"
-// }
+// 15.0.28
 func (a *AppToken) ComCbsApp() error {
-   // 15.0.28
    return a.New("a624d7b175f5626b")
 }
 
+// 15.0.28
 func (a *AppToken) ComCbsCa() error {
-   // 15.0.28
    return a.New("c0b1d5d6ed27a3f6")
 }
 
