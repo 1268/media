@@ -12,20 +12,6 @@
 8. continue
 9. start paramount+
 
-## Android client
-
-create Android 6 device. install user certificate. start video. after the
-commercial you might get an error, try again.
-
-US:
-
-https://play.google.com/store/apps/details?id=com.cbs.app
-
-INTL:
-
-- https://play.google.com/store/apps/details?id=com.cbs.ca
-- https://apkmirror.com/apk/viacomcbs-streaming/paramount-4
-
 ## How to get secret\_key?
 
 ~~~
