@@ -16,41 +16,6 @@ import (
    "time"
 )
 
-// 15.0.52
-func (a *AppToken) ComCbsApp() error {
-   return a.New("4fb47ec1f5c17caa")
-}
-
-// 15.0.52
-func (a *AppToken) ComCbsCa() error {
-   return a.New("e55edaeb8451f737")
-}
-
-func (a *AppToken) New(app_secret string) error {
-   key, err := hex.DecodeString(secret_key)
-   if err != nil {
-      return err
-   }
-   block, err := aes.NewCipher(key)
-   if err != nil {
-      return err
-   }
-   var src []byte
-   src = append(src, '|')
-   src = append(src, app_secret...)
-   src = pad(src)
-   var iv [aes.BlockSize]byte
-   cipher.NewCBCEncrypter(block, iv[:]).CryptBlocks(src, src)
-   var dst []byte
-   dst = append(dst, 0, aes.BlockSize)
-   dst = append(dst, iv[:]...)
-   dst = append(dst, src...)
-   a.Values = url.Values{
-      "at": {base64.StdEncoding.EncodeToString(dst)},
-   }
-   return nil
-}
-
 const secret_key = "302a6a0d70a7e9b967f91d39fef3e387816e3095925ae4537bce96063311f9c5"
 
 const encoding = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
@@ -73,42 +38,6 @@ func cms_account(id string) int64 {
       j *= len(encoding)
    }
    return int64(i)
-}
-
-type AppToken struct {
-   Values url.Values
-}
-
-// must use app token and IP address for US
-func (a AppToken) Session(content_id string) (*SessionToken, error) {
-   req, err := http.NewRequest("", "https://www.paramountplus.com", nil)
-   if err != nil {
-      return nil, err
-   }
-   req.URL.Path = func() string {
-      var b strings.Builder
-      b.WriteString("/apps-api/v3.1/androidphone/irdeto-control")
-      b.WriteString("/anonymous-session-token.json")
-      return b.String()
-   }()
-   a.Values.Set("contentId", content_id)
-   req.URL.RawQuery = a.Values.Encode()
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   if resp.StatusCode != http.StatusOK {
-      var b strings.Builder
-      resp.Write(&b)
-      return nil, errors.New(b.String())
-   }
-   session := &SessionToken{}
-   err = json.NewDecoder(resp.Body).Decode(session)
-   if err != nil {
-      return nil, err
-   }
-   return session, nil
 }
 
 type Number int
@@ -176,33 +105,6 @@ func (v *VideoItem) Unmarshal(data []byte) error {
    return nil
 }
 
-// must use app token and IP address for correct location
-func (*VideoItem) Marshal(token AppToken, cid string) ([]byte, error) {
-   req, err := http.NewRequest("", "https://www.paramountplus.com", nil)
-   if err != nil {
-      return nil, err
-   }
-   req.URL.Path = func() string {
-      var b strings.Builder
-      b.WriteString("/apps-api/v2.0/androidphone/video/cid/")
-      b.WriteString(cid)
-      b.WriteString(".json")
-      return b.String()
-   }()
-   req.URL.RawQuery = token.Values.Encode()
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   if resp.StatusCode != http.StatusOK {
-      var b strings.Builder
-      resp.Write(&b)
-      return nil, errors.New(b.String())
-   }
-   return io.ReadAll(resp.Body)
-}
-
 func (v *VideoItem) Title() string {
    return v.Label
 }
@@ -242,4 +144,104 @@ type VideoItem struct {
    Label string
    SeasonNum Number
    SeriesTitle string
+}
+
+///
+
+type AppToken struct {
+   Values url.Values
+}
+
+// 15.0.52
+func (a *AppToken) ComCbsApp() error {
+   return a.New("4fb47ec1f5c17caa")
+}
+
+// 15.0.52
+func (a *AppToken) ComCbsCa() error {
+   return a.New("e55edaeb8451f737")
+}
+
+func (a *AppToken) New(app_secret string) error {
+   key, err := hex.DecodeString(secret_key)
+   if err != nil {
+      return err
+   }
+   block, err := aes.NewCipher(key)
+   if err != nil {
+      return err
+   }
+   var src []byte
+   src = append(src, '|')
+   src = append(src, app_secret...)
+   src = pad(src)
+   var iv [aes.BlockSize]byte
+   cipher.NewCBCEncrypter(block, iv[:]).CryptBlocks(src, src)
+   var dst []byte
+   dst = append(dst, 0, aes.BlockSize)
+   dst = append(dst, iv[:]...)
+   dst = append(dst, src...)
+   a.Values = url.Values{
+      "at": {base64.StdEncoding.EncodeToString(dst)},
+   }
+   return nil
+}
+
+// must use app token and IP address for US
+func (a AppToken) Session(content_id string) (*SessionToken, error) {
+   req, err := http.NewRequest("", "https://www.paramountplus.com", nil)
+   if err != nil {
+      return nil, err
+   }
+   req.URL.Path = func() string {
+      var b strings.Builder
+      b.WriteString("/apps-api/v3.1/androidphone/irdeto-control")
+      b.WriteString("/anonymous-session-token.json")
+      return b.String()
+   }()
+   a.Values.Set("contentId", content_id)
+   req.URL.RawQuery = a.Values.Encode()
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   if resp.StatusCode != http.StatusOK {
+      var b strings.Builder
+      resp.Write(&b)
+      return nil, errors.New(b.String())
+   }
+   session := &SessionToken{}
+   err = json.NewDecoder(resp.Body).Decode(session)
+   if err != nil {
+      return nil, err
+   }
+   return session, nil
+}
+
+// must use app token and IP address for correct location
+func (*VideoItem) Marshal(token AppToken, cid string) ([]byte, error) {
+   req, err := http.NewRequest("", "https://www.paramountplus.com", nil)
+   if err != nil {
+      return nil, err
+   }
+   req.URL.Path = func() string {
+      var b strings.Builder
+      b.WriteString("/apps-api/v2.0/androidphone/video/cid/")
+      b.WriteString(cid)
+      b.WriteString(".json")
+      return b.String()
+   }()
+   req.URL.RawQuery = token.Values.Encode()
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   if resp.StatusCode != http.StatusOK {
+      var b strings.Builder
+      resp.Write(&b)
+      return nil, errors.New(b.String())
+   }
+   return io.ReadAll(resp.Body)
 }
