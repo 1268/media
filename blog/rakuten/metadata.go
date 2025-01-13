@@ -9,7 +9,26 @@ import (
    "strings"
 )
 
-func (a *address) bravo() (*bravo, error) {
+type data struct {
+   Year int
+   Title string
+   ViewOptions struct {
+      Private struct {
+         Streams []struct {
+            AudioLanguages []struct {
+               Id string
+            } `json:"audio_languages"`
+         }
+      }
+   } `json:"view_options"`
+}
+
+type season struct {
+   data
+   Episodes []data
+}
+
+func (a *address) get_season() (*season, error) {
    req, err := http.NewRequest("", "https://gizmo.rakuten.tv", nil)
    if err != nil {
       return nil, err
@@ -44,30 +63,11 @@ func (a *address) bravo() (*bravo, error) {
       return nil, errors.New(b.String())
    }
    var value struct {
-      Data bravo
+      Data season
    }
    err = json.NewDecoder(resp.Body).Decode(&value)
    if err != nil {
       return nil, err
    }
    return &value.Data, nil
-}
-
-type alfa struct {
-   Year int
-   Title string
-   ViewOptions struct {
-      Private struct {
-         Streams []struct {
-            AudioLanguages []struct {
-               Id string
-            } `json:"audio_languages"`
-         }
-      }
-   } `json:"view_options"`
-}
-
-type bravo struct {
-   alfa
-   Episodes []alfa
 }

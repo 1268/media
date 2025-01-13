@@ -8,11 +8,11 @@ import (
 
 func TestMetadata(t *testing.T) {
    for _, test := range web_tests {
-      b, err := test.out.bravo()
+      s, err := test.out.get_season()
       if err != nil {
          t.Fatal(err)
       }
-      fmt.Printf("%+v\n\n", b)
+      fmt.Printf("%+v\n\n", s)
       time.Sleep(time.Second)
    }
 }
