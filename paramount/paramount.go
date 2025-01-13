@@ -16,8 +16,6 @@ import (
    "time"
 )
 
-const secret_key = "302a6a0d70a7e9b967f91d39fef3e387816e3095925ae4537bce96063311f9c5"
-
 const encoding = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
 func pad(b []byte) []byte {
@@ -146,34 +144,17 @@ type VideoItem struct {
    SeriesTitle string
 }
 
-///
-
-type AppToken struct {
-   Values url.Values
-}
-
-// 15.0.52
-func (a *AppToken) ComCbsApp() error {
-   return a.New("4fb47ec1f5c17caa")
-}
-
-// 15.0.52
-func (a *AppToken) ComCbsCa() error {
-   return a.New("e55edaeb8451f737")
-}
-
-func (a *AppToken) New(app_secret string) error {
-   key, err := hex.DecodeString(secret_key)
+func (a *AppToken) encode() (string, error) {
+   key, err := hex.DecodeString(a.SecretKey)
    if err != nil {
-      return err
+      return "", err
    }
    block, err := aes.NewCipher(key)
    if err != nil {
-      return err
+      return "", err
    }
-   var src []byte
-   src = append(src, '|')
-   src = append(src, app_secret...)
+   src := []byte{'|'}
+   src = append(src, a.AppSecret...)
    src = pad(src)
    var iv [aes.BlockSize]byte
    cipher.NewCBCEncrypter(block, iv[:]).CryptBlocks(src, src)
@@ -181,14 +162,30 @@ func (a *AppToken) New(app_secret string) error {
    dst = append(dst, 0, aes.BlockSize)
    dst = append(dst, iv[:]...)
    dst = append(dst, src...)
-   a.Values = url.Values{
-      "at": {base64.StdEncoding.EncodeToString(dst)},
-   }
-   return nil
+   return base64.StdEncoding.EncodeToString(dst), nil
+}
+
+const secret_key = "302a6a0d70a7e9b967f91d39fef3e387816e3095925ae4537bce96063311f9c5"
+
+type AppToken struct {
+   AppSecret string
+   SecretKey string
+}
+
+// 15.0.52
+var ComCbsApp = AppToken{
+   AppSecret: "4fb47ec1f5c17caa",
+   SecretKey: secret_key,
+}
+
+// 15.0.52
+var ComCbsCa = AppToken{
+   AppSecret: "e55edaeb8451f737",
+   SecretKey: secret_key,
 }
 
 // must use app token and IP address for US
-func (a AppToken) Session(content_id string) (*SessionToken, error) {
+func (a *AppToken) Session(content_id string) (*SessionToken, error) {
    req, err := http.NewRequest("", "https://www.paramountplus.com", nil)
    if err != nil {
       return nil, err
@@ -199,8 +196,14 @@ func (a AppToken) Session(content_id string) (*SessionToken, error) {
       b.WriteString("/anonymous-session-token.json")
       return b.String()
    }()
-   a.Values.Set("contentId", content_id)
-   req.URL.RawQuery = a.Values.Encode()
+   token, err := a.encode()
+   if err != nil {
+      return nil, err
+   }
+   req.URL.RawQuery = url.Values{
+      "at": {token},
+      "contentId": {content_id},
+   }.Encode()
    resp, err := http.DefaultClient.Do(req)
    if err != nil {
       return nil, err
@@ -220,7 +223,7 @@ func (a AppToken) Session(content_id string) (*SessionToken, error) {
 }
 
 // must use app token and IP address for correct location
-func (*VideoItem) Marshal(token AppToken, cid string) ([]byte, error) {
+func (*VideoItem) Marshal(app *AppToken, cid string) ([]byte, error) {
    req, err := http.NewRequest("", "https://www.paramountplus.com", nil)
    if err != nil {
       return nil, err
@@ -232,7 +235,11 @@ func (*VideoItem) Marshal(token AppToken, cid string) ([]byte, error) {
       b.WriteString(".json")
       return b.String()
    }()
-   req.URL.RawQuery = token.Values.Encode()
+   token, err := app.encode()
+   if err != nil {
+      return nil, err
+   }
+   req.URL.RawQuery = url.Values{"at": {token}}.Encode()
    resp, err := http.DefaultClient.Do(req)
    if err != nil {
       return nil, err
