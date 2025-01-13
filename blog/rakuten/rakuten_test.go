@@ -61,3 +61,25 @@ func TestStreamFr(t *testing.T) {
       }
    }
 }
+func TestMetadata(t *testing.T) {
+   for _, test := range web_tests {
+      s, err := test.out.get_season()
+      if err != nil {
+         t.Fatal(err)
+      }
+      fmt.Printf("%+v\n\n", s)
+      time.Sleep(time.Second)
+   }
+}
+func TestAddress(t *testing.T) {
+   for _, test := range web_tests {
+      var out address
+      err := out.Set(test.in)
+      if err != nil {
+         t.Fatal(err)
+      }
+      if out != test.out {
+         t.Fatal(test)
+      }
+   }
+}
