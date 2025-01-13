@@ -30,10 +30,13 @@ var web_tests = []struct {
    },
 }
 
-func TestStreamFr(t *testing.T) {
+func TestStreamCz(t *testing.T) {
    for _, test := range web_tests {
-      if test.out.market_code == "fr" {
-         info, err := on_demand{ContentId: test.out.content_id}.streamings()
+      if test.out.market_code == "cz" {
+         var video on_demand
+         video.ClassificationId = classification_id[test.out.market_code]
+         video.ContentId = test.out.content_id
+         info, err := video.streamings()
          if err != nil {
             t.Fatal(err)
          }
@@ -43,10 +46,13 @@ func TestStreamFr(t *testing.T) {
    }
 }
 
-func TestStreamCz(t *testing.T) {
+func TestStreamFr(t *testing.T) {
    for _, test := range web_tests {
-      if test.out.market_code == "cz" {
-         info, err := on_demand{ContentId: test.out.content_id}.streamings()
+      if test.out.market_code == "fr" {
+         var video on_demand
+         video.ClassificationId = classification_id[test.out.market_code]
+         video.ContentId = test.out.content_id
+         info, err := video.streamings()
          if err != nil {
             t.Fatal(err)
          }

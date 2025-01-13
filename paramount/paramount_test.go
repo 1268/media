@@ -1,7 +1,6 @@
 package paramount
 
 import (
-   "41.neocities.org/text"
    "41.neocities.org/widevine"
    "bytes"
    "encoding/base64"
@@ -68,13 +67,8 @@ func TestWrap(t *testing.T) {
    if err != nil {
       t.Fatal(err)
    }
-   var app AppToken
-   err = app.ComCbsApp()
-   if err != nil {
-      t.Fatal(err)
-   }
    for _, test := range tests {
-      session, err := app.Session(test.content_id)
+      session, err := ComCbsApp.Session(test.content_id)
       if err != nil {
          t.Fatal(err)
       }

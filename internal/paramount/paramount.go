@@ -11,76 +11,17 @@ import (
    "slices"
 )
 
-func (f *flags) do_read() error {
-   data, err := os.ReadFile(f.content_id + "/request.txt")
-   if err != nil {
-      return err
-   }
-   var mpd dash.Mpd
-   mpd.BaseUrl = &dash.Url{}
-   err = mpd.BaseUrl.UnmarshalText(data)
-   if err != nil {
-      return err
-   }
-   data, err = os.ReadFile(f.content_id + "/body.txt")
-   if err != nil {
-      return err
-   }
-   mpd.Unmarshal(data)
-   represents := slices.SortedFunc(mpd.Representation(),
-      func(a, b dash.Representation) int {
-         return a.Bandwidth - b.Bandwidth
-      },
-   )
-   for _, represent := range represents {
-      switch f.representation {
-      case "":
-         fmt.Print(&represent, "\n\n")
-      case represent.Id:
-         var token paramount.AppToken
-         // INTL does NOT allow anonymous key request, so if you are INTL you
-         // will need to use US VPN until someone codes the INTL login
-         err := token.ComCbsApp()
-         if err != nil {
-            return err
-         }
-         f.s.Wrapper, err = token.Session(f.content_id)
-         if err != nil {
-            return err
-         }
-         data, err = os.ReadFile(f.content_id + "/item.txt")
-         if err != nil {
-            return err
-         }
-         var item paramount.VideoItem
-         err = item.Unmarshal(data)
-         if err != nil {
-            return err
-         }
-         f.s.Namer = &item
-         return f.s.Download(&represent)
-      }
-   }
-   return nil
-}
-
 func (f *flags) do_write() error {
    os.Mkdir(f.content_id, os.ModePerm)
    // item
-   var (
-      token paramount.AppToken
-      err error
-   )
+   var token paramount.AppToken
    if f.intl {
-      err = token.ComCbsCa()
+      token = paramount.ComCbsCa
    } else {
-      err = token.ComCbsApp()
-   }
-   if err != nil {
-      return err
+      token = paramount.ComCbsApp
    }
    var item paramount.VideoItem
-   data, err := item.Marshal(token, f.content_id)
+   data, err := item.Marshal(&token, f.content_id)
    if err != nil {
       return err
    }
@@ -115,4 +56,51 @@ func (f *flags) do_write() error {
       return err
    }
    return os.WriteFile(f.content_id + "/request.txt", data, os.ModePerm)
+}
+func (f *flags) do_read() error {
+   data, err := os.ReadFile(f.content_id + "/request.txt")
+   if err != nil {
+      return err
+   }
+   var mpd dash.Mpd
+   mpd.BaseUrl = &dash.Url{}
+   err = mpd.BaseUrl.UnmarshalText(data)
+   if err != nil {
+      return err
+   }
+   data, err = os.ReadFile(f.content_id + "/body.txt")
+   if err != nil {
+      return err
+   }
+   mpd.Unmarshal(data)
+   represents := slices.SortedFunc(mpd.Representation(),
+      func(a, b dash.Representation) int {
+         return a.Bandwidth - b.Bandwidth
+      },
+   )
+   for _, represent := range represents {
+      switch f.representation {
+      case "":
+         fmt.Print(&represent, "\n\n")
+      case represent.Id:
+         // INTL does NOT allow anonymous key request, so if you are INTL you
+         // will need to use US VPN until someone codes the INTL login
+         f.s.Wrapper, err = paramount.ComCbsApp.Session(f.content_id)
+         if err != nil {
+            return err
+         }
+         data, err = os.ReadFile(f.content_id + "/item.txt")
+         if err != nil {
+            return err
+         }
+         var item paramount.VideoItem
+         err = item.Unmarshal(data)
+         if err != nil {
+            return err
+         }
+         f.s.Namer = &item
+         return f.s.Download(&represent)
+      }
+   }
+   return nil
 }

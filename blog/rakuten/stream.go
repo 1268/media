@@ -3,21 +3,26 @@ package rakuten
 import (
    "bytes"
    "encoding/json"
+   "errors"
    "net/http"
 )
 
 // geo block
 func (o on_demand) streamings() ([]stream_info, error) {
-   o.AudioLanguage = "SPA"
    o.AudioQuality = "2.0"
-   o.ClassificationId = 272
    o.ContentType = "movies"
    o.DeviceIdentifier = "atvui40"
-   o.DeviceSerial = "not implemented"
    o.DeviceStreamVideoQuality = "FHD"
    o.Player = "atvui40:DASH-CENC:WVM"
    o.SubtitleLanguage = "MIS"
    o.VideoType = "stream"
+   o.DeviceSerial = "not implemented"
+   // cz = fail
+   // fr = pass
+   o.AudioLanguage = "ENG"
+   // cz = pass
+   // fr = fail
+   //o.AudioLanguage = "SPA"
    data, err := json.Marshal(o)
    if err != nil {
       return nil, err
@@ -33,10 +38,16 @@ func (o on_demand) streamings() ([]stream_info, error) {
       Data struct {
          StreamInfos []stream_info `json:"stream_infos"`
       }
+      Errors []struct {
+         Message string
+      }
    }
    err = json.NewDecoder(resp.Body).Decode(&value)
    if err != nil {
       return nil, err
+   }
+   if err := value.Errors; len(err) >= 1 {
+      return nil, errors.New(err[0].Message)
    }
    return value.Data.StreamInfos, nil
 }

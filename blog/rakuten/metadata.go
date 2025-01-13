@@ -9,21 +9,7 @@ import (
    "strings"
 )
 
-type metadata struct {
-   Title       string
-   ViewOptions struct {
-      Public struct {
-         Trailers []struct {
-            AudioLanguages []struct {
-               Id string
-            } `json:"audio_languages"`
-         }
-      }
-   } `json:"view_options"`
-   Year int
-}
-
-func (a *address) metadata() (*metadata, error) {
+func (a *address) bravo() (*bravo, error) {
    req, err := http.NewRequest("", "https://gizmo.rakuten.tv", nil)
    if err != nil {
       return nil, err
@@ -58,11 +44,30 @@ func (a *address) metadata() (*metadata, error) {
       return nil, errors.New(b.String())
    }
    var value struct {
-      Data metadata
+      Data bravo
    }
    err = json.NewDecoder(resp.Body).Decode(&value)
    if err != nil {
       return nil, err
    }
    return &value.Data, nil
+}
+
+type alfa struct {
+   Year int
+   Title string
+   ViewOptions struct {
+      Private struct {
+         Streams []struct {
+            AudioLanguages []struct {
+               Id string
+            } `json:"audio_languages"`
+         }
+      }
+   } `json:"view_options"`
+}
+
+type bravo struct {
+   alfa
+   Episodes []alfa
 }
