@@ -6,6 +6,19 @@ import (
    "time"
 )
 
+func TestAddress(t *testing.T) {
+   for _, test := range web_tests {
+      var out address
+      err := out.Set(test.in)
+      if err != nil {
+         t.Fatal(err)
+      }
+      if out != test.out {
+         t.Fatal(test)
+      }
+   }
+}
+
 var web_tests = []struct {
    in  string
    out address
@@ -24,25 +37,29 @@ var web_tests = []struct {
       in: "rakuten.tv/uk/player/episodes/stream/hell-s-kitchen-usa-15/hell-s-kitchen-usa-15-1",
       out: address{
          market_code: "uk",
-         season:      "hell-s-kitchen-usa-15",
+         season_id:   "hell-s-kitchen-usa-15",
          content_id:  "hell-s-kitchen-usa-15-1",
       },
    },
 }
 
-func TestStreamCz(t *testing.T) {
+func TestMetadata(t *testing.T) {
    for _, test := range web_tests {
-      if test.out.market_code == "cz" {
-         var video on_demand
-         video.ClassificationId = classification_id[test.out.market_code]
-         video.ContentId = test.out.content_id
-         info, err := video.streamings()
+      if test.out.season_id != "" {
+         episodes, err := test.out.season()
          if err != nil {
             t.Fatal(err)
          }
-         fmt.Printf("%+v\n", info)
-         time.Sleep(time.Second)
+         fmt.Printf("%+v\n", episodes)
+      } else {
+         movie, err := test.out.movie()
+         if err != nil {
+            t.Fatal(err)
+         }
+         fmt.Printf("%+v\n", movie)
       }
+      fmt.Println()
+      time.Sleep(time.Second)
    }
 }
 
@@ -50,36 +67,18 @@ func TestStreamFr(t *testing.T) {
    for _, test := range web_tests {
       if test.out.market_code == "fr" {
          var video on_demand
-         video.ClassificationId = classification_id[test.out.market_code]
          video.ContentId = test.out.content_id
+         var err error
+         video.ClassificationId, err = test.out.classification_id()
+         if err != nil {
+            t.Fatal(err)
+         }
          info, err := video.streamings()
          if err != nil {
             t.Fatal(err)
          }
          fmt.Printf("%+v\n", info)
          time.Sleep(time.Second)
-      }
-   }
-}
-func TestMetadata(t *testing.T) {
-   for _, test := range web_tests {
-      s, err := test.out.get_season()
-      if err != nil {
-         t.Fatal(err)
-      }
-      fmt.Printf("%+v\n\n", s)
-      time.Sleep(time.Second)
-   }
-}
-func TestAddress(t *testing.T) {
-   for _, test := range web_tests {
-      var out address
-      err := out.Set(test.in)
-      if err != nil {
-         t.Fatal(err)
-      }
-      if out != test.out {
-         t.Fatal(test)
       }
    }
 }

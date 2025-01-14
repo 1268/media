@@ -10,76 +10,18 @@ import (
    "strings"
 )
 
-func (a *address) movie() (*gizmo_movie, error) {
-   classification, err := a.classification_id()
-   if err != nil {
-      return nil, err
-   }
-   req, err := http.NewRequest("", "https://gizmo.rakuten.tv", nil)
-   if err != nil {
-      return nil, err
-   }
-   req.URL.Path = "/v3/movies/" + a.content_id
-   req.URL.RawQuery = url.Values{
-      "classification_id": {classification},
-      "device_identifier": {"atvui40"},
-      "market_code":       {a.market_code},
-   }.Encode()
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   if resp.StatusCode != http.StatusOK {
-      var b strings.Builder
-      resp.Write(&b)
-      return nil, errors.New(b.String())
-   }
-   var value struct {
-      Data gizmo_movie
-   }
-   err = json.NewDecoder(resp.Body).Decode(&value)
-   if err != nil {
-      return nil, err
-   }
-   return &value.Data, nil
-}
-
-func (a *address) season() ([]gizmo_episode, error) {
-   classification, err := a.classification_id()
-   if err != nil {
-      return nil, err
-   }
-   req, err := http.NewRequest("", "https://gizmo.rakuten.tv", nil)
-   if err != nil {
-      return nil, err
-   }
-   req.URL.Path = "/v3/seasons/" + a.season_id
-   req.URL.RawQuery = url.Values{
-      "classification_id": {classification},
-      "device_identifier": {"atvui40"},
-      "market_code":       {a.market_code},
-   }.Encode()
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   if resp.StatusCode != http.StatusOK {
-      var b strings.Builder
-      resp.Write(&b)
-      return nil, errors.New(b.String())
-   }
-   var value struct {
-      Data struct {
-         Episodes []gizmo_episode
-      }
-   }
-   err = json.NewDecoder(resp.Body).Decode(&value)
-   if err != nil {
-      return nil, err
-   }
-   return value.Data.Episodes, nil
+type on_demand struct {
+   AudioLanguage            string `json:"audio_language"`
+   AudioQuality             string `json:"audio_quality"`
+   ClassificationId         string `json:"classification_id"`
+   ContentId                string `json:"content_id"`
+   ContentType              string `json:"content_type"`
+   DeviceIdentifier         string `json:"device_identifier"`
+   DeviceSerial             string `json:"device_serial"`
+   DeviceStreamVideoQuality string `json:"device_stream_video_quality"`
+   Player                   string `json:"player"`
+   SubtitleLanguage         string `json:"subtitle_language"`
+   VideoType                string `json:"video_type"`
 }
 
 type address struct {
@@ -142,34 +84,6 @@ func (a *address) classification_id() (string, error) {
    return strconv.Itoa(v), nil
 }
 
-type gizmo_episode struct {
-   Number       int
-   SeasonNumber int `json:"season_number"`
-   Title        string
-   TvShowTitle  string       `json:"tv_show_title"`
-   ViewOptions  view_options `json:"view_options"`
-}
-
-type gizmo_movie struct {
-   Title       string
-   ViewOptions view_options `json:"view_options"`
-   Year        int
-}
-
-type on_demand struct {
-   AudioLanguage            string `json:"audio_language"`
-   AudioQuality             string `json:"audio_quality"`
-   ClassificationId         int    `json:"classification_id"`
-   ContentId                string `json:"content_id"`
-   ContentType              string `json:"content_type"`
-   DeviceIdentifier         string `json:"device_identifier"`
-   DeviceSerial             string `json:"device_serial"`
-   DeviceStreamVideoQuality string `json:"device_stream_video_quality"`
-   Player                   string `json:"player"`
-   SubtitleLanguage         string `json:"subtitle_language"`
-   VideoType                string `json:"video_type"`
-}
-
 // geo block
 func (o on_demand) streamings() ([]stream_info, error) {
    o.AudioQuality = "2.0"
@@ -216,12 +130,91 @@ type stream_info struct {
    VideoQuality string `json:"video_quality"`
 }
 
-type view_options struct {
-   Private struct {
-      Streams []struct {
-         AudioLanguages []struct {
-            Id string
-         } `json:"audio_languages"`
+func (a *address) movie() (*movie_episode, error) {
+   classification, err := a.classification_id()
+   if err != nil {
+      return nil, err
+   }
+   req, err := http.NewRequest("", "https://gizmo.rakuten.tv", nil)
+   if err != nil {
+      return nil, err
+   }
+   req.URL.Path = "/v3/movies/" + a.content_id
+   req.URL.RawQuery = url.Values{
+      "classification_id": {classification},
+      "device_identifier": {"atvui40"},
+      "market_code":       {a.market_code},
+   }.Encode()
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   if resp.StatusCode != http.StatusOK {
+      var b strings.Builder
+      resp.Write(&b)
+      return nil, errors.New(b.String())
+   }
+   var value struct {
+      Data movie_episode
+   }
+   err = json.NewDecoder(resp.Body).Decode(&value)
+   if err != nil {
+      return nil, err
+   }
+   return &value.Data, nil
+}
+
+type movie_episode struct {
+   Number       int
+   SeasonNumber int `json:"season_number"`
+   Title        string
+   TvShowTitle  string `json:"tv_show_title"`
+   ViewOptions  struct {
+      Private struct {
+         Streams []struct {
+            AudioLanguages []struct {
+               Id string
+            } `json:"audio_languages"`
+         }
+      }
+   } `json:"view_options"`
+   Year int
+}
+
+func (a *address) season() ([]movie_episode, error) {
+   classification, err := a.classification_id()
+   if err != nil {
+      return nil, err
+   }
+   req, err := http.NewRequest("", "https://gizmo.rakuten.tv", nil)
+   if err != nil {
+      return nil, err
+   }
+   req.URL.Path = "/v3/seasons/" + a.season_id
+   req.URL.RawQuery = url.Values{
+      "classification_id": {classification},
+      "device_identifier": {"atvui40"},
+      "market_code":       {a.market_code},
+   }.Encode()
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   if resp.StatusCode != http.StatusOK {
+      var b strings.Builder
+      resp.Write(&b)
+      return nil, errors.New(b.String())
+   }
+   var value struct {
+      Data struct {
+         Episodes []movie_episode
       }
    }
+   err = json.NewDecoder(resp.Body).Decode(&value)
+   if err != nil {
+      return nil, err
+   }
+   return value.Data.Episodes, nil
 }
