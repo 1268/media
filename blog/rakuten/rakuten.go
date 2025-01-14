@@ -64,24 +64,6 @@ type address struct {
    content_id  string
 }
 
-type gizmo_content struct {
-   Id           string
-   Number       int
-   SeasonNumber int `json:"season_number"`
-   Title        string
-   TvShowTitle  string `json:"tv_show_title"`
-   ViewOptions  struct {
-      Private struct {
-         Streams []struct {
-            AudioLanguages []struct {
-               Id string
-            } `json:"audio_languages"`
-         }
-      }
-   } `json:"view_options"`
-   Year int
-}
-
 func (a *address) Set(data string) error {
    data = strings.TrimPrefix(data, "https://")
    data = strings.TrimPrefix(data, "www.")
@@ -136,20 +118,6 @@ func (a *address) classification_id() (string, error) {
    return strconv.Itoa(v), nil
 }
 
-type on_demand struct {
-   AudioLanguage            string `json:"audio_language"`
-   AudioQuality             string `json:"audio_quality"`
-   ClassificationId         string `json:"classification_id"`
-   ContentId                string `json:"content_id"`
-   ContentType              string `json:"content_type"`
-   DeviceIdentifier         string `json:"device_identifier"`
-   DeviceSerial             string `json:"device_serial"`
-   DeviceStreamVideoQuality string `json:"device_stream_video_quality"`
-   Player                   string `json:"player"`
-   SubtitleLanguage         string `json:"subtitle_language"`
-   VideoType                string `json:"video_type"`
-}
-
 func (a *address) movie() (*gizmo_content, error) {
    classification, err := a.classification_id()
    if err != nil {
@@ -191,17 +159,51 @@ type stream_info struct {
    VideoQuality string `json:"video_quality"`
 }
 
+type on_demand struct {
+   AudioLanguage            string `json:"audio_language"`
+   AudioQuality             string `json:"audio_quality"`
+   ClassificationId         string `json:"classification_id"`
+   ContentId                string `json:"content_id"`
+   ContentType              string `json:"content_type"`
+   DeviceIdentifier         string `json:"device_identifier"`
+   DeviceSerial             string `json:"device_serial"`
+   DeviceStreamVideoQuality string `json:"device_stream_video_quality"`
+   Player                   string `json:"player"`
+   SubtitleLanguage         string `json:"subtitle_language"`
+   VideoType                string `json:"video_type"`
+}
+
+type gizmo_content struct {
+   Id           string
+   Number       int
+   SeasonNumber int `json:"season_number"`
+   Title        string
+   TvShowTitle  string `json:"tv_show_title"`
+   ViewOptions  struct {
+      Private struct {
+         Streams []struct {
+            AudioLanguages []struct {
+               Id string
+            } `json:"audio_languages"`
+         }
+      }
+   } `json:"view_options"`
+   Year int
+}
+
 // geo block
 func (o *on_demand) streamings() ([]stream_info, error) {
    o.AudioQuality = "2.0"
-   o.ContentType = "movies"
    o.DeviceIdentifier = "atvui40"
    o.DeviceStreamVideoQuality = "FHD"
    o.Player = "atvui40:DASH-CENC:WVM"
    o.SubtitleLanguage = "MIS"
    o.VideoType = "stream"
    o.DeviceSerial = "not implemented"
+   
+   o.ContentType = "movies"
    o.AudioLanguage = "ENG"
+   
    data, err := json.Marshal(o)
    if err != nil {
       return nil, err

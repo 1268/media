@@ -24,9 +24,11 @@ var web_tests = []struct {
    out address
 }{
    {
-      in: "rakuten.tv/cz/movies/transvulcania-the-people-s-run",
+      in: "rakuten.tv/uk/player/episodes/stream/hell-s-kitchen-usa-15/hell-s-kitchen-usa-15-1",
       out: address{
-         market_code: "cz", content_id: "transvulcania-the-people-s-run",
+         market_code: "uk",
+         season_id:   "hell-s-kitchen-usa-15",
+         content_id:  "hell-s-kitchen-usa-15-1",
       },
    },
    {
@@ -34,11 +36,9 @@ var web_tests = []struct {
       out: address{market_code: "fr", content_id: "infidele"},
    },
    {
-      in: "rakuten.tv/uk/player/episodes/stream/hell-s-kitchen-usa-15/hell-s-kitchen-usa-15-1",
+      in: "rakuten.tv/cz/movies/transvulcania-the-people-s-run",
       out: address{
-         market_code: "uk",
-         season_id:   "hell-s-kitchen-usa-15",
-         content_id:  "hell-s-kitchen-usa-15-1",
+         market_code: "cz", content_id: "transvulcania-the-people-s-run",
       },
    },
 }
@@ -63,7 +63,7 @@ func TestContent(t *testing.T) {
             t.Fatal(err)
          }
       }
-      fmt.Printf("%+v\n", content)
+      fmt.Printf("%+v\n\n", content)
       time.Sleep(time.Second)
    }
 }
