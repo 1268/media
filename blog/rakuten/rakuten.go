@@ -10,6 +10,50 @@ import (
    "strings"
 )
 
+func (a *address) classification_id() int {
+   switch a.market_code {
+   case "cz":
+      return 272
+   case "dk":
+      return 283
+   case "fi":
+      return 284
+   case "fr":
+      return 23
+   case "ie":
+      return 41
+   case "it":
+      return 36
+   case "nl":
+      return 323
+   case "no":
+      return 286
+   case "pt":
+      return 64
+   case "se":
+      return 282
+   case "ua":
+      return 276
+   case "uk":
+      return 18
+   }
+   panic(a.market_code)
+}
+
+type on_demand struct {
+   AudioLanguage            string `json:"audio_language"`
+   AudioQuality             string `json:"audio_quality"`
+   ClassificationId         int    `json:"classification_id"`
+   ContentId                string `json:"content_id"`
+   ContentType              string `json:"content_type"`
+   DeviceIdentifier         string `json:"device_identifier"`
+   DeviceSerial             string `json:"device_serial"`
+   DeviceStreamVideoQuality string `json:"device_stream_video_quality"`
+   Player                   string `json:"player"`
+   SubtitleLanguage         string `json:"subtitle_language"`
+   VideoType                string `json:"video_type"`
+}
+
 // geo block
 func (o on_demand) streamings() ([]stream_info, error) {
    o.AudioQuality = "2.0"
@@ -20,12 +64,7 @@ func (o on_demand) streamings() ([]stream_info, error) {
    o.SubtitleLanguage = "MIS"
    o.VideoType = "stream"
    o.DeviceSerial = "not implemented"
-   // cz = fail
-   // fr = pass
    o.AudioLanguage = "ENG"
-   // cz = pass
-   // fr = fail
-   //o.AudioLanguage = "SPA"
    data, err := json.Marshal(o)
    if err != nil {
       return nil, err
@@ -61,58 +100,15 @@ type stream_info struct {
    VideoQuality string `json:"video_quality"`
 }
 
-type on_demand struct {
-   AudioLanguage            string `json:"audio_language"`
-   AudioQuality             string `json:"audio_quality"`
-   ClassificationId         int    `json:"classification_id"`
-   ContentId                string `json:"content_id"`
-   ContentType              string `json:"content_type"`
-   DeviceIdentifier         string `json:"device_identifier"`
-   DeviceSerial             string `json:"device_serial"`
-   DeviceStreamVideoQuality string `json:"device_stream_video_quality"`
-   Player                   string `json:"player"`
-   SubtitleLanguage         string `json:"subtitle_language"`
-   VideoType                string `json:"video_type"`
-}
-type data struct {
-   Year int
-   Title string
-   ViewOptions struct {
-      Private struct {
-         Streams []struct {
-            AudioLanguages []struct {
-               Id string
-            } `json:"audio_languages"`
-         }
-      }
-   } `json:"view_options"`
-}
-
-type season struct {
-   data
-   Episodes []data
-}
-
-func (a *address) get_season() (*season, error) {
+func (a *address) movie() (*hello, error) {
    req, err := http.NewRequest("", "https://gizmo.rakuten.tv", nil)
    if err != nil {
       return nil, err
    }
-   req.URL.Path = func() string {
-      var b strings.Builder
-      b.WriteString("/v3/")
-      if a.season != "" {
-         b.WriteString("seasons/")
-         b.WriteString(a.season)
-      } else {
-         b.WriteString("movies/")
-         b.WriteString(a.content_id)
-      }
-      return b.String()
-   }()
+   req.URL.Path = "/v3/movies/" + a.content_id
    req.URL.RawQuery = url.Values{
       "classification_id": {
-         strconv.Itoa(classification_id[a.market_code]),
+         strconv.Itoa(a.classification_id()),
       },
       "device_identifier": {"atvui40"},
       "market_code":       {a.market_code},
@@ -128,7 +124,7 @@ func (a *address) get_season() (*season, error) {
       return nil, errors.New(b.String())
    }
    var value struct {
-      Data season
+      Data hello
    }
    err = json.NewDecoder(resp.Body).Decode(&value)
    if err != nil {
@@ -136,25 +132,28 @@ func (a *address) get_season() (*season, error) {
    }
    return &value.Data, nil
 }
-var classification_id = map[string]int{
-   "cz": 272,
-   "dk": 283,
-   "fi": 284,
-   "fr": 23,
-   "ie": 41,
-   "it": 36,
-   "nl": 323,
-   "no": 286,
-   "pt": 64,
-   "se": 282,
-   "ua": 276,
-   "uk": 18,
+
+type hello struct {
+   Number       int
+   SeasonNumber int `json:"season_number"`
+   Title        string
+   TvShowTitle  string `json:"tv_show_title"`
+   ViewOptions  struct {
+      Private struct {
+         Streams []struct {
+            AudioLanguages []struct {
+               Id string
+            } `json:"audio_languages"`
+         }
+      }
+   } `json:"view_options"`
+   Year int
 }
 
 type address struct {
    market_code string
-   season      string
-   content_id string
+   season_id   string
+   content_id  string
 }
 
 func (a *address) Set(data string) error {
@@ -170,10 +169,45 @@ func (a *address) Set(data string) error {
    data, a.content_id, found = strings.Cut(data, "movies/")
    if !found {
       data = strings.TrimPrefix(data, "player/episodes/stream/")
-      a.season, a.content_id, found = strings.Cut(data, "/")
+      a.season_id, a.content_id, found = strings.Cut(data, "/")
       if !found {
          return errors.New("episode not found")
       }
    }
    return nil
+}
+
+func (a *address) season() ([]hello, error) {
+   req, err := http.NewRequest("", "https://gizmo.rakuten.tv", nil)
+   if err != nil {
+      return nil, err
+   }
+   req.URL.Path = "/v3/seasons/" + a.season_id
+   req.URL.RawQuery = url.Values{
+      "classification_id": {
+         strconv.Itoa(a.classification_id()),
+      },
+      "device_identifier": {"atvui40"},
+      "market_code":       {a.market_code},
+   }.Encode()
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   if resp.StatusCode != http.StatusOK {
+      var b strings.Builder
+      resp.Write(&b)
+      return nil, errors.New(b.String())
+   }
+   var value struct {
+      Data struct {
+         Episodes []hello
+      }
+   }
+   err = json.NewDecoder(resp.Body).Decode(&value)
+   if err != nil {
+      return nil, err
+   }
+   return value.Data.Episodes, nil
 }

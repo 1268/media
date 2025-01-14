@@ -11,7 +11,7 @@ var web_tests = []struct {
    out address
 }{
    {
-      in:  "rakuten.tv/cz/movies/transvulcania-the-people-s-run",
+      in: "rakuten.tv/cz/movies/transvulcania-the-people-s-run",
       out: address{
          market_code: "cz", content_id: "transvulcania-the-people-s-run",
       },
@@ -25,7 +25,7 @@ var web_tests = []struct {
       out: address{
          market_code: "uk",
          season:      "hell-s-kitchen-usa-15",
-         content_id:     "hell-s-kitchen-usa-15-1",
+         content_id:  "hell-s-kitchen-usa-15-1",
       },
    },
 }
