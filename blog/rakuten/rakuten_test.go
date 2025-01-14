@@ -43,22 +43,27 @@ var web_tests = []struct {
    },
 }
 
-func TestMetadata(t *testing.T) {
+func TestContent(t *testing.T) {
    for _, test := range web_tests {
+      var content *gizmo_content
       if test.out.season_id != "" {
-         episodes, err := test.out.season()
+         season, err := test.out.season()
          if err != nil {
             t.Fatal(err)
          }
-         fmt.Printf("%+v\n", episodes)
+         var ok bool
+         content, ok = season.content(&test.out)
+         if !ok {
+            t.Fatal(season)
+         }
       } else {
-         movie, err := test.out.movie()
+         var err error
+         content, err = test.out.movie()
          if err != nil {
             t.Fatal(err)
          }
-         fmt.Printf("%+v\n", movie)
       }
-      fmt.Println()
+      fmt.Printf("%+v\n", content)
       time.Sleep(time.Second)
    }
 }
