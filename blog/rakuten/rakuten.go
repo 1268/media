@@ -4,11 +4,23 @@ import (
    "bytes"
    "encoding/json"
    "errors"
+   "io"
    "net/http"
    "net/url"
    "strconv"
    "strings"
 )
+
+func (s *stream_info) Wrap(data []byte) ([]byte, error) {
+   resp, err := http.Post(
+      s.LicenseUrl, "application/x-protobuf", bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   return io.ReadAll(resp.Body)
+}
 
 // geo block
 func (o *on_demand) streamings() (*stream_info, error) {

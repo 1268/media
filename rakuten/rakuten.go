@@ -160,7 +160,30 @@ func (o *OnDemand) Info() (*StreamInfo, error) {
    return &value.Data.StreamInfos[0], nil
 }
 
+func (s *StreamInfo) Wrap(data []byte) ([]byte, error) {
+   resp, err := http.Post(
+      s.LicenseUrl, "application/x-protobuf", bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   return io.ReadAll(resp.Body)
+}
+
 ///
+
+func (a *Address) String() string {
+   var b strings.Builder
+   if a.MarketCode != "" {
+      b.WriteString(a.MarketCode)
+   }
+   if a.ContentId != "" {
+      b.WriteString("/movies/")
+      b.WriteString(a.ContentId)
+   }
+   return b.String()
+}
 
 func (*GizmoMovie) Show() string {
    return ""
@@ -180,27 +203,4 @@ func (*GizmoMovie) Episode() int {
 
 func (g *GizmoMovie) Year() int {
    return g.Data.Year
-}
-
-func (s *StreamInfo) Wrap(data []byte) ([]byte, error) {
-   resp, err := http.Post(
-      s.LicenseUrl, "application/x-protobuf", bytes.NewReader(data),
-   )
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   return io.ReadAll(resp.Body)
-}
-
-func (a *Address) String() string {
-   var b strings.Builder
-   if a.MarketCode != "" {
-      b.WriteString(a.MarketCode)
-   }
-   if a.ContentId != "" {
-      b.WriteString("/movies/")
-      b.WriteString(a.ContentId)
-   }
-   return b.String()
 }
