@@ -11,6 +11,14 @@ import (
    "strings"
 )
 
+func (a *Address) Hd() *OnDemand {
+   return a.video("HD")
+}
+
+func (a *Address) Fhd() *OnDemand {
+   return a.video("FHD")
+}
+
 func (a *Address) video(quality string) *OnDemand {
    var o OnDemand
    o.AudioLanguage = "ENG"
@@ -111,14 +119,6 @@ func (*GizmoMovie) Episode() int {
 
 func (g *GizmoMovie) Year() int {
    return g.Data.Year
-}
-
-func (a *Address) Hd() *OnDemand {
-   return a.video("HD")
-}
-
-func (a *Address) Fhd() *OnDemand {
-   return a.video("FHD")
 }
 
 func (s *StreamInfo) Wrap(data []byte) ([]byte, error) {
