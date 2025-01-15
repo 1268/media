@@ -9,10 +9,6 @@ import (
    "strings"
 )
 
-type gizmo_season struct {
-   Episodes []gizmo_content
-}
-
 type address struct {
    market_code string
    season_id   string
@@ -114,33 +110,6 @@ func (a *address) season() (*gizmo_season, error) {
    return &value.Data, nil
 }
 
-func (a *address) content(season gizmo_season) (*gizmo_content, bool) {
-   for _, episode := range season.Episodes {
-      if episode.Id == a.content_id {
-         return &episode, true
-      }
-   }
-   return nil, false
-}
-
-type gizmo_content struct {
-   Number       int
-   SeasonNumber int `json:"season_number"`
-   Title        string
-   TvShowTitle  string `json:"tv_show_title"`
-   ViewOptions  struct {
-      Private struct {
-         Streams []struct {
-            AudioLanguages []struct {
-               Id string
-            } `json:"audio_languages"`
-         }
-      }
-   } `json:"view_options"`
-   Year int
-   Id   string
-}
-
 func (a *address) movie() (*gizmo_content, error) {
    classification, err := a.classification_id()
    if err != nil {
@@ -174,4 +143,36 @@ func (a *address) movie() (*gizmo_content, error) {
       return nil, err
    }
    return &value.Data, nil
+}
+
+type gizmo_season struct {
+   Episodes []gizmo_content
+}
+
+func (a *address) content(season *gizmo_season) (*gizmo_content, bool) {
+   for _, episode := range season.Episodes {
+      if episode.Id == a.content_id {
+         return &episode, true
+      }
+   }
+   return nil, false
+}
+
+type gizmo_content struct {
+   Id           string
+   Number       int
+   SeasonNumber int `json:"season_number"`
+   Title        string
+   TvShowTitle  string `json:"tv_show_title"`
+   Type         string
+   Year int
+   ViewOptions  struct {
+      Private struct {
+         Streams []struct {
+            AudioLanguages []struct {
+               Id string
+            } `json:"audio_languages"`
+         }
+      }
+   } `json:"view_options"`
 }
