@@ -173,18 +173,6 @@ func (s *StreamInfo) Wrap(data []byte) ([]byte, error) {
 
 ///
 
-func (a *Address) String() string {
-   var b strings.Builder
-   if a.MarketCode != "" {
-      b.WriteString(a.MarketCode)
-   }
-   if a.ContentId != "" {
-      b.WriteString("/movies/")
-      b.WriteString(a.ContentId)
-   }
-   return b.String()
-}
-
 func (*GizmoMovie) Show() string {
    return ""
 }
@@ -203,4 +191,16 @@ func (*GizmoMovie) Episode() int {
 
 func (g *GizmoMovie) Year() int {
    return g.Data.Year
+}
+
+func (a *Address) String() string {
+   var b strings.Builder
+   if a.MarketCode != "" {
+      b.WriteString(a.MarketCode)
+   }
+   if a.ContentId != "" {
+      b.WriteString("/movies/")
+      b.WriteString(a.ContentId)
+   }
+   return b.String()
 }

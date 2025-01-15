@@ -2,6 +2,7 @@ package rakuten
 
 import (
    "41.neocities.org/widevine"
+   "41.neocities.org/text"
    "bytes"
    "encoding/base64"
    "fmt"
@@ -9,6 +10,38 @@ import (
    "testing"
    "time"
 )
+
+func TestContent(t *testing.T) {
+   for _, test := range web_tests {
+      class, ok := test.out.classification_id()
+      if !ok {
+         t.Fatal(test.out)
+      }
+      var content *gizmo_content
+      if test.out.season_id != "" {
+         season, err := test.out.season(class)
+         if err != nil {
+            t.Fatal(err)
+         }
+         var ok bool
+         content, ok = test.out.content(season)
+         if !ok {
+            t.Fatal(season)
+         }
+      } else {
+         var err error
+         content, err = test.out.movie(class)
+         if err != nil {
+            t.Fatal(err)
+         }
+      }
+      fmt.Println(content)
+      fmt.Printf(
+         "%q\n\n", text.Name(namer{content}),
+      )
+      time.Sleep(time.Second)
+   }
+}
 
 func TestStreamFr(t *testing.T) {
    home, err := os.UserHomeDir()
@@ -127,35 +160,6 @@ var web_tests = []web_test{
          content_id:  "hell-s-kitchen-usa-15-1",
       },
    },
-}
-
-func TestContent(t *testing.T) {
-   for _, test := range web_tests {
-      class, ok := test.out.classification_id()
-      if !ok {
-         t.Fatal(test.out)
-      }
-      var content *gizmo_content
-      if test.out.season_id != "" {
-         season, err := test.out.season(class)
-         if err != nil {
-            t.Fatal(err)
-         }
-         var ok bool
-         content, ok = test.out.content(season)
-         if !ok {
-            t.Fatal(season)
-         }
-      } else {
-         var err error
-         content, err = test.out.movie(class)
-         if err != nil {
-            t.Fatal(err)
-         }
-      }
-      fmt.Print(content, "\n\n")
-      time.Sleep(time.Second)
-   }
 }
 
 func TestAddress(t *testing.T) {
