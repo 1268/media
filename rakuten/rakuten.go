@@ -191,8 +191,6 @@ func (g *GizmoMovie) Year() int {
    return g.Data.Year
 }
 
-///
-
 func (a *Address) String() string {
    var b strings.Builder
    if a.MarketCode != "" {
