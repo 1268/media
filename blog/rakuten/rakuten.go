@@ -10,6 +10,36 @@ import (
    "strings"
 )
 
+// geo block
+func (o *on_demand) streamings() ([]stream_info, error) {
+   data, err := json.Marshal(o)
+   if err != nil {
+      return nil, err
+   }
+   resp, err := http.Post(
+      "https://gizmo.rakuten.tv/v3/avod/streamings",
+      "application/json", bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   var value struct {
+      Data struct {
+         StreamInfos []stream_info `json:"stream_infos"`
+      }
+      Errors []struct {
+         Message string
+      }
+   }
+   err = json.NewDecoder(resp.Body).Decode(&value)
+   if err != nil {
+      return nil, err
+   }
+   if err := value.Errors; len(err) >= 1 {
+      return nil, errors.New(err[0].Message)
+   }
+   return value.Data.StreamInfos, nil
+}
 type gizmo_season struct {
    Episodes []gizmo_content
 }
@@ -116,6 +146,36 @@ type stream_info struct {
    VideoQuality string `json:"video_quality"`
 }
 
+func (a *address) classification_id() (int, bool) {
+   switch a.market_code {
+   case "cz":
+      return 272, true
+   case "dk":
+      return 283, true
+   case "fi":
+      return 284, true
+   case "fr":
+      return 23, true
+   case "ie":
+      return 41, true
+   case "it":
+      return 36, true
+   case "nl":
+      return 323, true
+   case "no":
+      return 286, true
+   case "pt":
+      return 64, true
+   case "se":
+      return 282, true
+   case "ua":
+      return 276, true
+   case "uk":
+      return 18, true
+   }
+   return 0, false
+}
+
 func (a *address) movie(classification_id int) (*gizmo_content, error) {
    req, err := http.NewRequest("", "https://gizmo.rakuten.tv", nil)
    if err != nil {
@@ -177,79 +237,4 @@ func (a *address) season(classification_id int) (*gizmo_season, error) {
       return nil, err
    }
    return &value.Data, nil
-}
-
-// geo block
-func (g *gizmo_content) streamings(
-   classification_id int, language string,
-) ([]stream_info, error) {
-   data, err := json.Marshal(map[string]string{
-      "audio_language":              language,
-      "audio_quality":               "2.0",
-      "content_id":                  g.Id,
-      "content_type":                g.Type,
-      "device_identifier":           "atvui40",
-      "device_serial":               "not implemented",
-      "device_stream_video_quality": "FHD",
-      "player":                      "atvui40:DASH-CENC:WVM",
-      "subtitle_language":           "MIS",
-      "video_type":                  "stream",
-      "classification_id":           strconv.Itoa(classification_id),
-   })
-   if err != nil {
-      return nil, err
-   }
-   resp, err := http.Post(
-      "https://gizmo.rakuten.tv/v3/avod/streamings",
-      "application/json", bytes.NewReader(data),
-   )
-   if err != nil {
-      return nil, err
-   }
-   var value struct {
-      Data struct {
-         StreamInfos []stream_info `json:"stream_infos"`
-      }
-      Errors []struct {
-         Message string
-      }
-   }
-   err = json.NewDecoder(resp.Body).Decode(&value)
-   if err != nil {
-      return nil, err
-   }
-   if err := value.Errors; len(err) >= 1 {
-      return nil, errors.New(err[0].Message)
-   }
-   return value.Data.StreamInfos, nil
-}
-
-func (a *address) classification_id() (int, bool) {
-   switch a.market_code {
-   case "cz":
-      return 272, true
-   case "dk":
-      return 283, true
-   case "fi":
-      return 284, true
-   case "fr":
-      return 23, true
-   case "ie":
-      return 41, true
-   case "it":
-      return 36, true
-   case "nl":
-      return 323, true
-   case "no":
-      return 286, true
-   case "pt":
-      return 64, true
-   case "se":
-      return 282, true
-   case "ua":
-      return 276, true
-   case "uk":
-      return 18, true
-   }
-   return 0, false
 }

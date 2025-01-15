@@ -6,22 +6,64 @@ import (
    "time"
 )
 
+func TestContent(t *testing.T) {
+   for _, test := range web_tests {
+      class, ok := test.out.classification_id()
+      if !ok {
+         t.Fatal(test.out)
+      }
+      var content *gizmo_content
+      if test.out.season_id != "" {
+         season, err := test.out.season(class)
+         if err != nil {
+            t.Fatal(err)
+         }
+         var ok bool
+         content, ok = test.out.content(season)
+         if !ok {
+            t.Fatal(season)
+         }
+      } else {
+         var err error
+         content, err = test.out.movie(class)
+         if err != nil {
+            t.Fatal(err)
+         }
+      }
+      fmt.Print(content, "\n\n")
+      time.Sleep(time.Second)
+   }
+}
+
+func TestAddress(t *testing.T) {
+   for _, test := range web_tests {
+      var out address
+      err := out.Set(test.in)
+      if err != nil {
+         t.Fatal(err)
+      }
+      if out != test.out {
+         t.Fatal(test)
+      }
+   }
+}
 func (w *web_test) info() ([]stream_info, error) {
+   class, _ := w.out.classification_id()
    var content *gizmo_content
    if w.out.season_id != "" {
-      season, err := w.out.season()
+      season, err := w.out.season(class)
       if err != nil {
          return nil, err
       }
       content, _ = w.out.content(season)
    } else {
       var err error
-      content, err = w.out.movie()
+      content, err = w.out.movie(class)
       if err != nil {
          return nil, err
       }
    }
-   return w.out.streamings(content, w.language)
+   return content.streamings(class, w.language)
 }
 
 type web_test struct {
@@ -86,43 +128,6 @@ func TestStreamFr(t *testing.T) {
             t.Fatal(err)
          }
          fmt.Printf("%+v\n", info)
-      }
-   }
-}
-func TestContent(t *testing.T) {
-   for _, test := range web_tests {
-      var content *gizmo_content
-      if test.out.season_id != "" {
-         season, err := test.out.season()
-         if err != nil {
-            t.Fatal(err)
-         }
-         var ok bool
-         content, ok = test.out.content(season)
-         if !ok {
-            t.Fatal(season)
-         }
-      } else {
-         var err error
-         content, err = test.out.movie()
-         if err != nil {
-            t.Fatal(err)
-         }
-      }
-      fmt.Print(content, "\n\n")
-      time.Sleep(time.Second)
-   }
-}
-
-func TestAddress(t *testing.T) {
-   for _, test := range web_tests {
-      var out address
-      err := out.Set(test.in)
-      if err != nil {
-         t.Fatal(err)
-      }
-      if out != test.out {
-         t.Fatal(test)
       }
    }
 }
