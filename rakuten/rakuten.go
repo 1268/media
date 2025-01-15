@@ -32,37 +32,6 @@ type StreamInfo struct {
    VideoQuality string `json:"video_quality"`
 }
 
-func (*GizmoMovie) Show() string {
-   return ""
-}
-
-func (g *GizmoMovie) Title() string {
-   return g.Data.Title
-}
-
-func (*GizmoMovie) Season() int {
-   return 0
-}
-
-func (*GizmoMovie) Episode() int {
-   return 0
-}
-
-func (g *GizmoMovie) Year() int {
-   return g.Data.Year
-}
-
-func (s *StreamInfo) Wrap(data []byte) ([]byte, error) {
-   resp, err := http.Post(
-      s.LicenseUrl, "application/x-protobuf", bytes.NewReader(data),
-   )
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   return io.ReadAll(resp.Body)
-}
-
 type Address struct {
    ClassificationId int
    ContentId        string
@@ -122,18 +91,6 @@ func (a *Address) Set(s string) error {
    return nil
 }
 
-func (a *Address) String() string {
-   var b strings.Builder
-   if a.MarketCode != "" {
-      b.WriteString(a.MarketCode)
-   }
-   if a.ContentId != "" {
-      b.WriteString("/movies/")
-      b.WriteString(a.ContentId)
-   }
-   return b.String()
-}
-
 type OnDemand struct {
    AudioLanguage            string `json:"audio_language"`
    AudioQuality             string `json:"audio_quality"`
@@ -147,8 +104,6 @@ type OnDemand struct {
    SubtitleLanguage         string `json:"subtitle_language"`
    VideoType                string `json:"video_type"`
 }
-
-///
 
 func (a *Address) video(quality string) *OnDemand {
    var o OnDemand
@@ -203,4 +158,49 @@ func (o *OnDemand) Info() (*StreamInfo, error) {
       return nil, err
    }
    return &value.Data.StreamInfos[0], nil
+}
+
+///
+
+func (*GizmoMovie) Show() string {
+   return ""
+}
+
+func (g *GizmoMovie) Title() string {
+   return g.Data.Title
+}
+
+func (*GizmoMovie) Season() int {
+   return 0
+}
+
+func (*GizmoMovie) Episode() int {
+   return 0
+}
+
+func (g *GizmoMovie) Year() int {
+   return g.Data.Year
+}
+
+func (s *StreamInfo) Wrap(data []byte) ([]byte, error) {
+   resp, err := http.Post(
+      s.LicenseUrl, "application/x-protobuf", bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   return io.ReadAll(resp.Body)
+}
+
+func (a *Address) String() string {
+   var b strings.Builder
+   if a.MarketCode != "" {
+      b.WriteString(a.MarketCode)
+   }
+   if a.ContentId != "" {
+      b.WriteString("/movies/")
+      b.WriteString(a.ContentId)
+   }
+   return b.String()
 }

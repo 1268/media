@@ -6,6 +6,25 @@ import (
    "time"
 )
 
+func (w *web_test) info() (*stream_info, error) {
+   class, _ := w.out.classification_id()
+   var content *gizmo_content
+   if w.out.season_id != "" {
+      season, err := w.out.season(class)
+      if err != nil {
+         return nil, err
+      }
+      content, _ = w.out.content(season)
+   } else {
+      var err error
+      content, err = w.out.movie(class)
+      if err != nil {
+         return nil, err
+      }
+   }
+   return content.hd(class, w.language).streamings()
+}
+
 func TestContent(t *testing.T) {
    for _, test := range web_tests {
       class, ok := test.out.classification_id()
@@ -46,24 +65,6 @@ func TestAddress(t *testing.T) {
          t.Fatal(test)
       }
    }
-}
-func (w *web_test) info() ([]stream_info, error) {
-   class, _ := w.out.classification_id()
-   var content *gizmo_content
-   if w.out.season_id != "" {
-      season, err := w.out.season(class)
-      if err != nil {
-         return nil, err
-      }
-      content, _ = w.out.content(season)
-   } else {
-      var err error
-      content, err = w.out.movie(class)
-      if err != nil {
-         return nil, err
-      }
-   }
-   return content.streamings(class, w.language)
 }
 
 type web_test struct {
