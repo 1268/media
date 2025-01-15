@@ -57,15 +57,6 @@ type gizmo_season struct {
    Episodes []gizmo_content
 }
 
-func (a *address) content(season *gizmo_season) (*gizmo_content, bool) {
-   for _, episode := range season.Episodes {
-      if episode.Id == a.content_id {
-         return &episode, true
-      }
-   }
-   return nil, false
-}
-
 func (g *gizmo_content) String() string {
    var (
       audio = map[string]struct{}{}
@@ -107,67 +98,10 @@ func (g *gizmo_content) String() string {
    return string(b)
 }
 
-type address struct {
-   market_code string
-   season_id   string
-   content_id  string
-}
-
-func (a *address) Set(data string) error {
-   data = strings.TrimPrefix(data, "https://")
-   data = strings.TrimPrefix(data, "www.")
-   data = strings.TrimPrefix(data, "rakuten.tv")
-   data = strings.TrimPrefix(data, "/")
-   var found bool
-   a.market_code, data, found = strings.Cut(data, "/")
-   if !found {
-      return errors.New("market code not found")
-   }
-   data, a.content_id, found = strings.Cut(data, "movies/")
-   if !found {
-      data = strings.TrimPrefix(data, "player/episodes/stream/")
-      a.season_id, a.content_id, found = strings.Cut(data, "/")
-      if !found {
-         return errors.New("episode not found")
-      }
-   }
-   return nil
-}
-
 type stream_info struct {
    LicenseUrl   string `json:"license_url"`
    Url          string
    VideoQuality string `json:"video_quality"`
-}
-
-func (a *address) classification_id() (int, bool) {
-   switch a.market_code {
-   case "cz":
-      return 272, true
-   case "dk":
-      return 283, true
-   case "fi":
-      return 284, true
-   case "fr":
-      return 23, true
-   case "ie":
-      return 41, true
-   case "it":
-      return 36, true
-   case "nl":
-      return 323, true
-   case "no":
-      return 286, true
-   case "pt":
-      return 64, true
-   case "se":
-      return 282, true
-   case "ua":
-      return 276, true
-   case "uk":
-      return 18, true
-   }
-   return 0, false
 }
 
 func (g *gizmo_content) video(
@@ -314,4 +248,85 @@ type namer struct {
 
 func (n namer) Year() int {
    return n.g.Year
+}
+
+func (a *address) content(season *gizmo_season) (*gizmo_content, bool) {
+   for _, episode := range season.Episodes {
+      if episode.Id == a.content_id {
+         return &episode, true
+      }
+   }
+   return nil, false
+}
+
+func (a *address) classification_id() (int, bool) {
+   switch a.market_code {
+   case "cz":
+      return 272, true
+   case "dk":
+      return 283, true
+   case "fi":
+      return 284, true
+   case "fr":
+      return 23, true
+   case "ie":
+      return 41, true
+   case "it":
+      return 36, true
+   case "nl":
+      return 323, true
+   case "no":
+      return 286, true
+   case "pt":
+      return 64, true
+   case "se":
+      return 282, true
+   case "ua":
+      return 276, true
+   case "uk":
+      return 18, true
+   }
+   return 0, false
+}
+
+type address struct {
+   market_code string
+   season_id   string
+   content_id  string
+}
+
+func (a *address) String() string {
+   var data strings.Builder
+   data.WriteString(a.market_code)
+   data.WriteByte('/')
+   if a.season_id != "" {
+      data.WriteString("player/episodes/stream/")
+      data.WriteString(a.season_id)
+      data.WriteByte('/')
+   } else {
+      data.WriteString("movies/")
+   }
+   data.WriteString(a.content_id)
+   return data.String()
+}
+
+func (a *address) Set(data string) error {
+   data = strings.TrimPrefix(data, "https://")
+   data = strings.TrimPrefix(data, "www.")
+   data = strings.TrimPrefix(data, "rakuten.tv")
+   data = strings.TrimPrefix(data, "/")
+   var found bool
+   a.market_code, data, found = strings.Cut(data, "/")
+   if !found {
+      return errors.New("market code not found")
+   }
+   data, a.content_id, found = strings.Cut(data, "movies/")
+   if !found {
+      data = strings.TrimPrefix(data, "player/episodes/stream/")
+      a.season_id, a.content_id, found = strings.Cut(data, "/")
+      if !found {
+         return errors.New("episode not found")
+      }
+   }
+   return nil
 }

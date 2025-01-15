@@ -171,8 +171,6 @@ func (s *StreamInfo) Wrap(data []byte) ([]byte, error) {
    return io.ReadAll(resp.Body)
 }
 
-///
-
 func (*GizmoMovie) Show() string {
    return ""
 }
@@ -192,6 +190,8 @@ func (*GizmoMovie) Episode() int {
 func (g *GizmoMovie) Year() int {
    return g.Data.Year
 }
+
+///
 
 func (a *Address) String() string {
    var b strings.Builder
