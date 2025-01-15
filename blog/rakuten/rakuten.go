@@ -9,6 +9,45 @@ import (
    "strings"
 )
 
+func (g *gizmo_content) String() string {
+   languages := map[string]struct{}{}
+   var b []byte
+   for i, stream := range g.ViewOptions.Private.Streams {
+      for j, language := range stream.AudioLanguages {
+         _, ok := languages[language.Id]
+         if !ok {
+            if i+j >= 1 {
+               b = append(b, '\n')
+            }
+            b = append(b, "audio language = "...)
+            b = append(b, language.Id...)
+            languages[language.Id] = struct{}{}
+         }
+      }
+   }
+   b = append(b, "\nid = "...)
+   b = append(b, g.Id...)
+   if g.Number >= 1 {
+      b = append(b, "\nnumber = "...)
+      b = strconv.AppendInt(b, int64(g.Number), 10)
+   }
+   if g.SeasonNumber >= 1 {
+      b = append(b, "\nseason number = "...)
+      b = strconv.AppendInt(b, int64(g.SeasonNumber), 10)
+   }
+   b = append(b, "\ntitle = "...)
+   b = append(b, g.Title...)
+   if g.TvShowTitle != "" {
+      b = append(b, "\ntv show = "...)
+      b = append(b, g.TvShowTitle...)
+   }
+   b = append(b, "\ntype = "...)
+   b = append(b, g.Type...)
+   b = append(b, "\nyear = "...)
+   b = strconv.AppendInt(b, int64(g.Year), 10)
+   return string(b)
+}
+
 type address struct {
    market_code string
    season_id   string
@@ -165,7 +204,7 @@ type gizmo_content struct {
    Title        string
    TvShowTitle  string `json:"tv_show_title"`
    Type         string
-   Year int
+   Year         int
    ViewOptions  struct {
       Private struct {
          Streams []struct {

@@ -5,7 +5,6 @@ import (
    "encoding/json"
    "errors"
    "net/http"
-   "strconv"
 )
 
 // geo block
@@ -55,29 +54,4 @@ func (a *address) streamings(
       return nil, errors.New(err[0].Message)
    }
    return value.Data.StreamInfos, nil
-}
-
-func (g *gizmo_content) String() string {
-   var b []byte
-   for _, stream := range g.ViewOptions.Private.Streams {
-      for _, language := range stream.AudioLanguages {
-         b = append(b, "\naudio language = "...)
-         b = append(b, language.Id...)
-      }
-   }
-   b = append(b, "\nid = "...)
-   b = append(b, g.Id...)
-   b = append(b, "\nnumber = "...)
-   b = strconv.AppendInt(b, int64(g.Number), 10)
-   b = append(b, "\nseason number = "...)
-   b = strconv.AppendInt(b, int64(g.SeasonNumber), 10)
-   b = append(b, "\ntitle = "...)
-   b = append(b, g.Title...)
-   b = append(b, "\ntv show = "...)
-   b = append(b, g.TvShowTitle...)
-   b = append(b, "\ntype = "...)
-   b = append(b, g.Type...)
-   b = append(b, "\nyear = "...)
-   b = strconv.AppendInt(b, int64(g.Year), 10)
-   return string(b)
 }
