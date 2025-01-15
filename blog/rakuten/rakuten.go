@@ -270,17 +270,17 @@ func (g *gizmo_content) video(
    classification_id int, language, quality string,
 ) *on_demand {
    return &on_demand{
-      AudioLanguage: language,
-      AudioQuality: "2.0",
-      ClassificationId: classification_id,
-      ContentId: g.Id,
-      ContentType: g.Type,
-      DeviceIdentifier: "atvui40",
-      DeviceSerial: "not implemented",
+      AudioLanguage:            language,
+      AudioQuality:             "2.0",
+      ClassificationId:         classification_id,
+      ContentId:                g.Id,
+      ContentType:              g.Type,
+      DeviceIdentifier:         "atvui40",
+      DeviceSerial:             "not implemented",
       DeviceStreamVideoQuality: quality,
-      Player: "atvui40:DASH-CENC:WVM",
-      SubtitleLanguage: "MIS",
-      VideoType: "stream",
+      Player:                   "atvui40:DASH-CENC:WVM",
+      SubtitleLanguage:         "MIS",
+      VideoType:                "stream",
    }
 }
 

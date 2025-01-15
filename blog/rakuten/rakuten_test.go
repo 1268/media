@@ -97,19 +97,19 @@ func (w *web_test) info() (*stream_info, error) {
 
 type web_test struct {
    content_id string
-   in       string
-   key_id string
-   language string
-   out      address
+   in         string
+   key_id     string
+   language   string
+   out        address
 }
 
 var web_tests = []web_test{
    {
-      in:       "rakuten.tv/fr/movies/infidele",
+      in:         "rakuten.tv/fr/movies/infidele",
       content_id: "MGU1MTgwMDA2Y2Q1MDhlZWMwMGQ1MzVmZWM2YzQyMGQtbWMtMC0xNDEtMC0w",
       key_id:     "DlGAAGzVCO7ADVNf7GxCDQ==",
-      language: "ENG",
-      out:      address{market_code: "fr", content_id: "infidele"},
+      language:   "ENG",
+      out:        address{market_code: "fr", content_id: "infidele"},
    },
    {
       in:       "rakuten.tv/cz/movies/transvulcania-the-people-s-run",
