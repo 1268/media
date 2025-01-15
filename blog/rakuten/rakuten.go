@@ -9,19 +9,88 @@ import (
    "strings"
 )
 
+func (a *address) movie() (*gizmo_content, error) {
+   classification, err := a.classification_id()
+   if err != nil {
+      return nil, err
+   }
+   req, err := http.NewRequest("", "https://gizmo.rakuten.tv", nil)
+   if err != nil {
+      return nil, err
+   }
+   req.URL.Path = "/v3/movies/" + a.content_id
+   req.URL.RawQuery = url.Values{
+      "classification_id": {classification},
+      "device_identifier": {"atvui40"},
+      "market_code":       {a.market_code},
+   }.Encode()
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   var value struct {
+      Data gizmo_content
+      Errors []struct {
+         Message string
+      }
+   }
+   err = json.NewDecoder(resp.Body).Decode(&value)
+   if err != nil {
+      return nil, err
+   }
+   if err := value.Errors; len(err) >= 1 {
+      return nil, errors.New(err[0].Message)
+   }
+   return &value.Data, nil
+}
+
+type gizmo_season struct {
+   Episodes []gizmo_content
+}
+
+func (a *address) content(season *gizmo_season) (*gizmo_content, bool) {
+   for _, episode := range season.Episodes {
+      if episode.Id == a.content_id {
+         return &episode, true
+      }
+   }
+   return nil, false
+}
+
+type gizmo_content struct {
+   Id           string
+   Number       int
+   SeasonNumber int `json:"season_number"`
+   Title        string
+   TvShowTitle  string `json:"tv_show_title"`
+   Type         string
+   Year         int
+   ViewOptions  struct {
+      Private struct {
+         Streams []struct {
+            AudioLanguages []struct {
+               Id string
+            } `json:"audio_languages"`
+         }
+      }
+   } `json:"view_options"`
+}
 func (g *gizmo_content) String() string {
-   languages := map[string]struct{}{}
-   var b []byte
-   for i, stream := range g.ViewOptions.Private.Streams {
-      for j, language := range stream.AudioLanguages {
-         _, ok := languages[language.Id]
+   var (
+      audio = map[string]struct{}{}
+      b []byte
+   )
+   for _, stream := range g.ViewOptions.Private.Streams {
+      for _, language := range stream.AudioLanguages {
+         _, ok := audio[language.Id]
          if !ok {
-            if i+j >= 1 {
+            if b != nil {
                b = append(b, '\n')
             }
             b = append(b, "audio language = "...)
             b = append(b, language.Id...)
-            languages[language.Id] = struct{}{}
+            audio[language.Id] = struct{}{}
          }
       }
    }
@@ -147,71 +216,4 @@ func (a *address) season() (*gizmo_season, error) {
       return nil, err
    }
    return &value.Data, nil
-}
-
-func (a *address) movie() (*gizmo_content, error) {
-   classification, err := a.classification_id()
-   if err != nil {
-      return nil, err
-   }
-   req, err := http.NewRequest("", "https://gizmo.rakuten.tv", nil)
-   if err != nil {
-      return nil, err
-   }
-   req.URL.Path = "/v3/movies/" + a.content_id
-   req.URL.RawQuery = url.Values{
-      "classification_id": {classification},
-      "device_identifier": {"atvui40"},
-      "market_code":       {a.market_code},
-   }.Encode()
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   if resp.StatusCode != http.StatusOK {
-      var b strings.Builder
-      resp.Write(&b)
-      return nil, errors.New(b.String())
-   }
-   var value struct {
-      Data gizmo_content
-   }
-   err = json.NewDecoder(resp.Body).Decode(&value)
-   if err != nil {
-      return nil, err
-   }
-   return &value.Data, nil
-}
-
-type gizmo_season struct {
-   Episodes []gizmo_content
-}
-
-func (a *address) content(season *gizmo_season) (*gizmo_content, bool) {
-   for _, episode := range season.Episodes {
-      if episode.Id == a.content_id {
-         return &episode, true
-      }
-   }
-   return nil, false
-}
-
-type gizmo_content struct {
-   Id           string
-   Number       int
-   SeasonNumber int `json:"season_number"`
-   Title        string
-   TvShowTitle  string `json:"tv_show_title"`
-   Type         string
-   Year         int
-   ViewOptions  struct {
-      Private struct {
-         Streams []struct {
-            AudioLanguages []struct {
-               Id string
-            } `json:"audio_languages"`
-         }
-      }
-   } `json:"view_options"`
 }
