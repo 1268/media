@@ -11,6 +11,33 @@ import (
    "strings"
 )
 
+type address struct {
+   market_code string
+   season_id   string
+   content_id  string
+}
+
+func (a *address) Set(data string) error {
+   data = strings.TrimPrefix(data, "https://")
+   data = strings.TrimPrefix(data, "www.")
+   data = strings.TrimPrefix(data, "rakuten.tv")
+   data = strings.TrimPrefix(data, "/")
+   var found bool
+   a.market_code, data, found = strings.Cut(data, "/")
+   if !found {
+      return errors.New("market code not found")
+   }
+   data, a.content_id, found = strings.Cut(data, "movies/")
+   if !found {
+      data = strings.TrimPrefix(data, "player/episodes/stream/")
+      a.season_id, a.content_id, found = strings.Cut(data, "/")
+      if !found {
+         return errors.New("episode not found")
+      }
+   }
+   return nil
+}
+
 func (a *address) season(classification_id int) (*gizmo_season, error) {
    req, err := http.NewRequest("", "https://gizmo.rakuten.tv", nil)
    if err != nil {
@@ -111,33 +138,6 @@ func (a *address) classification_id() (int, bool) {
       return 18, true
    }
    return 0, false
-}
-
-type address struct {
-   market_code string
-   season_id   string
-   content_id  string
-}
-
-func (a *address) Set(data string) error {
-   data = strings.TrimPrefix(data, "https://")
-   data = strings.TrimPrefix(data, "www.")
-   data = strings.TrimPrefix(data, "rakuten.tv")
-   data = strings.TrimPrefix(data, "/")
-   var found bool
-   a.market_code, data, found = strings.Cut(data, "/")
-   if !found {
-      return errors.New("market code not found")
-   }
-   data, a.content_id, found = strings.Cut(data, "movies/")
-   if !found {
-      data = strings.TrimPrefix(data, "player/episodes/stream/")
-      a.season_id, a.content_id, found = strings.Cut(data, "/")
-      if !found {
-         return errors.New("episode not found")
-      }
-   }
-   return nil
 }
 
 func (a *address) String() string {
