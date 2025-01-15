@@ -11,44 +11,6 @@ import (
    "strings"
 )
 
-func (a *Address) Hd() *OnDemand {
-   return a.video("HD")
-}
-
-func (a *Address) Fhd() *OnDemand {
-   return a.video("FHD")
-}
-
-func (a *Address) video(quality string) *OnDemand {
-   var o OnDemand
-   o.AudioLanguage = "ENG"
-   o.AudioQuality = "2.0"
-   o.ContentType = "movies"
-   o.DeviceSerial = "!"
-   o.Player = "atvui40:DASH-CENC:WVM"
-   o.SubtitleLanguage = "MIS"
-   o.VideoType = "stream"
-   o.DeviceIdentifier = "atvui40"
-   o.ClassificationId = a.ClassificationId
-   o.ContentId = a.ContentId
-   o.DeviceStreamVideoQuality = quality
-   return &o
-}
-
-type OnDemand struct {
-   AudioLanguage            string `json:"audio_language"`
-   AudioQuality             string `json:"audio_quality"`
-   ClassificationId         int    `json:"classification_id"`
-   ContentId                string `json:"content_id"`
-   ContentType              string `json:"content_type"`
-   DeviceIdentifier         string `json:"device_identifier"`
-   DeviceSerial             string `json:"device_serial"`
-   DeviceStreamVideoQuality string `json:"device_stream_video_quality"`
-   Player                   string `json:"player"`
-   SubtitleLanguage         string `json:"subtitle_language"`
-   VideoType                string `json:"video_type"`
-}
-
 var classification_id = map[string]int{
    "cz": 272,
    "dk": 283,
@@ -62,37 +24,6 @@ var classification_id = map[string]int{
    "se": 282,
    "ua": 276,
    "uk": 18,
-}
-
-// geo block
-func (o *OnDemand) Info() (*StreamInfo, error) {
-   data, err := json.MarshalIndent(o, "", " ")
-   if err != nil {
-      return nil, err
-   }
-   resp, err := http.Post(
-      "https://gizmo.rakuten.tv/v3/avod/streamings",
-      "application/json", bytes.NewReader(data),
-   )
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   if resp.StatusCode != http.StatusOK {
-      var b bytes.Buffer
-      resp.Write(&b)
-      return nil, errors.New(b.String())
-   }
-   var value struct {
-      Data struct {
-         StreamInfos []StreamInfo `json:"stream_infos"`
-      }
-   }
-   err = json.NewDecoder(resp.Body).Decode(&value)
-   if err != nil {
-      return nil, err
-   }
-   return &value.Data.StreamInfos[0], nil
 }
 
 type StreamInfo struct {
@@ -201,4 +132,75 @@ func (a *Address) String() string {
       b.WriteString(a.ContentId)
    }
    return b.String()
+}
+
+type OnDemand struct {
+   AudioLanguage            string `json:"audio_language"`
+   AudioQuality             string `json:"audio_quality"`
+   ClassificationId         int    `json:"classification_id"`
+   ContentId                string `json:"content_id"`
+   ContentType              string `json:"content_type"`
+   DeviceIdentifier         string `json:"device_identifier"`
+   DeviceSerial             string `json:"device_serial"`
+   DeviceStreamVideoQuality string `json:"device_stream_video_quality"`
+   Player                   string `json:"player"`
+   SubtitleLanguage         string `json:"subtitle_language"`
+   VideoType                string `json:"video_type"`
+}
+
+///
+
+func (a *Address) video(quality string) *OnDemand {
+   var o OnDemand
+   o.AudioLanguage = "ENG"
+   o.AudioQuality = "2.0"
+   o.ContentType = "movies"
+   o.DeviceSerial = "!"
+   o.Player = "atvui40:DASH-CENC:WVM"
+   o.SubtitleLanguage = "MIS"
+   o.VideoType = "stream"
+   o.DeviceIdentifier = "atvui40"
+   o.ClassificationId = a.ClassificationId
+   o.ContentId = a.ContentId
+   o.DeviceStreamVideoQuality = quality
+   return &o
+}
+
+func (a *Address) Hd() *OnDemand {
+   return a.video("HD")
+}
+
+func (a *Address) Fhd() *OnDemand {
+   return a.video("FHD")
+}
+
+// geo block
+func (o *OnDemand) Info() (*StreamInfo, error) {
+   data, err := json.MarshalIndent(o, "", " ")
+   if err != nil {
+      return nil, err
+   }
+   resp, err := http.Post(
+      "https://gizmo.rakuten.tv/v3/avod/streamings",
+      "application/json", bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   if resp.StatusCode != http.StatusOK {
+      var b bytes.Buffer
+      resp.Write(&b)
+      return nil, errors.New(b.String())
+   }
+   var value struct {
+      Data struct {
+         StreamInfos []StreamInfo `json:"stream_infos"`
+      }
+   }
+   err = json.NewDecoder(resp.Body).Decode(&value)
+   if err != nil {
+      return nil, err
+   }
+   return &value.Data.StreamInfos[0], nil
 }

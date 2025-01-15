@@ -10,90 +10,6 @@ import (
    "strings"
 )
 
-// geo block
-func (a *address) streamings(
-   content *gizmo_content, language string,
-) ([]stream_info, error) {
-   classification, err := a.classification_id()
-   if err != nil {
-      return nil, err
-   }
-   data, err := json.Marshal(map[string]string{
-      "audio_language":              language,
-      "audio_quality":               "2.0",
-      "classification_id":           classification,
-      "content_id":                  content.Id,
-      "content_type":                content.Type,
-      "device_identifier":           "atvui40",
-      "device_serial":               "not implemented",
-      "device_stream_video_quality": "FHD",
-      "player":                      "atvui40:DASH-CENC:WVM",
-      "subtitle_language":           "MIS",
-      "video_type":                  "stream",
-   })
-   if err != nil {
-      return nil, err
-   }
-   resp, err := http.Post(
-      "https://gizmo.rakuten.tv/v3/avod/streamings",
-      "application/json", bytes.NewReader(data),
-   )
-   if err != nil {
-      return nil, err
-   }
-   var value struct {
-      Data struct {
-         StreamInfos []stream_info `json:"stream_infos"`
-      }
-      Errors []struct {
-         Message string
-      }
-   }
-   err = json.NewDecoder(resp.Body).Decode(&value)
-   if err != nil {
-      return nil, err
-   }
-   if err := value.Errors; len(err) >= 1 {
-      return nil, errors.New(err[0].Message)
-   }
-   return value.Data.StreamInfos, nil
-}
-func (a *address) movie() (*gizmo_content, error) {
-   classification, err := a.classification_id()
-   if err != nil {
-      return nil, err
-   }
-   req, err := http.NewRequest("", "https://gizmo.rakuten.tv", nil)
-   if err != nil {
-      return nil, err
-   }
-   req.URL.Path = "/v3/movies/" + a.content_id
-   req.URL.RawQuery = url.Values{
-      "classification_id": {classification},
-      "device_identifier": {"atvui40"},
-      "market_code":       {a.market_code},
-   }.Encode()
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   var value struct {
-      Data gizmo_content
-      Errors []struct {
-         Message string
-      }
-   }
-   err = json.NewDecoder(resp.Body).Decode(&value)
-   if err != nil {
-      return nil, err
-   }
-   if err := value.Errors; len(err) >= 1 {
-      return nil, errors.New(err[0].Message)
-   }
-   return &value.Data, nil
-}
-
 type gizmo_season struct {
    Episodes []gizmo_content
 }
@@ -125,10 +41,11 @@ type gizmo_content struct {
       }
    } `json:"view_options"`
 }
+
 func (g *gizmo_content) String() string {
    var (
       audio = map[string]struct{}{}
-      b []byte
+      b     []byte
    )
    for _, stream := range g.ViewOptions.Private.Streams {
       for _, language := range stream.AudioLanguages {
@@ -199,51 +116,46 @@ type stream_info struct {
    VideoQuality string `json:"video_quality"`
 }
 
-func (a *address) classification_id() (string, error) {
-   var v int
-   switch a.market_code {
-   case "cz":
-      v = 272
-   case "dk":
-      v = 283
-   case "fi":
-      v = 284
-   case "fr":
-      v = 23
-   case "ie":
-      v = 41
-   case "it":
-      v = 36
-   case "nl":
-      v = 323
-   case "no":
-      v = 286
-   case "pt":
-      v = 64
-   case "se":
-      v = 282
-   case "ua":
-      v = 276
-   case "uk":
-      v = 18
-   default:
-      return "", errors.New(a.market_code)
-   }
-   return strconv.Itoa(v), nil
-}
-
-func (a *address) season() (*gizmo_season, error) {
-   classification, err := a.classification_id()
+func (a *address) movie(classification_id int) (*gizmo_content, error) {
+   req, err := http.NewRequest("", "https://gizmo.rakuten.tv", nil)
    if err != nil {
       return nil, err
    }
+   req.URL.Path = "/v3/movies/" + a.content_id
+   req.URL.RawQuery = url.Values{
+      "classification_id": {strconv.Itoa(classification_id)},
+      "device_identifier": {"atvui40"},
+      "market_code":       {a.market_code},
+   }.Encode()
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   var value struct {
+      Data   gizmo_content
+      Errors []struct {
+         Message string
+      }
+   }
+   err = json.NewDecoder(resp.Body).Decode(&value)
+   if err != nil {
+      return nil, err
+   }
+   if err := value.Errors; len(err) >= 1 {
+      return nil, errors.New(err[0].Message)
+   }
+   return &value.Data, nil
+}
+
+func (a *address) season(classification_id int) (*gizmo_season, error) {
    req, err := http.NewRequest("", "https://gizmo.rakuten.tv", nil)
    if err != nil {
       return nil, err
    }
    req.URL.Path = "/v3/seasons/" + a.season_id
    req.URL.RawQuery = url.Values{
-      "classification_id": {classification},
+      "classification_id": {strconv.Itoa(classification_id)},
       "device_identifier": {"atvui40"},
       "market_code":       {a.market_code},
    }.Encode()
@@ -265,4 +177,79 @@ func (a *address) season() (*gizmo_season, error) {
       return nil, err
    }
    return &value.Data, nil
+}
+
+// geo block
+func (g *gizmo_content) streamings(
+   classification_id int, language string,
+) ([]stream_info, error) {
+   data, err := json.Marshal(map[string]string{
+      "audio_language":              language,
+      "audio_quality":               "2.0",
+      "content_id":                  g.Id,
+      "content_type":                g.Type,
+      "device_identifier":           "atvui40",
+      "device_serial":               "not implemented",
+      "device_stream_video_quality": "FHD",
+      "player":                      "atvui40:DASH-CENC:WVM",
+      "subtitle_language":           "MIS",
+      "video_type":                  "stream",
+      "classification_id":           strconv.Itoa(classification_id),
+   })
+   if err != nil {
+      return nil, err
+   }
+   resp, err := http.Post(
+      "https://gizmo.rakuten.tv/v3/avod/streamings",
+      "application/json", bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   var value struct {
+      Data struct {
+         StreamInfos []stream_info `json:"stream_infos"`
+      }
+      Errors []struct {
+         Message string
+      }
+   }
+   err = json.NewDecoder(resp.Body).Decode(&value)
+   if err != nil {
+      return nil, err
+   }
+   if err := value.Errors; len(err) >= 1 {
+      return nil, errors.New(err[0].Message)
+   }
+   return value.Data.StreamInfos, nil
+}
+
+func (a *address) classification_id() (int, bool) {
+   switch a.market_code {
+   case "cz":
+      return 272, true
+   case "dk":
+      return 283, true
+   case "fi":
+      return 284, true
+   case "fr":
+      return 23, true
+   case "ie":
+      return 41, true
+   case "it":
+      return 36, true
+   case "nl":
+      return 323, true
+   case "no":
+      return 286, true
+   case "pt":
+      return 64, true
+   case "se":
+      return 282, true
+   case "ua":
+      return 276, true
+   case "uk":
+      return 18, true
+   }
+   return 0, false
 }
