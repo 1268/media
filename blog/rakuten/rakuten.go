@@ -11,6 +11,53 @@ import (
    "strings"
 )
 
+type namer struct {
+   g *gizmo_content
+}
+
+type on_demand struct {
+   AudioLanguage            string `json:"audio_language"`
+   AudioQuality             string `json:"audio_quality"`
+   ClassificationId         int    `json:"classification_id"`
+   ContentId                string `json:"content_id"`
+   ContentType              string `json:"content_type"`
+   DeviceIdentifier         string `json:"device_identifier"`
+   DeviceSerial             string `json:"device_serial"`
+   DeviceStreamVideoQuality string `json:"device_stream_video_quality"`
+   Player                   string `json:"player"`
+   SubtitleLanguage         string `json:"subtitle_language"`
+   VideoType                string `json:"video_type"`
+}
+
+type stream_info struct {
+   LicenseUrl   string `json:"license_url"`
+   Url          string
+   VideoQuality string `json:"video_quality"`
+}
+
+type gizmo_content struct {
+   Id           string
+   Number       int
+   SeasonNumber int `json:"season_number"`
+   Title        string
+   TvShowTitle  string `json:"tv_show_title"`
+   Type         string
+   Year         int
+   ViewOptions  struct {
+      Private struct {
+         Streams []struct {
+            AudioLanguages []struct {
+               Id string
+            } `json:"audio_languages"`
+         }
+      }
+   } `json:"view_options"`
+}
+
+type gizmo_season struct {
+   Episodes []gizmo_content
+}
+
 type address struct {
    market_code string
    season_id   string
@@ -22,52 +69,17 @@ func (a *address) Set(data string) error {
    data = strings.TrimPrefix(data, "www.")
    data = strings.TrimPrefix(data, "rakuten.tv")
    data = strings.TrimPrefix(data, "/")
+   a.market_code, data, _ = strings.Cut(data, "/")
    var found bool
-   a.market_code, data, found = strings.Cut(data, "/")
-   if !found {
-      return errors.New("market code not found")
-   }
    data, a.content_id, found = strings.Cut(data, "movies/")
    if !found {
       data = strings.TrimPrefix(data, "player/episodes/stream/")
-      a.season_id, a.content_id, found = strings.Cut(data, "/")
-      if !found {
-         return errors.New("episode not found")
-      }
+      a.season_id, a.content_id, _ = strings.Cut(data, "/")
    }
    return nil
 }
 
-func (a *address) season(classification_id int) (*gizmo_season, error) {
-   req, err := http.NewRequest("", "https://gizmo.rakuten.tv", nil)
-   if err != nil {
-      return nil, err
-   }
-   req.URL.Path = "/v3/seasons/" + a.season_id
-   req.URL.RawQuery = url.Values{
-      "classification_id": {strconv.Itoa(classification_id)},
-      "device_identifier": {"atvui40"},
-      "market_code":       {a.market_code},
-   }.Encode()
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   if resp.StatusCode != http.StatusOK {
-      var b strings.Builder
-      resp.Write(&b)
-      return nil, errors.New(b.String())
-   }
-   var value struct {
-      Data gizmo_season
-   }
-   err = json.NewDecoder(resp.Body).Decode(&value)
-   if err != nil {
-      return nil, err
-   }
-   return &value.Data, nil
-}
+///
 
 func (a *address) movie(classification_id int) (*gizmo_content, error) {
    req, err := http.NewRequest("", "https://gizmo.rakuten.tv", nil)
@@ -97,6 +109,37 @@ func (a *address) movie(classification_id int) (*gizmo_content, error) {
    }
    if err := value.Errors; len(err) >= 1 {
       return nil, errors.New(err[0].Message)
+   }
+   return &value.Data, nil
+}
+
+func (a *address) season(classification_id int) (*gizmo_season, error) {
+   req, err := http.NewRequest("", "https://gizmo.rakuten.tv", nil)
+   if err != nil {
+      return nil, err
+   }
+   req.URL.Path = "/v3/seasons/" + a.season_id
+   req.URL.RawQuery = url.Values{
+      "classification_id": {strconv.Itoa(classification_id)},
+      "device_identifier": {"atvui40"},
+      "market_code":       {a.market_code},
+   }.Encode()
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   if resp.StatusCode != http.StatusOK {
+      var b strings.Builder
+      resp.Write(&b)
+      return nil, errors.New(b.String())
+   }
+   var value struct {
+      Data gizmo_season
+   }
+   err = json.NewDecoder(resp.Body).Decode(&value)
+   if err != nil {
+      return nil, err
    }
    return &value.Data, nil
 }
@@ -222,29 +265,6 @@ func (g *gizmo_content) hd(classification_id int, language string) *on_demand {
    return g.video(classification_id, language, "HD")
 }
 
-type gizmo_content struct {
-   Id           string
-   Number       int
-   SeasonNumber int `json:"season_number"`
-   Title        string
-   TvShowTitle  string `json:"tv_show_title"`
-   Type         string
-   Year         int
-   ViewOptions  struct {
-      Private struct {
-         Streams []struct {
-            AudioLanguages []struct {
-               Id string
-            } `json:"audio_languages"`
-         }
-      }
-   } `json:"view_options"`
-}
-
-type gizmo_season struct {
-   Episodes []gizmo_content
-}
-
 func (n namer) Show() string {
    return n.g.TvShowTitle
 }
@@ -261,26 +281,8 @@ func (n namer) Title() string {
    return n.g.Title
 }
 
-type namer struct {
-   g *gizmo_content
-}
-
 func (n namer) Year() int {
    return n.g.Year
-}
-
-type on_demand struct {
-   AudioLanguage            string `json:"audio_language"`
-   AudioQuality             string `json:"audio_quality"`
-   ClassificationId         int    `json:"classification_id"`
-   ContentId                string `json:"content_id"`
-   ContentType              string `json:"content_type"`
-   DeviceIdentifier         string `json:"device_identifier"`
-   DeviceSerial             string `json:"device_serial"`
-   DeviceStreamVideoQuality string `json:"device_stream_video_quality"`
-   Player                   string `json:"player"`
-   SubtitleLanguage         string `json:"subtitle_language"`
-   VideoType                string `json:"video_type"`
 }
 
 // geo block
@@ -312,12 +314,6 @@ func (o *on_demand) streamings() (*stream_info, error) {
       return nil, errors.New(err[0].Message)
    }
    return &value.Data.StreamInfos[0], nil
-}
-
-type stream_info struct {
-   LicenseUrl   string `json:"license_url"`
-   Url          string
-   VideoQuality string `json:"video_quality"`
 }
 
 func (s *stream_info) Wrap(data []byte) ([]byte, error) {
