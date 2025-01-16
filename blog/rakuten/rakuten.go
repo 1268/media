@@ -11,6 +11,12 @@ import (
    "strings"
 )
 
+type address struct {
+   market_code string
+   season_id   string
+   content_id  string
+}
+
 type namer struct {
    g *gizmo_content
 }
@@ -58,12 +64,6 @@ type gizmo_season struct {
    Episodes []gizmo_content
 }
 
-type address struct {
-   market_code string
-   season_id   string
-   content_id  string
-}
-
 func (a *address) Set(data string) error {
    data = strings.TrimPrefix(data, "https://")
    data = strings.TrimPrefix(data, "www.")
@@ -79,7 +79,35 @@ func (a *address) Set(data string) error {
    return nil
 }
 
-///
+func (a *address) classification_id() (int, bool) {
+   switch a.market_code {
+   case "cz":
+      return 272, true
+   case "dk":
+      return 283, true
+   case "fi":
+      return 284, true
+   case "fr":
+      return 23, true
+   case "ie":
+      return 41, true
+   case "it":
+      return 36, true
+   case "nl":
+      return 323, true
+   case "no":
+      return 286, true
+   case "pt":
+      return 64, true
+   case "se":
+      return 282, true
+   case "ua":
+      return 276, true
+   case "uk":
+      return 18, true
+   }
+   return 0, false
+}
 
 func (a *address) movie(classification_id int) (*gizmo_content, error) {
    req, err := http.NewRequest("", "https://gizmo.rakuten.tv", nil)
@@ -112,6 +140,8 @@ func (a *address) movie(classification_id int) (*gizmo_content, error) {
    }
    return &value.Data, nil
 }
+
+///
 
 func (a *address) season(classification_id int) (*gizmo_season, error) {
    req, err := http.NewRequest("", "https://gizmo.rakuten.tv", nil)
@@ -151,36 +181,6 @@ func (a *address) content(season *gizmo_season) (*gizmo_content, bool) {
       }
    }
    return nil, false
-}
-
-func (a *address) classification_id() (int, bool) {
-   switch a.market_code {
-   case "cz":
-      return 272, true
-   case "dk":
-      return 283, true
-   case "fi":
-      return 284, true
-   case "fr":
-      return 23, true
-   case "ie":
-      return 41, true
-   case "it":
-      return 36, true
-   case "nl":
-      return 323, true
-   case "no":
-      return 286, true
-   case "pt":
-      return 64, true
-   case "se":
-      return 282, true
-   case "ua":
-      return 276, true
-   case "uk":
-      return 18, true
-   }
-   return 0, false
 }
 
 func (a *address) String() string {
