@@ -7,6 +7,50 @@ import (
    "time"
 )
 
+func TestAddress(t *testing.T) {
+   for _, test := range web_tests {
+      t.Run("Set", func(t *testing.T) {
+         var a address
+         err := a.Set(test.address)
+         if err != nil {
+            t.Fatal(err)
+         }
+         if a != test.a {
+            t.Fatal(test)
+         }
+      })
+      t.Run("String", func(t *testing.T) {
+         if test.a.String() != test.address_out {
+            t.Fatal(test.a)
+         }
+      })
+   }
+   t.Run("classification_id", func(t *testing.T) {
+      var web address
+      _, ok := web.classification_id()
+      if ok {
+         t.Fatal(web)
+      }
+   })
+}
+
+func TestContent(t *testing.T) {
+   http.DefaultClient.Transport = transport{}
+   for _, test := range web_tests {
+      class, _ := test.a.classification_id()
+      var err error
+      if test.a.season_id != "" {
+         _, err = test.a.season(class)
+      } else {
+         _, err = test.a.movie(class)
+      }
+      if err != nil {
+         t.Fatal(err)
+      }
+      time.Sleep(99 * time.Millisecond)
+   }
+}
+
 var web_tests = []web_test{
    {
       a: address{
@@ -16,7 +60,6 @@ var web_tests = []web_test{
       address:     "rakuten.tv/cz/movies/transvulcania-the-people-s-run",
       address_out: "cz/movies/transvulcania-the-people-s-run",
    },
-
    {
       content_id:  "MGU1MTgwMDA2Y2Q1MDhlZWMwMGQ1MzVmZWM2YzQyMGQtbWMtMC0xNDEtMC0w",
       key_id:      "DlGAAGzVCO7ADVNf7GxCDQ==",
@@ -49,23 +92,6 @@ var web_tests = []web_test{
    },
 }
 
-func TestContent(t *testing.T) {
-   http.DefaultClient.Transport = transport{}
-   for _, test := range web_tests {
-      class, _ := test.a.classification_id()
-      var err error
-      if test.a.season_id != "" {
-         _, err = test.a.season(class)
-      } else {
-         _, err = test.a.movie(class)
-      }
-      if err != nil {
-         t.Fatal(err)
-      }
-      time.Sleep(99 * time.Millisecond)
-   }
-}
-
 type web_test struct {
    a           address
    address     string
@@ -81,23 +107,3 @@ func (transport) RoundTrip(req *http.Request) (*http.Response, error) {
 }
 
 type transport struct{}
-
-func TestAddress(t *testing.T) {
-   for _, test := range web_tests {
-      t.Run("Set", func(t *testing.T) {
-         var a address
-         err := a.Set(test.address)
-         if err != nil {
-            t.Fatal(err)
-         }
-         if a != test.a {
-            t.Fatal(test)
-         }
-      })
-      t.Run("String", func(t *testing.T) {
-         if test.a.String() != test.address_out {
-            t.Fatal(test.a)
-         }
-      })
-   }
-}

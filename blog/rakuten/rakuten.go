@@ -11,109 +11,8 @@ import (
    "strings"
 )
 
-type address struct {
-   market_code string
-   season_id   string
-   content_id  string
-}
-
-type namer struct {
-   g *gizmo_content
-}
-
-type on_demand struct {
-   AudioLanguage            string `json:"audio_language"`
-   AudioQuality             string `json:"audio_quality"`
-   ClassificationId         int    `json:"classification_id"`
-   ContentId                string `json:"content_id"`
-   ContentType              string `json:"content_type"`
-   DeviceIdentifier         string `json:"device_identifier"`
-   DeviceSerial             string `json:"device_serial"`
-   DeviceStreamVideoQuality string `json:"device_stream_video_quality"`
-   Player                   string `json:"player"`
-   SubtitleLanguage         string `json:"subtitle_language"`
-   VideoType                string `json:"video_type"`
-}
-
-type stream_info struct {
-   LicenseUrl   string `json:"license_url"`
-   Url          string
-   VideoQuality string `json:"video_quality"`
-}
-
-type gizmo_content struct {
-   Id           string
-   Number       int
-   SeasonNumber int `json:"season_number"`
-   Title        string
-   TvShowTitle  string `json:"tv_show_title"`
-   Type         string
-   Year         int
-   ViewOptions  struct {
-      Private struct {
-         Streams []struct {
-            AudioLanguages []struct {
-               Id string
-            } `json:"audio_languages"`
-         }
-      }
-   } `json:"view_options"`
-}
-
-type gizmo_season struct {
-   Episodes []gizmo_content
-}
-
-func (a *address) Set(data string) error {
-   data = strings.TrimPrefix(data, "https://")
-   data = strings.TrimPrefix(data, "www.")
-   data = strings.TrimPrefix(data, "rakuten.tv")
-   data = strings.TrimPrefix(data, "/")
-   a.market_code, data, _ = strings.Cut(data, "/")
-   var found bool
-   data, a.content_id, found = strings.Cut(data, "movies/")
-   if !found {
-      data = strings.TrimPrefix(data, "player/episodes/stream/")
-      a.season_id, a.content_id, _ = strings.Cut(data, "/")
-   }
-   return nil
-}
-
-func (a *address) classification_id() (int, bool) {
-   switch a.market_code {
-   case "cz":
-      return 272, true
-   case "dk":
-      return 283, true
-   case "fi":
-      return 284, true
-   case "fr":
-      return 23, true
-   case "ie":
-      return 41, true
-   case "it":
-      return 36, true
-   case "nl":
-      return 323, true
-   case "no":
-      return 286, true
-   case "pt":
-      return 64, true
-   case "se":
-      return 282, true
-   case "ua":
-      return 276, true
-   case "uk":
-      return 18, true
-   }
-   return 0, false
-}
-
 func (a *address) movie(classification_id int) (*gizmo_content, error) {
-   req, err := http.NewRequest("", "https://gizmo.rakuten.tv", nil)
-   if err != nil {
-      return nil, err
-   }
+   req, _ := http.NewRequest("", "https://gizmo.rakuten.tv", nil)
    req.URL.Path = "/v3/movies/" + a.content_id
    req.URL.RawQuery = url.Values{
       "classification_id": {strconv.Itoa(classification_id)},
@@ -325,4 +224,85 @@ func (s *stream_info) Wrap(data []byte) ([]byte, error) {
    }
    defer resp.Body.Close()
    return io.ReadAll(resp.Body)
+}
+func (a *address) classification_id() (int, bool) {
+   switch a.market_code {
+   case "cz":
+      return 272, true
+   case "fr":
+      return 23, true
+   case "se":
+      return 282, true
+   case "uk":
+      return 18, true
+   }
+   return 0, false
+}
+
+type address struct {
+   market_code string
+   season_id   string
+   content_id  string
+}
+
+type namer struct {
+   g *gizmo_content
+}
+
+type on_demand struct {
+   AudioLanguage            string `json:"audio_language"`
+   AudioQuality             string `json:"audio_quality"`
+   ClassificationId         int    `json:"classification_id"`
+   ContentId                string `json:"content_id"`
+   ContentType              string `json:"content_type"`
+   DeviceIdentifier         string `json:"device_identifier"`
+   DeviceSerial             string `json:"device_serial"`
+   DeviceStreamVideoQuality string `json:"device_stream_video_quality"`
+   Player                   string `json:"player"`
+   SubtitleLanguage         string `json:"subtitle_language"`
+   VideoType                string `json:"video_type"`
+}
+
+type stream_info struct {
+   LicenseUrl   string `json:"license_url"`
+   Url          string
+   VideoQuality string `json:"video_quality"`
+}
+
+type gizmo_content struct {
+   Id           string
+   Number       int
+   SeasonNumber int `json:"season_number"`
+   Title        string
+   TvShowTitle  string `json:"tv_show_title"`
+   Type         string
+   Year         int
+   ViewOptions  struct {
+      Private struct {
+         Streams []struct {
+            AudioLanguages []struct {
+               Id string
+            } `json:"audio_languages"`
+         }
+      }
+   } `json:"view_options"`
+}
+
+type gizmo_season struct {
+   Episodes []gizmo_content
+}
+
+func (a *address) Set(data string) error {
+   data = strings.TrimPrefix(data, "https://")
+   data = strings.TrimPrefix(data, "www.")
+   data = strings.TrimPrefix(data, "rakuten.tv")
+   data = strings.TrimPrefix(data, "/")
+   a.market_code, data, _ = strings.Cut(data, "/")
+   var found bool
+   data, a.content_id, found = strings.Cut(data, "movies/")
+   if !found {
+      data = strings.TrimPrefix(data, "player/episodes/stream/")
+      a.season_id, a.content_id, _ = strings.Cut(data, "/")
+   }
+   return nil
 }
