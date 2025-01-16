@@ -11,52 +11,6 @@ import (
    "slices"
 )
 
-func (f *flags) do_write() error {
-   os.Mkdir(f.content_id, os.ModePerm)
-   // item
-   var token paramount.AppToken
-   if f.intl {
-      token = paramount.ComCbsCa
-   } else {
-      token = paramount.ComCbsApp
-   }
-   var item paramount.VideoItem
-   data, err := item.Marshal(&token, f.content_id)
-   if err != nil {
-      return err
-   }
-   err = os.WriteFile(f.content_id + "/item.txt", data, os.ModePerm)
-   if err != nil {
-      return err
-   }
-   // mpd
-   err = item.Unmarshal(data)
-   if err != nil {
-      return err
-   }
-   resp, err := http.Get(item.Mpd())
-   if err != nil {
-      return err
-   }
-   defer resp.Body.Close()
-   if resp.StatusCode != http.StatusOK {
-      return errors.New(resp.Status)
-   }
-   data, err = io.ReadAll(resp.Body)
-   if err != nil {
-      return err
-   }
-   err = os.WriteFile(f.content_id + "/body.txt", data, os.ModePerm)
-   if err != nil {
-      return err
-   }
-   // Request
-   data, err = resp.Request.URL.MarshalBinary()
-   if err != nil {
-      return err
-   }
-   return os.WriteFile(f.content_id + "/request.txt", data, os.ModePerm)
-}
 func (f *flags) do_read() error {
    data, err := os.ReadFile(f.content_id + "/request.txt")
    if err != nil {
@@ -103,4 +57,51 @@ func (f *flags) do_read() error {
       }
    }
    return nil
+}
+
+func (f *flags) do_write() error {
+   os.Mkdir(f.content_id, os.ModePerm)
+   // item
+   var token paramount.AppToken
+   if f.intl {
+      token = paramount.ComCbsCa
+   } else {
+      token = paramount.ComCbsApp
+   }
+   var item paramount.VideoItem
+   data, err := item.Marshal(&token, f.content_id)
+   if err != nil {
+      return err
+   }
+   err = os.WriteFile(f.content_id + "/item.txt", data, os.ModePerm)
+   if err != nil {
+      return err
+   }
+   // mpd
+   err = item.Unmarshal(data)
+   if err != nil {
+      return err
+   }
+   resp, err := http.Get(item.Mpd())
+   if err != nil {
+      return err
+   }
+   defer resp.Body.Close()
+   if resp.StatusCode != http.StatusOK {
+      return errors.New(resp.Status)
+   }
+   data, err = io.ReadAll(resp.Body)
+   if err != nil {
+      return err
+   }
+   err = os.WriteFile(f.content_id + "/body.txt", data, os.ModePerm)
+   if err != nil {
+      return err
+   }
+   // Request
+   data, err = resp.Request.URL.MarshalBinary()
+   if err != nil {
+      return err
+   }
+   return os.WriteFile(f.content_id + "/request.txt", data, os.ModePerm)
 }

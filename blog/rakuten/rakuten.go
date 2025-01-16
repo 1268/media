@@ -112,10 +112,7 @@ func (a *address) movie(classification_id int) (*gizmo_content, error) {
          Message string
       }
    }
-   err = json.NewDecoder(resp.Body).Decode(&value)
-   if err != nil {
-      return nil, err
-   }
+   json.NewDecoder(resp.Body).Decode(&value)
    if err := value.Errors; len(err) >= 1 {
       return nil, errors.New(err[0].Message)
    }
@@ -138,10 +135,7 @@ func (a *address) season(classification_id int) (*gizmo_season, error) {
    var value struct {
       Data gizmo_season
    }
-   err = json.NewDecoder(resp.Body).Decode(&value)
-   if err != nil {
-      return nil, err
-   }
+   json.NewDecoder(resp.Body).Decode(&value)
    return &value.Data, nil
 }
 
@@ -277,10 +271,7 @@ func (o *on_demand) streamings() (*stream_info, error) {
          Message string
       }
    }
-   err = json.NewDecoder(resp.Body).Decode(&value)
-   if err != nil {
-      return nil, err
-   }
+   json.NewDecoder(resp.Body).Decode(&value)
    if err := value.Errors; len(err) >= 1 {
       return nil, errors.New(err[0].Message)
    }

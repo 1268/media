@@ -11,14 +11,24 @@ func TestContent(t *testing.T) {
    http.DefaultClient.Transport = transport{}
    for _, test := range web_tests {
       class, _ := test.a.classification_id()
-      var err error
+      var (
+         content *gizmo_content
+         err error
+      )
       if test.a.season_id != "" {
-         _, err = test.a.season(class)
+         season, err := test.a.season(class)
+         if err != nil {
+            t.Fatal(err)
+         }
+         content, _ = test.a.content(season)
       } else {
-         _, err = test.a.movie(class)
+         content, err = test.a.movie(class)
       }
       if err != nil {
          t.Fatal(err)
+      }
+      if content.String() == "" {
+         t.Fatal(content)
       }
       time.Sleep(99 * time.Millisecond)
    }
