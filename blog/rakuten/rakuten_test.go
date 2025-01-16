@@ -7,6 +7,23 @@ import (
    "time"
 )
 
+func TestContent(t *testing.T) {
+   http.DefaultClient.Transport = transport{}
+   for _, test := range web_tests {
+      class, _ := test.a.classification_id()
+      var err error
+      if test.a.season_id != "" {
+         _, err = test.a.season(class)
+      } else {
+         _, err = test.a.movie(class)
+      }
+      if err != nil {
+         t.Fatal(err)
+      }
+      time.Sleep(99 * time.Millisecond)
+   }
+}
+
 func TestAddress(t *testing.T) {
    for _, test := range web_tests {
       t.Run("Set", func(t *testing.T) {
@@ -32,23 +49,6 @@ func TestAddress(t *testing.T) {
          t.Fatal(web)
       }
    })
-}
-
-func TestContent(t *testing.T) {
-   http.DefaultClient.Transport = transport{}
-   for _, test := range web_tests {
-      class, _ := test.a.classification_id()
-      var err error
-      if test.a.season_id != "" {
-         _, err = test.a.season(class)
-      } else {
-         _, err = test.a.movie(class)
-      }
-      if err != nil {
-         t.Fatal(err)
-      }
-      time.Sleep(99 * time.Millisecond)
-   }
 }
 
 var web_tests = []web_test{
