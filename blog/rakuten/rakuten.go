@@ -10,6 +10,57 @@ import (
    "strings"
 )
 
+// geo block
+func (o *on_demand) streamings() (*stream_info, error) {
+   data, err := json.Marshal(o)
+   if err != nil {
+      return nil, err
+   }
+   resp, err := http.Post(
+      "https://gizmo.rakuten.tv/v3/avod/streamings",
+      "application/json", bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   var value struct {
+      Data struct {
+         StreamInfos []stream_info `json:"stream_infos"`
+      }
+   }
+   err = json.NewDecoder(resp.Body).Decode(&value)
+   if err != nil {
+      return nil, err
+   }
+   return &value.Data.StreamInfos[0], nil
+}
+
+func (g *gizmo_content) fhd(classification_id int, language string) *on_demand {
+   return g.video(classification_id, language, "FHD")
+}
+
+func (g *gizmo_content) video(
+   classification_id int, language, quality string,
+) *on_demand {
+   return &on_demand{
+      AudioLanguage:            language,
+      AudioQuality:             "2.0",
+      ClassificationId:         classification_id,
+      ContentId:                g.Id,
+      ContentType:              g.Type,
+      DeviceIdentifier:         "atvui40",
+      DeviceSerial:             "not implemented",
+      DeviceStreamVideoQuality: quality,
+      Player:                   "atvui40:DASH-CENC:WVM",
+      SubtitleLanguage:         "MIS",
+      VideoType:                "stream",
+   }
+}
+
+func (g *gizmo_content) hd(classification_id int, language string) *on_demand {
+   return g.video(classification_id, language, "HD")
+}
+
 func (g gizmo_season) content(web *address) (*gizmo_content, bool) {
    for _, episode := range g.Episodes {
       if episode.Id == web.content_id {
@@ -180,32 +231,6 @@ func (g *gizmo_content) String() string {
    return string(b)
 }
 
-func (g *gizmo_content) video(
-   classification_id int, language, quality string,
-) *on_demand {
-   return &on_demand{
-      AudioLanguage:            language,
-      AudioQuality:             "2.0",
-      ClassificationId:         classification_id,
-      ContentId:                g.Id,
-      ContentType:              g.Type,
-      DeviceIdentifier:         "atvui40",
-      DeviceSerial:             "not implemented",
-      DeviceStreamVideoQuality: quality,
-      Player:                   "atvui40:DASH-CENC:WVM",
-      SubtitleLanguage:         "MIS",
-      VideoType:                "stream",
-   }
-}
-
-func (g *gizmo_content) Fhd(classification_id int, language string) *on_demand {
-   return g.video(classification_id, language, "FHD")
-}
-
-func (g *gizmo_content) hd(classification_id int, language string) *on_demand {
-   return g.video(classification_id, language, "HD")
-}
-
 func (n namer) Show() string {
    return n.g.TvShowTitle
 }
@@ -258,29 +283,4 @@ func (a *address) season(classification_id int) (*gizmo_season, error) {
       return nil, err
    }
    return &value.Data, nil
-}
-
-// geo block
-func (o *on_demand) streamings() (*stream_info, error) {
-   data, err := json.Marshal(o)
-   if err != nil {
-      return nil, err
-   }
-   resp, err := http.Post(
-      "https://gizmo.rakuten.tv/v3/avod/streamings",
-      "application/json", bytes.NewReader(data),
-   )
-   if err != nil {
-      return nil, err
-   }
-   var value struct {
-      Data struct {
-         StreamInfos []stream_info `json:"stream_infos"`
-      }
-   }
-   err = json.NewDecoder(resp.Body).Decode(&value)
-   if err != nil {
-      return nil, err
-   }
-   return &value.Data.StreamInfos[0], nil
 }

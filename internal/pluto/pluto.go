@@ -8,6 +8,7 @@ import (
    "fmt"
    "io"
    "net/http"
+   "slices"
 )
 
 func (f *flags) download() error {
@@ -40,11 +41,13 @@ func (f *flags) download() error {
    }
    var mpd dash.Mpd
    mpd.BaseUrl = &dash.Url{req.URL}
-   err = mpd.Unmarshal(data)
-   if err != nil {
-      return err
-   }
-   for represent := range mpd.Representation() {
+   mpd.Unmarshal(data)
+   represents := slices.SortedFunc(mpd.Representation(),
+      func(a, b dash.Representation) int {
+         return a.Bandwidth - b.Bandwidth
+      },
+   )
+   for _, represent := range represents {
       switch f.representation {
       case "":
          fmt.Print(&represent, "\n\n")

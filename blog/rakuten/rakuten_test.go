@@ -8,33 +8,6 @@ import (
    "time"
 )
 
-func TestAddress(t *testing.T) {
-   for _, test := range web_tests {
-      t.Run("Set", func(t *testing.T) {
-         var a address
-         err := a.Set(test.address)
-         if err != nil {
-            t.Fatal(err)
-         }
-         if a != test.a {
-            t.Fatal(test)
-         }
-      })
-      t.Run("String", func(t *testing.T) {
-         if test.a.String() != test.address_out {
-            t.Fatal(test.a)
-         }
-      })
-   }
-   t.Run("classification_id", func(t *testing.T) {
-      var web address
-      _, ok := web.classification_id()
-      if ok {
-         t.Fatal(web)
-      }
-   })
-}
-
 func TestContent(t *testing.T) {
    http.DefaultClient.Transport = transport{}
    for _, test := range web_tests {
@@ -48,8 +21,7 @@ func TestContent(t *testing.T) {
          if err != nil {
             t.Fatal(err)
          }
-         var ok bool
-         content, ok = season.content(&address{})
+         _, ok := season.content(&address{})
          if ok {
             t.Fatal(season)
          }
@@ -66,25 +38,14 @@ func TestContent(t *testing.T) {
       if text.Name(namer{content}) != test.name {
          t.Fatal(content)
       }
+      if test.a.market_code == "se" {
+         _, err = content.fhd(class, test.language).streamings()
+         if err != nil {
+            t.Fatal(err)
+         }
+      }
       time.Sleep(99 * time.Millisecond)
    }
-}
-
-func (transport) RoundTrip(req *http.Request) (*http.Response, error) {
-   fmt.Println(req.URL)
-   return http.DefaultTransport.RoundTrip(req)
-}
-
-type transport struct{}
-
-type web_test struct {
-   a           address
-   address     string
-   address_out string
-   content_id  string
-   key_id      string
-   language    string
-   name string
 }
 
 var web_tests = []web_test{
@@ -130,4 +91,48 @@ var web_tests = []web_test{
       address_out: "uk/player/episodes/stream/hell-s-kitchen-usa-15/hell-s-kitchen-usa-15-1",
       name: "Hell's Kitchen USA - 15 1 - 18 Chefs Compete",
    },
+}
+
+func TestAddress(t *testing.T) {
+   for _, test := range web_tests {
+      t.Run("Set", func(t *testing.T) {
+         var a address
+         err := a.Set(test.address)
+         if err != nil {
+            t.Fatal(err)
+         }
+         if a != test.a {
+            t.Fatal(test)
+         }
+      })
+      t.Run("String", func(t *testing.T) {
+         if test.a.String() != test.address_out {
+            t.Fatal(test.a)
+         }
+      })
+   }
+   t.Run("classification_id", func(t *testing.T) {
+      var web address
+      _, ok := web.classification_id()
+      if ok {
+         t.Fatal(web)
+      }
+   })
+}
+
+func (transport) RoundTrip(req *http.Request) (*http.Response, error) {
+   fmt.Println(req.URL)
+   return http.DefaultTransport.RoundTrip(req)
+}
+
+type transport struct{}
+
+type web_test struct {
+   a           address
+   address     string
+   address_out string
+   content_id  string
+   key_id      string
+   language    string
+   name string
 }
