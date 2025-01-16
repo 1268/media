@@ -3,13 +3,21 @@ package rakuten
 import (
    "bytes"
    "encoding/json"
-   "errors"
    "io"
    "net/http"
    "net/url"
    "strconv"
    "strings"
 )
+
+func (g gizmo_season) content(web *address) (*gizmo_content, bool) {
+   for _, episode := range g.Episodes {
+      if episode.Id == web.content_id {
+         return &episode, true
+      }
+   }
+   return nil, false
+}
 
 func (a *address) classification_id() (int, bool) {
    switch a.market_code {
@@ -108,44 +116,12 @@ func (a *address) movie(classification_id int) (*gizmo_content, error) {
    defer resp.Body.Close()
    var value struct {
       Data   gizmo_content
-      Errors []struct {
-         Message string
-      }
    }
-   json.NewDecoder(resp.Body).Decode(&value)
-   if err := value.Errors; len(err) >= 1 {
-      return nil, errors.New(err[0].Message)
-   }
-   return &value.Data, nil
-}
-
-func (a *address) season(classification_id int) (*gizmo_season, error) {
-   req, _ := http.NewRequest("", "https://gizmo.rakuten.tv", nil)
-   req.URL.Path = "/v3/seasons/" + a.season_id
-   req.URL.RawQuery = url.Values{
-      "classification_id": {strconv.Itoa(classification_id)},
-      "device_identifier": {"atvui40"},
-      "market_code":       {a.market_code},
-   }.Encode()
-   resp, err := http.DefaultClient.Do(req)
+   err = json.NewDecoder(resp.Body).Decode(&value)
    if err != nil {
       return nil, err
    }
-   defer resp.Body.Close()
-   var value struct {
-      Data gizmo_season
-   }
-   json.NewDecoder(resp.Body).Decode(&value)
    return &value.Data, nil
-}
-
-func (a *address) content(season *gizmo_season) (*gizmo_content, bool) {
-   for _, episode := range season.Episodes {
-      if episode.Id == a.content_id {
-         return &episode, true
-      }
-   }
-   return nil, false
 }
 
 func (a *address) String() string {
@@ -250,6 +226,40 @@ func (n namer) Year() int {
    return n.g.Year
 }
 
+func (s *stream_info) Wrap(data []byte) ([]byte, error) {
+   resp, err := http.Post(
+      s.LicenseUrl, "application/x-protobuf", bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   return io.ReadAll(resp.Body)
+}
+
+func (a *address) season(classification_id int) (*gizmo_season, error) {
+   req, _ := http.NewRequest("", "https://gizmo.rakuten.tv", nil)
+   req.URL.Path = "/v3/seasons/" + a.season_id
+   req.URL.RawQuery = url.Values{
+      "classification_id": {strconv.Itoa(classification_id)},
+      "device_identifier": {"atvui40"},
+      "market_code":       {a.market_code},
+   }.Encode()
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   var value struct {
+      Data gizmo_season
+   }
+   err = json.NewDecoder(resp.Body).Decode(&value)
+   if err != nil {
+      return nil, err
+   }
+   return &value.Data, nil
+}
+
 // geo block
 func (o *on_demand) streamings() (*stream_info, error) {
    data, err := json.Marshal(o)
@@ -267,24 +277,10 @@ func (o *on_demand) streamings() (*stream_info, error) {
       Data struct {
          StreamInfos []stream_info `json:"stream_infos"`
       }
-      Errors []struct {
-         Message string
-      }
    }
-   json.NewDecoder(resp.Body).Decode(&value)
-   if err := value.Errors; len(err) >= 1 {
-      return nil, errors.New(err[0].Message)
-   }
-   return &value.Data.StreamInfos[0], nil
-}
-
-func (s *stream_info) Wrap(data []byte) ([]byte, error) {
-   resp, err := http.Post(
-      s.LicenseUrl, "application/x-protobuf", bytes.NewReader(data),
-   )
+   err = json.NewDecoder(resp.Body).Decode(&value)
    if err != nil {
       return nil, err
    }
-   defer resp.Body.Close()
-   return io.ReadAll(resp.Body)
+   return &value.Data.StreamInfos[0], nil
 }
