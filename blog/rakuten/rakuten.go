@@ -3,6 +3,7 @@ package rakuten
 import (
    "bytes"
    "encoding/json"
+   "errors"
    "io"
    "net/http"
    "net/url"
@@ -10,7 +11,7 @@ import (
    "strings"
 )
 
-// geo block
+// hard geo block
 func (o *on_demand) streamings() (*stream_info, error) {
    data, err := json.Marshal(o)
    if err != nil {
@@ -27,10 +28,17 @@ func (o *on_demand) streamings() (*stream_info, error) {
       Data struct {
          StreamInfos []stream_info `json:"stream_infos"`
       }
+      Errors []struct {
+         Message string
+      }
    }
    err = json.NewDecoder(resp.Body).Decode(&value)
    if err != nil {
       return nil, err
+   }
+   // you can trigger this with wrong location
+   if err := value.Errors; len(err) >= 1 {
+      return nil, errors.New(err[0].Message)
    }
    return &value.Data.StreamInfos[0], nil
 }
