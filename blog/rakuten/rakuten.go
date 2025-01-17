@@ -174,7 +174,7 @@ func (a *address) movie(classification_id int) (*gizmo_content, error) {
    }
    defer resp.Body.Close()
    var value struct {
-      Data   gizmo_content
+      Data gizmo_content
    }
    err = json.NewDecoder(resp.Body).Decode(&value)
    if err != nil {
