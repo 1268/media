@@ -3,44 +3,18 @@ package rakuten
 import (
    "41.neocities.org/platform/mullvad"
    "41.neocities.org/text"
-   "errors"
+   "log"
+   "net/http"
    "testing"
 )
 
-func (w *web_test) content(class int) (*gizmo_content, error) {
-   var content *gizmo_content
-   if w.a.season_id != "" {
-      season, err := w.a.season(class)
-      if err != nil {
-         return nil, err
-      }
-      _, ok := season.content(&address{})
-      if ok {
-         return nil, errors.New("gizmo_season.content")
-      }
-      content, _ = season.content(&w.a)
-   } else {
-      var err error
-      content, err = w.a.movie(class)
-      if err != nil {
-         return nil, err
-      }
-   }
-   return content, nil
+type transport struct{}
+
+func (transport) RoundTrip(req *http.Request) (*http.Response, error) {
+   log.Print(req.URL)
+   return http.DefaultTransport.RoundTrip(req)
 }
 
-func TestNamer(t *testing.T) {
-   for _, test := range web_tests {
-      class, _ := test.a.classification_id()
-      content, err := test.content(class)
-      if err != nil {
-         t.Fatal(err)
-      }
-      if text.Name(namer{content}) != test.name {
-         t.Fatal(content)
-      }
-   }
-}
 type web_test struct {
    a           address
    address     string
@@ -50,67 +24,6 @@ type web_test struct {
    language    string
    location    string
    name        string
-}
-
-func TestContent(t *testing.T) {
-   for _, test := range web_tests {
-      class, _ := test.a.classification_id()
-      content, err := test.content(class)
-      if err != nil {
-         t.Fatal(err)
-      }
-      t.Run("String", func(t *testing.T) {
-         if content.String() == "" {
-            t.Fatal(content)
-         }
-      })
-      func() {
-         err = mullvad.Connect(test.location)
-         if err != nil {
-            t.Fatal(err)
-         }
-         defer mullvad.Disconnect()
-         t.Run("fhd", func(t *testing.T) {
-            _, err = content.fhd(class, test.language).streamings()
-            if err != nil {
-               t.Fatal(err)
-            }
-         })
-         t.Run("hd", func(t *testing.T) {
-            _, err = content.hd(class, test.language).streamings()
-            if err != nil {
-               t.Fatal(err)
-            }
-         })
-      }()
-   }
-}
-
-func TestAddress(t *testing.T) {
-   for _, test := range web_tests {
-      t.Run("Set", func(t *testing.T) {
-         var a address
-         err := a.Set(test.address)
-         if err != nil {
-            t.Fatal(err)
-         }
-         if a != test.a {
-            t.Fatal(test)
-         }
-      })
-      t.Run("String", func(t *testing.T) {
-         if test.a.String() != test.address_out {
-            t.Fatal(test.a)
-         }
-      })
-   }
-   t.Run("classification_id", func(t *testing.T) {
-      var web address
-      _, ok := web.classification_id()
-      if ok {
-         t.Fatal(web)
-      }
-   })
 }
 
 var web_tests = []web_test{
@@ -160,4 +73,111 @@ var web_tests = []web_test{
       name:        "Hell's Kitchen USA - 15 1 - 18 Chefs Compete",
       location:    "gb",
    },
+}
+
+func TestAddress(t *testing.T) {
+   for _, test := range web_tests {
+      t.Run("Set", func(t *testing.T) {
+         var a address
+         err := a.Set(test.address)
+         if err != nil {
+            t.Fatal(err)
+         }
+         if a != test.a {
+            t.Fatal(test)
+         }
+      })
+      t.Run("String", func(t *testing.T) {
+         if test.a.String() != test.address_out {
+            t.Fatal(test.a)
+         }
+      })
+   }
+   t.Run("classification_id", func(t *testing.T) {
+      var web address
+      _, ok := web.classification_id()
+      if ok {
+         t.Fatal(web)
+      }
+   })
+}
+
+func TestMain(m *testing.M) {
+   http.DefaultClient.Transport = transport{}
+   m.Run()
+}
+
+func TestNamer(t *testing.T) {
+   for _, test := range web_tests {
+      class, _ := test.a.classification_id()
+      var content *gizmo_content
+      if test.a.season_id != "" {
+         season, err := test.a.season(class)
+         if err != nil {
+            t.Fatal(err)
+         }
+         _, ok := season.content(&address{})
+         if ok {
+            t.Fatal(season)
+         }
+         content, _ = season.content(&test.a)
+      } else {
+         var err error
+         content, err = test.a.movie(class)
+         if err != nil {
+            t.Fatal(err)
+         }
+      }
+      if text.Name(namer{content}) != test.name {
+         t.Fatal(content)
+      }
+   }
+}
+
+func TestContent(t *testing.T) {
+   for _, test := range web_tests {
+      class, _ := test.a.classification_id()
+      var content *gizmo_content
+      if test.a.season_id != "" {
+         season, err := test.a.season(class)
+         if err != nil {
+            t.Fatal(err)
+         }
+         _, ok := season.content(&address{})
+         if ok {
+            t.Fatal(season)
+         }
+         content, _ = season.content(&test.a)
+      } else {
+         var err error
+         content, err = test.a.movie(class)
+         if err != nil {
+            t.Fatal(err)
+         }
+      }
+      t.Run("String", func(t *testing.T) {
+         if content.String() == "" {
+            t.Fatal(content)
+         }
+      })
+      func() {
+         err := mullvad.Connect(test.location)
+         if err != nil {
+            t.Fatal(err)
+         }
+         defer mullvad.Disconnect()
+         t.Run("fhd", func(t *testing.T) {
+            _, err = content.fhd(class, test.language).streamings()
+            if err != nil {
+               t.Fatal(err)
+            }
+         })
+         t.Run("hd", func(t *testing.T) {
+            _, err = content.hd(class, test.language).streamings()
+            if err != nil {
+               t.Fatal(err)
+            }
+         })
+      }()
+   }
 }
