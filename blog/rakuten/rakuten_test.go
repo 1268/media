@@ -3,23 +3,99 @@ package rakuten
 import (
    "41.neocities.org/platform/mullvad"
    "41.neocities.org/text"
-   "errors"
-   "fmt"
+   "bufio"
+   "bytes"
+   "log"
    "net/http"
    "testing"
 )
 
+// go.dev/wiki/CompilerOptimizations#map-lookup-by-byte
 type transport map[string][]byte
 
-func (transport) RoundTrip(req *http.Request) (*http.Response, error) {
-   fmt.Println(req.URL)
-   return http.DefaultTransport.RoundTrip(req)
+func (t transport) RoundTrip(req *http.Request) (*http.Response, error) {
+   var buf bytes.Buffer
+   req.Write(&buf)
+   key := buf.String()
+   data, ok := t[key]
+   if ok {
+      log.Println("get", req.URL)
+   } else {
+      log.Println("set", req.URL)
+      req1, err := http.ReadRequest(bufio.NewReader(&buf))
+      if err != nil {
+         return nil, err
+      }
+      req.Body = req1.Body
+      resp, err := http.DefaultTransport.RoundTrip(req)
+      if err != nil {
+         return nil, err
+      }
+      resp.Write(&buf)
+      data = buf.Bytes()
+      t[key] = data
+   }
+   return http.ReadResponse(bufio.NewReader(bytes.NewReader(data)), nil)
 }
 
-type transport_fail struct{}
+type web_test struct {
+   a           address
+   address     string
+   address_out string
+   content_id  string
+   key_id      string
+   language    string
+   location    string
+   name        string
+}
 
-func (transport_fail) RoundTrip(*http.Request) (*http.Response, error) {
-   return nil, errors.New("transport_fail")
+var web_tests = []web_test{
+   {
+      a: address{
+         market_code: "cz", content_id: "transvulcania-the-people-s-run",
+      },
+      language:    "SPA",
+      address:     "rakuten.tv/cz/movies/transvulcania-the-people-s-run",
+      address_out: "cz/movies/transvulcania-the-people-s-run",
+      name:        "Transvulcania, The People’s Run - 2024",
+      location:    "cz",
+   },
+   {
+      content_id:  "MGU1MTgwMDA2Y2Q1MDhlZWMwMGQ1MzVmZWM2YzQyMGQtbWMtMC0xNDEtMC0w",
+      key_id:      "DlGAAGzVCO7ADVNf7GxCDQ==",
+      address:     "rakuten.tv/fr/movies/infidele",
+      language:    "ENG",
+      address_out: "fr/movies/infidele",
+      a: address{
+         market_code: "fr", content_id: "infidele",
+      },
+      name:     "Infidèle - 2002",
+      location: "fr",
+   },
+   {
+      content_id:  "OWE1MzRhMWYxMmQ2OGUxYTIzNTlmMzg3MTBmZGRiNjUtbWMtMC0xNDctMC0w",
+      key_id:      "mlNKHxLWjhojWfOHEP3bZQ==",
+      language:    "ENG",
+      address:     "rakuten.tv/se/movies/i-heart-huckabees",
+      address_out: "se/movies/i-heart-huckabees",
+      a: address{
+         market_code: "se", content_id: "i-heart-huckabees",
+      },
+      name:     "I Heart Huckabees - 2004",
+      location: "se",
+   },
+   {
+      a: address{
+         market_code: "uk",
+         season_id:   "hell-s-kitchen-usa-15",
+         content_id:  "hell-s-kitchen-usa-15-1",
+      },
+      language:    "ENG",
+      address:     "rakuten.tv/uk/player/episodes/stream/hell-s-kitchen-usa-15/hell-s-kitchen-usa-15-1",
+      address_out: "uk/player/episodes/stream/hell-s-kitchen-usa-15/hell-s-kitchen-usa-15-1",
+      name:        "Hell's Kitchen USA - 15 1 - 18 Chefs Compete",
+      location:    "gb",
+   },
 }
 
 func TestAddress(t *testing.T) {
@@ -92,64 +168,3 @@ func TestContent(t *testing.T) {
       }()
    }
 }
-
-type web_test struct {
-   a           address
-   address     string
-   address_out string
-   content_id  string
-   key_id      string
-   language    string
-   location    string
-   name        string
-}
-
-var web_tests = []web_test{
-   {
-      a: address{
-         market_code: "cz", content_id: "transvulcania-the-people-s-run",
-      },
-      language:    "SPA",
-      address:     "rakuten.tv/cz/movies/transvulcania-the-people-s-run",
-      address_out: "cz/movies/transvulcania-the-people-s-run",
-      name:        "Transvulcania, The People’s Run - 2024",
-      location:    "cz",
-   },
-   {
-      content_id:  "MGU1MTgwMDA2Y2Q1MDhlZWMwMGQ1MzVmZWM2YzQyMGQtbWMtMC0xNDEtMC0w",
-      key_id:      "DlGAAGzVCO7ADVNf7GxCDQ==",
-      address:     "rakuten.tv/fr/movies/infidele",
-      language:    "ENG",
-      address_out: "fr/movies/infidele",
-      a: address{
-         market_code: "fr", content_id: "infidele",
-      },
-      name:     "Infidèle - 2002",
-      location: "fr",
-   },
-   {
-      content_id:  "OWE1MzRhMWYxMmQ2OGUxYTIzNTlmMzg3MTBmZGRiNjUtbWMtMC0xNDctMC0w",
-      key_id:      "mlNKHxLWjhojWfOHEP3bZQ==",
-      language:    "ENG",
-      address:     "rakuten.tv/se/movies/i-heart-huckabees",
-      address_out: "se/movies/i-heart-huckabees",
-      a: address{
-         market_code: "se", content_id: "i-heart-huckabees",
-      },
-      name:     "I Heart Huckabees - 2004",
-      location: "se",
-   },
-   {
-      a: address{
-         market_code: "uk",
-         season_id:   "hell-s-kitchen-usa-15",
-         content_id:  "hell-s-kitchen-usa-15-1",
-      },
-      language:    "ENG",
-      address:     "rakuten.tv/uk/player/episodes/stream/hell-s-kitchen-usa-15/hell-s-kitchen-usa-15-1",
-      address_out: "uk/player/episodes/stream/hell-s-kitchen-usa-15/hell-s-kitchen-usa-15-1",
-      name:        "Hell's Kitchen USA - 15 1 - 18 Chefs Compete",
-      location:    "gb",
-   },
-}
-
