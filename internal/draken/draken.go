@@ -44,6 +44,7 @@ func (f *flags) download() error {
       return err
    }
    var mpd dash.Mpd
+   mpd.BaseUrl = &dash.Url{resp.Request.URL}
    err = mpd.Unmarshal(data)
    if err != nil {
       return err
