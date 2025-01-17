@@ -9,6 +9,19 @@ import (
    "testing"
 )
 
+type transport map[string][]byte
+
+func (transport) RoundTrip(req *http.Request) (*http.Response, error) {
+   fmt.Println(req.URL)
+   return http.DefaultTransport.RoundTrip(req)
+}
+
+type transport_fail struct{}
+
+func (transport_fail) RoundTrip(*http.Request) (*http.Response, error) {
+   return nil, errors.New("transport_fail")
+}
+
 func TestAddress(t *testing.T) {
    for _, test := range web_tests {
       t.Run("Set", func(t *testing.T) {
@@ -78,19 +91,6 @@ func TestContent(t *testing.T) {
          }
       }()
    }
-}
-
-type transport_fail struct{}
-
-func (transport_fail) RoundTrip(*http.Request) (*http.Response, error) {
-   return nil, errors.New("transport_fail")
-}
-
-type transport struct{}
-
-func (transport) RoundTrip(req *http.Request) (*http.Response, error) {
-   fmt.Println(req.URL)
-   return http.DefaultTransport.RoundTrip(req)
 }
 
 type web_test struct {
