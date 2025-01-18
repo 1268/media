@@ -11,6 +11,39 @@ import (
    "testing"
 )
 
+func TestContent(t *testing.T) {
+   for _, test := range web_tests {
+      content, err := test.content()
+      if err != nil {
+         t.Fatal(err)
+      }
+      t.Run("String", func(t *testing.T) {
+         if content.g.String() == "" {
+            t.Fatal(content.g)
+         }
+      })
+      func() {
+         err := mullvad.Connect(test.location)
+         if err != nil {
+            t.Fatal(err)
+         }
+         defer mullvad.Disconnect()
+         t.Run("fhd", func(t *testing.T) {
+            _, err = content.g.fhd(content.i, test.language).streamings()
+            if err != nil {
+               t.Fatal(err)
+            }
+         })
+         t.Run("hd", func(t *testing.T) {
+            _, err = content.g.hd(content.i, test.language).streamings()
+            if err != nil {
+               t.Fatal(err)
+            }
+         })
+      }()
+   }
+}
+
 func TestStreamInfo(t *testing.T) {
    home, err := os.UserHomeDir()
    if err != nil {
@@ -88,39 +121,6 @@ func (w *web_test) content() (*content_class, error) {
       }
    }
    return &content, nil
-}
-
-func TestContent(t *testing.T) {
-   for _, test := range web_tests {
-      content, err := test.content()
-      if err != nil {
-         t.Fatal(err)
-      }
-      t.Run("String", func(t *testing.T) {
-         if content.g.String() == "" {
-            t.Fatal(content.g)
-         }
-      })
-      func() {
-         err := mullvad.Connect(test.location)
-         if err != nil {
-            t.Fatal(err)
-         }
-         defer mullvad.Disconnect()
-         t.Run("fhd", func(t *testing.T) {
-            _, err = content.g.fhd(content.i, test.language).streamings()
-            if err != nil {
-               t.Fatal(err)
-            }
-         })
-         t.Run("hd", func(t *testing.T) {
-            _, err = content.g.hd(content.i, test.language).streamings()
-            if err != nil {
-               t.Fatal(err)
-            }
-         })
-      }()
-   }
 }
 
 func TestAddress(t *testing.T) {
