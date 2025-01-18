@@ -2,16 +2,18 @@ package cineMember
 
 import (
    "os"
+   "os/exec"
    "strings"
    "testing"
 )
 
 func TestAuthenticate(t *testing.T) {
-   username, password, ok := strings.Cut(os.Getenv("cineMember"), ":")
-   if !ok {
-      t.Fatal("Getenv")
+   data, err := exec.Command("password", "cinemember.nl").Output()
+   if err != nil {
+      t.Fatal(err)
    }
-   data, err := (*OperationUser).Marshal(nil, username, password)
+   username, password, _ := strings.Cut(string(data), ":")
+   data, err = OperationUser{}.Marshal(username, password)
    if err != nil {
       t.Fatal(err)
    }

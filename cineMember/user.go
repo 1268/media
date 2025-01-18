@@ -15,6 +15,18 @@ mutation($email: String, $password: String) {
 }
 `
 
+func (o *OperationUser) Unmarshal(data []byte) error {
+   return json.Unmarshal(data, o)
+}
+
+type OperationUser struct {
+   Data struct {
+      UserAuthenticate struct {
+         AccessToken string `json:"access_token"`
+      }
+   }
+}
+
 func (OperationUser) Marshal(email, password string) ([]byte, error) {
    var value struct {
       Query     string `json:"query"`
@@ -41,14 +53,3 @@ func (OperationUser) Marshal(email, password string) ([]byte, error) {
    return io.ReadAll(resp.Body)
 }
 
-type OperationUser struct {
-   Data struct {
-      UserAuthenticate struct {
-         AccessToken string `json:"access_token"`
-      }
-   }
-}
-
-func (o *OperationUser) Unmarshal(data []byte) error {
-   return json.Unmarshal(data, o)
-}

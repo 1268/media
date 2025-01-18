@@ -4,10 +4,29 @@ import (
    "41.neocities.org/text"
    "fmt"
    "os"
+   "os/exec"
    "strings"
    "testing"
    "time"
 )
+
+func TestLogin(t *testing.T) {
+   data, err := exec.Command("password", "amcplus.com").Output()
+   if err != nil {
+      t.Fatal(err)
+   }
+   username, password, _ := strings.Cut(string(data), ":")
+   var auth Authorization
+   err = auth.Unauth()
+   if err != nil {
+      t.Fatal(err)
+   }
+   data, err = auth.Login(username, password)
+   if err != nil {
+      t.Fatal(err)
+   }
+   os.WriteFile("amc.txt", data, os.ModePerm)
+}
 
 var key_tests = []struct{
    key_id string
@@ -40,6 +59,7 @@ func TestPath(t *testing.T) {
       fmt.Println(web)
    }
 }
+
 func TestContent(t *testing.T) {
    data, err := os.ReadFile("amc.txt")
    if err != nil {
@@ -80,23 +100,6 @@ func TestRefresh(t *testing.T) {
       t.Fatal(err)
    }
    data, err = auth.Refresh()
-   if err != nil {
-      t.Fatal(err)
-   }
-   os.WriteFile("amc.txt", data, os.ModePerm)
-}
-
-func TestLogin(t *testing.T) {
-   username, password, ok := strings.Cut(os.Getenv("amc"), ":")
-   if !ok {
-      t.Fatal("Getenv")
-   }
-   var auth Authorization
-   err := auth.Unauth()
-   if err != nil {
-      t.Fatal(err)
-   }
-   data, err := auth.Login(username, password)
    if err != nil {
       t.Fatal(err)
    }

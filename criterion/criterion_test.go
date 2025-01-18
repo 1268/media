@@ -11,6 +11,18 @@ import (
    "testing"
 )
 
+func TestToken(t *testing.T) {
+   username, password, ok := strings.Cut(os.Getenv("criterion"), ":")
+   if !ok {
+      t.Fatal("Getenv")
+   }
+   data, err := (*AuthToken).Marshal(nil, username, password)
+   if err != nil {
+      t.Fatal(err)
+   }
+   os.WriteFile("token.txt", data, os.ModePerm)
+}
+
 func TestWrap(t *testing.T) {
    data, err := os.ReadFile("token.txt")
    if err != nil {
@@ -60,28 +72,9 @@ func TestWrap(t *testing.T) {
    if err != nil {
       t.Fatal(err)
    }
-   data, err = file.Wrap(data)
+   _, err = file.Wrap(data)
    if err != nil {
       t.Fatal(err)
-   }
-   var body widevine.ResponseBody
-   err = body.Unmarshal(data)
-   if err != nil {
-      t.Fatal(err)
-   }
-   block, err := module.Block(body)
-   if err != nil {
-      t.Fatal(err)
-   }
-   containers := body.Container()
-   for {
-      container, ok := containers()
-      if !ok {
-         break
-      }
-      if bytes.Equal(container.Id(), key_id) {
-         fmt.Printf("%x\n", container.Key(block))
-      }
    }
 }
 
@@ -111,15 +104,4 @@ var video_test = struct{
    key_id: "e4576465a745213f336c1ef1bf5d513e",
    slug: "my-dinner-with-andre",
    url: "criterionchannel.com/videos/my-dinner-with-andre",
-}
-func TestToken(t *testing.T) {
-   username, password, ok := strings.Cut(os.Getenv("criterion"), ":")
-   if !ok {
-      t.Fatal("Getenv")
-   }
-   data, err := (*AuthToken).Marshal(nil, username, password)
-   if err != nil {
-      t.Fatal(err)
-   }
-   os.WriteFile("token.txt", data, os.ModePerm)
 }

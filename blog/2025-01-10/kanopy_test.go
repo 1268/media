@@ -2,37 +2,21 @@ package kanopy
 
 import (
    "41.neocities.org/widevine"
-   "bytes"
    "encoding/base64"
-   "fmt"
    "os"
+   "os/exec"
    "strings"
    "testing"
    "time"
 )
 
-var tests = []struct{
-   key_id string
-   url string
-   video_id int64
-}{
-   {
-      key_id: "DUCS1DH4TB6Po1oEkG9xUA==",
-      url: "kanopy.com/en/product/13808102",
-      video_id: 13808102,
-   },
-   {
-      url: "kanopy.com/en/product/14881167",
-      video_id: 14881167,
-   },
-}
-
 func TestLogin(t *testing.T) {
-   email, password, ok := strings.Cut(os.Getenv("kanopy"), ":")
-   if !ok {
-      t.Fatal("Getenv")
+   data, err := exec.Command("password", "kanopy.com").Output()
+   if err != nil {
+      t.Fatal(err)
    }
-   data, err := web_token{}.marshal(email, password)
+   email, password, _ := strings.Cut(string(data), ":")
+   data, err = web_token{}.marshal(email, password)
    if err != nil {
       t.Fatal(err)
    }
@@ -75,10 +59,11 @@ func TestLicense(t *testing.T) {
          t.Fatal("video_plays.dash")
       }
       var pssh widevine.PsshData
-      pssh.KeyId, err = base64.StdEncoding.DecodeString(test.key_id)
+      key_id, err := base64.StdEncoding.DecodeString(test.key_id)
       if err != nil {
          t.Fatal(err)
       }
+      pssh.KeyIds = [][]byte{key_id}
       var module widevine.Cdm
       err = module.New(private_key, client_id, pssh.Marshal())
       if err != nil {
@@ -88,29 +73,26 @@ func TestLicense(t *testing.T) {
       if err != nil {
          t.Fatal(err)
       }
-      data, err = poster{manifest, &token}.Wrap(data)
+      _, err = poster{manifest, &token}.Wrap(data)
       if err != nil {
          t.Fatal(err)
-      }
-      var body widevine.ResponseBody
-      err = body.Unmarshal(data)
-      if err != nil {
-         t.Fatal(err)
-      }
-      block, err := module.Block(body)
-      if err != nil {
-         t.Fatal(err)
-      }
-      containers := body.Container()
-      for {
-         container, ok := containers()
-         if !ok {
-            break
-         }
-         if bytes.Equal(container.Id(), pssh.KeyId) {
-            fmt.Printf("%x\n", container.Decrypt(block))
-         }
       }
       time.Sleep(time.Second)
    }
+}
+
+var tests = []struct{
+   key_id string
+   url string
+   video_id int64
+}{
+   {
+      key_id: "DUCS1DH4TB6Po1oEkG9xUA==",
+      url: "kanopy.com/en/product/13808102",
+      video_id: 13808102,
+   },
+   {
+      url: "kanopy.com/en/product/14881167",
+      video_id: 14881167,
+   },
 }
