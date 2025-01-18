@@ -5,11 +5,37 @@ import (
    "41.neocities.org/text"
    "41.neocities.org/widevine"
    "encoding/base64"
+   "errors"
    "log"
    "net/http"
    "os"
    "testing"
 )
+
+func (w *web_test) content() (*content_class, error) {
+   var web address
+   web.Set(w.address)
+   var content content_class
+   content.i, _ = web.classification_id()
+   if web.season_id != "" {
+      season, err := web.season(content.i)
+      if err != nil {
+         return nil, err
+      }
+      _, ok := season.content(&address{})
+      if ok {
+         return nil, errors.New("gizmo_season.content")
+      }
+      content.g, _ = season.content(&web)
+   } else {
+      var err error
+      content.g, err = web.movie(content.i)
+      if err != nil {
+         return nil, err
+      }
+   }
+   return &content, nil
+}
 
 func TestContent(t *testing.T) {
    for _, test := range web_tests {
@@ -22,18 +48,18 @@ func TestContent(t *testing.T) {
             t.Fatal(content.g)
          }
       })
+      t.Run("fhd", func(t *testing.T) {
+         _, err = content.g.fhd(content.i, test.language).streamings()
+         if err == nil {
+            t.Fatal(content.g)
+         }
+      })
       func() {
          err := mullvad.Connect(test.location)
          if err != nil {
             t.Fatal(err)
          }
          defer mullvad.Disconnect()
-         t.Run("fhd", func(t *testing.T) {
-            _, err = content.g.fhd(content.i, test.language).streamings()
-            if err != nil {
-               t.Fatal(err)
-            }
-         })
          t.Run("hd", func(t *testing.T) {
             _, err = content.g.hd(content.i, test.language).streamings()
             if err != nil {
@@ -100,27 +126,6 @@ func TestStreamInfo(t *testing.T) {
          }
       }()
    }
-}
-
-func (w *web_test) content() (*content_class, error) {
-   var web address
-   web.Set(w.address)
-   var content content_class
-   content.i, _ = web.classification_id()
-   if web.season_id != "" {
-      season, err := web.season(content.i)
-      if err != nil {
-         return nil, err
-      }
-      content.g, _ = season.content(&web)
-   } else {
-      var err error
-      content.g, err = web.movie(content.i)
-      if err != nil {
-         return nil, err
-      }
-   }
-   return &content, nil
 }
 
 func TestAddress(t *testing.T) {
