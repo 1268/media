@@ -3,20 +3,21 @@ package criterion
 import (
    "41.neocities.org/text"
    "41.neocities.org/widevine"
-   "bytes"
    "encoding/hex"
    "fmt"
    "os"
+   "os/exec"
    "strings"
    "testing"
 )
 
 func TestToken(t *testing.T) {
-   username, password, ok := strings.Cut(os.Getenv("criterion"), ":")
-   if !ok {
-      t.Fatal("Getenv")
+   data, err := exec.Command("password", "criterionchannel.com").Output()
+   if err != nil {
+      t.Fatal(err)
    }
-   data, err := (*AuthToken).Marshal(nil, username, password)
+   username, password, _ := strings.Cut(string(data), ":")
+   data, err = new(AuthToken).Marshal(username, password)
    if err != nil {
       t.Fatal(err)
    }

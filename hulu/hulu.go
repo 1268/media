@@ -21,7 +21,7 @@ func (p *Playlist) Wrap(data []byte) ([]byte, error) {
 
 type Playlist struct {
    StreamUrl string `json:"stream_url"`
-   WvServer string `json:"wv_server"`
+   WvServer  string `json:"wv_server"`
 }
 
 type DeepLink struct {
@@ -29,12 +29,12 @@ type DeepLink struct {
 }
 
 type Details struct {
-   EpisodeName string `json:"episode_name"`
-   EpisodeNumber int `json:"episode_number"`
-   Headline string
-   PremiereDate time.Time `json:"premiere_date"`
-   SeasonNumber int `json:"season_number"`
-   SeriesName string `json:"series_name"`
+   EpisodeName   string `json:"episode_name"`
+   EpisodeNumber int    `json:"episode_number"`
+   Headline      string
+   PremiereDate  time.Time `json:"premiere_date"`
+   SeasonNumber  int       `json:"season_number"`
+   SeriesName    string    `json:"series_name"`
 }
 
 func (d *Details) Show() string {
@@ -75,12 +75,12 @@ func (e *EntityId) Set(s string) error {
 }
 
 type codec_value struct {
-   Height int `json:"height,omitempty"`
+   Height  int    `json:"height,omitempty"`
    Level   string `json:"level,omitempty"`
    Profile string `json:"profile,omitempty"`
-   Tier string `json:"tier,omitempty"`
+   Tier    string `json:"tier,omitempty"`
    Type    string `json:"type"`
-   Width int `json:"width,omitempty"`
+   Width   int    `json:"width,omitempty"`
 }
 
 type drm_value struct {
@@ -97,26 +97,26 @@ type playlist_request struct {
    Playback       struct {
       Audio struct {
          Codecs struct {
-            SelectionMode string `json:"selection_mode"`
-            Values []codec_value `json:"values"`
+            SelectionMode string        `json:"selection_mode"`
+            Values        []codec_value `json:"values"`
          } `json:"codecs"`
       } `json:"audio"`
-      Video   struct {
+      Video struct {
          Codecs struct {
-            SelectionMode string `json:"selection_mode"`
-            Values []codec_value `json:"values"`
+            SelectionMode string        `json:"selection_mode"`
+            Values        []codec_value `json:"values"`
          } `json:"codecs"`
       } `json:"video"`
       Drm struct {
-         SelectionMode string `json:"selection_mode"`
-         Values []drm_value `json:"values"`
+         SelectionMode string      `json:"selection_mode"`
+         Values        []drm_value `json:"values"`
       } `json:"drm"`
       Manifest struct {
          Type string `json:"type"`
       } `json:"manifest"`
       Segments struct {
-         SelectionMode string `json:"selection_mode"`
-         Values []segment_value `json:"values"`
+         SelectionMode string          `json:"selection_mode"`
+         Values        []segment_value `json:"values"`
       } `json:"segments"`
       Version int `json:"version"`
    } `json:"playback"`

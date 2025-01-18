@@ -10,6 +10,46 @@ import (
    "strings"
 )
 
+func (a *AuthToken) Video(slug string) (*EmbedItem, error) {
+   req, err := http.NewRequest("", "https://api.vhx.com", nil)
+   if err != nil {
+      return nil, err
+   }
+   req.URL.Path = "/videos/" + slug
+   req.URL.RawQuery = url.Values{
+      "url": {slug},
+   }.Encode()
+   req.Header.Set("authorization", "Bearer "+a.AccessToken)
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   if resp.StatusCode != http.StatusOK {
+      var b strings.Builder
+      resp.Write(&b)
+      return nil, errors.New(b.String())
+   }
+   item := &EmbedItem{}
+   err = json.NewDecoder(resp.Body).Decode(item)
+   if err != nil {
+      return nil, err
+   }
+   return item, nil
+}
+
+type EmbedItem struct {
+   Links struct {
+      Files struct {
+         Href string
+      }
+   } `json:"_links"`
+   Metadata struct {
+      YearReleased int `json:"year_released"`
+   }
+   Name string
+}
+
 const client_id = "9a87f110f79cd25250f6c7f3a6ec8b9851063ca156dae493bf362a7faf146c78"
 
 func (a *AuthToken) Files(item *EmbedItem) (VideoFiles, error) {
@@ -58,34 +98,6 @@ func (AuthToken) Marshal(username, password string) ([]byte, error) {
    return io.ReadAll(resp.Body)
 }
 
-func (a *AuthToken) Video(slug string) (*EmbedItem, error) {
-   req, err := http.NewRequest("", "https://api.vhx.com", nil)
-   if err != nil {
-      return nil, err
-   }
-   req.URL.Path = "/videos/" + slug
-   req.URL.RawQuery = url.Values{
-      "url": {slug},
-   }.Encode()
-   req.Header.Set("authorization", "Bearer "+a.AccessToken)
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   if resp.StatusCode != http.StatusOK {
-      var b strings.Builder
-      resp.Write(&b)
-      return nil, errors.New(b.String())
-   }
-   item := &EmbedItem{}
-   err = json.NewDecoder(resp.Body).Decode(item)
-   if err != nil {
-      return nil, err
-   }
-   return item, nil
-}
-
 func (*EmbedItem) Episode() int {
    return 0
 }
@@ -104,18 +116,6 @@ func (e *EmbedItem) Title() string {
 
 func (e *EmbedItem) Year() int {
    return e.Metadata.YearReleased
-}
-
-type EmbedItem struct {
-   Links struct {
-      Files struct {
-         Href string
-      }
-   } `json:"_links"`
-   Metadata struct {
-      YearReleased int `json:"year_released"`
-   }
-   Name string
 }
 
 type VideoFiles []VideoFile

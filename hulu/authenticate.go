@@ -25,8 +25,8 @@ func (a *Authenticate) Playlist(link *DeepLink) (*Playlist, error) {
    p.Playback.Drm.Values = []drm_value{
       {
          SecurityLevel: "L3",
-         Type: "WIDEVINE",
-         Version: "MODULAR",
+         Type:          "WIDEVINE",
+         Version:       "MODULAR",
       },
    }
    p.Playback.Manifest.Type = "DASH"
@@ -42,19 +42,19 @@ func (a *Authenticate) Playlist(link *DeepLink) (*Playlist, error) {
    p.Version = 9999999
    p.Playback.Video.Codecs.Values = []codec_value{
       {
-         Height: 9999,
-         Level: "9",
+         Height:  9999,
+         Level:   "9",
          Profile: "HIGH",
-         Type: "H264",
-         Width: 9999,
+         Type:    "H264",
+         Width:   9999,
       },
       {
-         Height: 9999,
-         Level: "9",
+         Height:  9999,
+         Level:   "9",
          Profile: "MAIN_10",
-         Tier: "MAIN",
-         Type: "H265",
-         Width: 9999,
+         Tier:    "MAIN",
+         Type:    "H265",
+         Width:   9999,
       },
    }
    data, err := json.Marshal(p)
@@ -69,7 +69,7 @@ func (a *Authenticate) Playlist(link *DeepLink) (*Playlist, error) {
    }
    req.Header = http.Header{
       "authorization": {"Bearer " + a.Data.UserToken},
-      "content-type": {"application/json"},
+      "content-type":  {"application/json"},
    }
    resp, err := http.DefaultClient.Do(req)
    if err != nil {
@@ -102,7 +102,7 @@ func (a *Authenticate) Details(link *DeepLink) (*Details, error) {
    if err != nil {
       return nil, err
    }
-   req.Header.Set("authorization", "Bearer " + a.Data.UserToken)
+   req.Header.Set("authorization", "Bearer "+a.Data.UserToken)
    resp, err := http.DefaultClient.Do(req)
    if err != nil {
       return nil, err
@@ -125,9 +125,9 @@ func (Authenticate) Marshal(email, password string) ([]byte, error) {
    resp, err := http.PostForm(
       "https://auth.hulu.com/v2/livingroom/password/authenticate", url.Values{
          "friendly_name": {"!"},
-         "password": {password},
+         "password":      {password},
          "serial_number": {"!"},
-         "user_email": {email},
+         "user_email":    {email},
       },
    )
    if err != nil {
@@ -149,10 +149,10 @@ func (a *Authenticate) DeepLink(id *EntityId) (*DeepLink, error) {
    }
    req.URL.Path = "/content/v5/deeplink/playback"
    req.URL.RawQuery = url.Values{
-      "id": {id.Data},
+      "id":        {id.Data},
       "namespace": {"entity"},
    }.Encode()
-   req.Header.Set("authorization", "Bearer " + a.Data.UserToken)
+   req.Header.Set("authorization", "Bearer "+a.Data.UserToken)
    resp, err := http.DefaultClient.Do(req)
    if err != nil {
       return nil, err

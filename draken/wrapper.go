@@ -8,7 +8,7 @@ import (
 
 type Wrapper struct {
    AuthLogin *AuthLogin
-   Playback *Playback
+   Playback  *Playback
 }
 
 func (w Wrapper) Wrap(data []byte) ([]byte, error) {
@@ -23,7 +23,7 @@ func (w Wrapper) Wrap(data []byte) ([]byte, error) {
    for key, value := range w.Playback.Headers {
       req.Header.Set(key, value)
    }
-   req.Header.Set("authorization", "Bearer " + w.AuthLogin.Token)
+   req.Header.Set("authorization", "Bearer "+w.AuthLogin.Token)
    resp, err := http.DefaultClient.Do(req)
    if err != nil {
       return nil, err
