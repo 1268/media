@@ -3,33 +3,91 @@ package rakuten
 import (
    "41.neocities.org/platform/mullvad"
    "41.neocities.org/text"
+   "41.neocities.org/widevine"
+   "encoding/base64"
    "log"
    "net/http"
+   "os"
    "testing"
 )
 
-func TestAddress(t *testing.T) {
+func TestStreamInfo(t *testing.T) {
+   home, err := os.UserHomeDir()
+   if err != nil {
+      t.Fatal(err)
+   }
+   private_key, err := os.ReadFile(home + "/widevine/private_key.pem")
+   if err != nil {
+      t.Fatal(err)
+   }
+   client_id, err := os.ReadFile(home + "/widevine/client_id.bin")
+   if err != nil {
+      t.Fatal(err)
+   }
    for _, test := range web_tests {
-      var web address
-      t.Run("Set", func(t *testing.T) {
-         err := web.Set(test.address)
+      if test.key_id == "" {
+         continue
+      }
+      content, err := test.content()
+      if err != nil {
+         t.Fatal(err)
+      }
+      func() {
+         err := mullvad.Connect(test.location)
          if err != nil {
             t.Fatal(err)
          }
-      })
-      t.Run("String", func(t *testing.T) {
-         if web.String() == "" {
-            t.Fatal(test)
+         defer mullvad.Disconnect()
+         info, err := content.g.hd(content.i, test.language).streamings()
+         if err != nil {
+            t.Fatal(err)
          }
-      })
+         var pssh widevine.PsshData
+         pssh.ContentId, err = base64.StdEncoding.DecodeString(test.content_id)
+         if err != nil {
+            t.Fatal(err)
+         }
+         key_id, err := base64.StdEncoding.DecodeString(test.key_id)
+         if err != nil {
+            t.Fatal(err)
+         }
+         pssh.KeyIds = [][]byte{key_id}
+         var module widevine.Cdm
+         err = module.New(private_key, client_id, pssh.Marshal())
+         if err != nil {
+            t.Fatal(err)
+         }
+         data, err := module.RequestBody()
+         if err != nil {
+            t.Fatal(err)
+         }
+         _, err = info.Wrap(data)
+         if err != nil {
+            t.Fatal(err)
+         }
+      }()
    }
-   t.Run("classification_id", func(t *testing.T) {
-      var web address
-      _, ok := web.classification_id()
-      if ok {
-         t.Fatal(web)
+}
+
+func (w *web_test) content() (*content_class, error) {
+   var web address
+   web.Set(w.address)
+   var content content_class
+   content.i, _ = web.classification_id()
+   if web.season_id != "" {
+      season, err := web.season(content.i)
+      if err != nil {
+         return nil, err
       }
-   })
+      content.g, _ = season.content(&web)
+   } else {
+      var err error
+      content.g, err = web.movie(content.i)
+      if err != nil {
+         return nil, err
+      }
+   }
+   return &content, nil
 }
 
 func TestContent(t *testing.T) {
@@ -65,6 +123,30 @@ func TestContent(t *testing.T) {
    }
 }
 
+func TestAddress(t *testing.T) {
+   for _, test := range web_tests {
+      var web address
+      t.Run("Set", func(t *testing.T) {
+         err := web.Set(test.address)
+         if err != nil {
+            t.Fatal(err)
+         }
+      })
+      t.Run("String", func(t *testing.T) {
+         if web.String() == "" {
+            t.Fatal(test)
+         }
+      })
+   }
+   t.Run("classification_id", func(t *testing.T) {
+      var web address
+      _, ok := web.classification_id()
+      if ok {
+         t.Fatal(web)
+      }
+   })
+}
+
 func TestMain(m *testing.M) {
    http.DefaultClient.Transport = transport{}
    m.Run()
@@ -95,57 +177,36 @@ func (transport) RoundTrip(req *http.Request) (*http.Response, error) {
 }
 
 type web_test struct {
-   address     string
-   content_id  string
-   key_id      string
-   language    string
-   location    string
+   address    string
+   content_id string
+   key_id     string
+   language   string
+   location   string
 }
 
 var web_tests = []web_test{
    {
-      address:     "rakuten.tv/fr/movies/infidele",
-      content_id:  "MGU1MTgwMDA2Y2Q1MDhlZWMwMGQ1MzVmZWM2YzQyMGQtbWMtMC0xNDEtMC0w",
-      key_id:      "DlGAAGzVCO7ADVNf7GxCDQ==",
-      language:    "ENG",
-      location: "fr",
+      address:    "rakuten.tv/fr/movies/infidele",
+      content_id: "MGU1MTgwMDA2Y2Q1MDhlZWMwMGQ1MzVmZWM2YzQyMGQtbWMtMC0xNDEtMC0w",
+      key_id:     "DlGAAGzVCO7ADVNf7GxCDQ==",
+      language:   "ENG",
+      location:   "fr",
    },
    {
-      address:     "rakuten.tv/cz/movies/transvulcania-the-people-s-run",
-      language:    "SPA",
-      location:    "cz",
+      language: "ENG",
+      address:  "rakuten.tv/uk/player/episodes/stream/hell-s-kitchen-usa-15/hell-s-kitchen-usa-15-1",
+      location: "gb",
    },
    {
-      content_id:  "OWE1MzRhMWYxMmQ2OGUxYTIzNTlmMzg3MTBmZGRiNjUtbWMtMC0xNDctMC0w",
-      key_id:      "mlNKHxLWjhojWfOHEP3bZQ==",
-      language:    "ENG",
-      address:     "rakuten.tv/se/movies/i-heart-huckabees",
-      location: "se",
+      address:  "rakuten.tv/cz/movies/transvulcania-the-people-s-run",
+      language: "SPA",
+      location: "cz",
    },
    {
-      language:    "ENG",
-      address:     "rakuten.tv/uk/player/episodes/stream/hell-s-kitchen-usa-15/hell-s-kitchen-usa-15-1",
-      location:    "gb",
+      content_id: "OWE1MzRhMWYxMmQ2OGUxYTIzNTlmMzg3MTBmZGRiNjUtbWMtMC0xNDctMC0w",
+      key_id:     "mlNKHxLWjhojWfOHEP3bZQ==",
+      language:   "ENG",
+      address:    "rakuten.tv/se/movies/i-heart-huckabees",
+      location:   "se",
    },
-}
-
-func (w *web_test) content() (*content_class, error) {
-   var web address
-   web.Set(w.address)
-   var content content_class
-   content.i, _ = web.classification_id()
-   if web.season_id != "" {
-      season, err := web.season(content.i)
-      if err != nil {
-         return nil, err
-      }
-      content.g, _ = season.content(&web)
-   } else {
-      var err error
-      content.g, err = web.movie(content.i)
-      if err != nil {
-         return nil, err
-      }
-   }
-   return &content, nil
 }
