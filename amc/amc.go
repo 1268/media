@@ -11,6 +11,45 @@ import (
    "time"
 )
 
+func (a *Authorization) Login(email, password string) ([]byte, error) {
+   data, err := json.Marshal(map[string]string{
+      "email": email,
+      "password": password,
+   })
+   if err != nil {
+      return nil, err
+   }
+   req, err := http.NewRequest(
+      "POST", "https://gw.cds.amcn.com", bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   req.URL.Path = "/auth-orchestration-id/api/v1/login"
+   req.Header = http.Header{
+      "authorization": {"Bearer " + a.Data.AccessToken},
+      "content-type": {"application/json"},
+      "x-amcn-device-ad-id": {"-"},
+      "x-amcn-device-id": {"-"},
+      "x-amcn-language": {"en"},
+      "x-amcn-network": {"amcplus"},
+      "x-amcn-platform": {"web"},
+      "x-amcn-service-group-id": {"10"},
+      "x-amcn-service-id": {"amcplus"},
+      "x-amcn-tenant": {"amcn"},
+      "x-ccpa-do-not-sell": {"doNotPassData"},
+   }
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   if resp.StatusCode != http.StatusOK {
+      return nil, errors.New(resp.Status)
+   }
+   return io.ReadAll(resp.Body)
+}
+
 func cache_hash() string {
    return base64.StdEncoding.EncodeToString([]byte("ff="))
 }
@@ -116,45 +155,6 @@ type Authorization struct {
 
 func (a *Authorization) Unmarshal(data []byte) error {
    return json.Unmarshal(data, a)
-}
-
-func (a *Authorization) Login(email, password string) ([]byte, error) {
-   data, err := json.Marshal(map[string]string{
-      "email": email,
-      "password": password,
-   })
-   if err != nil {
-      return nil, err
-   }
-   req, err := http.NewRequest(
-      "POST", "https://gw.cds.amcn.com", bytes.NewReader(data),
-   )
-   if err != nil {
-      return nil, err
-   }
-   req.URL.Path = "/auth-orchestration-id/api/v1/login"
-   req.Header = http.Header{
-      "authorization": {"Bearer " + a.Data.AccessToken},
-      "content-type": {"application/json"},
-      "x-amcn-device-ad-id": {"-"},
-      "x-amcn-device-id": {"-"},
-      "x-amcn-language": {"en"},
-      "x-amcn-network": {"amcplus"},
-      "x-amcn-platform": {"web"},
-      "x-amcn-service-group-id": {"10"},
-      "x-amcn-service-id": {"amcplus"},
-      "x-amcn-tenant": {"amcn"},
-      "x-ccpa-do-not-sell": {"doNotPassData"},
-   }
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   if resp.StatusCode != http.StatusOK {
-      return nil, errors.New(resp.Status)
-   }
-   return io.ReadAll(resp.Body)
 }
 
 func (a *Authorization) Refresh() ([]byte, error) {

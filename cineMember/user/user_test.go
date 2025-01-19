@@ -1,4 +1,4 @@
-package cineMember
+package user
 
 import (
    "os"
@@ -7,13 +7,13 @@ import (
    "testing"
 )
 
-func TestAuthenticate(t *testing.T) {
+func TestUser(t *testing.T) {
    data, err := exec.Command("password", "cinemember.nl").Output()
    if err != nil {
       t.Fatal(err)
    }
-   username, password, _ := strings.Cut(string(data), ":")
-   data, err = OperationUser{}.Marshal(username, password)
+   email, password, _ := strings.Cut(string(data), ":")
+   data, err = marshal(email, password)
    if err != nil {
       t.Fatal(err)
    }

@@ -14,18 +14,18 @@ import (
 
 var web_tests = []web_test{
    {
+      address:  "rakuten.tv/cz/movies/transvulcania-the-people-s-run",
+      language: "SPA",
+      location: "cz",
+      name:     "Transvulcania, The People’s Run - 2024",
+   },
+   {
       address:    "rakuten.tv/fr/movies/infidele",
       content_id: "MGU1MTgwMDA2Y2Q1MDhlZWMwMGQ1MzVmZWM2YzQyMGQtbWMtMC0xNDEtMC0w",
       key_id:     "DlGAAGzVCO7ADVNf7GxCDQ==",
       language:   "ENG",
       location:   "fr",
       name:       "Infidèle - 2002",
-   },
-   {
-      language: "ENG",
-      address:  "rakuten.tv/uk/player/episodes/stream/hell-s-kitchen-usa-15/hell-s-kitchen-usa-15-1",
-      location: "gb",
-      name:     "Hell's Kitchen USA - 15 1 - 18 Chefs Compete",
    },
    {
       address:  "rakuten.tv/pl/movies/ad-astra",
@@ -42,10 +42,10 @@ var web_tests = []web_test{
       name:       "I Heart Huckabees - 2004",
    },
    {
-      address:  "rakuten.tv/cz/movies/transvulcania-the-people-s-run",
-      language: "SPA",
-      location: "cz",
-      name:     "Transvulcania, The People’s Run - 2024",
+      language: "ENG",
+      address:  "rakuten.tv/uk/player/episodes/stream/hell-s-kitchen-usa-15/hell-s-kitchen-usa-15-1",
+      location: "gb",
+      name:     "Hell's Kitchen USA - 15 1 - 18 Chefs Compete",
    },
 }
 
