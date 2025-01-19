@@ -15,7 +15,7 @@ func (w *WebToken) Auth() (*AuvioAuth, error) {
    value := map[string]any{
       "device": map[string]string{
          "deviceId": "",
-         "type": "WEB",
+         "type":     "WEB",
       },
       "jwt": w.IdToken,
    }
@@ -98,7 +98,7 @@ func (a *AuvioAuth) Entitlement(asset_id string) (*Entitlement, error) {
 func (a *AuvioLogin) Token() (*WebToken, error) {
    resp, err := http.PostForm(
       "https://login.auvio.rtbf.be/accounts.getJWT", url.Values{
-         "APIKey": {api_key},
+         "APIKey":      {api_key},
          "login_token": {a.SessionInfo.CookieValue},
       },
    )
@@ -167,8 +167,8 @@ type Namer struct {
 }
 
 type AuvioPage struct {
-   AssetId  string
-   Media *struct {
+   AssetId string
+   Media   *struct {
       AssetId string
    }
    Subtitle Subtitle

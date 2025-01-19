@@ -2,16 +2,18 @@ package hulu
 
 import (
    "os"
+   "os/exec"
    "strings"
    "testing"
 )
 
 func TestAuthenticate(t *testing.T) {
-   username, password, ok := strings.Cut(os.Getenv("hulu"), ":")
-   if !ok {
-      t.Fatal("Getenv")
+   data, err := exec.Command("password", "hulu.com").Output()
+   if err != nil {
+      t.Fatal(err)
    }
-   data, err := (*Authenticate).Marshal(nil, username, password)
+   username, password, _ := strings.Cut(string(data), ":")
+   data, err = new(Authenticate).Marshal(username, password)
    if err != nil {
       t.Fatal(err)
    }

@@ -3,29 +3,42 @@ package rtbf
 import (
    "41.neocities.org/text"
    "41.neocities.org/widevine"
-   "bytes"
    "encoding/base64"
    "fmt"
    "os"
+   "os/exec"
    "strings"
    "testing"
    "time"
 )
 
-var tests = []struct{
+func TestAccountsLogin(t *testing.T) {
+   data, err := exec.Command("password", "rtbf.be").Output()
+   if err != nil {
+      t.Fatal(err)
+   }
+   username, password, _ := strings.Cut(string(data), ":")
+   data, err = new(AuvioLogin).Marshal(username, password)
+   if err != nil {
+      t.Fatal(err)
+   }
+   os.WriteFile("login.txt", data, os.ModePerm)
+}
+
+var tests = []struct {
    key_id string
    path   string
    url    string
 }{
    {
       key_id: "Ma5jT/1dR8K/ljWx/1Pb4A==",
-      path: "/media/titanic-3286058",
-      url: "auvio.rtbf.be/media/titanic-3286058",
+      path:   "/media/titanic-3286058",
+      url:    "auvio.rtbf.be/media/titanic-3286058",
    },
    {
       key_id: "xESyRLihQMacu++BvoakfA==",
-      path: "/media/agatha-christie-pourquoi-pas-evans-agatha-christie-pourquoi-pas-evans-3280380",
-      url:  "auvio.rtbf.be/media/agatha-christie-pourquoi-pas-evans-agatha-christie-pourquoi-pas-evans-3280380",
+      path:   "/media/agatha-christie-pourquoi-pas-evans-agatha-christie-pourquoi-pas-evans-3280380",
+      url:    "auvio.rtbf.be/media/agatha-christie-pourquoi-pas-evans-agatha-christie-pourquoi-pas-evans-3280380",
    },
 }
 
@@ -87,28 +100,9 @@ func TestWrap(t *testing.T) {
       if err != nil {
          t.Fatal(err)
       }
-      data, err = title.Wrap(data)
+      _, err = title.Wrap(data)
       if err != nil {
          t.Fatal(err)
-      }
-      var body widevine.ResponseBody
-      err = body.Unmarshal(data)
-      if err != nil {
-         t.Fatal(err)
-      }
-      block, err := module.Block(body)
-      if err != nil {
-         t.Fatal(err)
-      }
-      containers := body.Container()
-      for {
-         container, ok := containers()
-         if !ok {
-            t.Fatal("ResponseBody.Container")
-         }
-         if bytes.Equal(container.Id(), key_id) {
-            fmt.Printf("%x\n", container.Key(block))
-         }
       }
       time.Sleep(time.Second)
    }
@@ -179,16 +173,4 @@ func TestPage(t *testing.T) {
       fmt.Printf("%q\n", name)
       time.Sleep(time.Second)
    }
-}
-
-func TestAccountsLogin(t *testing.T) {
-   username, password, ok := strings.Cut(os.Getenv("rtbf"), ":")
-   if !ok {
-      t.Fatal("Getenv")
-   }
-   data, err := (*AuvioLogin).Marshal(nil, username, password)
-   if err != nil {
-      t.Fatal(err)
-   }
-   os.WriteFile("login.txt", data, os.ModePerm)
 }
