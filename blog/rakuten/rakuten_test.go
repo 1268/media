@@ -12,6 +12,43 @@ import (
    "testing"
 )
 
+var web_tests = []web_test{
+   {
+      address:    "rakuten.tv/fr/movies/infidele",
+      content_id: "MGU1MTgwMDA2Y2Q1MDhlZWMwMGQ1MzVmZWM2YzQyMGQtbWMtMC0xNDEtMC0w",
+      key_id:     "DlGAAGzVCO7ADVNf7GxCDQ==",
+      language:   "ENG",
+      location:   "fr",
+      name:       "Infidèle - 2002",
+   },
+   {
+      language: "ENG",
+      address:  "rakuten.tv/uk/player/episodes/stream/hell-s-kitchen-usa-15/hell-s-kitchen-usa-15-1",
+      location: "gb",
+      name:     "Hell's Kitchen USA - 15 1 - 18 Chefs Compete",
+   },
+   {
+      address:  "rakuten.tv/pl/movies/ad-astra",
+      language: "",
+      location: "",
+      name:     "",
+   },
+   {
+      content_id: "OWE1MzRhMWYxMmQ2OGUxYTIzNTlmMzg3MTBmZGRiNjUtbWMtMC0xNDctMC0w",
+      key_id:     "mlNKHxLWjhojWfOHEP3bZQ==",
+      language:   "ENG",
+      address:    "rakuten.tv/se/movies/i-heart-huckabees",
+      location:   "se",
+      name:       "I Heart Huckabees - 2004",
+   },
+   {
+      address:  "rakuten.tv/cz/movies/transvulcania-the-people-s-run",
+      language: "SPA",
+      location: "cz",
+      name:     "Transvulcania, The People’s Run - 2024",
+   },
+}
+
 type content_class struct {
    g     *gizmo_content
    class int
@@ -23,43 +60,6 @@ func (transport) RoundTrip(req *http.Request) (*http.Response, error) {
    log.Print(req.URL)
    return http.DefaultTransport.RoundTrip(req)
 }
-
-type web_test struct {
-   address    string
-   content_id string
-   key_id     string
-   language   string
-   location   string
-}
-
-var web_tests = []web_test{
-   {
-      address:    "rakuten.tv/fr/movies/infidele",
-      content_id: "MGU1MTgwMDA2Y2Q1MDhlZWMwMGQ1MzVmZWM2YzQyMGQtbWMtMC0xNDEtMC0w",
-      key_id:     "DlGAAGzVCO7ADVNf7GxCDQ==",
-      language:   "ENG",
-      location:   "fr",
-   },
-   {
-      language: "ENG",
-      address:  "rakuten.tv/uk/player/episodes/stream/hell-s-kitchen-usa-15/hell-s-kitchen-usa-15-1",
-      location: "gb",
-   },
-   {
-      address:  "rakuten.tv/cz/movies/transvulcania-the-people-s-run",
-      language: "SPA",
-      location: "cz",
-   },
-   {
-      content_id: "OWE1MzRhMWYxMmQ2OGUxYTIzNTlmMzg3MTBmZGRiNjUtbWMtMC0xNDctMC0w",
-      key_id:     "mlNKHxLWjhojWfOHEP3bZQ==",
-      language:   "ENG",
-      address:    "rakuten.tv/se/movies/i-heart-huckabees",
-      location:   "se",
-   },
-}
-
-///
 
 func TestAddress(t *testing.T) {
    for _, test := range web_tests {
@@ -83,6 +83,48 @@ func TestAddress(t *testing.T) {
          t.Fatal(web)
       }
    })
+}
+
+func TestMain(m *testing.M) {
+   http.DefaultClient.Transport = transport{}
+   m.Run()
+}
+
+func (w *web_test) content() (*content_class, error) {
+   var web address
+   web.Set(w.address)
+   var content content_class
+   content.class, _ = web.classification_id()
+   if web.season_id != "" {
+      season, err := web.season(content.class)
+      if err != nil {
+         return nil, err
+      }
+      _, ok := season.content(&address{})
+      if ok {
+         return nil, errors.New("gizmo_season.content")
+      }
+      content.g, _ = season.content(&web)
+   } else {
+      var err error
+      content.g, err = web.movie(content.class)
+      if err != nil {
+         return nil, err
+      }
+   }
+   return &content, nil
+}
+
+func TestNamer(t *testing.T) {
+   for _, test := range web_tests {
+      content, err := test.content()
+      if err != nil {
+         t.Fatal(err)
+      }
+      if text.Name(namer{content.g}) != test.name {
+         t.Fatal(content)
+      }
+   }
 }
 
 func TestContent(t *testing.T) {
@@ -118,21 +160,13 @@ func TestContent(t *testing.T) {
    }
 }
 
-func TestMain(m *testing.M) {
-   http.DefaultClient.Transport = transport{}
-   m.Run()
-}
-
-func TestNamer(t *testing.T) {
-   for _, test := range web_tests {
-      content, err := test.content()
-      if err != nil {
-         t.Fatal(err)
-      }
-      if text.Name(namer{content.g}) == "" {
-         t.Fatal(content)
-      }
-   }
+type web_test struct {
+   address    string
+   content_id string
+   key_id     string
+   language   string
+   location   string
+   name       string
 }
 
 func TestStreamInfo(t *testing.T) {
@@ -191,29 +225,4 @@ func TestStreamInfo(t *testing.T) {
          }
       }()
    }
-}
-
-func (w *web_test) content() (*content_class, error) {
-   var web address
-   web.Set(w.address)
-   var content content_class
-   content.class, _ = web.classification_id()
-   if web.season_id != "" {
-      season, err := web.season(content.class)
-      if err != nil {
-         return nil, err
-      }
-      _, ok := season.content(&address{})
-      if ok {
-         return nil, errors.New("gizmo_season.content")
-      }
-      content.g, _ = season.content(&web)
-   } else {
-      var err error
-      content.g, err = web.movie(content.class)
-      if err != nil {
-         return nil, err
-      }
-   }
-   return &content, nil
 }

@@ -11,6 +11,35 @@ import (
    "strings"
 )
 
+func (a *address) movie(classification_id int) (*gizmo_content, error) {
+   req, _ := http.NewRequest("", "https://gizmo.rakuten.tv", nil)
+   req.URL.Path = "/v3/movies/" + a.content_id
+   req.URL.RawQuery = url.Values{
+      "classification_id": {strconv.Itoa(classification_id)},
+      "device_identifier": {"atvui40"},
+      "market_code":       {a.market_code},
+   }.Encode()
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   var value struct {
+      Data gizmo_content
+      Errors []struct {
+         Message string
+      }
+   }
+   err = json.NewDecoder(resp.Body).Decode(&value)
+   if err != nil {
+      return nil, err
+   }
+   if err := value.Errors; len(err) >= 1 {
+      return nil, errors.New(err[0].Message)
+   }
+   return &value.Data, nil
+}
+
 func (a *address) classification_id() (int, bool) {
    switch a.market_code {
    case "cz":
@@ -44,29 +73,6 @@ type address struct {
    market_code string
    season_id   string
    content_id  string
-}
-
-func (a *address) movie(classification_id int) (*gizmo_content, error) {
-   req, _ := http.NewRequest("", "https://gizmo.rakuten.tv", nil)
-   req.URL.Path = "/v3/movies/" + a.content_id
-   req.URL.RawQuery = url.Values{
-      "classification_id": {strconv.Itoa(classification_id)},
-      "device_identifier": {"atvui40"},
-      "market_code":       {a.market_code},
-   }.Encode()
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   var value struct {
-      Data gizmo_content
-   }
-   err = json.NewDecoder(resp.Body).Decode(&value)
-   if err != nil {
-      return nil, err
-   }
-   return &value.Data, nil
 }
 
 func (a *address) String() string {
