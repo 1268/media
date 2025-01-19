@@ -7,14 +7,6 @@ import (
    "net/http"
 )
 
-type User struct {
-   Data struct {
-      UserAuthenticate struct {
-         AccessToken string `json:"access_token"`
-      }
-   }
-}
-
 const query_user = `
 mutation($email: String, $password: String) {
    UserAuthenticate(email: $email, password: $password) {
@@ -45,6 +37,14 @@ func marshal(email, password string) ([]byte, error) {
    return io.ReadAll(resp.Body)
 }
 
-func (u *User) unmarshal(data []byte) error {
-   return json.Unmarshal(data, u)
+type Authenticate struct {
+   Data struct {
+      UserAuthenticate struct {
+         AccessToken string `json:"access_token"`
+      }
+   }
+}
+
+func (a *Authenticate) Unmarshal(data []byte) error {
+   return json.Unmarshal(data, a)
 }
