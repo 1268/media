@@ -1,14 +1,19 @@
-package cineMember
+package article
 
 import (
+   "41.neocities.org/media/cineMember"
    "bytes"
    "encoding/json"
-   "errors"
    "io"
    "net/http"
    "strconv"
-   "strings"
 )
+
+type Asset struct {
+   Id         int
+   LinkedType string `json:"linked_type"`
+   article    *Article
+}
 
 // NO ANONYMOUS QUERY
 const query_article = `
@@ -34,14 +39,14 @@ query Article($articleUrlSlug: String) {
 }
 `
 
-func Marshal(web *Address) ([]byte, error) {
+func Marshal(url cineMember.Url) ([]byte, error) {
    var value struct {
       Query     string `json:"query"`
       Variables struct {
          ArticleUrlSlug string `json:"articleUrlSlug"`
       } `json:"variables"`
    }
-   value.Variables.ArticleUrlSlug = web.Path
+   value.Variables.ArticleUrlSlug = url.String()
    value.Query = query_article
    data, err := json.Marshal(value)
    if err != nil {
@@ -58,21 +63,29 @@ func Marshal(web *Address) ([]byte, error) {
    return io.ReadAll(resp.Body)
 }
 
-func (o *OperationArticle) Film() (*ArticleAsset, bool) {
-   for _, asset := range o.Assets {
-      if asset.LinkedType == "film" {
-         return asset, true
+func (a *Article) Unmarshal(data []byte) error {
+   var value struct {
+      Data struct {
+         Article Article
       }
    }
-   return nil, false
+   err := json.Unmarshal(data, &value)
+   if err != nil {
+      return err
+   }
+   *a = value.Data.Article
+   for _, as := range a.Assets {
+      as.article = a
+   }
+   return nil
 }
 
-func (o *OperationArticle) Title() string {
-   return o.CanonicalTitle
+func (a *Article) Title() string {
+   return a.CanonicalTitle
 }
 
-func (o *OperationArticle) Year() int {
-   for _, meta := range o.Metas {
+func (a *Article) Year() int {
+   for _, meta := range a.Metas {
       if meta.Key == "year" {
          if v, err := strconv.Atoi(meta.Value); err == nil {
             return v
@@ -82,20 +95,20 @@ func (o *OperationArticle) Year() int {
    return 0
 }
 
-func (*OperationArticle) Episode() int {
+func (*Article) Episode() int {
    return 0
 }
 
-func (*OperationArticle) Season() int {
+func (*Article) Season() int {
    return 0
 }
 
-func (*OperationArticle) Show() string {
+func (*Article) Show() string {
    return ""
 }
 
-type OperationArticle struct {
-   Assets         []*ArticleAsset
+type Article struct {
+   Assets         []*Asset
    CanonicalTitle string `json:"canonical_title"`
    Id             int
    Metas          []struct {
@@ -104,19 +117,11 @@ type OperationArticle struct {
    }
 }
 
-func (o *OperationArticle) Unmarshal(data []byte) error {
-   var value struct {
-      Data struct {
-         Article OperationArticle
+func (a *Article) Film() (*Asset, bool) {
+   for _, as := range a.Assets {
+      if as.LinkedType == "film" {
+         return as, true
       }
    }
-   err := json.Unmarshal(data, &value)
-   if err != nil {
-      return err
-   }
-   *o = value.Data.Article
-   for _, asset := range o.Assets {
-      asset.article = o
-   }
-   return nil
+   return nil, false
 }

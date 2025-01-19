@@ -1,45 +1,25 @@
 package asset
 
 import (
+   "41.neocities.org/media/cineMember"
+   "41.neocities.org/media/cineMember/article"
    "41.neocities.org/media/cineMember/user"
    "bytes"
    "encoding/json"
    "errors"
    "io"
    "net/http"
-   "strconv"
-   "strings"
 )
 
-const query_play = `
-mutation($article_id: Int, $asset_id: Int) {
-   ArticleAssetPlay(article_id: $article_id asset_id: $asset_id) {
-      entitlements {
-         ... on ArticleAssetPlayEntitlement {
-            key_delivery_url
-            manifest
-            protocol
-         }
-      }
-   }
-}
-`
-
 // hard geo block
-func (OperationPlay) Marshal(
-   auth user.Authenticate, asset *ArticleAsset,
-) ([]byte, error) {
-   var value struct {
-      Query     string `json:"query"`
-      Variables struct {
-         ArticleId int `json:"article_id"`
-         AssetId   int `json:"asset_id"`
-      } `json:"variables"`
-   }
-   value.Query = query_play
-   value.Variables.AssetId = asset.Id
-   value.Variables.ArticleId = asset.article.Id
-   data, err := json.Marshal(value)
+func Marshal(auth user.Authenticate, asset *article.Asset) ([]byte, error) {
+   data, err := json.Marshal(map[string]any{
+      "query": query_play,
+      "variables": map[string]int{
+         "article_id": asset.article.Id,
+         "asset_id": asset.Id,
+      },
+   })
    if err != nil {
       return nil, err
    }
@@ -62,33 +42,47 @@ func (OperationPlay) Marshal(
    return io.ReadAll(resp.Body)
 }
 
-func (o *OperationPlay) Unmarshal(data []byte) error {
-   err := json.Unmarshal(data, o)
-   if err != nil {
-      return err
-   }
-   if v := o.Errors; len(v) >= 1 {
-      return errors.New(v[0].Message)
-   }
-   return nil
-}
-
-func (o *OperationPlay) Dash() (*Entitlement, bool) {
-   for _, title := range o.Data.ArticleAssetPlay.Entitlements {
-      if title.Protocol == "dash" {
-         return &title, true
+const query_play = `
+mutation($article_id: Int, $asset_id: Int) {
+   ArticleAssetPlay(article_id: $article_id asset_id: $asset_id) {
+      entitlements {
+         ... on ArticleAssetPlayEntitlement {
+            key_delivery_url
+            manifest
+            protocol
+         }
       }
    }
-   return nil, false
 }
+`
 
-type OperationPlay struct {
+type Play struct {
    Data struct {
       ArticleAssetPlay struct {
-         Entitlements []Entitlement
+         Entitlements []cineMember.Entitlement
       }
    }
    Errors []struct {
       Message string
    }
+}
+
+func (p *Play) Unmarshal(data []byte) error {
+   err := json.Unmarshal(data, p)
+   if err != nil {
+      return err
+   }
+   if len(p.Errors) >= 1 {
+      return errors.New(p.Errors[0].Message)
+   }
+   return nil
+}
+
+func (p *Play) Dash() (*cineMember.Entitlement, bool) {
+   for _, title := range p.Data.ArticleAssetPlay.Entitlements {
+      if title.Protocol == "dash" {
+         return &title, true
+      }
+   }
+   return nil, false
 }

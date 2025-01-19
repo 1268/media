@@ -1,13 +1,9 @@
 package cineMember
 
 import (
-   "41.neocities.org/media/cineMember/user"
    "bytes"
-   "encoding/json"
-   "errors"
    "io"
    "net/http"
-   "strconv"
    "strings"
 )
 
@@ -28,25 +24,19 @@ func (e *Entitlement) Wrap(data []byte) ([]byte, error) {
    return io.ReadAll(resp.Body)
 }
 
-func (a *Address) Set(s string) error {
-   s = strings.TrimPrefix(s, "https://")
-   s = strings.TrimPrefix(s, "www.")
-   s = strings.TrimPrefix(s, "cinemember.nl")
-   s = strings.TrimPrefix(s, "/nl")
-   a.Path = strings.TrimPrefix(s, "/")
+func (u Url) String() string {
+   return u.s
+}
+
+type Url struct {
+   s string
+}
+
+func (u *Url) Set(data string) error {
+   u.s = strings.TrimPrefix(data, "https://")
+   u.s = strings.TrimPrefix(u.s, "www.")
+   u.s = strings.TrimPrefix(u.s, "cinemember.nl")
+   u.s = strings.TrimPrefix(u.s, "/nl")
+   u.s = strings.TrimPrefix(u.s, "/")
    return nil
-}
-
-type Address struct {
-   Path string
-}
-
-func (a *Address) String() string {
-   return a.Path
-}
-
-type ArticleAsset struct {
-   Id         int
-   LinkedType string `json:"linked_type"`
-   article    *OperationArticle
 }
