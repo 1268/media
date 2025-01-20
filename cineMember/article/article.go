@@ -6,49 +6,15 @@ import (
    "encoding/json"
    "io"
    "net/http"
-   "strconv"
 )
 
-type Asset struct {
-   Id         int
-   LinkedType string `json:"linked_type"`
-   article    *Article
-}
-
-// NO ANONYMOUS QUERY
-const query_article = `
-query Article($articleUrlSlug: String) {
-   Article(full_url_slug: $articleUrlSlug) {
-      ... on Article {
-         assets {
-            ... on Asset {
-               id
-               linked_type
-            }
-         }
-         canonical_title
-         id
-         metas(output: html) {
-            ... on ArticleMeta {
-               key
-               value
-            }
-         }
-      }
-   }
-}
-`
-
 func Marshal(url cineMember.Url) ([]byte, error) {
-   var value struct {
-      Query     string `json:"query"`
-      Variables struct {
-         ArticleUrlSlug string `json:"articleUrlSlug"`
-      } `json:"variables"`
-   }
-   value.Variables.ArticleUrlSlug = url.String()
-   value.Query = query_article
-   data, err := json.Marshal(value)
+   data, err := json.Marshal(map[string]any{
+      "query": query,
+      "variables": map[string]string{
+         "articleUrlSlug": url.String(),
+      },
+   })
    if err != nil {
       return nil, err
    }
@@ -63,6 +29,38 @@ func Marshal(url cineMember.Url) ([]byte, error) {
    return io.ReadAll(resp.Body)
 }
 
+// NO ANONYMOUS QUERY
+const query = `
+query Article($articleUrlSlug: String) {
+   Article(full_url_slug: $articleUrlSlug) {
+      ... on Article {
+         assets {
+            ... on Asset {
+               id
+               linked_type
+            }
+         }
+         id
+      }
+   }
+}
+`
+
+type Article struct {
+   Assets []*UserAsset
+   Id     int
+}
+
+type UserAsset struct {
+   Id         int
+   LinkedType string `json:"linked_type"`
+   article    *Article
+}
+
+func (u *UserAsset) GetArticle() *Article {
+   return u.article
+}
+
 func (a *Article) Unmarshal(data []byte) error {
    var value struct {
       Data struct {
@@ -74,53 +72,16 @@ func (a *Article) Unmarshal(data []byte) error {
       return err
    }
    *a = value.Data.Article
-   for _, as := range a.Assets {
-      as.article = a
+   for _, asset := range a.Assets {
+      asset.article = a
    }
    return nil
 }
 
-func (a *Article) Title() string {
-   return a.CanonicalTitle
-}
-
-func (a *Article) Year() int {
-   for _, meta := range a.Metas {
-      if meta.Key == "year" {
-         if v, err := strconv.Atoi(meta.Value); err == nil {
-            return v
-         }
-      }
-   }
-   return 0
-}
-
-func (*Article) Episode() int {
-   return 0
-}
-
-func (*Article) Season() int {
-   return 0
-}
-
-func (*Article) Show() string {
-   return ""
-}
-
-type Article struct {
-   Assets         []*Asset
-   CanonicalTitle string `json:"canonical_title"`
-   Id             int
-   Metas          []struct {
-      Key   string
-      Value string
-   }
-}
-
-func (a *Article) Film() (*Asset, bool) {
-   for _, as := range a.Assets {
-      if as.LinkedType == "film" {
-         return as, true
+func (a *Article) Film() (*UserAsset, bool) {
+   for _, asset := range a.Assets {
+      if asset.LinkedType == "film" {
+         return asset, true
       }
    }
    return nil, false

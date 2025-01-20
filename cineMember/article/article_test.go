@@ -1,26 +1,27 @@
 package article
 
 import (
-   "41.neocities.org/media/cineMember/user"
-   "41.neocities.org/text"
+   "41.neocities.org/media/cineMember"
    "fmt"
-   "os"
    "testing"
 )
 
-// cinemember.nl/films/american-hustle
-var american_hustle = Address{"films/american-hustle"}
+const test = "cinemember.nl/films/american-hustle"
 
-func TestArticle(t *testing.T) {
-   var article OperationArticle
-   data, err := article.Marshal(&american_hustle)
+func Test(t *testing.T) {
+   var url cineMember.Url
+   err := url.Set(test)
    if err != nil {
       t.Fatal(err)
    }
-   err = article.Unmarshal(data)
+   data, err := Marshal(url)
    if err != nil {
       t.Fatal(err)
    }
-   fmt.Printf("%+v\n", article)
-   fmt.Printf("%q\n", text.Name(&article))
+   var art Article
+   err = art.Unmarshal(data)
+   if err != nil {
+      t.Fatal(err)
+   }
+   fmt.Printf("%+v\n", art)
 }

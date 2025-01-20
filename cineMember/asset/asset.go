@@ -12,11 +12,11 @@ import (
 )
 
 // hard geo block
-func Marshal(auth user.Authenticate, asset *article.Asset) ([]byte, error) {
+func Marshal(auth user.Authenticate, asset *article.UserAsset) ([]byte, error) {
    data, err := json.Marshal(map[string]any{
       "query": query_play,
       "variables": map[string]int{
-         "article_id": asset.article.Id,
+         "article_id": asset.GetArticle().Id,
          "asset_id": asset.Id,
       },
    })
@@ -56,17 +56,6 @@ mutation($article_id: Int, $asset_id: Int) {
 }
 `
 
-type Play struct {
-   Data struct {
-      ArticleAssetPlay struct {
-         Entitlements []cineMember.Entitlement
-      }
-   }
-   Errors []struct {
-      Message string
-   }
-}
-
 func (p *Play) Unmarshal(data []byte) error {
    err := json.Unmarshal(data, p)
    if err != nil {
@@ -85,4 +74,14 @@ func (p *Play) Dash() (*cineMember.Entitlement, bool) {
       }
    }
    return nil, false
+}
+type Play struct {
+   Data struct {
+      ArticleAssetPlay struct {
+         Entitlements []cineMember.Entitlement
+      }
+   }
+   Errors []struct {
+      Message string
+   }
 }

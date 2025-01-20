@@ -1,24 +1,32 @@
 package asset
 
 import (
+   "41.neocities.org/media/cineMember"
+   "41.neocities.org/media/cineMember/article"
    "41.neocities.org/media/cineMember/user"
-   "41.neocities.org/text"
    "fmt"
    "os"
    "testing"
 )
 
-func TestAsset(t *testing.T) {
-   var article OperationArticle
-   data, err := article.Marshal(&american_hustle)
+const test_url = "cinemember.nl/films/american-hustle"
+
+func Test(t *testing.T) {
+   var url cineMember.Url
+   err := url.Set(test_url)
    if err != nil {
       t.Fatal(err)
    }
-   err = article.Unmarshal(data)
+   data, err := article.Marshal(url)
    if err != nil {
       t.Fatal(err)
    }
-   asset, ok := article.Film()
+   var art article.Article
+   err = art.Unmarshal(data)
+   if err != nil {
+      t.Fatal(err)
+   }
+   asset, ok := art.Film()
    if !ok {
       t.Fatal("OperationArticle.Film")
    }
@@ -31,17 +39,14 @@ func TestAsset(t *testing.T) {
    if err != nil {
       t.Fatal(err)
    }
-   var play OperationPlay
-   data, err = play.Marshal(auth, asset)
+   data, err = Marshal(auth, asset)
    if err != nil {
       t.Fatal(err)
    }
-   err = play.Unmarshal(data)
+   var p Play
+   err = p.Unmarshal(data)
    if err != nil {
       t.Fatal(err)
    }
-   fmt.Println(play.Dash())
+   fmt.Println(p.Dash())
 }
-
-// cinemember.nl/films/american-hustle
-var american_hustle = Address{"films/american-hustle"}

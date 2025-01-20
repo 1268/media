@@ -7,7 +7,7 @@ import (
    "testing"
 )
 
-func TestUser(t *testing.T) {
+func Test(t *testing.T) {
    data, err := exec.Command("password", "cinemember.nl").Output()
    if err != nil {
       t.Fatal(err)
