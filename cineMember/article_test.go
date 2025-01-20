@@ -1,4 +1,4 @@
-package article
+package cineMember
 
 import (
    "41.neocities.org/media/cineMember"

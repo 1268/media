@@ -1,4 +1,4 @@
-package asset
+package cineMember
 
 import (
    "41.neocities.org/media/cineMember"
