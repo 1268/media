@@ -25,23 +25,6 @@ func (e *Entitlement) Wrap(data []byte) ([]byte, error) {
    return io.ReadAll(resp.Body)
 }
 
-func (u Url) String() string {
-   return u.s
-}
-
-type Url struct {
-   s string
-}
-
-func (u *Url) Set(data string) error {
-   u.s = strings.TrimPrefix(data, "https://")
-   u.s = strings.TrimPrefix(u.s, "www.")
-   u.s = strings.TrimPrefix(u.s, "cinemember.nl")
-   u.s = strings.TrimPrefix(u.s, "/nl")
-   u.s = strings.TrimPrefix(u.s, "/")
-   return nil
-}
-
 const query_user = `
 mutation($email: String, $password: String) {
    UserAuthenticate(email: $email, password: $password) {
@@ -82,4 +65,21 @@ func (Authenticate) Marshal(email, password string) ([]byte, error) {
    }
    defer resp.Body.Close()
    return io.ReadAll(resp.Body)
+}
+
+type Address struct {
+   s string
+}
+
+func (a Address) String() string {
+   return a.s
+}
+
+func (a *Address) Set(data string) error {
+   a.s = strings.TrimPrefix(data, "https://")
+   a.s = strings.TrimPrefix(a.s, "www.")
+   a.s = strings.TrimPrefix(a.s, "cinemember.nl")
+   a.s = strings.TrimPrefix(a.s, "/nl")
+   a.s = strings.TrimPrefix(a.s, "/")
+   return nil
 }

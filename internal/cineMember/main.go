@@ -9,6 +9,16 @@ import (
    "path/filepath"
 )
 
+type flags struct {
+   address        cineMember.Address
+   email          string
+   home           string
+   password       string
+   play           bool
+   representation string
+   s              internal.Stream
+}
+
 func main() {
    var f flags
    err := f.New()
@@ -35,7 +45,7 @@ func main() {
       if err != nil {
          panic(err)
       }
-   case f.address.Path != "":
+   case f.address.String() != "":
       err := f.download()
       if err != nil {
          panic(err)
@@ -55,14 +65,4 @@ func (f *flags) New() error {
    f.s.ClientId = f.home + "/widevine/client_id.bin"
    f.s.PrivateKey = f.home + "/widevine/private_key.pem"
    return nil
-}
-
-type flags struct {
-   email string
-   s internal.Stream
-   home string
-   representation string
-   password string
-   play bool
-   address cineMember.Address
 }

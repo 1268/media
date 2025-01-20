@@ -13,7 +13,7 @@ func Test(t *testing.T) {
       t.Fatal(err)
    }
    email, password, _ := strings.Cut(string(data), ":")
-   data, err = marshal(email, password)
+   data, err = Authenticate{}.Marshal(email, password)
    if err != nil {
       t.Fatal(err)
    }

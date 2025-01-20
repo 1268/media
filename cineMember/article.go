@@ -55,11 +55,11 @@ func (u *UserArticle) Unmarshal(data []byte) error {
    return nil
 }
 
-func (UserArticle) Marshal(address Url) ([]byte, error) {
+func (UserArticle) Marshal(web Address) ([]byte, error) {
    data, err := json.Marshal(map[string]any{
       "query": query_article,
       "variables": map[string]string{
-         "articleUrlSlug": address.String(),
+         "articleUrlSlug": web.String(),
       },
    })
    if err != nil {

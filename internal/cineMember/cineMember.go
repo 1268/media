@@ -16,7 +16,7 @@ func (f *flags) download() error {
    if err != nil {
       return err
    }
-   var play cineMember.OperationPlay
+   var play cineMember.AssetPlay
    err = play.Unmarshal(data)
    if err != nil {
       return err
@@ -49,7 +49,7 @@ func (f *flags) download() error {
          if err != nil {
             return err
          }
-         var article cineMember.OperationArticle
+         var article cineMember.UserArticle
          err = article.Unmarshal(data)
          if err != nil {
             return err
@@ -71,7 +71,7 @@ func (f *flags) write_user() error {
    if err != nil {
       return err
    }
-   return os.WriteFile(f.home + "/cineMember.txt", data, os.ModePerm)
+   return os.WriteFile(f.home+"/cineMember.txt", data, os.ModePerm)
 }
 
 func (f *flags) write_play() error {
@@ -82,7 +82,7 @@ func (f *flags) write_play() error {
    if err != nil {
       return err
    }
-   err = os.WriteFile(f.base() + "/article.txt", data, os.ModePerm)
+   err = os.WriteFile(f.base()+"/article.txt", data, os.ModePerm)
    if err != nil {
       return err
    }
@@ -108,5 +108,5 @@ func (f *flags) write_play() error {
    if err != nil {
       return err
    }
-   return os.WriteFile(f.base() + "/play.txt", data, os.ModePerm)
+   return os.WriteFile(f.base()+"/play.txt", data, os.ModePerm)
 }
