@@ -10,6 +10,52 @@ import (
    "time"
 )
 
+func TestContent(t *testing.T) {
+   for _, test := range tests {
+      content := &VideoContent{}
+      data, err := content.Marshal(test.content_id)
+      if err != nil {
+         t.Fatal(err)
+      }
+      err = content.Unmarshal(data)
+      if err != nil {
+         t.Fatal(err)
+      }
+      if content.Episode() {
+         data, err = content.Marshal(content.SeriesId)
+         if err != nil {
+            t.Fatal(err)
+         }
+         err = content.Unmarshal(data)
+         if err != nil {
+            t.Fatal(err)
+         }
+         var ok bool
+         content, ok = content.Get(test.content_id)
+         if !ok {
+            t.Fatal("VideoContent.Get")
+         }
+      }
+      time.Sleep(time.Second)
+   }
+}
+
+var tests = []struct {
+   content_id int
+   key_id     string
+   url        string
+}{
+   {
+      content_id: 100002888,
+      key_id:     "/czNsQXzQQKDN2Bl6kEmDQ==",
+      url:        "tubitv.com/movies/100002888",
+   },
+   {
+      content_id: 200042567,
+      key_id:     "Ndopo1ozQ8iSL75MAfbL6A==",
+      url:        "tubitv.com/tv-shows/200042567",
+   },
+}
 func TestLicense(t *testing.T) {
    home, err := os.UserHomeDir()
    if err != nil {
