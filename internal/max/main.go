@@ -9,29 +9,6 @@ import (
    "path/filepath"
 )
 
-func (f *flags) New() error {
-   var err error
-   f.home, err = os.UserHomeDir()
-   if err != nil {
-      return err
-   }
-   f.home = filepath.ToSlash(f.home)
-   f.s.ClientId = f.home + "/widevine/client_id.bin"
-   f.s.PrivateKey = f.home + "/widevine/private_key.pem"
-   return nil
-}
-
-type flags struct {
-   url        max.WatchUrl
-   home           string
-   initiate       bool
-   login          bool
-   representation string
-   s              internal.Stream
-   min_width int64
-   max_width int64
-}
-
 func main() {
    var f flags
    err := f.New()
@@ -51,7 +28,7 @@ func main() {
    flag.Int64Var(&f.min_width, "min", 1024, "min width")
    flag.Int64Var(&f.max_width, "max", 1600, "max width")
    flag.Parse()
-   text.Transport{}.Set(true)
+   text.Transport{}.Set()
    switch {
    case f.initiate:
       err := f.do_initiate()
@@ -71,4 +48,26 @@ func main() {
    default:
       flag.Usage()
    }
+}
+func (f *flags) New() error {
+   var err error
+   f.home, err = os.UserHomeDir()
+   if err != nil {
+      return err
+   }
+   f.home = filepath.ToSlash(f.home)
+   f.s.ClientId = f.home + "/widevine/client_id.bin"
+   f.s.PrivateKey = f.home + "/widevine/private_key.pem"
+   return nil
+}
+
+type flags struct {
+   home           string
+   initiate       bool
+   login          bool
+   max_width      int64
+   min_width      int64
+   representation string
+   s              internal.Stream
+   url            max.WatchUrl
 }

@@ -9,28 +9,6 @@ import (
    "path/filepath"
 )
 
-type flags struct {
-   email string
-   s internal.Stream
-   home string
-   entity hulu.EntityId
-   representation string
-   password string
-   min_width int64
-}
-
-func (f *flags) New() error {
-   var err error
-   f.home, err = os.UserHomeDir()
-   if err != nil {
-      return err
-   }
-   f.home = filepath.ToSlash(f.home)
-   f.s.ClientId = f.home + "/widevine/client_id.bin"
-   f.s.PrivateKey = f.home + "/widevine/private_key.pem"
-   return nil
-}
-
 func main() {
    var f flags
    err := f.New()
@@ -45,7 +23,7 @@ func main() {
    flag.StringVar(&f.password, "p", "", "password")
    flag.Int64Var(&f.min_width, "m", 1280, "min width")
    flag.Parse()
-   text.Transport{}.Set(true)
+   text.Transport{}.Set()
    switch {
    case f.password != "":
       err := f.authenticate()
@@ -60,4 +38,26 @@ func main() {
    default:
       flag.Usage()
    }
+}
+
+type flags struct {
+   email          string
+   entity         hulu.EntityId
+   home           string
+   min_width      int64
+   password       string
+   representation string
+   s              internal.Stream
+}
+
+func (f *flags) New() error {
+   var err error
+   f.home, err = os.UserHomeDir()
+   if err != nil {
+      return err
+   }
+   f.home = filepath.ToSlash(f.home)
+   f.s.ClientId = f.home + "/widevine/client_id.bin"
+   f.s.PrivateKey = f.home + "/widevine/private_key.pem"
+   return nil
 }

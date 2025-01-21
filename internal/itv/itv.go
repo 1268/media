@@ -52,7 +52,6 @@ func (f *flags) download() error {
       case "":
          fmt.Print(&represent, "\n\n")
       case represent.Id:
-         f.s.Namer = itv.Namer{discovery}
          f.s.Wrapper = file
          return f.s.Download(&represent)
       }

@@ -48,10 +48,6 @@ func (f *flags) download() error {
       case "":
          fmt.Print(&represent, "\n\n")
       case represent.Id:
-         f.s.Namer, err = auth.Details(deep)
-         if err != nil {
-            return err
-         }
          f.s.Wrapper = play
          return f.s.Download(&represent)
       }
@@ -64,5 +60,5 @@ func (f *flags) authenticate() error {
    if err != nil {
       return err
    }
-   return os.WriteFile(f.home + "/hulu.txt", data, os.ModePerm)
+   return os.WriteFile(f.home+"/hulu.txt", data, os.ModePerm)
 }

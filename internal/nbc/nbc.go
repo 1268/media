@@ -44,7 +44,6 @@ func (f *flags) download() error {
       case "":
          fmt.Print(&represent, "\n\n")
       case represent.Id:
-         f.s.Namer = &meta
          var proxy nbc.DrmProxy
          proxy.New()
          f.s.Wrapper = &proxy
