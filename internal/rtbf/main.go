@@ -22,12 +22,12 @@ func (f *flags) New() error {
 }
 
 type flags struct {
-   email string
-   s internal.Stream
-   home string
+   address        rtbf.Address
+   email          string
+   home           string
+   password       string
    representation string
-   password string
-   address rtbf.Address
+   s              internal.Stream
 }
 
 func main() {
@@ -43,7 +43,7 @@ func main() {
    flag.StringVar(&f.s.PrivateKey, "k", f.s.PrivateKey, "private key")
    flag.Var(&f.address, "a", "address")
    flag.Parse()
-   text.Transport{}.Set(true)
+   text.Transport{}.Set()
    switch {
    case f.password != "":
       err := f.authenticate()

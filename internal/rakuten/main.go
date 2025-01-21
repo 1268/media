@@ -9,23 +9,6 @@ import (
    "path/filepath"
 )
 
-type flags struct {
-   s internal.Stream
-   representation string
-   address rakuten.Address
-}
-
-func (f *flags) New() error {
-   home, err := os.UserHomeDir()
-   if err != nil {
-      return err
-   }
-   home = filepath.ToSlash(home)
-   f.s.ClientId = home + "/widevine/client_id.bin"
-   f.s.PrivateKey = home + "/widevine/private_key.pem"
-   return nil
-}
-
 func main() {
    var f flags
    err := f.New()
@@ -37,7 +20,7 @@ func main() {
    flag.StringVar(&f.representation, "i", "", "representation")
    flag.StringVar(&f.s.PrivateKey, "k", f.s.PrivateKey, "private key")
    flag.Parse()
-   text.Transport{}.Set(true)
+   text.Transport{}.Set()
    if f.address.String() != "" {
       err := f.download()
       if err != nil {
@@ -46,4 +29,21 @@ func main() {
    } else {
       flag.Usage()
    }
+}
+
+type flags struct {
+   address        rakuten.Address
+   representation string
+   s              internal.Stream
+}
+
+func (f *flags) New() error {
+   home, err := os.UserHomeDir()
+   if err != nil {
+      return err
+   }
+   home = filepath.ToSlash(home)
+   f.s.ClientId = home + "/widevine/client_id.bin"
+   f.s.PrivateKey = home + "/widevine/private_key.pem"
+   return nil
 }

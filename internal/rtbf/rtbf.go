@@ -60,7 +60,6 @@ func (f *flags) download() error {
       case "":
          fmt.Print(&represent, "\n\n")
       case represent.Id:
-         f.s.Namer = &rtbf.Namer{page}
          f.s.Wrapper = title
          return f.s.Download(&represent)
       }
@@ -73,5 +72,5 @@ func (f *flags) authenticate() error {
    if err != nil {
       return err
    }
-   return os.WriteFile(f.home + "/rtbf.txt", data, os.ModePerm)
+   return os.WriteFile(f.home+"/rtbf.txt", data, os.ModePerm)
 }

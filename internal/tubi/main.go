@@ -8,24 +8,6 @@ import (
    "path/filepath"
 )
 
-type flags struct {
-   representation string
-   s internal.Stream
-   tubi int
-   content bool
-}
-
-func (f *flags) New() error {
-   home, err := os.UserHomeDir()
-   if err != nil {
-      return err
-   }
-   home = filepath.ToSlash(home)
-   f.s.ClientId = home + "/widevine/client_id.bin"
-   f.s.PrivateKey = home + "/widevine/private_key.pem"
-   return nil
-}
-
 func main() {
    var f flags
    err := f.New()
@@ -38,7 +20,7 @@ func main() {
    flag.StringVar(&f.s.PrivateKey, "p", f.s.PrivateKey, "private key")
    flag.BoolVar(&f.content, "w", false, "write content")
    flag.Parse()
-   text.Transport{}.Set(true)
+   text.Transport{}.Set()
    switch {
    case f.content:
       err := f.write_content()
@@ -53,4 +35,22 @@ func main() {
    default:
       flag.Usage()
    }
+}
+
+type flags struct {
+   content        bool
+   representation string
+   s              internal.Stream
+   tubi           int
+}
+
+func (f *flags) New() error {
+   home, err := os.UserHomeDir()
+   if err != nil {
+      return err
+   }
+   home = filepath.ToSlash(home)
+   f.s.ClientId = home + "/widevine/client_id.bin"
+   f.s.PrivateKey = home + "/widevine/private_key.pem"
+   return nil
 }

@@ -19,6 +19,40 @@ import (
    "strings"
 )
 
+func (s *Stream) Download(represent *dash.Representation) error {
+   for _, protect := range represent.ContentProtection {
+      if protect.SchemeIdUri.Widevine() {
+         var box pssh.Box
+         n, err := box.BoxHeader.Decode(protect.Pssh)
+         if err != nil {
+            return err
+         }
+         err = box.Read(protect.Pssh[n:])
+         if err != nil {
+            return err
+         }
+         s.pssh = box.Data
+         break
+      }
+   }
+   var ext string
+   switch *represent.MimeType {
+   case "audio/mp4":
+      ext = ".m4a"
+   case "text/vtt":
+      ext = ".vtt"
+   case "video/mp4":
+      ext = ".m4v"
+   }
+   if represent.SegmentBase != nil {
+      return s.segment_base(represent, ext)
+   }
+   if represent.SegmentList != nil {
+      return s.segment_list(represent, ext)
+   }
+   return s.segment_template(represent, ext)
+}
+
 func get(address *url.URL, meter *text.ProgressMeter) ([]byte, error) {
    resp, err := http.Get(address.String())
    if err != nil {
@@ -117,39 +151,6 @@ var Forward = []struct{
 {"Taiwan", "120.96.0.0"},
 {"United Kingdom", "25.0.0.0"},
 {"Venezuela", "190.72.0.0"},
-}
-func (s *Stream) Download(represent *dash.Representation) error {
-   for _, protect := range represent.ContentProtection {
-      if protect.SchemeIdUri.Widevine() {
-         var box pssh.Box
-         n, err := box.BoxHeader.Decode(protect.Pssh)
-         if err != nil {
-            return err
-         }
-         err = box.Read(protect.Pssh[n:])
-         if err != nil {
-            return err
-         }
-         s.pssh = box.Data
-         break
-      }
-   }
-   var ext string
-   switch *represent.MimeType {
-   case "audio/mp4":
-      ext = ".m4a"
-   case "text/vtt":
-      ext = ".vtt"
-   case "video/mp4":
-      ext = ".m4v"
-   }
-   if represent.SegmentBase != nil {
-      return s.segment_base(represent, ext)
-   }
-   if represent.SegmentList != nil {
-      return s.segment_list(represent, ext)
-   }
-   return s.segment_template(represent, ext)
 }
 
 func (s *Stream) segment_base(represent *dash.Representation, ext string) error {
@@ -433,18 +434,16 @@ func (s *Stream) segment_template(
    return nil
 }
 
-///
+func (s *Stream) Create(ext string) (*os.File, error) {
+   return os.Create(text.Clean(s.Name) + ext)
+}
 
 // wikipedia.org/wiki/Dynamic_Adaptive_Streaming_over_HTTP
 type Stream struct {
    ClientId string
+   Name string
    PrivateKey string
+   Wrapper widevine.Wrapper
    key_id []byte
    pssh []byte
-   Namer text.Namer
-   Wrapper widevine.Wrapper
-}
-
-func (s *Stream) Create(ext string) (*os.File, error) {
-   return os.Create(text.Clean(text.Name(s.Namer)) + ext)
 }

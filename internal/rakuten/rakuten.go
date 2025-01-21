@@ -37,10 +37,6 @@ func (f *flags) download() error {
       case "":
          fmt.Print(&represent, "\n\n")
       case represent.Id:
-         f.s.Namer, err = f.address.Movie()
-         if err != nil {
-            return err
-         }
          hd, err := f.address.Hd().Info()
          if err != nil {
             return err

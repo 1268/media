@@ -22,7 +22,7 @@ func (f *flags) download() error {
    }
    var (
       req http.Request
-      ok bool
+      ok  bool
    )
    req.URL, ok = clip.Dash()
    if !ok {
@@ -52,7 +52,6 @@ func (f *flags) download() error {
       case "":
          fmt.Print(&represent, "\n\n")
       case represent.Id:
-         f.s.Namer = pluto.Namer{video}
          f.s.Wrapper = pluto.Wrapper{}
          return f.s.Download(&represent)
       }
