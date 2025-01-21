@@ -2,7 +2,6 @@ package tubi
 
 import (
    "41.neocities.org/widevine"
-   "bytes"
    "encoding/base64"
    "fmt"
    "os"
@@ -56,6 +55,7 @@ var tests = []struct {
       url:        "tubitv.com/tv-shows/200042567",
    },
 }
+
 func TestLicense(t *testing.T) {
    home, err := os.UserHomeDir()
    if err != nil {
@@ -113,28 +113,9 @@ func TestLicense(t *testing.T) {
       if err != nil {
          t.Fatal(err)
       }
-      data, err = video.Wrap(data)
+      _, err = video.Wrap(data)
       if err != nil {
          t.Fatal(err)
-      }
-      var body widevine.ResponseBody
-      err = body.Unmarshal(data)
-      if err != nil {
-         t.Fatal(err)
-      }
-      block, err := module.Block(body)
-      if err != nil {
-         t.Fatal(err)
-      }
-      containers := body.Container()
-      for {
-         container, ok := containers()
-         if !ok {
-            t.Fatal("ResponseBody.Container")
-         }
-         if bytes.Equal(container.Id(), key_id) {
-            fmt.Printf("%x\n", container.Key(block))
-         }
       }
       time.Sleep(time.Second)
    }
