@@ -9,27 +9,6 @@ import (
    "path/filepath"
 )
 
-type flags struct {
-   email string
-   home string
-   password string
-   representation string
-   s internal.Stream
-   address amc.Address
-}
-
-func (f *flags) New() error {
-   var err error
-   f.home, err = os.UserHomeDir()
-   if err != nil {
-      return err
-   }
-   f.home = filepath.ToSlash(f.home)
-   f.s.ClientId = f.home + "/widevine/client_id.bin"
-   f.s.PrivateKey = f.home + "/widevine/private_key.pem"
-   return nil
-}
-
 func main() {
    var f flags
    err := f.New()
@@ -43,7 +22,7 @@ func main() {
    flag.StringVar(&f.s.ClientId, "c", f.s.ClientId, "client ID")
    flag.StringVar(&f.s.PrivateKey, "k", f.s.PrivateKey, "private key")
    flag.Parse()
-   text.Transport{}.Set(true)
+   text.Transport{}.Set()
    switch {
    case f.email != "":
       err := f.login()
@@ -58,4 +37,25 @@ func main() {
    default:
       flag.Usage()
    }
+}
+
+type flags struct {
+   address        amc.Address
+   email          string
+   home           string
+   password       string
+   representation string
+   s              internal.Stream
+}
+
+func (f *flags) New() error {
+   var err error
+   f.home, err = os.UserHomeDir()
+   if err != nil {
+      return err
+   }
+   f.home = filepath.ToSlash(f.home)
+   f.s.ClientId = f.home + "/widevine/client_id.bin"
+   f.s.PrivateKey = f.home + "/widevine/private_key.pem"
+   return nil
 }

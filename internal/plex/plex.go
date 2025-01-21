@@ -60,7 +60,6 @@ func (f *flags) download() error {
       case "":
          fmt.Print(&represent, "\n\n")
       case represent.Id:
-         f.s.Namer = &plex.Namer{match}
          f.s.Wrapper = part
          return f.s.Download(&represent)
       }

@@ -11,6 +11,10 @@ import (
    "path"
 )
 
+func (f *flags) base() string {
+   return path.Base(f.address.String())
+}
+
 func (f *flags) download() error {
    data, err := os.ReadFile(f.base() + "/play.txt")
    if err != nil {
@@ -54,16 +58,11 @@ func (f *flags) download() error {
          if err != nil {
             return err
          }
-         f.s.Namer = &article
          f.s.Wrapper = title
          return f.s.Download(&represent)
       }
    }
    return nil
-}
-
-func (f *flags) base() string {
-   return path.Base(f.address.Path)
 }
 
 func (f *flags) write_user() error {

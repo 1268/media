@@ -9,14 +9,6 @@ import (
    "path/filepath"
 )
 
-type flags struct {
-   representation string
-   s internal.Stream
-   get_forward bool
-   set_forward string
-   address plex.Address
-}
-
 func main() {
    var f flags
    err := f.New()
@@ -30,7 +22,7 @@ func main() {
    flag.BoolVar(&f.get_forward, "g", false, "get forward")
    flag.StringVar(&f.set_forward, "s", "", "set forward")
    flag.Parse()
-   text.Transport{}.Set(true)
+   text.Transport{}.Set()
    switch {
    case f.get_forward:
       get_forward()
@@ -42,6 +34,14 @@ func main() {
    default:
       flag.Usage()
    }
+}
+
+type flags struct {
+   address        plex.Address
+   get_forward    bool
+   representation string
+   s              internal.Stream
+   set_forward    string
 }
 
 func (f *flags) New() error {

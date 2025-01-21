@@ -40,16 +40,6 @@ func (f *flags) download() error {
       case "":
          fmt.Print(&represent, "\n\n")
       case represent.Id:
-         data, err = os.ReadFile(f.base() + "/media.txt")
-         if err != nil {
-            return err
-         }
-         var media ctv.MediaContent
-         err = media.Unmarshal(data)
-         if err != nil {
-            return err
-         }
-         f.s.Namer = &ctv.Namer{media}
          f.s.Wrapper = ctv.Wrapper{}
          return f.s.Download(&represent)
       }
@@ -77,7 +67,7 @@ func (f *flags) get_manifest() error {
    if err != nil {
       return err
    }
-   err = os.WriteFile(f.base() + "/media.txt", data, os.ModePerm)
+   err = os.WriteFile(f.base()+"/media.txt", data, os.ModePerm)
    if err != nil {
       return err
    }
@@ -90,5 +80,5 @@ func (f *flags) get_manifest() error {
    if err != nil {
       return err
    }
-   return os.WriteFile(f.base() + "/manifest.txt", []byte(manifest), os.ModePerm)
+   return os.WriteFile(f.base()+"/manifest.txt", []byte(manifest), os.ModePerm)
 }

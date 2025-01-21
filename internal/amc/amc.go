@@ -24,7 +24,7 @@ func (f *flags) download() error {
    if err != nil {
       return err
    }
-   os.WriteFile(f.home + "/amc.txt", data, os.ModePerm)
+   os.WriteFile(f.home+"/amc.txt", data, os.ModePerm)
    err = auth.Unmarshal(data)
    if err != nil {
       return err
@@ -53,14 +53,6 @@ func (f *flags) download() error {
       case "":
          fmt.Print(&represent, "\n\n")
       case represent.Id:
-         content, err := auth.Content(f.address.Path)
-         if err != nil {
-            return err
-         }
-         f.s.Namer, ok = content.Video()
-         if !ok {
-            return errors.New("ContentCompiler.Video")
-         }
          f.s.Wrapper = wrap
          return f.s.Download(&represent)
       }
@@ -78,5 +70,5 @@ func (f *flags) login() error {
    if err != nil {
       return err
    }
-   return os.WriteFile(f.home + "/amc.txt", data, os.ModePerm)
+   return os.WriteFile(f.home+"/amc.txt", data, os.ModePerm)
 }

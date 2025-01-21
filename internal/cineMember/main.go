@@ -9,16 +9,6 @@ import (
    "path/filepath"
 )
 
-type flags struct {
-   address        cineMember.Address
-   email          string
-   home           string
-   password       string
-   play           bool
-   representation string
-   s              internal.Stream
-}
-
 func main() {
    var f flags
    err := f.New()
@@ -33,7 +23,7 @@ func main() {
    flag.BoolVar(&f.play, "w", false, "operation play")
    flag.StringVar(&f.password, "p", "", "password")
    flag.Parse()
-   text.Transport{}.Set(true)
+   text.Transport{}.Set()
    switch {
    case f.password != "":
       err := f.write_user()
@@ -53,6 +43,16 @@ func main() {
    default:
       flag.Usage()
    }
+}
+
+type flags struct {
+   address        cineMember.Address
+   email          string
+   home           string
+   password       string
+   play           bool
+   representation string
+   s              internal.Stream
 }
 
 func (f *flags) New() error {

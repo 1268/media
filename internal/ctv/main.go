@@ -21,7 +21,7 @@ func main() {
    flag.BoolVar(&f.manifest, "w", false, "manifest")
    flag.StringVar(&f.s.PrivateKey, "p", f.s.PrivateKey, "private key")
    flag.Parse()
-   text.Transport{}.Set(true)
+   text.Transport{}.Set()
    switch {
    case f.manifest:
       err := f.get_manifest()
@@ -50,8 +50,8 @@ func (f *flags) New() error {
 }
 
 type flags struct {
-   address ctv.Address
-   manifest bool
+   address        ctv.Address
+   manifest       bool
    representation string
-   s internal.Stream
+   s              internal.Stream
 }

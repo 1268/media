@@ -43,16 +43,6 @@ func (f *flags) do_read() error {
          if err != nil {
             return err
          }
-         data, err = os.ReadFile(f.content_id + "/item.txt")
-         if err != nil {
-            return err
-         }
-         var item paramount.VideoItem
-         err = item.Unmarshal(data)
-         if err != nil {
-            return err
-         }
-         f.s.Namer = &item
          return f.s.Download(&represent)
       }
    }
@@ -73,7 +63,7 @@ func (f *flags) do_write() error {
    if err != nil {
       return err
    }
-   err = os.WriteFile(f.content_id + "/item.txt", data, os.ModePerm)
+   err = os.WriteFile(f.content_id+"/item.txt", data, os.ModePerm)
    if err != nil {
       return err
    }
@@ -94,7 +84,7 @@ func (f *flags) do_write() error {
    if err != nil {
       return err
    }
-   err = os.WriteFile(f.content_id + "/body.txt", data, os.ModePerm)
+   err = os.WriteFile(f.content_id+"/body.txt", data, os.ModePerm)
    if err != nil {
       return err
    }
@@ -103,5 +93,5 @@ func (f *flags) do_write() error {
    if err != nil {
       return err
    }
-   return os.WriteFile(f.content_id + "/request.txt", data, os.ModePerm)
+   return os.WriteFile(f.content_id+"/request.txt", data, os.ModePerm)
 }
