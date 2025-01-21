@@ -6,9 +6,7 @@ import (
    "errors"
    "io"
    "net/http"
-   "net/url"
    "strings"
-   "time"
 )
 
 type Playback struct {
@@ -100,23 +98,6 @@ func (v *LinkLogin) Playback(watch *WatchUrl) (*Playback, error) {
    return resp_body, nil
 }
 
-type RouteInclude struct {
-   Attributes struct {
-      AirDate       time.Time
-      Name          string
-      EpisodeNumber int
-      SeasonNumber  int
-   }
-   Id            string
-   Relationships *struct {
-      Show *struct {
-         Data struct {
-            Id string
-         }
-      }
-   }
-}
-
 type playback_request struct {
    AppBundle            string `json:"appBundle"`            // required
    ApplicationSessionId string `json:"applicationSessionId"` // required
@@ -149,47 +130,6 @@ type playback_request struct {
    Gdpr              bool     `json:"gdpr"`              // required
    PlaybackSessionId string   `json:"playbackSessionId"` // required
    UserPreferences   struct{} `json:"userPreferences"`   // required
-}
-
-func (d *DefaultRoutes) Season() int {
-   if v, ok := d.video(); ok {
-      return v.Attributes.SeasonNumber
-   }
-   return 0
-}
-
-func (d *DefaultRoutes) Episode() int {
-   if v, ok := d.video(); ok {
-      return v.Attributes.EpisodeNumber
-   }
-   return 0
-}
-
-func (d *DefaultRoutes) Title() string {
-   if v, ok := d.video(); ok {
-      return v.Attributes.Name
-   }
-   return ""
-}
-
-func (d *DefaultRoutes) Year() int {
-   if v, ok := d.video(); ok {
-      return v.Attributes.AirDate.Year()
-   }
-   return 0
-}
-
-func (d *DefaultRoutes) Show() string {
-   if v, ok := d.video(); ok {
-      if v.Attributes.SeasonNumber >= 1 {
-         for _, include := range d.Included {
-            if include.Id == v.Relationships.Show.Data.Id {
-               return include.Attributes.Name
-            }
-         }
-      }
-   }
-   return ""
 }
 
 func (w *WatchUrl) MarshalText() ([]byte, error) {
@@ -236,60 +176,6 @@ func (v *LinkLogin) Unmarshal(data []byte) error {
 type WatchUrl struct {
    EditId  string
    VideoId string
-}
-
-type DefaultRoutes struct {
-   Data struct {
-      Attributes struct {
-         Url WatchUrl
-      }
-   }
-   Included []RouteInclude
-}
-
-func (v *LinkLogin) Routes(watch *WatchUrl) (*DefaultRoutes, error) {
-   req, err := http.NewRequest("", prd_api, nil)
-   if err != nil {
-      return nil, err
-   }
-   req.URL.Path = func() string {
-      data, _ := watch.MarshalText()
-      var b strings.Builder
-      b.WriteString("/cms/routes")
-      b.Write(data)
-      return b.String()
-   }()
-   req.URL.RawQuery = url.Values{
-      "include": {"default"},
-      // this is not required, but results in a smaller response
-      "page[items.size]": {"1"},
-   }.Encode()
-   req.Header.Set("authorization", "Bearer " + v.Data.Attributes.Token)
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   if resp.StatusCode != http.StatusOK {
-      var b strings.Builder
-      resp.Write(&b)
-      return nil, errors.New(b.String())
-   }
-   route := &DefaultRoutes{}
-   err = json.NewDecoder(resp.Body).Decode(route)
-   if err != nil {
-      return nil, err
-   }
-   return route, nil
-}
-
-func (d *DefaultRoutes) video() (*RouteInclude, bool) {
-   for _, include := range d.Included {
-      if include.Id == d.Data.Attributes.Url.VideoId {
-         return &include, true
-      }
-   }
-   return nil, false
 }
 
 type Url struct {
