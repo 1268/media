@@ -22,17 +22,19 @@ import (
 func (s *Stream) Download(represent *dash.Representation) error {
    for _, protect := range represent.ContentProtection {
       if protect.SchemeIdUri.Widevine() {
-         var box pssh.Box
-         n, err := box.BoxHeader.Decode(protect.Pssh)
-         if err != nil {
-            return err
+         if len(protect.Pssh) >= 1 {
+            var box pssh.Box
+            n, err := box.BoxHeader.Decode(protect.Pssh)
+            if err != nil {
+               return err
+            }
+            err = box.Read(protect.Pssh[n:])
+            if err != nil {
+               return err
+            }
+            s.pssh = box.Data
+            break
          }
-         err = box.Read(protect.Pssh[n:])
-         if err != nil {
-            return err
-         }
-         s.pssh = box.Data
-         break
       }
    }
    var ext string
