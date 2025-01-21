@@ -47,11 +47,6 @@ func (f *flags) download() error {
       case "":
          fmt.Print(&represent, "\n\n")
       case represent.Id:
-         film, err := f.address.Film()
-         if err != nil {
-            return err
-         }
-         f.s.Namer = &mubi.Namer{film}
          data, err = os.ReadFile(f.home + "/mubi.txt")
          if err != nil {
             return err
@@ -90,7 +85,7 @@ func (f *flags) write_secure() error {
    if err != nil {
       return err
    }
-   return os.WriteFile(f.address.String() + ".txt", data, os.ModePerm)
+   return os.WriteFile(f.address.String()+".txt", data, os.ModePerm)
 }
 
 func (f *flags) write_auth() error {
@@ -107,7 +102,7 @@ func (f *flags) write_auth() error {
    if err != nil {
       return err
    }
-   return os.WriteFile(f.home + "/mubi.txt", data, os.ModePerm)
+   return os.WriteFile(f.home+"/mubi.txt", data, os.ModePerm)
 }
 
 func write_code() error {
@@ -127,17 +122,13 @@ func write_code() error {
    fmt.Println(&code)
    return nil
 }
+
 func (f *flags) timed_text(url string) error {
    resp, err := http.Get(url)
    if err != nil {
       return err
    }
    defer resp.Body.Close()
-   film, err := f.address.Film()
-   if err != nil {
-      return err
-   }
-   f.s.Namer = &mubi.Namer{film}
    file, err := f.s.Create(".vtt")
    if err != nil {
       return err

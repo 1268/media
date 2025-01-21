@@ -56,13 +56,13 @@ func (f *flags) download() error {
          if err != nil {
             return err
          }
-         f.s.Namer = &roku.Namer{home}
          f.s.Wrapper = play
          return f.s.Download(&represent)
       }
    }
    return nil
 }
+
 func (f *flags) write_token() error {
    // AccountAuth
    data, err := os.ReadFile("auth.txt")
@@ -89,7 +89,7 @@ func (f *flags) write_token() error {
    if err != nil {
       return err
    }
-   return os.WriteFile(f.home + "/roku.txt", data, os.ModePerm)
+   return os.WriteFile(f.home+"/roku.txt", data, os.ModePerm)
 }
 
 func write_code() error {

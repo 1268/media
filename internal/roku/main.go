@@ -8,28 +8,6 @@ import (
    "path/filepath"
 )
 
-func (f *flags) New() error {
-   var err error
-   f.home, err = os.UserHomeDir()
-   if err != nil {
-      return err
-   }
-   f.home = filepath.ToSlash(f.home)
-   f.s.ClientId = f.home + "/widevine/client_id.bin"
-   f.s.PrivateKey = f.home + "/widevine/private_key.pem"
-   return nil
-}
-
-type flags struct {
-   roku string
-   code_write bool
-   home string
-   representation string
-   s internal.Stream
-   token_read bool
-   token_write bool
-}
-
 func main() {
    var f flags
    err := f.New()
@@ -44,7 +22,7 @@ func main() {
    flag.BoolVar(&f.token_write, "token", false, "write token")
    flag.BoolVar(&f.token_read, "t", false, "read token")
    flag.Parse()
-   text.Transport{}.Set(true)
+   text.Transport{}.Set()
    switch {
    case f.code_write:
       err := write_code()
@@ -64,4 +42,26 @@ func main() {
    default:
       flag.Usage()
    }
+}
+
+func (f *flags) New() error {
+   var err error
+   f.home, err = os.UserHomeDir()
+   if err != nil {
+      return err
+   }
+   f.home = filepath.ToSlash(f.home)
+   f.s.ClientId = f.home + "/widevine/client_id.bin"
+   f.s.PrivateKey = f.home + "/widevine/private_key.pem"
+   return nil
+}
+
+type flags struct {
+   code_write     bool
+   home           string
+   representation string
+   roku           string
+   s              internal.Stream
+   token_read     bool
+   token_write    bool
 }
