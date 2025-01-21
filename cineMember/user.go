@@ -5,25 +5,7 @@ import (
    "encoding/json"
    "io"
    "net/http"
-   "strings"
 )
-
-type Entitlement struct {
-   KeyDeliveryUrl string `json:"key_delivery_url"`
-   Manifest string
-   Protocol string
-}
-
-func (e *Entitlement) Wrap(data []byte) ([]byte, error) {
-   resp, err := http.Post(
-      e.KeyDeliveryUrl, "application/x-protobuf", bytes.NewReader(data),
-   )
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   return io.ReadAll(resp.Body)
-}
 
 const query_user = `
 mutation($email: String, $password: String) {
@@ -65,21 +47,4 @@ func (Authenticate) Marshal(email, password string) ([]byte, error) {
    }
    defer resp.Body.Close()
    return io.ReadAll(resp.Body)
-}
-
-type Address struct {
-   s string
-}
-
-func (a Address) String() string {
-   return a.s
-}
-
-func (a *Address) Set(data string) error {
-   a.s = strings.TrimPrefix(data, "https://")
-   a.s = strings.TrimPrefix(a.s, "www.")
-   a.s = strings.TrimPrefix(a.s, "cinemember.nl")
-   a.s = strings.TrimPrefix(a.s, "/nl")
-   a.s = strings.TrimPrefix(a.s, "/")
-   return nil
 }
