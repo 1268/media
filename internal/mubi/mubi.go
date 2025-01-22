@@ -129,7 +129,7 @@ func (f *flags) timed_text(url string) error {
       return err
    }
    defer resp.Body.Close()
-   file, err := f.s.Create(".vtt")
+   file, err := os.Create(".vtt")
    if err != nil {
       return err
    }

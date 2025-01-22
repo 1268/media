@@ -156,7 +156,7 @@ var Forward = []struct{
 }
 
 func (s *Stream) segment_base(represent *dash.Representation, ext string) error {
-   file, err := s.Create(ext)
+   file, err := os.Create(ext)
    if err != nil {
       return err
    }
@@ -310,7 +310,7 @@ func (s *Stream) key() ([]byte, error) {
 func (s *Stream) segment_list(
    represent *dash.Representation, ext string,
 ) error {
-   file, err := s.Create(ext)
+   file, err := os.Create(ext)
    if err != nil {
       return err
    }
@@ -370,7 +370,7 @@ func (s *Stream) segment_list(
 func (s *Stream) segment_template(
    represent *dash.Representation, ext string,
 ) error {
-   file, err := s.Create(ext)
+   file, err := os.Create(ext)
    if err != nil {
       return err
    }
@@ -436,14 +436,9 @@ func (s *Stream) segment_template(
    return nil
 }
 
-func (s *Stream) Create(ext string) (*os.File, error) {
-   return os.Create(text.Clean(s.Name) + ext)
-}
-
 // wikipedia.org/wiki/Dynamic_Adaptive_Streaming_over_HTTP
 type Stream struct {
    ClientId string
-   Name string
    PrivateKey string
    Wrapper widevine.Wrapper
    key_id []byte

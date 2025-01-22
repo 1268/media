@@ -29,7 +29,7 @@ func main() {
       if err != nil {
          panic(err)
       }
-   case f.address.Nid != "":
+   case f.address[1] != "":
       err := f.download()
       if err != nil {
          panic(err)

@@ -29,7 +29,7 @@ func (f *flags) download() error {
    if err != nil {
       return err
    }
-   play, err := auth.Playback(f.address.Nid)
+   play, err := auth.Playback(f.address)
    if err != nil {
       return err
    }
