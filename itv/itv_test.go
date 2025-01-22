@@ -1,7 +1,6 @@
 package itv
 
 import (
-   "41.neocities.org/text"
    "41.neocities.org/widevine"
    "bytes"
    "encoding/base64"
@@ -118,17 +117,5 @@ func TestLegacyId(t *testing.T) {
          t.Fatal(err)
       }
       fmt.Println(id)
-   }
-}
-
-func TestDiscovery(t *testing.T) {
-   for _, test := range tests {
-      discovery, err := test.legacy_id.Discovery()
-      if err != nil {
-         t.Fatal(err)
-      }
-      name := text.Name(Namer{discovery})
-      fmt.Printf("%q\n", name)
-      time.Sleep(time.Second)
    }
 }

@@ -44,12 +44,12 @@ func (p *Playback) Wrap(data []byte) ([]byte, error) {
 // first or this will always fail
 func (LinkLogin) Marshal(token *BoltToken) ([]byte, error) {
    req, err := http.NewRequest(
-      "POST", prd_api + "/authentication/linkDevice/login", nil,
+      "POST", prd_api+"/authentication/linkDevice/login", nil,
    )
    if err != nil {
       return nil, err
    }
-   req.Header.Set("cookie", "st=" + token.St)
+   req.Header.Set("cookie", "st="+token.St)
    resp, err := http.DefaultClient.Do(req)
    if err != nil {
       return nil, err
@@ -78,7 +78,7 @@ func (v *LinkLogin) Playback(watch *WatchUrl) (*Playback, error) {
    }()
    req.Header = http.Header{
       "authorization": {"Bearer " + v.Data.Attributes.Token},
-      "content-type": {"application/json"},
+      "content-type":  {"application/json"},
    }
    resp, err := http.DefaultClient.Do(req)
    if err != nil {

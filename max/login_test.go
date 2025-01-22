@@ -1,7 +1,6 @@
 package max
 
 import (
-   "41.neocities.org/text"
    "41.neocities.org/widevine"
    "encoding/base64"
    "fmt"
@@ -13,10 +12,10 @@ import (
 var tests = []struct {
    url        string
    video_type string
-   key_id []string
+   key_id     []string
 }{
    {
-      url: "play.max.com/video/watch/5c762883-279e-40ed-ab84-43fdda9d88a0/560abdc4-ee5e-4f86-807e-38bb9feabe0e",
+      url:        "play.max.com/video/watch/5c762883-279e-40ed-ab84-43fdda9d88a0/560abdc4-ee5e-4f86-807e-38bb9feabe0e",
       video_type: "MOVIE",
       key_id: []string{
          "AQC1NR9S5CJX8MEgkYbXpg==",
@@ -27,8 +26,8 @@ var tests = []struct {
    },
    {
       video_type: "EPISODE",
-      url: "play.max.com/video/watch/28ae9450-8192-4277-b661-e76eaad9b2e6/e19442fb-c7ac-4879-8d50-a301f613cb96",
-      key_id: []string{},
+      url:        "play.max.com/video/watch/28ae9450-8192-4277-b661-e76eaad9b2e6/e19442fb-c7ac-4879-8d50-a301f613cb96",
+      key_id:     []string{},
    },
 }
 
@@ -108,29 +107,6 @@ func TestLicense(t *testing.T) {
             )
          }
       }
-      time.Sleep(time.Second)
-   }
-}
-
-func TestRoutes(t *testing.T) {
-   data, err := os.ReadFile("login.txt")
-   if err != nil {
-      t.Fatal(err)
-   }
-   var login LinkLogin
-   err = login.Unmarshal(data)
-   if err != nil {
-      t.Fatal(err)
-   }
-   for _, test := range tests {
-      var watch WatchUrl
-      watch.UnmarshalText([]byte(test.url))
-      routes, err := login.Routes(&watch)
-      if err != nil {
-         t.Fatal(err)
-      }
-      fmt.Printf("%+v\n", routes)
-      fmt.Printf("%q\n", text.Name(routes))
       time.Sleep(time.Second)
    }
 }

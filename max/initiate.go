@@ -7,13 +7,13 @@ import (
 
 func (b *BoltToken) Initiate() (*LinkInitiate, error) {
    req, err := http.NewRequest(
-      "POST", prd_api + "/authentication/linkDevice/initiate", nil,
+      "POST", prd_api+"/authentication/linkDevice/initiate", nil,
    )
    if err != nil {
       return nil, err
    }
    req.Header = http.Header{
-      "cookie": {"st=" + b.St},
+      "cookie":        {"st=" + b.St},
       "x-device-info": {device_info},
    }
    resp, err := http.DefaultClient.Do(req)
@@ -33,7 +33,7 @@ type LinkInitiate struct {
    Data struct {
       Attributes struct {
          LinkingCode string
-         TargetUrl string
+         TargetUrl   string
       }
    }
 }

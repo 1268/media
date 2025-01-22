@@ -11,6 +11,23 @@ import (
    "strings"
 )
 
+func (p *Playlist) Resolution1080() (*MediaFile, bool) {
+   for _, file := range p.Playlist.Video.MediaFiles {
+      if file.Resolution == "1080" {
+         return &file, true
+      }
+   }
+   return nil, false
+}
+
+type Playlist struct {
+   Playlist struct {
+      Video struct {
+         MediaFiles []MediaFile
+      }
+   }
+}
+
 func (m *MediaFile) Wrap(data []byte) ([]byte, error) {
    resp, err := http.Post(
       m.KeyServiceUrl, "application/x-protobuf", bytes.NewReader(data),
@@ -29,14 +46,16 @@ type MediaFile struct {
 }
 
 func (h *Href) UnmarshalText(data []byte) error {
-   h.Data = strings.Replace(string(data), "itvpnpctv", "itvpnpdotcom", 1)
+   h.s = strings.Replace(string(data), "itvpnpctv", "itvpnpdotcom", 1)
    return nil
 }
 
-// this is better than strings.Replace and strings.ReplaceAll
-func graphql_compact(s string) string {
-   field := strings.Fields(s)
-   return strings.Join(field, " ")
+type Href struct {
+   s string
+}
+
+func (h Href) MarshalText() ([]byte, error) {
+   return []byte(h.s), nil
 }
 
 // hard geo block
@@ -125,6 +144,12 @@ func (i LegacyId) Discovery() (*DiscoveryTitle, error) {
    return &value.Data.Titles[0], nil
 }
 
+// this is better than strings.Replace and strings.ReplaceAll
+func graphql_compact(s string) string {
+   field := strings.Fields(s)
+   return strings.Join(field, " ")
+}
+
 const query_discovery = `
 {
    titles(filter: {
@@ -149,16 +174,16 @@ const query_discovery = `
 `
 
 func (i LegacyId) String() string {
-   var b strings.Builder
-   for index, value := range i {
+   var data strings.Builder
+   for key, value := range i {
       if value != "" {
-         if index >= 1 {
-            b.WriteByte('/')
+         if key >= 1 {
+            data.WriteByte('/')
          }
-         b.WriteString(value)
+         data.WriteString(value)
       }
    }
-   return b.String()
+   return data.String()
 }
 
 func (i *LegacyId) Set(text string) error {
@@ -176,42 +201,6 @@ func (i *LegacyId) Set(text string) error {
 
 type LegacyId [3]string
 
-func (p *Playlist) Resolution1080() (*MediaFile, bool) {
-   for _, file := range p.Playlist.Video.MediaFiles {
-      if file.Resolution == "1080" {
-         return &file, true
-      }
-   }
-   return nil, false
-}
-
-type Playlist struct {
-   Playlist struct {
-      Video struct {
-         MediaFiles []MediaFile
-      }
-   }
-}
-
-type Href struct {
-   Data string
-}
-
-func (n Namer) Show() string {
-   if n.Discovery.Brand != nil {
-      return n.Discovery.Brand.Title
-   }
-   return ""
-}
-
-func (n Namer) Title() string {
-   return n.Discovery.Title
-}
-
-type Namer struct {
-   Discovery *DiscoveryTitle
-}
-
 type DiscoveryTitle struct {
    LatestAvailableVersion struct {
       PlaylistUrl string
@@ -223,16 +212,4 @@ type DiscoveryTitle struct {
    ProductionYear int
    SeriesNumber int
    Title string
-}
-
-func (n Namer) Episode() int {
-   return n.Discovery.EpisodeNumber
-}
-
-func (n Namer) Season() int {
-   return n.Discovery.SeriesNumber
-}
-
-func (n Namer) Year() int {
-   return n.Discovery.ProductionYear
 }
