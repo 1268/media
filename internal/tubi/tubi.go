@@ -27,11 +27,11 @@ func (f *flags) download() error {
          return errors.New("VideoContent.Get")
       }
    }
-   video, ok := content.Video()
+   resource, ok := content.Resource()
    if !ok {
-      return errors.New("VideoContent.Video")
+      return errors.New("VideoContent.Resource")
    }
-   resp, err := http.Get(video.Manifest.Url)
+   resp, err := http.Get(resource.Manifest.Url)
    if err != nil {
       return err
    }
@@ -47,7 +47,7 @@ func (f *flags) download() error {
       case "":
          fmt.Print(&represent, "\n\n")
       case represent.Id:
-         f.s.Wrapper = video
+         f.s.Wrapper = resource
          return f.s.Download(&represent)
       }
    }

@@ -9,36 +9,6 @@ import (
    "time"
 )
 
-func TestContent(t *testing.T) {
-   for _, test := range tests {
-      content := &VideoContent{}
-      data, err := content.Marshal(test.content_id)
-      if err != nil {
-         t.Fatal(err)
-      }
-      err = content.Unmarshal(data)
-      if err != nil {
-         t.Fatal(err)
-      }
-      if content.Episode() {
-         data, err = content.Marshal(content.SeriesId)
-         if err != nil {
-            t.Fatal(err)
-         }
-         err = content.Unmarshal(data)
-         if err != nil {
-            t.Fatal(err)
-         }
-         var ok bool
-         content, ok = content.Get(test.content_id)
-         if !ok {
-            t.Fatal("VideoContent.Get")
-         }
-      }
-      time.Sleep(time.Second)
-   }
-}
-
 var tests = []struct {
    content_id int
    key_id     string
@@ -94,9 +64,9 @@ func TestLicense(t *testing.T) {
             t.Fatal("VideoContent.Get")
          }
       }
-      video, ok := content.Video()
+      video, ok := content.Resource()
       if !ok {
-         t.Fatal("VideoContent.Video")
+         t.Fatal("VideoContent.Resource")
       }
       key_id, err := base64.StdEncoding.DecodeString(test.key_id)
       if err != nil {

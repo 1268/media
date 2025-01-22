@@ -1,7 +1,6 @@
 package rtbf
 
 import (
-   "41.neocities.org/text"
    "41.neocities.org/widevine"
    "encoding/base64"
    "fmt"
@@ -11,6 +10,17 @@ import (
    "testing"
    "time"
 )
+
+func TestPage(t *testing.T) {
+   for _, test := range tests {
+      page, err := Address{test.path}.Page()
+      if err != nil {
+         t.Fatal(err)
+      }
+      fmt.Printf("%+v\n", page)
+      time.Sleep(time.Second)
+   }
+}
 
 func TestAccountsLogin(t *testing.T) {
    data, err := exec.Command("password", "rtbf.be").Output()
@@ -158,19 +168,6 @@ func TestEntitlement(t *testing.T) {
       }
       fmt.Printf("%+v\n", title)
       fmt.Println(title.Dash())
-      time.Sleep(time.Second)
-   }
-}
-
-func TestPage(t *testing.T) {
-   for _, test := range tests {
-      page, err := Address{test.path}.Page()
-      if err != nil {
-         t.Fatal(err)
-      }
-      fmt.Printf("%+v\n", page)
-      name := text.Name(&Namer{page})
-      fmt.Printf("%q\n", name)
       time.Sleep(time.Second)
    }
 }

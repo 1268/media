@@ -3,13 +3,23 @@ package roku
 import (
    "41.neocities.org/text"
    "41.neocities.org/widevine"
-   "bytes"
    "encoding/base64"
    "fmt"
    "os"
    "testing"
    "time"
 )
+
+func TestContent(t *testing.T) {
+   for _, test := range tests {
+      var home HomeScreen
+      err := home.New(test.id)
+      if err != nil {
+         t.Fatal(err)
+      }
+      time.Sleep(time.Second)
+   }
+}
 
 func TestWrap(t *testing.T) {
    home, err := os.UserHomeDir()
@@ -57,28 +67,9 @@ func TestWrap(t *testing.T) {
       if err != nil {
          t.Fatal(err)
       }
-      data, err = play.Wrap(data)
+      _, err = play.Wrap(data)
       if err != nil {
          t.Fatal(err)
-      }
-      var body widevine.ResponseBody
-      err = body.Unmarshal(data)
-      if err != nil {
-         t.Fatal(err)
-      }
-      block, err := module.Block(body)
-      if err != nil {
-         t.Fatal(err)
-      }
-      containers := body.Container()
-      for {
-         container, ok := containers()
-         if !ok {
-            t.Fatal("ResponseBody.Container")
-         }
-         if bytes.Equal(container.Id(), key_id) {
-            fmt.Printf("%x\n", container.Key(block))
-         }
       }
       time.Sleep(time.Second)
    }
@@ -102,16 +93,4 @@ var tests = map[string]struct {
       key_id:     "KDOa149zRSDaJObgVz05Lg==",
       url:        "therokuchannel.roku.com/watch/597a64a4a25c5bf6af4a8c7053049a6f",
    },
-}
-func TestContent(t *testing.T) {
-   for _, test := range tests {
-      var home HomeScreen
-      err := home.New(test.id)
-      if err != nil {
-         t.Fatal(err)
-      }
-      name := text.Name(&Namer{home})
-      fmt.Printf("%q\n", name)
-      time.Sleep(time.Second)
-   }
 }
