@@ -1,167 +1,228 @@
 package rakuten
 
 import (
+   "41.neocities.org/platform/mullvad"
+   "41.neocities.org/text"
    "41.neocities.org/widevine"
-   "bytes"
    "encoding/base64"
    "errors"
-   "fmt"
+   "log"
+   "net/http"
    "os"
-   "strings"
    "testing"
-   "time"
 )
 
-func TestMovie(t *testing.T) {
-   for _, test := range tests {
-      var web Address
-      err := web.Set(test.url)
-      if err != nil {
-         t.Fatal(err)
-      }
-      movie, err := web.Movie()
-      if err != nil {
-         t.Fatal(err)
-      }
-      fmt.Printf("%+v\n", movie)
-      time.Sleep(time.Second)
-   }
-}
-
-var tests = []movie_test{
+var web_tests = []web_test{
    {
+      address:  "rakuten.tv/cz/movies/transvulcania-the-people-s-run",
+      language: "SPA",
+      location: "cz",
+      name:     "Transvulcania, The People’s Run - 2024",
+   },
+   {
+      address:    "rakuten.tv/fr/movies/infidele",
       content_id: "MGU1MTgwMDA2Y2Q1MDhlZWMwMGQ1MzVmZWM2YzQyMGQtbWMtMC0xNDEtMC0w",
       key_id:     "DlGAAGzVCO7ADVNf7GxCDQ==",
-      url:        "rakuten.tv/fr/movies/infidele",
+      language:   "ENG",
+      location:   "fr",
+      name:       "Infidèle - 2002",
+   },
+   {
+      address:  "rakuten.tv/pl/movies/ad-astra",
+      language: "",
+      location: "",
+      name:     "",
    },
    {
       content_id: "OWE1MzRhMWYxMmQ2OGUxYTIzNTlmMzg3MTBmZGRiNjUtbWMtMC0xNDctMC0w",
       key_id:     "mlNKHxLWjhojWfOHEP3bZQ==",
-      url:        "rakuten.tv/se/movies/i-heart-huckabees",
+      language:   "ENG",
+      address:    "rakuten.tv/se/movies/i-heart-huckabees",
+      location:   "se",
+      name:       "I Heart Huckabees - 2004",
+   },
+   {
+      language: "ENG",
+      address:  "rakuten.tv/uk/player/episodes/stream/hell-s-kitchen-usa-15/hell-s-kitchen-usa-15-1",
+      location: "gb",
+      name:     "Hell's Kitchen USA - 15 1 - 18 Chefs Compete",
    },
 }
 
-func (m *movie_test) license() ([]byte, error) {
-   var web Address
-   web.Set(m.url)
-   info, err := web.Hd().Info()
-   if err != nil {
-      return nil, err
+type content_class struct {
+   g     *gizmo_content
+   class int
+}
+
+type transport struct{}
+
+func (transport) RoundTrip(req *http.Request) (*http.Response, error) {
+   log.Print(req.URL)
+   return http.DefaultTransport.RoundTrip(req)
+}
+
+func TestAddress(t *testing.T) {
+   for _, test := range web_tests {
+      var web address
+      t.Run("Set", func(t *testing.T) {
+         err := web.Set(test.address)
+         if err != nil {
+            t.Fatal(err)
+         }
+      })
+      t.Run("String", func(t *testing.T) {
+         if web.String() == "" {
+            t.Fatal(test)
+         }
+      })
    }
+   t.Run("classification_id", func(t *testing.T) {
+      var web address
+      _, ok := web.classification_id()
+      if ok {
+         t.Fatal(web)
+      }
+   })
+}
+
+func TestMain(m *testing.M) {
+   http.DefaultClient.Transport = transport{}
+   m.Run()
+}
+
+func (w *web_test) content() (*content_class, error) {
+   var web address
+   web.Set(w.address)
+   var content content_class
+   content.class, _ = web.classification_id()
+   if web.season_id != "" {
+      season, err := web.season(content.class)
+      if err != nil {
+         return nil, err
+      }
+      _, ok := season.content(&address{})
+      if ok {
+         return nil, errors.New("gizmo_season.content")
+      }
+      content.g, _ = season.content(&web)
+   } else {
+      var err error
+      content.g, err = web.movie(content.class)
+      if err != nil {
+         return nil, err
+      }
+   }
+   return &content, nil
+}
+
+func TestNamer(t *testing.T) {
+   for _, test := range web_tests {
+      content, err := test.content()
+      if err != nil {
+         t.Fatal(err)
+      }
+      if text.Name(namer{content.g}) != test.name {
+         t.Fatal(content)
+      }
+   }
+}
+
+func TestContent(t *testing.T) {
+   for _, test := range web_tests {
+      content, err := test.content()
+      if err != nil {
+         t.Fatal(err)
+      }
+      t.Run("String", func(t *testing.T) {
+         if content.g.String() == "" {
+            t.Fatal(content.g)
+         }
+      })
+      t.Run("fhd", func(t *testing.T) {
+         _, err = content.g.fhd(content.class, test.language).streamings()
+         if err == nil {
+            t.Fatal(content.g)
+         }
+      })
+      func() {
+         err := mullvad.Connect(test.location)
+         if err != nil {
+            t.Fatal(err)
+         }
+         defer mullvad.Disconnect()
+         t.Run("hd", func(t *testing.T) {
+            _, err = content.g.hd(content.class, test.language).streamings()
+            if err != nil {
+               t.Fatal(err)
+            }
+         })
+      }()
+   }
+}
+
+type web_test struct {
+   address    string
+   content_id string
+   key_id     string
+   language   string
+   location   string
+   name       string
+}
+
+func TestStreamInfo(t *testing.T) {
    home, err := os.UserHomeDir()
    if err != nil {
-      return nil, err
+      t.Fatal(err)
    }
    private_key, err := os.ReadFile(home + "/widevine/private_key.pem")
    if err != nil {
-      return nil, err
+      t.Fatal(err)
    }
    client_id, err := os.ReadFile(home + "/widevine/client_id.bin")
    if err != nil {
-      return nil, err
+      t.Fatal(err)
    }
-   key_id, err := base64.StdEncoding.DecodeString(m.key_id)
-   if err != nil {
-      return nil, err
-   }
-   var pssh widevine.PsshData
-   pssh.KeyIds = [][]byte{key_id}
-   pssh.ContentId, err = base64.StdEncoding.DecodeString(m.content_id)
-   if err != nil {
-      return nil, err
-   }
-   var module widevine.Cdm
-   err = module.New(private_key, client_id, pssh.Marshal())
-   if err != nil {
-      return nil, err
-   }
-   data, err := module.RequestBody()
-   if err != nil {
-      return nil, err
-   }
-   data, err = info.Wrap(data)
-   if err != nil {
-      return nil, err
-   }
-   var body widevine.ResponseBody
-   err = body.Unmarshal(data)
-   if err != nil {
-      return nil, err
-   }
-   block, err := module.Block(body)
-   if err != nil {
-      return nil, err
-   }
-   containers := body.Container()
-   for {
-      container, ok := containers()
-      if !ok {
-         return nil, errors.New("ResponseBody.Container")
+   for _, test := range web_tests {
+      if test.key_id == "" {
+         continue
       }
-      if bytes.Equal(container.Id(), key_id) {
-         return container.Key(block), nil
+      content, err := test.content()
+      if err != nil {
+         t.Fatal(err)
       }
-   }
-}
-
-type movie_test struct {
-   content_id string
-   key_id     string
-   url        string
-}
-
-func TestFr(t *testing.T) {
-   for _, test := range tests {
-      if strings.Contains(test.url, "/fr/") {
-         var web Address
-         web.Set(test.url)
-         stream, err := web.Fhd().Info()
+      func() {
+         err := mullvad.Connect(test.location)
          if err != nil {
             t.Fatal(err)
          }
-         fmt.Printf("%+v\n", stream)
-         time.Sleep(time.Second)
-      }
-   }
-}
-
-func TestSe(t *testing.T) {
-   for _, test := range tests {
-      if strings.Contains(test.url, "/se/") {
-         var web Address
-         web.Set(test.url)
-         stream, err := web.Fhd().Info()
+         defer mullvad.Disconnect()
+         info, err := content.g.hd(content.class, test.language).streamings()
          if err != nil {
             t.Fatal(err)
          }
-         fmt.Printf("%+v\n", stream)
-         time.Sleep(time.Second)
-      }
-   }
-}
-
-func TestLicenseFr(t *testing.T) {
-   for _, test := range tests {
-      if strings.Contains(test.url, "/fr/") {
-         key, err := test.license()
+         var pssh widevine.PsshData
+         pssh.ContentId, err = base64.StdEncoding.DecodeString(test.content_id)
          if err != nil {
             t.Fatal(err)
          }
-         fmt.Printf("%x\n", key)
-         time.Sleep(time.Second)
-      }
-   }
-}
-
-func TestLicenseSe(t *testing.T) {
-   for _, test := range tests {
-      if strings.Contains(test.url, "/se/") {
-         key, err := test.license()
+         key_id, err := base64.StdEncoding.DecodeString(test.key_id)
          if err != nil {
             t.Fatal(err)
          }
-         fmt.Printf("%x\n", key)
-         time.Sleep(time.Second)
-      }
+         pssh.KeyIds = [][]byte{key_id}
+         var module widevine.Cdm
+         err = module.New(private_key, client_id, pssh.Marshal())
+         if err != nil {
+            t.Fatal(err)
+         }
+         data, err := module.RequestBody()
+         if err != nil {
+            t.Fatal(err)
+         }
+         _, err = info.Wrap(data)
+         if err != nil {
+            t.Fatal(err)
+         }
+      }()
    }
 }
