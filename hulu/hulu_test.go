@@ -1,7 +1,6 @@
 package hulu
 
 import (
-   "41.neocities.org/text"
    "41.neocities.org/widevine"
    "bytes"
    "encoding/hex"
@@ -112,32 +111,6 @@ func TestLicense(t *testing.T) {
             fmt.Printf("%x\n", container.Key(block))
          }
       }
-      time.Sleep(time.Second)
-   }
-}
-
-func TestDetails(t *testing.T) {
-   data, err := os.ReadFile("authenticate.txt")
-   if err != nil {
-      t.Fatal(err)
-   }
-   var auth Authenticate
-   err = auth.Unmarshal(data)
-   if err != nil {
-      t.Fatal(err)
-   }
-   for _, test := range tests {
-      base := path.Base(test.url)
-      link, err := auth.DeepLink(&EntityId{base})
-      if err != nil {
-         t.Fatal(err)
-      }
-      details, err := auth.Details(link)
-      if err != nil {
-         t.Fatal(err)
-      }
-      fmt.Printf("%+v\n", details)
-      fmt.Printf("%q\n", text.Name(details))
       time.Sleep(time.Second)
    }
 }
