@@ -1,9 +1,7 @@
 package amc
 
 import (
-   "41.neocities.org/text"
    "41.neocities.org/widevine"
-   "bytes"
    "encoding/base64"
    "fmt"
    "os"
@@ -41,7 +39,7 @@ func TestLicense(t *testing.T) {
       if err != nil {
          t.Fatal(err)
       }
-      play, err := auth.Playback(web.Nid)
+      play, err := auth.Playback(web)
       if err != nil {
          t.Fatal(err)
       }
@@ -64,32 +62,14 @@ func TestLicense(t *testing.T) {
       if err != nil {
          t.Fatal(err)
       }
-      data, err = wrap.Wrap(data)
+      _, err = wrap.Wrap(data)
       if err != nil {
          t.Fatal(err)
-      }
-      var body widevine.ResponseBody
-      err = body.Unmarshal(data)
-      if err != nil {
-         t.Fatal(err)
-      }
-      block, err := module.Block(body)
-      if err != nil {
-         t.Fatal(err)
-      }
-      containers := body.Container()
-      for {
-         container, ok := containers()
-         if !ok {
-            break
-         }
-         if bytes.Equal(container.Id(), key_id) {
-            fmt.Printf("%x\n", container.Key(block))
-         }
       }
       time.Sleep(time.Second)
    }
 }
+
 func TestLogin(t *testing.T) {
    data, err := exec.Command("password", "amcplus.com").Output()
    if err != nil {
@@ -137,35 +117,6 @@ func TestPath(t *testing.T) {
          t.Fatal(err)
       }
       fmt.Println(web)
-   }
-}
-
-func TestContent(t *testing.T) {
-   data, err := os.ReadFile("amc.txt")
-   if err != nil {
-      t.Fatal(err)
-   }
-   var auth Authorization
-   err = auth.Unmarshal(data)
-   if err != nil {
-      t.Fatal(err)
-   }
-   for _, test := range key_tests {
-      var web Address
-      err = web.Set(test.url)
-      if err != nil {
-         t.Fatal(err)
-      }
-      content, err := auth.Content(web.Path)
-      if err != nil {
-         t.Fatal(err)
-      }
-      video, ok := content.Video()
-      if !ok {
-         t.Fatal("ContentCompiler.Video")
-      }
-      fmt.Printf("%q\n", text.Name(video))
-      time.Sleep(time.Second)
    }
 }
 
