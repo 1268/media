@@ -2,14 +2,61 @@ package nbc
 
 import (
    "bytes"
+   "crypto/hmac"
+   "crypto/sha256"
    "encoding/json"
    "errors"
+   "fmt"
+   "io"
    "net/http"
    "net/url"
    "strconv"
    "strings"
    "time"
 )
+
+func (d *DrmProxy) New() {
+   d.Time = fmt.Sprint(time.Now().UnixMilli())
+   d.Hash = func() string {
+      hash := hmac.New(sha256.New, []byte(drm_proxy_secret))
+      fmt.Fprint(hash, d.Time, "widevine")
+      return fmt.Sprintf("%x", hash.Sum(nil))
+   }()
+}
+
+type DrmProxy struct {
+   Hash string
+   Time string
+}
+
+const drm_proxy_secret = "Whn8QFuLFM7Heiz6fYCYga7cYPM8ARe6"
+
+func (d *DrmProxy) Wrap(data []byte) ([]byte, error) {
+   req, err := http.NewRequest(
+      "POST", "https://drmproxy.digitalsvc.apps.nbcuni.com",
+      bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   req.URL.Path = "/drm-proxy/license/widevine"
+   req.URL.RawQuery = url.Values{
+      "device": {"web"},
+      "hash": {d.Hash},
+      "time": {d.Time},
+   }.Encode()
+   req.Header.Set("content-type", "application/octet-stream")
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   return io.ReadAll(resp.Body)
+}
+
+type OnDemand struct {
+   PlaybackUrl string
+}
 
 type Metadata struct {
    AirDate time.Time
@@ -21,29 +68,6 @@ type Metadata struct {
    SeasonNumber int `json:",string"`
    SecondaryTitle string
    SeriesShortTitle string
-}
-
-func (m *Metadata) Show() string {
-   return m.SeriesShortTitle
-}
-
-func (m *Metadata) Season() int {
-   return m.SeasonNumber
-}
-
-func (m *Metadata) Episode() int {
-   return m.EpisodeNumber
-}
-
-func (m *Metadata) Year() int {
-   return m.AirDate.Year()
-}
-
-func (m *Metadata) Title() string {
-   if m.MovieShortTitle != "" {
-      return m.MovieShortTitle
-   }
-   return m.SecondaryTitle
 }
 
 func (m *Metadata) OnDemand() (*OnDemand, error) {
@@ -118,6 +142,7 @@ func (m *Metadata) New(guid int) error {
    *m = value.Data.BonanzaPage.Metadata
    return nil
 }
+
 // NO ANONYMOUS QUERY
 const bonanza_page = `
 query bonanzaPage(
@@ -157,10 +182,6 @@ query bonanzaPage(
 func graphql_compact(s string) string {
    field := strings.Fields(s)
    return strings.Join(field, " ")
-}
-
-type OnDemand struct {
-   PlaybackUrl string
 }
 
 type page_request struct {
