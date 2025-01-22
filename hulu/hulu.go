@@ -9,8 +9,63 @@ import (
    "net/url"
    "path"
    "strings"
-   "time"
 )
+
+type codec_value struct {
+   Height  int    `json:"height,omitempty"`
+   Level   string `json:"level,omitempty"`
+   Profile string `json:"profile,omitempty"`
+   Tier    string `json:"tier,omitempty"`
+   Type    string `json:"type"`
+   Width   int    `json:"width,omitempty"`
+}
+
+type drm_value struct {
+   SecurityLevel string `json:"security_level"`
+   Type          string `json:"type"`
+   Version       string `json:"version"`
+}
+
+type playlist_request struct {
+   ContentEabId   string `json:"content_eab_id"`
+   DeejayDeviceId int    `json:"deejay_device_id"`
+   Unencrypted    bool   `json:"unencrypted"`
+   Version        int    `json:"version"`
+   Playback       struct {
+      Audio struct {
+         Codecs struct {
+            SelectionMode string        `json:"selection_mode"`
+            Values        []codec_value `json:"values"`
+         } `json:"codecs"`
+      } `json:"audio"`
+      Video struct {
+         Codecs struct {
+            SelectionMode string        `json:"selection_mode"`
+            Values        []codec_value `json:"values"`
+         } `json:"codecs"`
+      } `json:"video"`
+      Drm struct {
+         SelectionMode string      `json:"selection_mode"`
+         Values        []drm_value `json:"values"`
+      } `json:"drm"`
+      Manifest struct {
+         Type string `json:"type"`
+      } `json:"manifest"`
+      Segments struct {
+         SelectionMode string          `json:"selection_mode"`
+         Values        []segment_value `json:"values"`
+      } `json:"segments"`
+      Version int `json:"version"`
+   } `json:"playback"`
+}
+
+type segment_value struct {
+   Encryption struct {
+      Mode string `json:"mode"`
+      Type string `json:"type"`
+   } `json:"encryption"`
+   Type string `json:"type"`
+}
 
 func (a *Authenticate) Playlist(link *DeepLink) (*Playlist, error) {
    var p playlist_request
@@ -91,38 +146,6 @@ func (a *Authenticate) Playlist(link *DeepLink) (*Playlist, error) {
    return play, nil
 }
 
-func (a *Authenticate) Details(link *DeepLink) (*Details, error) {
-   data, err := json.Marshal(map[string][]string{
-      "eabs": {link.EabId},
-   })
-   if err != nil {
-      return nil, err
-   }
-   req, err := http.NewRequest(
-      "POST", "https://guide.hulu.com/guide/details", bytes.NewReader(data),
-   )
-   if err != nil {
-      return nil, err
-   }
-   req.Header.Set("authorization", "Bearer "+a.Data.UserToken)
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   if resp.StatusCode != http.StatusOK {
-      return nil, errors.New(resp.Status)
-   }
-   var value struct {
-      Items []Details
-   }
-   err = json.NewDecoder(resp.Body).Decode(&value)
-   if err != nil {
-      return nil, err
-   }
-   return &value.Items[0], nil
-}
-
 func (Authenticate) Marshal(email, password string) ([]byte, error) {
    resp, err := http.PostForm(
       "https://auth.hulu.com/v2/livingroom/password/authenticate", url.Values{
@@ -144,6 +167,46 @@ func (Authenticate) Marshal(email, password string) ([]byte, error) {
    return io.ReadAll(resp.Body)
 }
 
+type Authenticate struct {
+   Data struct {
+      UserToken string `json:"user_token"`
+   }
+}
+
+func (a *Authenticate) Unmarshal(data []byte) error {
+   return json.Unmarshal(data, a)
+}
+
+func (p *Playlist) Wrap(data []byte) ([]byte, error) {
+   resp, err := http.Post(
+      p.WvServer, "application/x-protobuf", bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   return io.ReadAll(resp.Body)
+}
+
+type Playlist struct {
+   StreamUrl string `json:"stream_url"`
+   WvServer  string `json:"wv_server"`
+}
+
+type EntityId struct {
+   s string
+}
+
+func (e *EntityId) String() string {
+   return e.s
+}
+
+// hulu.com/watch/023c49bf-6a99-4c67-851c-4c9e7609cc1d
+func (e *EntityId) Set(s string) error {
+   e.s = path.Base(s)
+   return nil
+}
+
 func (a *Authenticate) DeepLink(id *EntityId) (*DeepLink, error) {
    req, err := http.NewRequest("", "https://discover.hulu.com", nil)
    if err != nil {
@@ -151,7 +214,7 @@ func (a *Authenticate) DeepLink(id *EntityId) (*DeepLink, error) {
    }
    req.URL.Path = "/content/v5/deeplink/playback"
    req.URL.RawQuery = url.Values{
-      "id":        {id.Data},
+      "id":        {id.s},
       "namespace": {"entity"},
    }.Encode()
    req.Header.Set("authorization", "Bearer "+a.Data.UserToken)
@@ -173,133 +236,6 @@ func (a *Authenticate) DeepLink(id *EntityId) (*DeepLink, error) {
    return link, nil
 }
 
-type Authenticate struct {
-   Data struct {
-      UserToken string `json:"user_token"`
-   }
-}
-
-func (a *Authenticate) Unmarshal(data []byte) error {
-   return json.Unmarshal(data, a)
-}
-func (p *Playlist) Wrap(data []byte) ([]byte, error) {
-   resp, err := http.Post(
-      p.WvServer, "application/x-protobuf", bytes.NewReader(data),
-   )
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   return io.ReadAll(resp.Body)
-}
-
-type Playlist struct {
-   StreamUrl string `json:"stream_url"`
-   WvServer  string `json:"wv_server"`
-}
-
 type DeepLink struct {
    EabId string `json:"eab_id"`
-}
-
-type Details struct {
-   EpisodeName   string `json:"episode_name"`
-   EpisodeNumber int    `json:"episode_number"`
-   Headline      string
-   PremiereDate  time.Time `json:"premiere_date"`
-   SeasonNumber  int       `json:"season_number"`
-   SeriesName    string    `json:"series_name"`
-}
-
-func (d *Details) Show() string {
-   return d.SeriesName
-}
-
-func (d *Details) Season() int {
-   return d.SeasonNumber
-}
-
-func (d *Details) Episode() int {
-   return d.EpisodeNumber
-}
-
-func (d *Details) Year() int {
-   return d.PremiereDate.Year()
-}
-
-func (d *Details) Title() string {
-   if d.EpisodeName != "" {
-      return d.EpisodeName
-   }
-   return d.Headline
-}
-
-type EntityId struct {
-   Data string
-}
-
-func (e *EntityId) String() string {
-   return e.Data
-}
-
-// hulu.com/watch/023c49bf-6a99-4c67-851c-4c9e7609cc1d
-func (e *EntityId) Set(s string) error {
-   e.Data = path.Base(s)
-   return nil
-}
-
-type codec_value struct {
-   Height  int    `json:"height,omitempty"`
-   Level   string `json:"level,omitempty"`
-   Profile string `json:"profile,omitempty"`
-   Tier    string `json:"tier,omitempty"`
-   Type    string `json:"type"`
-   Width   int    `json:"width,omitempty"`
-}
-
-type drm_value struct {
-   SecurityLevel string `json:"security_level"`
-   Type          string `json:"type"`
-   Version       string `json:"version"`
-}
-
-type playlist_request struct {
-   ContentEabId   string `json:"content_eab_id"`
-   DeejayDeviceId int    `json:"deejay_device_id"`
-   Unencrypted    bool   `json:"unencrypted"`
-   Version        int    `json:"version"`
-   Playback       struct {
-      Audio struct {
-         Codecs struct {
-            SelectionMode string        `json:"selection_mode"`
-            Values        []codec_value `json:"values"`
-         } `json:"codecs"`
-      } `json:"audio"`
-      Video struct {
-         Codecs struct {
-            SelectionMode string        `json:"selection_mode"`
-            Values        []codec_value `json:"values"`
-         } `json:"codecs"`
-      } `json:"video"`
-      Drm struct {
-         SelectionMode string      `json:"selection_mode"`
-         Values        []drm_value `json:"values"`
-      } `json:"drm"`
-      Manifest struct {
-         Type string `json:"type"`
-      } `json:"manifest"`
-      Segments struct {
-         SelectionMode string          `json:"selection_mode"`
-         Values        []segment_value `json:"values"`
-      } `json:"segments"`
-      Version int `json:"version"`
-   } `json:"playback"`
-}
-
-type segment_value struct {
-   Encryption struct {
-      Mode string `json:"mode"`
-      Type string `json:"type"`
-   } `json:"encryption"`
-   Type string `json:"type"`
 }

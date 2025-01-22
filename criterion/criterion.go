@@ -11,10 +11,7 @@ import (
 )
 
 func (a *AuthToken) Video(slug string) (*EmbedItem, error) {
-   req, err := http.NewRequest("", "https://api.vhx.com", nil)
-   if err != nil {
-      return nil, err
-   }
+   req, _ := http.NewRequest("", "https://api.vhx.com", nil)
    req.URL.Path = "/videos/" + slug
    req.URL.RawQuery = url.Values{
       "url": {slug},
@@ -25,17 +22,15 @@ func (a *AuthToken) Video(slug string) (*EmbedItem, error) {
       return nil, err
    }
    defer resp.Body.Close()
-   if resp.StatusCode != http.StatusOK {
-      var b strings.Builder
-      resp.Write(&b)
-      return nil, errors.New(b.String())
-   }
-   item := &EmbedItem{}
-   err = json.NewDecoder(resp.Body).Decode(item)
+   var item EmbedItem
+   err = json.NewDecoder(resp.Body).Decode(&item)
    if err != nil {
       return nil, err
    }
-   return item, nil
+   if item.Message != "" {
+      return nil, errors.New(item.Message)
+   }
+   return &item, nil
 }
 
 type EmbedItem struct {
@@ -44,6 +39,7 @@ type EmbedItem struct {
          Href string
       }
    } `json:"_links"`
+   Message string
    Metadata struct {
       YearReleased int `json:"year_released"`
    }
@@ -96,26 +92,6 @@ func (AuthToken) Marshal(username, password string) ([]byte, error) {
    }
    defer resp.Body.Close()
    return io.ReadAll(resp.Body)
-}
-
-func (*EmbedItem) Episode() int {
-   return 0
-}
-
-func (*EmbedItem) Season() int {
-   return 0
-}
-
-func (*EmbedItem) Show() string {
-   return ""
-}
-
-func (e *EmbedItem) Title() string {
-   return e.Name
-}
-
-func (e *EmbedItem) Year() int {
-   return e.Metadata.YearReleased
 }
 
 type VideoFiles []VideoFile
