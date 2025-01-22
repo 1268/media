@@ -1,7 +1,6 @@
 # paramount
 
-- <https://wikipedia.org/wiki/Undecidable_problem>
-- https://iban.com/country-codes
+https://iban.com/country-codes
 
 if we decide on `assetType`, these all pass:
 
