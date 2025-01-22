@@ -1,7 +1,6 @@
 package pluto
 
 import (
-   "41.neocities.org/text"
    "41.neocities.org/widevine"
    "bytes"
    "encoding/base64"
@@ -106,6 +105,4 @@ func TestVideo(t *testing.T) {
       t.Fatal(err)
    }
    fmt.Printf("%+v\n", video)
-   name := text.Name(Namer{video})
-   fmt.Printf("%q\n", name)
 }

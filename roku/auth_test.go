@@ -1,25 +1,12 @@
 package roku
 
 import (
-   "41.neocities.org/text"
    "41.neocities.org/widevine"
    "encoding/base64"
-   "fmt"
    "os"
    "testing"
    "time"
 )
-
-func TestContent(t *testing.T) {
-   for _, test := range tests {
-      var home HomeScreen
-      err := home.New(test.id)
-      if err != nil {
-         t.Fatal(err)
-      }
-      time.Sleep(time.Second)
-   }
-}
 
 func TestWrap(t *testing.T) {
    home, err := os.UserHomeDir()

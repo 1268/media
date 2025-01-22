@@ -1,7 +1,6 @@
 package rakuten
 
 import (
-   "41.neocities.org/text"
    "41.neocities.org/widevine"
    "bytes"
    "encoding/base64"
@@ -12,6 +11,22 @@ import (
    "testing"
    "time"
 )
+
+func TestMovie(t *testing.T) {
+   for _, test := range tests {
+      var web Address
+      err := web.Set(test.url)
+      if err != nil {
+         t.Fatal(err)
+      }
+      movie, err := web.Movie()
+      if err != nil {
+         t.Fatal(err)
+      }
+      fmt.Printf("%+v\n", movie)
+      time.Sleep(time.Second)
+   }
+}
 
 var tests = []movie_test{
    {
@@ -93,24 +108,6 @@ type movie_test struct {
    content_id string
    key_id     string
    url        string
-}
-
-func TestMovie(t *testing.T) {
-   for _, test := range tests {
-      var web Address
-      err := web.Set(test.url)
-      if err != nil {
-         t.Fatal(err)
-      }
-      movie, err := web.Movie()
-      if err != nil {
-         t.Fatal(err)
-      }
-      fmt.Printf("%+v\n", movie)
-      name := text.Name(movie)
-      fmt.Printf("%q\n", name)
-      time.Sleep(time.Second)
-   }
 }
 
 func TestFr(t *testing.T) {
