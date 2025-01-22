@@ -8,112 +8,36 @@ import (
    "net/http"
    "strconv"
    "strings"
-   "time"
 )
 
-// YOU CANNOT USE ANONYMOUS QUERY!
-const query_axis = `
-query axisContent($id: ID!) {
-   axisContent(id: $id) {
-      axisId
-      axisPlaybackLanguages {
-         ... on AxisPlayback {
-            destinationCode
-         }
-      }
-   }
-}
-`
+type Wrapper struct{}
 
-const query_resolve = `
-query resolvePath($path: String!) {
-   resolvedPath(path: $path) {
-      lastSegment {
-         content {
-            ... on AxisObject {
-               id
-               ... on AxisMedia {
-                  firstPlayableContent {
-                     id
-                  }
-               }
-            }
-         }
-      }
+func (Wrapper) Wrap(data []byte) ([]byte, error) {
+   resp, err := http.Post(
+      "https://license.9c9media.ca/widevine", "application/x-protobuf",
+      bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
    }
-}
-`
-
-// this is better than strings.Replace and strings.ReplaceAll
-func graphql_compact(s string) string {
-   field := strings.Fields(s)
-   return strings.Join(field, " ")
+   defer resp.Body.Close()
+   return io.ReadAll(resp.Body)
 }
 
 type Address struct {
-   Path string
+   s string
 }
 
 // https://www.ctv.ca/shows/friends/the-one-with-the-bullies-s2e21
 func (a *Address) Set(s string) error {
    s = strings.TrimPrefix(s, "https://")
    s = strings.TrimPrefix(s, "www.")
-   a.Path = strings.TrimPrefix(s, "ctv.ca")
+   a.s = strings.TrimPrefix(s, "ctv.ca")
    return nil
 }
 
 func (a *Address) String() string {
-   return a.Path
-}
-
-func (a Address) Resolve() (*ResolvePath, error) {
-   var body struct {
-      Query         string `json:"query"`
-      Variables     struct {
-         Path string `json:"path"`
-      } `json:"variables"`
-   }
-   body.Query = graphql_compact(query_resolve)
-   body.Variables.Path = a.Path
-   data, err := json.MarshalIndent(body, "", " ")
-   if err != nil {
-      return nil, err
-   }
-   req, err := http.NewRequest(
-      "POST", "https://www.ctv.ca/space-graphql/apq/graphql",
-      bytes.NewReader(data),
-   )
-   if err != nil {
-      return nil, err
-   }
-   // you need this for the first request, then can omit
-   req.Header.Set("graphql-client-platform", "entpay_web")
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   data, err = io.ReadAll(resp.Body)
-   if err != nil {
-      return nil, err
-   }
-   var resp_body struct {
-      Data struct {
-         ResolvedPath *struct {
-            LastSegment struct {
-               Content ResolvePath
-            }
-         }
-      }
-   }
-   err = json.Unmarshal(data, &resp_body)
-   if err != nil {
-      return nil, err
-   }
-   if v := resp_body.Data.ResolvedPath; v != nil {
-      return &v.LastSegment.Content, nil
-   }
-   return nil, errors.New(string(data))
+   return a.s
 }
 
 // hard geo block
@@ -157,25 +81,7 @@ type AxisContent struct {
    }
 }
 
-type Date struct {
-   Time time.Time
-}
-
-func (d *Date) UnmarshalText(text []byte) error {
-   var err error
-   d.Time, err = time.Parse(time.DateOnly, string(text))
-   if err != nil {
-      return err
-   }
-   return nil
-}
-
-func (d *Date) MarshalText() ([]byte, error) {
-   return d.Time.AppendFormat(nil, time.DateOnly), nil
-}
-
 type MediaContent struct {
-   BroadcastDate   Date
    ContentPackages []struct {
       Id int64
    }
@@ -194,11 +100,8 @@ func (m *MediaContent) Unmarshal(data []byte) error {
    return json.Unmarshal(data, m)
 }
 
-func (*MediaContent) Marshal(axis *AxisContent) ([]byte, error) {
-   req, err := http.NewRequest("", "https://capi.9c9media.com", nil)
-   if err != nil {
-      return nil, err
-   }
+func (MediaContent) Marshal(axis *AxisContent) ([]byte, error) {
+   req, _ := http.NewRequest("", "https://capi.9c9media.com", nil)
    req.URL.Path = func() string {
       b := []byte("/destinations/")
       b = append(b, axis.AxisPlaybackLanguages[0].DestinationCode...)
@@ -215,48 +118,54 @@ func (*MediaContent) Marshal(axis *AxisContent) ([]byte, error) {
    return io.ReadAll(resp.Body)
 }
 
-type Namer struct {
-   Media MediaContent
-}
-
-func (n *Namer) Season() int {
-   return n.Media.Season.Number
-}
-
-func (n *Namer) Show() string {
-   if v := n.Media.Media; v.Type == "series" {
-      return v.Name
+func (a Address) Resolve() (*ResolvePath, error) {
+   var body struct {
+      Query         string `json:"query"`
+      Variables     struct {
+         Path string `json:"path"`
+      } `json:"variables"`
    }
-   return ""
-}
-
-func (n *Namer) Year() int {
-   return n.Media.BroadcastDate.Time.Year()
-}
-
-func (n *Namer) Episode() int {
-   return n.Media.Episode
-}
-
-func (n *Namer) Title() string {
-   if strings.HasSuffix(n.Media.Name, ")") {
-      return n.Media.Name[:len(n.Media.Name)-len(" (9999)")]
+   body.Query = graphql_compact(query_resolve)
+   body.Variables.Path = a.s
+   data, err := json.MarshalIndent(body, "", " ")
+   if err != nil {
+      return nil, err
    }
-   return n.Media.Name
-}
-
-func (r *ResolvePath) id() string {
-   if r.FirstPlayableContent != nil {
-      return r.FirstPlayableContent.Id
+   req, err := http.NewRequest(
+      "POST", "https://www.ctv.ca/space-graphql/apq/graphql",
+      bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
    }
-   return r.Id
-}
-
-type ResolvePath struct {
-   Id                   string
-   FirstPlayableContent *struct {
-      Id string
+   // you need this for the first request, then can omit
+   req.Header.Set("graphql-client-platform", "entpay_web")
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
    }
+   defer resp.Body.Close()
+   data, err = io.ReadAll(resp.Body)
+   if err != nil {
+      return nil, err
+   }
+   var resp_body struct {
+      Data struct {
+         ResolvedPath *struct {
+            LastSegment struct {
+               Content ResolvePath
+            }
+         }
+      }
+   }
+   err = json.Unmarshal(data, &resp_body)
+   if err != nil {
+      return nil, err
+   }
+   if v := resp_body.Data.ResolvedPath; v != nil {
+      return &v.LastSegment.Content, nil
+   }
+   return nil, errors.New(string(data))
 }
 
 func (r *ResolvePath) Axis() (*AxisContent, error) {
@@ -267,7 +176,7 @@ func (r *ResolvePath) Axis() (*AxisContent, error) {
       } `json:"variables"`
    }
    body.Query = graphql_compact(query_axis)
-   body.Variables.Id = r.id()
+   body.Variables.Id = r.get_id()
    data, err := json.Marshal(body)
    if err != nil {
       return nil, err
@@ -304,16 +213,55 @@ func (r *ResolvePath) Axis() (*AxisContent, error) {
    return &resp_body.Data.AxisContent, nil
 }
 
-type Wrapper struct{}
-
-func (Wrapper) Wrap(data []byte) ([]byte, error) {
-   resp, err := http.Post(
-      "https://license.9c9media.ca/widevine", "application/x-protobuf",
-      bytes.NewReader(data),
-   )
-   if err != nil {
-      return nil, err
+func (r *ResolvePath) get_id() string {
+   if r.FirstPlayableContent != nil {
+      return r.FirstPlayableContent.Id
    }
-   defer resp.Body.Close()
-   return io.ReadAll(resp.Body)
+   return r.Id
 }
+
+type ResolvePath struct {
+   Id                   string
+   FirstPlayableContent *struct {
+      Id string
+   }
+}
+
+// YOU CANNOT USE ANONYMOUS QUERY!
+const query_axis = `
+query axisContent($id: ID!) {
+   axisContent(id: $id) {
+      axisId
+      axisPlaybackLanguages {
+         ... on AxisPlayback {
+            destinationCode
+         }
+      }
+   }
+}
+`
+
+// this is better than strings.Replace and strings.ReplaceAll
+func graphql_compact(data string) string {
+   field := strings.Fields(data)
+   return strings.Join(field, " ")
+}
+
+const query_resolve = `
+query resolvePath($path: String!) {
+   resolvedPath(path: $path) {
+      lastSegment {
+         content {
+            ... on AxisObject {
+               id
+               ... on AxisMedia {
+                  firstPlayableContent {
+                     id
+                  }
+               }
+            }
+         }
+      }
+   }
+}
+`

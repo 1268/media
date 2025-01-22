@@ -1,7 +1,6 @@
 package draken
 
 import (
-   "41.neocities.org/text"
    "41.neocities.org/widevine"
    "bytes"
    "encoding/base64"
@@ -134,8 +133,6 @@ func TestMovie(t *testing.T) {
          t.Fatal(err)
       }
       fmt.Printf("%+v\n", movie)
-      name := text.Name(&Namer{movie})
-      fmt.Printf("%q\n", name)
       time.Sleep(99 * time.Millisecond)
    }
 }
