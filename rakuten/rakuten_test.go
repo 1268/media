@@ -2,7 +2,6 @@ package rakuten
 
 import (
    "41.neocities.org/platform/mullvad"
-   "41.neocities.org/text"
    "41.neocities.org/widevine"
    "encoding/base64"
    "errors"
@@ -17,7 +16,6 @@ var web_tests = []web_test{
       address:  "rakuten.tv/cz/movies/transvulcania-the-people-s-run",
       language: "SPA",
       location: "cz",
-      name:     "Transvulcania, The People’s Run - 2024",
    },
    {
       address:    "rakuten.tv/fr/movies/infidele",
@@ -25,13 +23,11 @@ var web_tests = []web_test{
       key_id:     "DlGAAGzVCO7ADVNf7GxCDQ==",
       language:   "ENG",
       location:   "fr",
-      name:       "Infidèle - 2002",
    },
    {
       address:  "rakuten.tv/pl/movies/ad-astra",
-      language: "",
-      location: "",
-      name:     "",
+      language: "ENG",
+      location: "pl",
    },
    {
       content_id: "OWE1MzRhMWYxMmQ2OGUxYTIzNTlmMzg3MTBmZGRiNjUtbWMtMC0xNDctMC0w",
@@ -39,13 +35,11 @@ var web_tests = []web_test{
       language:   "ENG",
       address:    "rakuten.tv/se/movies/i-heart-huckabees",
       location:   "se",
-      name:       "I Heart Huckabees - 2004",
    },
    {
       language: "ENG",
       address:  "rakuten.tv/uk/player/episodes/stream/hell-s-kitchen-usa-15/hell-s-kitchen-usa-15-1",
       location: "gb",
-      name:     "Hell's Kitchen USA - 15 1 - 18 Chefs Compete",
    },
 }
 
@@ -115,18 +109,6 @@ func (w *web_test) content() (*content_class, error) {
    return &content, nil
 }
 
-func TestNamer(t *testing.T) {
-   for _, test := range web_tests {
-      content, err := test.content()
-      if err != nil {
-         t.Fatal(err)
-      }
-      if text.Name(namer{content.g}) != test.name {
-         t.Fatal(content)
-      }
-   }
-}
-
 func TestContent(t *testing.T) {
    for _, test := range web_tests {
       content, err := test.content()
@@ -166,7 +148,6 @@ type web_test struct {
    key_id     string
    language   string
    location   string
-   name       string
 }
 
 func TestStreamInfo(t *testing.T) {
