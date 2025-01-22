@@ -11,6 +11,15 @@ import (
    "strings"
 )
 
+func (h *Href) UnmarshalText(data []byte) error {
+   h.S = strings.Replace(string(data), "itvpnpctv", "itvpnpdotcom", 1)
+   return nil
+}
+
+type Href struct {
+   S string
+}
+
 func (p *Playlist) Resolution1080() (*MediaFile, bool) {
    for _, file := range p.Playlist.Video.MediaFiles {
       if file.Resolution == "1080" {
@@ -43,19 +52,6 @@ type MediaFile struct {
    Href Href
    KeyServiceUrl string
    Resolution string
-}
-
-func (h *Href) UnmarshalText(data []byte) error {
-   h.s = strings.Replace(string(data), "itvpnpctv", "itvpnpdotcom", 1)
-   return nil
-}
-
-type Href struct {
-   s string
-}
-
-func (h Href) MarshalText() ([]byte, error) {
-   return []byte(h.s), nil
 }
 
 // hard geo block
@@ -145,8 +141,8 @@ func (i LegacyId) Discovery() (*DiscoveryTitle, error) {
 }
 
 // this is better than strings.Replace and strings.ReplaceAll
-func graphql_compact(s string) string {
-   field := strings.Fields(s)
+func graphql_compact(data string) string {
+   field := strings.Fields(data)
    return strings.Join(field, " ")
 }
 

@@ -33,7 +33,7 @@ func (f *flags) download() error {
    if err != nil {
       return err
    }
-   resp, err := http.Get(file.Href.Data)
+   resp, err := http.Get(file.Href.S)
    if err != nil {
       return err
    }

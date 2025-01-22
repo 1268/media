@@ -26,7 +26,7 @@ func main() {
    switch {
    case f.get_forward:
       get_forward()
-   case f.address.Path != "":
+   case f.address.String() != "":
       err := f.download()
       if err != nil {
          panic(err)

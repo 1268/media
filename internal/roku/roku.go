@@ -51,11 +51,6 @@ func (f *flags) download() error {
       case "":
          fmt.Print(&represent, "\n\n")
       case represent.Id:
-         var home roku.HomeScreen
-         err := home.New(f.roku)
-         if err != nil {
-            return err
-         }
          f.s.Wrapper = play
          return f.s.Download(&represent)
       }
