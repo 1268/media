@@ -42,8 +42,8 @@ func (d *DrmProxy) Wrap(data []byte) ([]byte, error) {
    req.URL.Path = "/drm-proxy/license/widevine"
    req.URL.RawQuery = url.Values{
       "device": {"web"},
-      "hash": {d.Hash},
-      "time": {d.Time},
+      "hash":   {d.Hash},
+      "time":   {d.Time},
    }.Encode()
    req.Header.Set("content-type", "application/octet-stream")
    resp, err := http.DefaultClient.Do(req)
@@ -59,14 +59,14 @@ type OnDemand struct {
 }
 
 type Metadata struct {
-   AirDate time.Time
-   EpisodeNumber int `json:",string"`
-   MovieShortTitle string
-   MpxAccountId int64 `json:",string"`
-   MpxGuid int64 `json:",string"`
-   ProgrammingType string
-   SeasonNumber int `json:",string"`
-   SecondaryTitle string
+   AirDate          time.Time
+   EpisodeNumber    int `json:",string"`
+   MovieShortTitle  string
+   MpxAccountId     int64 `json:",string"`
+   MpxGuid          int64 `json:",string"`
+   ProgrammingType  string
+   SeasonNumber     int `json:",string"`
+   SecondaryTitle   string
    SeriesShortTitle string
 }
 
@@ -83,7 +83,7 @@ func (m *Metadata) OnDemand() (*OnDemand, error) {
       return string(b)
    }()
    req.URL.RawQuery = url.Values{
-      "platform": {"web"},
+      "platform":        {"web"},
       "programmingType": {m.ProgrammingType},
    }.Encode()
    resp, err := http.DefaultClient.Do(req)
@@ -185,13 +185,13 @@ func graphql_compact(s string) string {
 }
 
 type page_request struct {
-   Query string `json:"query"`
+   Query     string `json:"query"`
    Variables struct {
-      App string `json:"app"` // String cannot represent a non string value
-      Name string `json:"name"`
-      OneApp bool `json:"oneApp"`
+      App      string `json:"app"` // String cannot represent a non string value
+      Name     string `json:"name"`
+      OneApp   bool   `json:"oneApp"`
       Platform string `json:"platform"`
-      Type string `json:"type"` // can be empty
-      UserId string `json:"userId"`
+      Type     string `json:"type"` // can be empty
+      UserId   string `json:"userId"`
    } `json:"variables"`
 }

@@ -1,7 +1,6 @@
 package mubi
 
 import (
-   "41.neocities.org/text"
    "41.neocities.org/widevine"
    "bytes"
    "encoding/hex"
@@ -9,6 +8,24 @@ import (
    "os"
    "testing"
 )
+
+func TestFilm(t *testing.T) {
+   for i, dogville := range dogvilles {
+      var web Address
+      err := web.Set(dogville)
+      if err != nil {
+         t.Fatal(err)
+      }
+      if i == 0 {
+         film, err := web.Film()
+         if err != nil {
+            t.Fatal(err)
+         }
+         fmt.Printf("%+v\n", film)
+      }
+      fmt.Println(web)
+   }
+}
 
 func TestWrap(t *testing.T) {
    home, err := os.UserHomeDir()
@@ -69,24 +86,6 @@ func TestWrap(t *testing.T) {
       if bytes.Equal(container.Id(), key_id) {
          fmt.Printf("%x\n", container.Key(block))
       }
-   }
-}
-
-func TestFilm(t *testing.T) {
-   for i, dogville := range dogvilles {
-      var web Address
-      err := web.Set(dogville)
-      if err != nil {
-         t.Fatal(err)
-      }
-      if i == 0 {
-         film, err := web.Film()
-         if err != nil {
-            t.Fatal(err)
-         }
-         fmt.Println(text.Name(&Namer{film}))
-      }
-      fmt.Println(web)
    }
 }
 

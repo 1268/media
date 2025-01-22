@@ -8,7 +8,36 @@ import (
    "strings"
 )
 
-func (*LinkCode) Marshal() ([]byte, error) {
+type FilmResponse struct {
+   Id int64
+   Title string
+   Year int
+}
+
+func (a Address) Film() (*FilmResponse, error) {
+   req, err := http.NewRequest("", "https://api.mubi.com", nil)
+   if err != nil {
+      return nil, err
+   }
+   req.URL.Path = "/v3/films/" + a.s
+   req.Header = http.Header{
+      "client": {client},
+      "client-country": {ClientCountry},
+   }
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   film := &FilmResponse{}
+   err = json.NewDecoder(resp.Body).Decode(film)
+   if err != nil {
+      return nil, err
+   }
+   return film, nil
+}
+
+func (LinkCode) Marshal() ([]byte, error) {
    req, err := http.NewRequest("", "https://api.mubi.com/v3/link_code", nil)
    if err != nil {
       return nil, err
@@ -38,12 +67,12 @@ var ClientCountry = "US"
 const client = "web"
 
 type Address struct {
-   Data string
+   s string
 }
 
 func (a *Address) Set(text string) error {
    var ok bool
-   _, a.Data, ok = strings.Cut(text, "/films/")
+   _, a.s, ok = strings.Cut(text, "/films/")
    if !ok {
       return errors.New("/films/")
    }
@@ -55,53 +84,12 @@ type TextTrack struct {
    Url string
 }
 
-type FilmResponse struct {
-   Id int64
-   Title string
-   Year int
-}
-
 func (a *Address) String() string {
-   return a.Data
-}
-
-type Namer struct {
-   Film *FilmResponse
-}
-
-func (n Namer) Title() string {
-   return n.Film.Title
-}
-
-func (n Namer) Year() int {
-   return n.Film.Year
+   return a.s
 }
 
 func (t *TextTrack) String() string {
    return "id = " + t.Id
-}
-
-func (a *Address) Film() (*FilmResponse, error) {
-   req, err := http.NewRequest("", "https://api.mubi.com", nil)
-   if err != nil {
-      return nil, err
-   }
-   req.URL.Path = "/v3/films/" + a.Data
-   req.Header = http.Header{
-      "client": {client},
-      "client-country": {ClientCountry},
-   }
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   film := &FilmResponse{}
-   err = json.NewDecoder(resp.Body).Decode(film)
-   if err != nil {
-      return nil, err
-   }
-   return film, nil
 }
 
 func (c *LinkCode) String() string {
@@ -112,18 +100,6 @@ func (c *LinkCode) String() string {
    b.WriteString("and enter the code below\n")
    b.WriteString(c.LinkCode)
    return b.String()
-}
-
-func (Namer) Episode() int {
-   return 0
-}
-
-func (Namer) Season() int {
-   return 0
-}
-
-func (Namer) Show() string {
-   return ""
 }
 
 type LinkCode struct {
