@@ -1,9 +1,7 @@
 package ctv
 
 import (
-   "41.neocities.org/text"
    "41.neocities.org/widevine"
-   "bytes"
    "encoding/base64"
    "fmt"
    "os"
@@ -51,32 +49,9 @@ func TestWrap(t *testing.T) {
    if err != nil {
       t.Fatal(err)
    }
-   data, err = Wrapper{}.Wrap(data)
+   _, err = Wrapper{}.Wrap(data)
    if err != nil {
       t.Fatal(err)
-   }
-   var body widevine.ResponseBody
-   err = body.Unmarshal(data)
-   if err != nil {
-      t.Fatal(err)
-   }
-   block, err := module.Block(body)
-   if err != nil {
-      t.Fatal(err)
-   }
-   key_id, err := base64.StdEncoding.DecodeString(raw_key_id)
-   if err != nil {
-      t.Fatal(err)
-   }
-   containers := body.Container()
-   for {
-      container, ok := containers()
-      if !ok {
-         break
-      }
-      if bytes.Equal(container.Id(), key_id) {
-         fmt.Printf("%x\n", container.Key(block))
-      }
    }
 }
 
@@ -99,8 +74,6 @@ func TestMedia(t *testing.T) {
       if err != nil {
          t.Fatal(err)
       }
-      name := text.Name(&Namer{media})
-      fmt.Printf("%q\n", name)
       time.Sleep(time.Second)
    }
 }

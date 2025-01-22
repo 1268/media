@@ -49,7 +49,7 @@ func (f *flags) download() error {
 }
 
 func (f *flags) base() string {
-   return path.Base(f.address.Path)
+   return path.Base(f.address.String())
 }
 
 func (f *flags) get_manifest() error {

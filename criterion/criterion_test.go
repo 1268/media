@@ -1,7 +1,6 @@
 package criterion
 
 import (
-   "41.neocities.org/text"
    "41.neocities.org/widevine"
    "encoding/hex"
    "fmt"
@@ -94,7 +93,6 @@ func TestVideo(t *testing.T) {
       t.Fatal(err)
    }
    fmt.Printf("%+v\n", item)
-   fmt.Printf("%q\n", text.Name(item))
 }
 
 var video_test = struct{
