@@ -9,12 +9,6 @@ Download media or send API requests
 
 <dl>
    <dt>
-   CineMember
-   </dt>
-   <dd>
-   2024-12-08
-   </dd>
-   <dt>
    ITVX
    </dt>
    <dd>
@@ -43,6 +37,12 @@ Download media or send API requests
    </dt>
    <dd>
    2024-05-19
+   </dd>
+   <dt>
+   CineMember
+   </dt>
+   <dd>
+   2024-05-12
    </dd>
    <dt>
    Draken Film

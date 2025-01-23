@@ -9,55 +9,6 @@ import (
    "strings"
 )
 
-type Playback struct {
-   Drm struct {
-      Schemes struct {
-         Widevine struct {
-            LicenseUrl string
-         }
-      }
-   }
-   Fallback struct {
-      Manifest struct {
-         Url Url
-      }
-   }
-}
-
-func (p *Playback) Wrap(data []byte) ([]byte, error) {
-   resp, err := http.Post(
-      p.Drm.Schemes.Widevine.LicenseUrl, "application/x-protobuf",
-      bytes.NewReader(data),
-   )
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   if resp.StatusCode != http.StatusOK {
-      return nil, errors.New(resp.Status)
-   }
-   return io.ReadAll(resp.Body)
-}
-
-// you must
-// /authentication/linkDevice/initiate
-// first or this will always fail
-func (LinkLogin) Marshal(token *BoltToken) ([]byte, error) {
-   req, err := http.NewRequest(
-      "POST", prd_api+"/authentication/linkDevice/login", nil,
-   )
-   if err != nil {
-      return nil, err
-   }
-   req.Header.Set("cookie", "st="+token.St)
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   return io.ReadAll(resp.Body)
-}
-
 func (v *LinkLogin) Playback(watch *WatchUrl) (*Playback, error) {
    var body playback_request
    body.ConsumptionType = "streaming"
@@ -85,17 +36,33 @@ func (v *LinkLogin) Playback(watch *WatchUrl) (*Playback, error) {
       return nil, err
    }
    defer resp.Body.Close()
-   if resp.StatusCode != http.StatusOK {
-      var b bytes.Buffer
-      resp.Write(&b)
-      return nil, errors.New(b.String())
-   }
-   resp_body := &Playback{}
-   err = json.NewDecoder(resp.Body).Decode(resp_body)
+   var resp_body Playback
+   err = json.NewDecoder(resp.Body).Decode(&resp_body)
    if err != nil {
       return nil, err
    }
-   return resp_body, nil
+   if err := resp_body.Errors; len(err) >= 1 {
+      return nil, errors.New(err[0].Message)
+   }
+   return &resp_body, nil
+}
+
+type Playback struct {
+   Drm struct {
+      Schemes struct {
+         Widevine struct {
+            LicenseUrl string
+         }
+      }
+   }
+   Errors []struct {
+      Message string
+   }
+   Fallback struct {
+      Manifest struct {
+         Url Url
+      }
+   }
 }
 
 type playback_request struct {
@@ -186,3 +153,38 @@ func (f *Url) UnmarshalText(data []byte) error {
    f.String = strings.Replace(string(data), "_fallback", "", 1)
    return nil
 }
+
+func (p *Playback) Wrap(data []byte) ([]byte, error) {
+   resp, err := http.Post(
+      p.Drm.Schemes.Widevine.LicenseUrl, "application/x-protobuf",
+      bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   if resp.StatusCode != http.StatusOK {
+      return nil, errors.New(resp.Status)
+   }
+   return io.ReadAll(resp.Body)
+}
+
+// you must
+// /authentication/linkDevice/initiate
+// first or this will always fail
+func (LinkLogin) Marshal(token *BoltToken) ([]byte, error) {
+   req, err := http.NewRequest(
+      "POST", prd_api+"/authentication/linkDevice/login", nil,
+   )
+   if err != nil {
+      return nil, err
+   }
+   req.Header.Set("cookie", "st="+token.St)
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   return io.ReadAll(resp.Body)
+}
+
