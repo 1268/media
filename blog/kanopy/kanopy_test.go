@@ -31,5 +31,5 @@ func TestLogin(t *testing.T) {
    if err != nil {
       t.Fatal(err)
    }
-   os.WriteFile("token.txt", data, os.ModePerm)
+   os.WriteFile("ignore/token.txt", data, os.ModePerm)
 }
