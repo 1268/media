@@ -2,14 +2,36 @@ package main
 
 import (
    "41.neocities.org/dash"
+   "41.neocities.org/media/rakuten"
+   "errors"
    "fmt"
    "io"
    "net/http"
-   "slices"
 )
 
 func (f *flags) download() error {
-   fhd, err := f.address.Fhd().Info()
+   class, ok := f.address.ClassificationId()
+   if !ok {
+      return errors.New("Address.ClassificationId")
+   }
+   var content *rakuten.GizmoContent
+   if f.address.SeasonId != "" {
+      season, err := f.address.Season(class)
+      if err != nil {
+         return err
+      }
+      content, ok = season.Content(&f.address)
+      if !ok {
+         return errors.New("GizmoSeason.Content")
+      }
+   } else {
+      var err error
+      content, err = f.address.Movie(class)
+      if err != nil {
+         return err
+      }
+   }
+   fhd, err := content.Fhd(class, f.language).Streamings()
    if err != nil {
       return err
    }
@@ -23,21 +45,13 @@ func (f *flags) download() error {
       return err
    }
    var mpd dash.Mpd
-   err = mpd.Unmarshal(data)
-   if err != nil {
-      return err
-   }
-   represents := slices.SortedFunc(mpd.Representation(),
-      func(a, b dash.Representation) int {
-         return a.Bandwidth - b.Bandwidth
-      },
-   )
-   for _, represent := range represents {
+   mpd.Unmarshal(data)
+   for represent := range mpd.Representation() {
       switch f.representation {
       case "":
          fmt.Print(&represent, "\n\n")
       case represent.Id:
-         hd, err := f.address.Hd().Info()
+         hd, err := content.Hd(class, f.language).Streamings()
          if err != nil {
             return err
          }
@@ -46,5 +60,31 @@ func (f *flags) download() error {
          return f.s.Download(&represent)
       }
    }
+   return nil
+}
+
+func (f *flags) do_language() error {
+   class, ok := f.address.ClassificationId()
+   if !ok {
+      return errors.New("Address.ClassificationId")
+   }
+   var content *rakuten.GizmoContent
+   if f.address.SeasonId != "" {
+      season, err := f.address.Season(class)
+      if err != nil {
+         return err
+      }
+      content, ok = season.Content(&f.address)
+      if !ok {
+         return errors.New("GizmoSeason.Content")
+      }
+   } else {
+      var err error
+      content, err = f.address.Movie(class)
+      if err != nil {
+         return err
+      }
+   }
+   fmt.Println(&content)
    return nil
 }

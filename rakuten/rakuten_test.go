@@ -11,6 +11,31 @@ import (
    "testing"
 )
 
+func (w *web_test) content() (*content_class, error) {
+   var web address
+   web.Set(w.address)
+   var content content_class
+   content.class, _ = web.classification_id()
+   if web.season_id != "" {
+      season, err := web.season(content.class)
+      if err != nil {
+         return nil, err
+      }
+      _, ok := season.content(&address{})
+      if ok {
+         return nil, errors.New("gizmo_season.content")
+      }
+      content.g, _ = season.content(&web)
+   } else {
+      var err error
+      content.g, err = web.movie(content.class)
+      if err != nil {
+         return nil, err
+      }
+   }
+   return &content, nil
+}
+
 var web_tests = []web_test{
    {
       address:  "rakuten.tv/cz/movies/transvulcania-the-people-s-run",
@@ -82,31 +107,6 @@ func TestAddress(t *testing.T) {
 func TestMain(m *testing.M) {
    http.DefaultClient.Transport = transport{}
    m.Run()
-}
-
-func (w *web_test) content() (*content_class, error) {
-   var web address
-   web.Set(w.address)
-   var content content_class
-   content.class, _ = web.classification_id()
-   if web.season_id != "" {
-      season, err := web.season(content.class)
-      if err != nil {
-         return nil, err
-      }
-      _, ok := season.content(&address{})
-      if ok {
-         return nil, errors.New("gizmo_season.content")
-      }
-      content.g, _ = season.content(&web)
-   } else {
-      var err error
-      content.g, err = web.movie(content.class)
-      if err != nil {
-         return nil, err
-      }
-   }
-   return &content, nil
 }
 
 func TestContent(t *testing.T) {
