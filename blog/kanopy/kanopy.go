@@ -3,25 +3,15 @@ package kanopy
 import (
    "bytes"
    "encoding/json"
-   "errors"
    "io"
    "net/http"
    "strconv"
 )
 
-type wrapper struct {
-   video_manifest *video_manifest
-   web_token      *web_token
-}
-
 const (
    user_agent = "!"
    x_version = "!/!/!/!"
 )
-
-type membership struct {
-   DomainId int64
-}
 
 type video_manifest struct {
    DrmLicenseId string
@@ -68,13 +58,16 @@ func (web_token) marshal(email, password string) ([]byte, error) {
    return io.ReadAll(resp.Body)
 }
 
-///
+func (w *web_token) unmarshal(data []byte) error {
+   return json.Unmarshal(data, w)
+}
+
+type membership struct {
+   DomainId int64
+}
 
 func (w *web_token) membership() (*membership, error) {
-   req, err := http.NewRequest("", "https://www.kanopy.com", nil)
-   if err != nil {
-      return nil, err
-   }
+   req, _ := http.NewRequest("", "https://www.kanopy.com", nil)
    req.URL.Path = "/kapi/memberships"
    req.URL.RawQuery = "userId=" + strconv.FormatInt(w.UserId, 10)
    req.Header = http.Header{
@@ -95,19 +88,6 @@ func (w *web_token) membership() (*membership, error) {
       return nil, err
    }
    return &member.List[0], nil
-}
-
-func (v *video_plays) dash() (*video_manifest, bool) {
-   for _, manifest := range v.Manifests {
-      if manifest.ManifestType == "dash" {
-         return &manifest, true
-      }
-   }
-   return nil, false
-}
-
-func (w *web_token) unmarshal(data []byte) error {
-   return json.Unmarshal(data, w)
 }
 
 func (w *web_token) plays(
@@ -138,15 +118,26 @@ func (w *web_token) plays(
       return nil, err
    }
    defer resp.Body.Close()
-   if resp.StatusCode != http.StatusOK {
-      return nil, errors.New(resp.Status)
-   }
    play := &video_plays{}
    err = json.NewDecoder(resp.Body).Decode(play)
    if err != nil {
       return nil, err
    }
    return play, nil
+}
+
+type wrapper struct {
+   web_token      *web_token
+   video_manifest *video_manifest
+}
+
+func (v *video_plays) dash() (*video_manifest, bool) {
+   for _, manifest := range v.Manifests {
+      if manifest.ManifestType == "dash" {
+         return &manifest, true
+      }
+   }
+   return nil, false
 }
 
 func (w wrapper) Wrap(data []byte) ([]byte, error) {
