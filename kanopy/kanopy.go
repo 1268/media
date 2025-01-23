@@ -127,11 +127,11 @@ func (w *web_token) plays(
 }
 
 type wrapper struct {
-   web_token      *web_token
    video_manifest *video_manifest
+   web_token      *web_token
 }
 
-func (v *video_plays) dash() (*video_manifest, bool) {
+func (v video_plays) dash() (*video_manifest, bool) {
    for _, manifest := range v.Manifests {
       if manifest.ManifestType == "dash" {
          return &manifest, true
