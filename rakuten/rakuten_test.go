@@ -11,34 +11,11 @@ import (
    "testing"
 )
 
-func (w *web_test) content() (*content_class, error) {
-   var web address
-   web.Set(w.address)
-   var content content_class
-   content.class, _ = web.classification_id()
-   if web.season_id != "" {
-      season, err := web.season(content.class)
-      if err != nil {
-         return nil, err
-      }
-      _, ok := season.content(&address{})
-      if ok {
-         return nil, errors.New("gizmo_season.content")
-      }
-      content.g, _ = season.content(&web)
-   } else {
-      var err error
-      content.g, err = web.movie(content.class)
-      if err != nil {
-         return nil, err
-      }
-   }
-   return &content, nil
-}
-
 var web_tests = []web_test{
    {
       address:  "rakuten.tv/cz/movies/transvulcania-the-people-s-run",
+      content_id: "MzE4ZjdlY2U2OWFmY2ZlM2U5NmRlMzFiZTZiNzcyNzItbWMtMC0xNjQtMC0w",
+      key_id: "MY9+zmmvz+PpbeMb5rdycg==",
       language: "SPA",
       location: "cz",
    },
@@ -51,25 +28,29 @@ var web_tests = []web_test{
    },
    {
       address:  "rakuten.tv/pl/movies/ad-astra",
+      content_id: "YTk1MjMzMDI1NWFiOWJmZmIxYTAwZTk3ZDA1ZTBhZjItbWMtMC0xMzctMC0w",
+      key_id: "qVIzAlWrm/+xoA6X0F4K8g==",
       language: "ENG",
       location: "pl",
    },
    {
+      address:    "rakuten.tv/se/movies/i-heart-huckabees",
       content_id: "OWE1MzRhMWYxMmQ2OGUxYTIzNTlmMzg3MTBmZGRiNjUtbWMtMC0xNDctMC0w",
       key_id:     "mlNKHxLWjhojWfOHEP3bZQ==",
       language:   "ENG",
-      address:    "rakuten.tv/se/movies/i-heart-huckabees",
       location:   "se",
    },
    {
-      language: "ENG",
       address:  "rakuten.tv/uk/player/episodes/stream/hell-s-kitchen-usa-15/hell-s-kitchen-usa-15-1",
+      content_id: "YmI5NGE0YTA0MTdkMjYyY2MzMGMyZjIzODExNmQ2NzktbWMtMC0xMzktMC0w",
+      key_id: "u5SkoEF9JizDDC8jgRbWeQ==",
+      language: "ENG",
       location: "gb",
    },
 }
 
 type content_class struct {
-   g     *gizmo_content
+   g     *GizmoContent
    class int
 }
 
@@ -82,7 +63,7 @@ func (transport) RoundTrip(req *http.Request) (*http.Response, error) {
 
 func TestAddress(t *testing.T) {
    for _, test := range web_tests {
-      var web address
+      var web Address
       t.Run("Set", func(t *testing.T) {
          err := web.Set(test.address)
          if err != nil {
@@ -96,8 +77,8 @@ func TestAddress(t *testing.T) {
       })
    }
    t.Run("classification_id", func(t *testing.T) {
-      var web address
-      _, ok := web.classification_id()
+      var web Address
+      _, ok := web.ClassificationId()
       if ok {
          t.Fatal(web)
       }
@@ -120,8 +101,8 @@ func TestContent(t *testing.T) {
             t.Fatal(content.g)
          }
       })
-      t.Run("fhd", func(t *testing.T) {
-         _, err = content.g.fhd(content.class, test.language).streamings()
+      t.Run("Fhd", func(t *testing.T) {
+         _, err = content.g.Fhd(content.class, test.language).Streamings()
          if err == nil {
             t.Fatal(content.g)
          }
@@ -132,8 +113,8 @@ func TestContent(t *testing.T) {
             t.Fatal(err)
          }
          defer mullvad.Disconnect()
-         t.Run("hd", func(t *testing.T) {
-            _, err = content.g.hd(content.class, test.language).streamings()
+         t.Run("Hd", func(t *testing.T) {
+            _, err = content.g.Hd(content.class, test.language).Streamings()
             if err != nil {
                t.Fatal(err)
             }
@@ -164,9 +145,6 @@ func TestStreamInfo(t *testing.T) {
       t.Fatal(err)
    }
    for _, test := range web_tests {
-      if test.key_id == "" {
-         continue
-      }
       content, err := test.content()
       if err != nil {
          t.Fatal(err)
@@ -177,7 +155,7 @@ func TestStreamInfo(t *testing.T) {
             t.Fatal(err)
          }
          defer mullvad.Disconnect()
-         info, err := content.g.hd(content.class, test.language).streamings()
+         info, err := content.g.Hd(content.class, test.language).Streamings()
          if err != nil {
             t.Fatal(err)
          }
@@ -206,4 +184,29 @@ func TestStreamInfo(t *testing.T) {
          }
       }()
    }
+}
+
+func (w *web_test) content() (*content_class, error) {
+   var web Address
+   web.Set(w.address)
+   var content content_class
+   content.class, _ = web.ClassificationId()
+   if web.SeasonId != "" {
+      season, err := web.Season(content.class)
+      if err != nil {
+         return nil, err
+      }
+      _, ok := season.Content(&Address{})
+      if ok {
+         return nil, errors.New("gizmo_season.content")
+      }
+      content.g, _ = season.Content(&web)
+   } else {
+      var err error
+      content.g, err = web.Movie(content.class)
+      if err != nil {
+         return nil, err
+      }
+   }
+   return &content, nil
 }
