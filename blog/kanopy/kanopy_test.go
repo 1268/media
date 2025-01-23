@@ -3,8 +3,6 @@ package kanopy
 import (
    "41.neocities.org/widevine"
    "encoding/base64"
-   "fmt"
-   "net/http"
    "os"
    "os/exec"
    "strings"
@@ -12,49 +10,6 @@ import (
    "time"
 )
 
-func TestItems(t *testing.T) {
-   http.DefaultClient.Transport = transport{}
-   data, err := os.ReadFile("token.txt")
-   if err != nil {
-      t.Fatal(err)
-   }
-   var token web_token
-   err = token.unmarshal(data)
-   if err != nil {
-      t.Fatal(err)
-   }
-   for _, test := range tests {
-      video, err := token.video(test.video_id)
-      if err != nil {
-         t.Fatal(err)
-      }
-      time.Sleep(time.Second)
-      if len(video.AncestorVideoIds) <= 1 {
-         continue
-      }
-      // episodes
-      items, err := token.items(video.AncestorVideoIds[0])
-      if err != nil {
-         t.Fatal(err)
-      }
-      time.Sleep(time.Second)
-      fmt.Println(items.item(video.VideoId))
-      // seasons
-      items, err = token.items(video.AncestorVideoIds[1])
-      if err != nil {
-         t.Fatal(err)
-      }
-      time.Sleep(time.Second)
-      fmt.Println(items.item(video.AncestorVideoIds[0]))
-   }
-}
-
-type transport struct{}
-
-func (transport) RoundTrip(req *http.Request) (*http.Response, error) {
-   fmt.Println(req.URL)
-   return http.DefaultTransport.RoundTrip(req)
-}
 func TestLogin(t *testing.T) {
    data, err := exec.Command("password", "kanopy.com").Output()
    if err != nil {
@@ -118,7 +73,7 @@ func TestLicense(t *testing.T) {
       if err != nil {
          t.Fatal(err)
       }
-      _, err = poster{manifest, &token}.Wrap(data)
+      _, err = wrapper{manifest, &token}.Wrap(data)
       if err != nil {
          t.Fatal(err)
       }
@@ -126,18 +81,18 @@ func TestLicense(t *testing.T) {
    }
 }
 
-var tests = []struct{
-   key_id string
-   url string
+var tests = []struct {
+   key_id   string
+   url      string
    video_id int64
 }{
    {
-      key_id: "DUCS1DH4TB6Po1oEkG9xUA==",
-      url: "kanopy.com/en/product/13808102",
+      key_id:   "DUCS1DH4TB6Po1oEkG9xUA==",
+      url:      "kanopy.com/en/product/13808102",
       video_id: 13808102,
    },
    {
-      url: "kanopy.com/en/product/14881167",
+      url:      "kanopy.com/en/product/14881167",
       video_id: 14881167,
    },
 }
