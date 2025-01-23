@@ -9,6 +9,11 @@ import (
    "strconv"
 )
 
+type wrapper struct {
+   video_manifest *video_manifest
+   web_token      *web_token
+}
+
 const (
    user_agent = "!"
    x_version = "!/!/!/!"
@@ -24,15 +29,6 @@ type video_manifest struct {
    Url          string
 }
 
-func (v *video_plays) dash() (*video_manifest, bool) {
-   for _, manifest := range v.Manifests {
-      if manifest.ManifestType == "dash" {
-         return &manifest, true
-      }
-   }
-   return nil, false
-}
-
 type video_plays struct {
    Manifests []video_manifest
 }
@@ -44,14 +40,13 @@ type web_token struct {
 }
 
 func (web_token) marshal(email, password string) ([]byte, error) {
-   value := map[string]any{
+   data, err := json.Marshal(map[string]any{
       "credentialType": "email",
       "emailUser": map[string]string{
          "email":    email,
          "password": password,
       },
-   }
-   data, err := json.Marshal(value)
+   })
    if err != nil {
       return nil, err
    }
@@ -71,6 +66,44 @@ func (web_token) marshal(email, password string) ([]byte, error) {
    }
    defer resp.Body.Close()
    return io.ReadAll(resp.Body)
+}
+
+///
+
+func (w *web_token) membership() (*membership, error) {
+   req, err := http.NewRequest("", "https://www.kanopy.com", nil)
+   if err != nil {
+      return nil, err
+   }
+   req.URL.Path = "/kapi/memberships"
+   req.URL.RawQuery = "userId=" + strconv.FormatInt(w.UserId, 10)
+   req.Header = http.Header{
+      "authorization": {"Bearer " + w.Jwt},
+      "user-agent":    {user_agent},
+      "x-version":     {x_version},
+   }
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   var member struct {
+      List []membership
+   }
+   err = json.NewDecoder(resp.Body).Decode(&member)
+   if err != nil {
+      return nil, err
+   }
+   return &member.List[0], nil
+}
+
+func (v *video_plays) dash() (*video_manifest, bool) {
+   for _, manifest := range v.Manifests {
+      if manifest.ManifestType == "dash" {
+         return &manifest, true
+      }
+   }
+   return nil, false
 }
 
 func (w *web_token) unmarshal(data []byte) error {
@@ -116,33 +149,6 @@ func (w *web_token) plays(
    return play, nil
 }
 
-func (w *web_token) membership() (*membership, error) {
-   req, err := http.NewRequest("", "https://www.kanopy.com", nil)
-   if err != nil {
-      return nil, err
-   }
-   req.URL.Path = "/kapi/memberships"
-   req.URL.RawQuery = "userId=" + strconv.FormatInt(w.UserId, 10)
-   req.Header = http.Header{
-      "authorization": {"Bearer " + w.Jwt},
-      "user-agent":    {user_agent},
-      "x-version":     {x_version},
-   }
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   var member struct {
-      List []membership
-   }
-   err = json.NewDecoder(resp.Body).Decode(&member)
-   if err != nil {
-      return nil, err
-   }
-   return &member.List[0], nil
-}
-
 func (w wrapper) Wrap(data []byte) ([]byte, error) {
    req, err := http.NewRequest(
       "POST", "https://www.kanopy.com", bytes.NewReader(data),
@@ -162,9 +168,4 @@ func (w wrapper) Wrap(data []byte) ([]byte, error) {
    }
    defer resp.Body.Close()
    return io.ReadAll(resp.Body)
-}
-
-type wrapper struct {
-   video_manifest *video_manifest
-   web_token      *web_token
 }

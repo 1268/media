@@ -54,13 +54,6 @@ type content_class struct {
    class int
 }
 
-type transport struct{}
-
-func (transport) RoundTrip(req *http.Request) (*http.Response, error) {
-   log.Print(req.URL)
-   return http.DefaultTransport.RoundTrip(req)
-}
-
 func TestAddress(t *testing.T) {
    for _, test := range web_tests {
       var web Address
@@ -83,6 +76,13 @@ func TestAddress(t *testing.T) {
          t.Fatal(web)
       }
    })
+}
+
+type transport struct{}
+
+func (transport) RoundTrip(req *http.Request) (*http.Response, error) {
+   log.Print(req.URL)
+   return http.DefaultTransport.RoundTrip(req)
 }
 
 func TestMain(m *testing.M) {
