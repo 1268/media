@@ -1,26 +1,20 @@
 package main
 
 import (
-   "41.neocities.org/dash"
-   "41.neocities.org/media/kanopy"
    "41.neocities.org/media/internal"
    "41.neocities.org/text"
    "flag"
-   "fmt"
-   "io"
-   "net/http"
    "os"
    "path/filepath"
 )
 
 type flags struct {
    email          string
-   entity         kanopy.EntityId
    home           string
-   min_width      int64
    password       string
    representation string
    s              internal.Stream
+   video_id       int
 }
 
 func (f *flags) New() error {
@@ -41,13 +35,12 @@ func main() {
    if err != nil {
       panic(err)
    }
-   flag.Var(&f.entity, "a", "address")
    flag.StringVar(&f.s.ClientId, "c", f.s.ClientId, "client ID")
    flag.StringVar(&f.email, "e", "", "email")
    flag.StringVar(&f.representation, "i", "", "representation")
    flag.StringVar(&f.s.PrivateKey, "k", f.s.PrivateKey, "private key")
    flag.StringVar(&f.password, "p", "", "password")
-   flag.Int64Var(&f.min_width, "m", 1280, "min width")
+   flag.IntVar(&f.video_id, "b", 0, "video ID")
    flag.Parse()
    text.Transport{}.Set()
    switch {
@@ -56,7 +49,8 @@ func main() {
       if err != nil {
          panic(err)
       }
-   case f.entity.String() != "":
+
+   case f.video_id >= 1:
       err := f.download()
       if err != nil {
          panic(err)

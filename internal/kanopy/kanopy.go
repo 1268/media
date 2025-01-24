@@ -3,14 +3,10 @@ package main
 import (
    "41.neocities.org/dash"
    "41.neocities.org/media/kanopy"
-   "41.neocities.org/media/internal"
-   "41.neocities.org/text"
-   "flag"
+   "errors"
    "fmt"
-   "io"
-   "net/http"
    "os"
-   "path/filepath"
+   "slices"
 )
 
 func (f *flags) download() error {
@@ -18,41 +14,43 @@ func (f *flags) download() error {
    if err != nil {
       return err
    }
-   var auth kanopy.Authenticate
-   err = auth.Unmarshal(data)
+   var token kanopy.WebToken
+   err = token.Unmarshal(data)
    if err != nil {
       return err
    }
-   deep, err := auth.DeepLink(&f.entity)
+   member, err := token.Membership()
    if err != nil {
       return err
    }
-   play, err := auth.Playlist(deep)
+   plays, err := token.Plays(member, f.video_id)
    if err != nil {
       return err
    }
-   resp, err := http.Get(play.StreamUrl)
-   if err != nil {
-      return err
+   manifest, ok := plays.Dash()
+   if !ok {
+      return errors.New("VideoPlays.Dash")
    }
-   defer resp.Body.Close()
-   data, err = io.ReadAll(resp.Body)
+   data, err = manifest.Url.Get()
    if err != nil {
       return err
    }
    var mpd dash.Mpd
-   mpd.Unmarshal(data)
-   for represent := range mpd.Representation() {
-      if *represent.Width < f.min_width {
-         if *represent.MimeType == "video/mp4" {
-            continue
-         }
-      }
+   err = mpd.Unmarshal(data)
+   if err != nil {
+      return err
+   }
+   represents := slices.SortedFunc(mpd.Representation(),
+      func(a, b dash.Representation) int {
+         return a.Bandwidth - b.Bandwidth
+      },
+   )
+   for _, represent := range represents {
       switch f.representation {
       case "":
          fmt.Print(&represent, "\n\n")
       case represent.Id:
-         f.s.Wrapper = play
+         f.s.Wrapper = kanopy.Wrapper{manifest, &token}
          return f.s.Download(&represent)
       }
    }
@@ -60,7 +58,7 @@ func (f *flags) download() error {
 }
 
 func (f *flags) authenticate() error {
-   data, err := kanopy.Authenticate{}.Marshal(f.email, f.password)
+   data, err := kanopy.WebToken{}.Marshal(f.email, f.password)
    if err != nil {
       return err
    }

@@ -5,34 +5,46 @@ import (
    "encoding/json"
    "io"
    "net/http"
-   "path"
    "strconv"
 )
 
-type wrapper struct {
-   video_manifest *video_manifest
-   web_token      *web_token
-}
-
-func (v video_plays) dash() (*video_manifest, bool) {
-   for _, manifest := range v.Manifests {
-      if manifest.ManifestType == "dash" {
-         return &manifest, true
-      }
+func (u Url) Get() ([]byte, error) {
+   req, err := http.NewRequest("", string(u), nil)
+   if err != nil {
+      return nil, err
    }
-   return nil, false
+   req.Header.Set("user-agent", "Mozilla")
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   return io.ReadAll(resp.Body)
 }
 
-func (w wrapper) Wrap(data []byte) ([]byte, error) {
+type Url string
+
+type VideoManifest struct {
+   DrmLicenseId string
+   ManifestType string
+   Url         Url
+}
+
+type Wrapper struct {
+   Manifest *VideoManifest
+   Token    *WebToken
+}
+
+func (w Wrapper) Wrap(data []byte) ([]byte, error) {
    req, err := http.NewRequest(
       "POST", "https://www.kanopy.com", bytes.NewReader(data),
    )
    if err != nil {
       return nil, err
    }
-   req.URL.Path = "/kapi/licenses/widevine/" + w.video_manifest.DrmLicenseId
+   req.URL.Path = "/kapi/licenses/widevine/" + w.Manifest.DrmLicenseId
    req.Header = http.Header{
-      "authorization": {"Bearer " + w.web_token.Jwt},
+      "authorization": {"Bearer " + w.Token.Jwt},
       "user-agent":    {user_agent},
       "x-version":     {x_version},
    }
@@ -46,26 +58,20 @@ func (w wrapper) Wrap(data []byte) ([]byte, error) {
 
 const (
    user_agent = "!"
-   x_version = "!/!/!/!"
+   x_version  = "!/!/!/!"
 )
 
-type video_manifest struct {
-   DrmLicenseId string
-   ManifestType string
-   Url          string
-}
-
-type video_plays struct {
-   Manifests []video_manifest
+type VideoPlays struct {
+   Manifests []VideoManifest
 }
 
 // good for 10 years
-type web_token struct {
+type WebToken struct {
    Jwt    string
    UserId int
 }
 
-func (web_token) marshal(email, password string) ([]byte, error) {
+func (WebToken) Marshal(email, password string) ([]byte, error) {
    data, err := json.Marshal(map[string]any{
       "credentialType": "email",
       "emailUser": map[string]string{
@@ -94,15 +100,15 @@ func (web_token) marshal(email, password string) ([]byte, error) {
    return io.ReadAll(resp.Body)
 }
 
-func (w *web_token) unmarshal(data []byte) error {
+func (w *WebToken) Unmarshal(data []byte) error {
    return json.Unmarshal(data, w)
 }
 
-type membership struct {
+type Membership struct {
    DomainId int
 }
 
-func (w *web_token) membership() (*membership, error) {
+func (w *WebToken) Membership() (*Membership, error) {
    req, _ := http.NewRequest("", "https://www.kanopy.com", nil)
    req.URL.Path = "/kapi/memberships"
    req.URL.RawQuery = "userId=" + strconv.Itoa(w.UserId)
@@ -117,7 +123,7 @@ func (w *web_token) membership() (*membership, error) {
    }
    defer resp.Body.Close()
    var member struct {
-      List []membership
+      List []Membership
    }
    err = json.NewDecoder(resp.Body).Decode(&member)
    if err != nil {
@@ -126,30 +132,13 @@ func (w *web_token) membership() (*membership, error) {
    return &member.List[0], nil
 }
 
-func (a *address) Set(data string) error {
-   var err error
-   a.video_id, err = strconv.Atoi(path.Base(data))
-   if err != nil {
-      return err
-   }
-   return nil
-}
-
-func (a address) String() string {
-   return strconv.Itoa(a.video_id)
-}
-
-type address struct {
-   video_id int
-}
-
-func (w *web_token) plays(
-   member *membership, web address,
-) (*video_plays, error) {
+func (w *WebToken) Plays(
+   member *Membership, video_id int,
+) (*VideoPlays, error) {
    data, err := json.Marshal(map[string]int{
       "domainId": member.DomainId,
       "userId":   w.UserId,
-      "videoId":  web.video_id,
+      "videoId":  video_id,
    })
    if err != nil {
       return nil, err
@@ -171,10 +160,19 @@ func (w *web_token) plays(
       return nil, err
    }
    defer resp.Body.Close()
-   play := &video_plays{}
+   play := &VideoPlays{}
    err = json.NewDecoder(resp.Body).Decode(play)
    if err != nil {
       return nil, err
    }
    return play, nil
+}
+
+func (v VideoPlays) Dash() (*VideoManifest, bool) {
+   for _, manifest := range v.Manifests {
+      if manifest.ManifestType == "dash" {
+         return &manifest, true
+      }
+   }
+   return nil, false
 }

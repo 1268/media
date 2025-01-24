@@ -38,64 +38,64 @@ func TestVideoPlays(t *testing.T) {
    if err != nil {
       t.Fatal(err)
    }
-   var token web_token
-   token.unmarshal(data)
-   member, err := token.membership()
+   var token WebToken
+   token.Unmarshal(data)
+   member, err := token.Membership()
    if err != nil {
       t.Fatal(err)
    }
    for _, test := range tests {
-      play, err := token.plays(member, test.video_id)
+      play, err := token.Plays(member, test.video_id)
       if err != nil {
          t.Fatal(err)
       }
-      _, ok := play.dash()
+      _, ok := play.Dash()
       if !ok {
-         t.Fatal("video_plays.dash")
+         t.Fatal("VideoPlays.Dash")
       }
       time.Sleep(99 * time.Millisecond)
    }
-   _, ok := video_plays{}.dash()
+   _, ok := VideoPlays{}.Dash()
    if ok {
-      t.Fatal("video_plays.dash")
+      t.Fatal("VideoPlays.Dash")
    }
 }
 
 func TestWebToken(t *testing.T) {
-   var token web_token
-   t.Run("marshal", func(t *testing.T) {
+   var token WebToken
+   t.Run("Marshal", func(t *testing.T) {
       data, err := exec.Command("password", "kanopy.com").Output()
       if err != nil {
          t.Fatal(err)
       }
       email, password, _ := strings.Cut(string(data), ":")
-      data, err = token.marshal(email, password)
+      data, err = token.Marshal(email, password)
       if err != nil {
          t.Fatal(err)
       }
       os.WriteFile("ignore/token.txt", data, os.ModePerm)
    })
-   t.Run("unmarshal", func(t *testing.T) {
+   t.Run("Unmarshal", func(t *testing.T) {
       data, err := os.ReadFile("ignore/token.txt")
       if err != nil {
          t.Fatal(err)
       }
-      err = token.unmarshal(data)
+      err = token.Unmarshal(data)
       if err != nil {
          t.Fatal(err)
       }
    })
-   var member *membership
-   t.Run("membership", func(t *testing.T) {
+   var member *Membership
+   t.Run("Membership", func(t *testing.T) {
       var err error
-      member, err = token.membership()
+      member, err = token.Membership()
       if err != nil {
          t.Fatal(err)
       }
    })
-   t.Run("plays", func(t *testing.T) {
+   t.Run("Plays", func(t *testing.T) {
       for _, test := range tests {
-         _, err := token.plays(member, test.video_id)
+         _, err := token.Plays(member, test.video_id)
          if err != nil {
             t.Fatal(err)
          }
@@ -116,9 +116,9 @@ func TestWrapper(t *testing.T) {
    if err != nil {
       t.Fatal(err)
    }
-   var token web_token
-   token.unmarshal(data)
-   member, err := token.membership()
+   var token WebToken
+   token.Unmarshal(data)
+   member, err := token.Membership()
    if err != nil {
       t.Fatal(err)
    }
@@ -135,16 +135,13 @@ func TestWrapper(t *testing.T) {
       t.Fatal(err)
    }
    for _, test := range tests {
-      if test.key_id == "" {
-         continue
-      }
-      plays, err := token.plays(member, test.video_id)
+      plays, err := token.Plays(member, test.video_id)
       if err != nil {
          t.Fatal(err)
       }
-      manifest, ok := plays.dash()
+      manifest, ok := plays.Dash()
       if !ok {
-         t.Fatal("video_plays.dash")
+         t.Fatal("VideoPlays.Dash")
       }
       var pssh widevine.PsshData
       key_id, err := base64.StdEncoding.DecodeString(test.key_id)
@@ -161,7 +158,7 @@ func TestWrapper(t *testing.T) {
       if err != nil {
          t.Fatal(err)
       }
-      _, err = wrapper{manifest, &token}.Wrap(data)
+      _, err = Wrapper{manifest, &token}.Wrap(data)
       if err != nil {
          t.Fatal(err)
       }
