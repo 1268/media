@@ -2,51 +2,223 @@
 
 ## 2025
 
-- Kanopy
-   - 2025-01-23
+<table>
+   <tr>
+      <td>
+      1
+      </td>
+      <td>
+      Kanopy
+      </td>
+      <td>
+      2025-01-23
+      </td>
+   </tr>
+</table>
 
 ## 2024
 
-1. MUBI: Curated Cinema
-   - 2024-02-20
-2. Plex: Stream Movies & TV
-   - 2024-04-06
-3. Tubi: Free Movies & Live TV
-   - 2024-04-13
-4. Pluto TV: Watch Free Movies/TV
-   - 2024-04-20
-5. CTV
-   - 2024-04-29
-6. Draken Film
-   - 2024-05-05
-7. CineMember
-   - 2024-05-12
-8. The Criterion Channel
-   - 2024-05-19
-9. Rakuten TV -Movies & TV Series
-   - 2024-05-23
-10. RTBF Auvio : direct et replay
-    - 2024-06-07
-11. Max: Stream HBO, TV, & Movies
-    - 2024-06-16
-12. ITVX
-    - 2024-10-24
+<table>
+   <tr>
+      <td>
+      12
+      </td>
+      <td>
+      ITVX
+      </td>
+      <td>
+      2024-10-24
+      </td>
+   </tr>
+   <tr>
+      <td>
+      11
+      </td>
+      <td>
+      Max: Stream HBO, TV, & Movies
+      </td>
+      <td>
+      2024-06-16
+      </td>
+   </tr>
+   <tr>
+      <td>
+      10
+      </td>
+      <td>
+      RTBF Auvio : direct et replay
+      </td>
+      <td>
+      2024-06-07
+      </td>
+   </tr>
+   <tr>
+      <td>
+      9
+      </td>
+      <td>
+      Rakuten TV -Movies & TV Series
+      </td>
+      <td>
+      2024-05-23
+      </td>
+   </tr>
+   <tr>
+      <td>
+      8
+      </td>
+      <td>
+      The Criterion Channel
+      </td>
+      <td>
+      2024-05-19
+      </td>
+   </tr>
+   <tr>
+      <td>
+      7
+      </td>
+      <td>
+      CineMember
+      </td>
+      <td>
+      2024-05-12
+      </td>
+   </tr>
+   <tr>
+      <td>
+      6
+      </td>
+      <td>
+      Draken Film
+      </td>
+      <td>
+      2024-05-05
+      </td>
+   </tr>
+   <tr>
+      <td>
+      5
+      </td>
+      <td>
+      CTV
+      </td>
+      <td>
+      2024-04-29
+      </td>
+   </tr>
+   <tr>
+      <td>
+      4
+      </td>
+      <td>
+      Pluto TV: Watch Free Movies/TV
+      </td>
+      <td>
+      2024-04-20
+      </td>
+   </tr>
+   <tr>
+      <td>
+      3
+      </td>
+      <td>
+      Tubi: Free Movies & Live TV
+      </td>
+      <td>
+      2024-04-13
+      </td>
+   </tr>
+   <tr>
+      <td>
+      2
+      </td>
+      <td>
+      Plex: Stream Movies & TV
+      </td>
+      <td>
+      2024-04-06
+      </td>
+   </tr>
+   <tr>
+      <td>
+      1
+      </td>
+      <td>
+      MUBI: Curated Cinema
+      </td>
+      <td>
+      2024-02-20
+      </td>
+   </tr>
+</table>
 
 ## 2023
 
-- Hulu: Stream TV shows & movies
-   - 2023-11-14
+<table>
+   <tr>
+      <td>
+      1
+      </td>
+      <td>
+      Hulu: Stream TV shows & movies
+      </td>
+      <td>
+      2023-11-14
+      </td>
+   </tr>
+</table>
 
 ## 2022
 
-1. Paramount+
-   - 2022-03-09
-2. The Roku Channel
-   - 2022-05-05
-3. AMC+
-   - 2022-05-27
+<table>
+   <tr>
+      <td>
+      3
+      </td>
+      <td>
+      AMC+
+      </td>
+      <td>
+      2022-05-27
+      </td>
+   </tr>
+   <tr>
+      <td>
+      2
+      </td>
+      <td>
+      The Roku Channel
+      </td>
+      <td>
+      2022-05-05
+      </td>
+   </tr>
+   <tr>
+      <td>
+      1
+      </td>
+      <td>
+      Paramount+
+      </td>
+      <td>
+      2022-03-09
+      </td>
+   </tr>
+</table>
 
 ## 2021
 
-- The NBC App - Stream TV Shows
-   - 2021-12-04
+<table>
+   <tr>
+      <td>
+      1
+      </td>
+      <td>
+      The NBC App - Stream TV Shows
+      </td>
+      <td>
+      2021-12-04
+      </td>
+   </tr>
+</table>
