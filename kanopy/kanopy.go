@@ -8,6 +8,55 @@ import (
    "strconv"
 )
 
+func (w *WebToken) Plays(
+   member *Membership, video_id int,
+) (*VideoPlays, error) {
+   data, err := json.Marshal(map[string]int{
+      "domainId": member.DomainId,
+      "userId":   w.UserId,
+      "videoId":  video_id,
+   })
+   if err != nil {
+      return nil, err
+   }
+   req, err := http.NewRequest(
+      "POST", "https://www.kanopy.com/kapi/plays", bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   req.Header = http.Header{
+      "authorization": {"Bearer " + w.Jwt},
+      "content-type":  {"application/json"},
+      "user-agent":    {user_agent},
+      "x-version":     {x_version},
+   }
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   play := &VideoPlays{}
+   err = json.NewDecoder(resp.Body).Decode(play)
+   if err != nil {
+      return nil, err
+   }
+   return play, nil
+}
+
+type VideoPlays struct {
+   ErrorMsgLong string `json:"error_msg_long"`
+   Manifests []VideoManifest
+}
+
+func (v VideoPlays) Dash() (*VideoManifest, bool) {
+   for _, manifest := range v.Manifests {
+      if manifest.ManifestType == "dash" {
+         return &manifest, true
+      }
+   }
+   return nil, false
+}
 func (u Url) Get() ([]byte, error) {
    req, err := http.NewRequest("", string(u), nil)
    if err != nil {
@@ -27,7 +76,7 @@ type Url string
 type VideoManifest struct {
    DrmLicenseId string
    ManifestType string
-   Url         Url
+   Url          Url
 }
 
 type Wrapper struct {
@@ -60,10 +109,6 @@ const (
    user_agent = "!"
    x_version  = "!/!/!/!"
 )
-
-type VideoPlays struct {
-   Manifests []VideoManifest
-}
 
 // good for 10 years
 type WebToken struct {
@@ -130,49 +175,4 @@ func (w *WebToken) Membership() (*Membership, error) {
       return nil, err
    }
    return &member.List[0], nil
-}
-
-func (w *WebToken) Plays(
-   member *Membership, video_id int,
-) (*VideoPlays, error) {
-   data, err := json.Marshal(map[string]int{
-      "domainId": member.DomainId,
-      "userId":   w.UserId,
-      "videoId":  video_id,
-   })
-   if err != nil {
-      return nil, err
-   }
-   req, err := http.NewRequest(
-      "POST", "https://www.kanopy.com/kapi/plays", bytes.NewReader(data),
-   )
-   if err != nil {
-      return nil, err
-   }
-   req.Header = http.Header{
-      "authorization": {"Bearer " + w.Jwt},
-      "content-type":  {"application/json"},
-      "user-agent":    {user_agent},
-      "x-version":     {x_version},
-   }
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   play := &VideoPlays{}
-   err = json.NewDecoder(resp.Body).Decode(play)
-   if err != nil {
-      return nil, err
-   }
-   return play, nil
-}
-
-func (v VideoPlays) Dash() (*VideoManifest, bool) {
-   for _, manifest := range v.Manifests {
-      if manifest.ManifestType == "dash" {
-         return &manifest, true
-      }
-   }
-   return nil, false
 }

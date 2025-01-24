@@ -9,8 +9,8 @@ Download media or send API requests
 
 1. Pluto TV: Watch Free Movies/TV
 2. Tubi: Free Movies & Live TV
-3. Hulu: Stream TV shows & movies
-4. Max: Stream HBO, TV, & Movies
+3. Max: Stream HBO, TV, & Movies
+4. Hulu: Stream TV shows & movies
 5. Plex: Stream Movies & TV
 6. Paramount+
 7. ITVX
@@ -18,12 +18,13 @@ Download media or send API requests
 9. MUBI: Curated Cinema
 10. Rakuten TV -Movies & TV Series
 11. CTV
-12. RTBF Auvio : direct et replay
-13. AMC+
-14. The Roku Channel
-15. The Criterion Channel
-16. Draken Film
-17. CineMember
+12. Kanopy
+13. RTBF Auvio : direct et replay
+14. AMC+
+15. The Roku Channel
+16. The Criterion Channel
+17. Draken Film
+18. CineMember
 
 [1]://f002.backblazeb2.com/file/minerals/Paint.It.Black.2016.mp4
 

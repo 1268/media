@@ -1,5 +1,10 @@
 # history
 
+## 2025
+
+- Kanopy
+   - 2025-01-23
+
 ## 2024
 
 1. MUBI: Curated Cinema
