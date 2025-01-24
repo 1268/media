@@ -12,6 +12,22 @@ import (
    "time"
 )
 
+var tests = []struct {
+   key_id   string
+   url      string
+   video_id int
+}{
+   {
+      key_id:   "DUCS1DH4TB6Po1oEkG9xUA==",
+      url:      "kanopy.com/en/product/13808102",
+      video_id: 13808102,
+   },
+   {
+      url:      "kanopy.com/en/product/14881167",
+      video_id: 14881167,
+   },
+}
+
 func TestMain(m *testing.M) {
    http.DefaultClient.Transport = transport{}
    m.Run()
@@ -93,22 +109,6 @@ type transport struct{}
 func (transport) RoundTrip(req *http.Request) (*http.Response, error) {
    fmt.Println(req.URL)
    return http.DefaultTransport.RoundTrip(req)
-}
-
-var tests = []struct {
-   key_id   string
-   url      string
-   video_id int64
-}{
-   {
-      key_id:   "DUCS1DH4TB6Po1oEkG9xUA==",
-      url:      "kanopy.com/en/product/13808102",
-      video_id: 13808102,
-   },
-   {
-      url:      "kanopy.com/en/product/14881167",
-      video_id: 14881167,
-   },
 }
 
 func TestWrapper(t *testing.T) {

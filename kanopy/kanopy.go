@@ -5,8 +5,44 @@ import (
    "encoding/json"
    "io"
    "net/http"
+   "path"
    "strconv"
 )
+
+type wrapper struct {
+   video_manifest *video_manifest
+   web_token      *web_token
+}
+
+func (v video_plays) dash() (*video_manifest, bool) {
+   for _, manifest := range v.Manifests {
+      if manifest.ManifestType == "dash" {
+         return &manifest, true
+      }
+   }
+   return nil, false
+}
+
+func (w wrapper) Wrap(data []byte) ([]byte, error) {
+   req, err := http.NewRequest(
+      "POST", "https://www.kanopy.com", bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   req.URL.Path = "/kapi/licenses/widevine/" + w.video_manifest.DrmLicenseId
+   req.Header = http.Header{
+      "authorization": {"Bearer " + w.web_token.Jwt},
+      "user-agent":    {user_agent},
+      "x-version":     {x_version},
+   }
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   return io.ReadAll(resp.Body)
+}
 
 const (
    user_agent = "!"
@@ -26,7 +62,7 @@ type video_plays struct {
 // good for 10 years
 type web_token struct {
    Jwt    string
-   UserId int64
+   UserId int
 }
 
 func (web_token) marshal(email, password string) ([]byte, error) {
@@ -63,13 +99,13 @@ func (w *web_token) unmarshal(data []byte) error {
 }
 
 type membership struct {
-   DomainId int64
+   DomainId int
 }
 
 func (w *web_token) membership() (*membership, error) {
    req, _ := http.NewRequest("", "https://www.kanopy.com", nil)
    req.URL.Path = "/kapi/memberships"
-   req.URL.RawQuery = "userId=" + strconv.FormatInt(w.UserId, 10)
+   req.URL.RawQuery = "userId=" + strconv.Itoa(w.UserId)
    req.Header = http.Header{
       "authorization": {"Bearer " + w.Jwt},
       "user-agent":    {user_agent},
@@ -90,13 +126,30 @@ func (w *web_token) membership() (*membership, error) {
    return &member.List[0], nil
 }
 
+func (a *address) Set(data string) error {
+   var err error
+   a.video_id, err = strconv.Atoi(path.Base(data))
+   if err != nil {
+      return err
+   }
+   return nil
+}
+
+func (a address) String() string {
+   return strconv.Itoa(a.video_id)
+}
+
+type address struct {
+   video_id int
+}
+
 func (w *web_token) plays(
-   member *membership, video_id int64,
+   member *membership, web address,
 ) (*video_plays, error) {
-   data, err := json.Marshal(map[string]int64{
+   data, err := json.Marshal(map[string]int{
       "domainId": member.DomainId,
       "userId":   w.UserId,
-      "videoId":  video_id,
+      "videoId":  web.video_id,
    })
    if err != nil {
       return nil, err
@@ -124,39 +177,4 @@ func (w *web_token) plays(
       return nil, err
    }
    return play, nil
-}
-
-type wrapper struct {
-   video_manifest *video_manifest
-   web_token      *web_token
-}
-
-func (v video_plays) dash() (*video_manifest, bool) {
-   for _, manifest := range v.Manifests {
-      if manifest.ManifestType == "dash" {
-         return &manifest, true
-      }
-   }
-   return nil, false
-}
-
-func (w wrapper) Wrap(data []byte) ([]byte, error) {
-   req, err := http.NewRequest(
-      "POST", "https://www.kanopy.com", bytes.NewReader(data),
-   )
-   if err != nil {
-      return nil, err
-   }
-   req.URL.Path = "/kapi/licenses/widevine/" + w.video_manifest.DrmLicenseId
-   req.Header = http.Header{
-      "authorization": {"Bearer " + w.web_token.Jwt},
-      "user-agent":    {user_agent},
-      "x-version":     {x_version},
-   }
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   return io.ReadAll(resp.Body)
 }
