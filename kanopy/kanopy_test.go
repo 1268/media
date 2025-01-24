@@ -12,6 +12,47 @@ import (
    "time"
 )
 
+const sleep = 99 * time.Millisecond
+
+func Test(t *testing.T) {
+   http.DefaultClient.Transport = transport{}
+   t.Run("WebToken", TestWebToken)
+   t.Run("Url", TestUrl)
+   t.Run("VideoPlays", TestVideoPlays)
+   t.Run("Wrapper", TestWrapper)
+}
+
+func TestUrl(t *testing.T) {
+   data, err := os.ReadFile("ignore/token.txt")
+   if err != nil {
+      t.Fatal(err)
+   }
+   var token WebToken
+   token.Unmarshal(data)
+   member, err := token.Membership()
+   if err != nil {
+      t.Fatal(err)
+   }
+   for _, test := range tests {
+      plays, err := token.Plays(member, test.video_id)
+      if err != nil {
+         t.Fatal(err)
+      }
+      manifest, ok := plays.Dash()
+      if !ok {
+         t.Fatal("VideoPlays.Dash")
+      }
+      data, err = manifest.Url.Get()
+      if err != nil {
+         t.Fatal(err)
+      }
+      if !strings.HasPrefix(string(data), `<?xml version="1.0"?>`) {
+         t.Fatal(manifest.Url)
+      }
+      time.Sleep(sleep)
+   }
+}
+
 var tests = []struct {
    key_id   string
    url      string
@@ -23,14 +64,10 @@ var tests = []struct {
       video_id: 13808102,
    },
    {
+      key_id:   "sYcEuBtnTH6Bqn65yIE0Ww==",
       url:      "kanopy.com/en/product/14881167",
       video_id: 14881167,
    },
-}
-
-func TestMain(m *testing.M) {
-   http.DefaultClient.Transport = transport{}
-   m.Run()
 }
 
 func TestVideoPlays(t *testing.T) {
@@ -53,55 +90,12 @@ func TestVideoPlays(t *testing.T) {
       if !ok {
          t.Fatal("VideoPlays.Dash")
       }
-      time.Sleep(99 * time.Millisecond)
+      time.Sleep(sleep)
    }
    _, ok := VideoPlays{}.Dash()
    if ok {
       t.Fatal("VideoPlays.Dash")
    }
-}
-
-func TestWebToken(t *testing.T) {
-   var token WebToken
-   t.Run("Marshal", func(t *testing.T) {
-      data, err := exec.Command("password", "kanopy.com").Output()
-      if err != nil {
-         t.Fatal(err)
-      }
-      email, password, _ := strings.Cut(string(data), ":")
-      data, err = token.Marshal(email, password)
-      if err != nil {
-         t.Fatal(err)
-      }
-      os.WriteFile("ignore/token.txt", data, os.ModePerm)
-   })
-   t.Run("Unmarshal", func(t *testing.T) {
-      data, err := os.ReadFile("ignore/token.txt")
-      if err != nil {
-         t.Fatal(err)
-      }
-      err = token.Unmarshal(data)
-      if err != nil {
-         t.Fatal(err)
-      }
-   })
-   var member *Membership
-   t.Run("Membership", func(t *testing.T) {
-      var err error
-      member, err = token.Membership()
-      if err != nil {
-         t.Fatal(err)
-      }
-   })
-   t.Run("Plays", func(t *testing.T) {
-      for _, test := range tests {
-         _, err := token.Plays(member, test.video_id)
-         if err != nil {
-            t.Fatal(err)
-         }
-         time.Sleep(99 * time.Millisecond)
-      }
-   })
 }
 
 type transport struct{}
@@ -162,6 +156,49 @@ func TestWrapper(t *testing.T) {
       if err != nil {
          t.Fatal(err)
       }
-      time.Sleep(99 * time.Millisecond)
+      time.Sleep(sleep)
    }
+}
+
+func TestWebToken(t *testing.T) {
+   var token WebToken
+   t.Run("Marshal", func(t *testing.T) {
+      data, err := exec.Command("password", "kanopy.com").Output()
+      if err != nil {
+         t.Fatal(err)
+      }
+      email, password, _ := strings.Cut(string(data), ":")
+      data, err = token.Marshal(email, password)
+      if err != nil {
+         t.Fatal(err)
+      }
+      os.WriteFile("ignore/token.txt", data, os.ModePerm)
+   })
+   t.Run("Unmarshal", func(t *testing.T) {
+      data, err := os.ReadFile("ignore/token.txt")
+      if err != nil {
+         t.Fatal(err)
+      }
+      err = token.Unmarshal(data)
+      if err != nil {
+         t.Fatal(err)
+      }
+   })
+   var member *Membership
+   t.Run("Membership", func(t *testing.T) {
+      var err error
+      member, err = token.Membership()
+      if err != nil {
+         t.Fatal(err)
+      }
+   })
+   t.Run("Plays", func(t *testing.T) {
+      for _, test := range tests {
+         _, err := token.Plays(member, test.video_id)
+         if err != nil {
+            t.Fatal(err)
+         }
+         time.Sleep(sleep)
+      }
+   })
 }
