@@ -11,6 +11,24 @@ import (
    "strings"
 )
 
+func (a *Address) ClassificationId() (int, bool) {
+   switch a.MarketCode {
+   case "cz":
+      return 272, true
+   case "fr":
+      return 23, true
+   case "nl":
+      return 69, true
+   case "pl":
+      return 277, true
+   case "se":
+      return 282, true
+   case "uk":
+      return 18, true
+   }
+   return 0, false
+}
+
 type Address struct {
    MarketCode string
    SeasonId   string
@@ -221,22 +239,6 @@ func (a *Address) Season(classification_id int) (*GizmoSeason, error) {
       return nil, err
    }
    return &value.Data, nil
-}
-
-func (a *Address) ClassificationId() (int, bool) {
-   switch a.MarketCode {
-   case "cz":
-      return 272, true
-   case "fr":
-      return 23, true
-   case "pl":
-      return 277, true
-   case "se":
-      return 282, true
-   case "uk":
-      return 18, true
-   }
-   return 0, false
 }
 
 type GizmoContent struct {
