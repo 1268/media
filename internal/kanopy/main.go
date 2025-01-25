@@ -2,7 +2,7 @@ package main
 
 import (
    "41.neocities.org/media/internal"
-   "41.neocities.org/text"
+   "41.neocities.org/log"
    "flag"
    "os"
    "path/filepath"
@@ -42,7 +42,7 @@ func main() {
    flag.StringVar(&f.password, "p", "", "password")
    flag.IntVar(&f.video_id, "b", 0, "video ID")
    flag.Parse()
-   text.Transport{}.Set()
+   log.Transport{}.Set()
    switch {
    case f.password != "":
       err := f.authenticate()

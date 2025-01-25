@@ -2,7 +2,7 @@ package main
 
 import (
    "41.neocities.org/media/internal"
-   "41.neocities.org/text"
+   "41.neocities.org/log"
    "flag"
    "os"
    "path/filepath"
@@ -22,7 +22,7 @@ func main() {
    flag.BoolVar(&f.token_write, "token", false, "write token")
    flag.BoolVar(&f.token_read, "t", false, "read token")
    flag.Parse()
-   text.Transport{}.Set()
+   log.Transport{}.Set()
    switch {
    case f.code_write:
       err := write_code()

@@ -3,7 +3,7 @@ package main
 import (
    "41.neocities.org/media/internal"
    "41.neocities.org/media/pluto"
-   "41.neocities.org/text"
+   "41.neocities.org/log"
    "flag"
    "os"
    "path/filepath"
@@ -22,7 +22,7 @@ func main() {
    flag.BoolVar(&f.get_forward, "g", false, "get forward")
    flag.StringVar(&f.set_forward, "s", "", "set forward")
    flag.Parse()
-   text.Transport{}.Set()
+   log.Transport{}.Set()
    switch {
    case f.get_forward:
       get_forward()

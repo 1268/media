@@ -5,7 +5,7 @@ import (
    "41.neocities.org/sofia/container"
    "41.neocities.org/sofia/pssh"
    "41.neocities.org/sofia/sidx"
-   "41.neocities.org/text"
+   "41.neocities.org/log"
    "41.neocities.org/widevine"
    "bytes"
    "encoding/base64"
@@ -18,6 +18,63 @@ import (
    "slices"
    "strings"
 )
+
+func (s *Stream) key() ([]byte, error) {
+   if s.key_id == nil {
+      return nil, nil
+   }
+   private_key, err := os.ReadFile(s.PrivateKey)
+   if err != nil {
+      return nil, err
+   }
+   client_id, err := os.ReadFile(s.ClientId)
+   if err != nil {
+      return nil, err
+   }
+   if s.pssh == nil {
+      var pssh widevine.PsshData
+      pssh.KeyIds = [][]byte{s.key_id}
+      s.pssh = pssh.Marshal()
+   }
+   var module widevine.Cdm
+   err = module.New(private_key, client_id, s.pssh)
+   if err != nil {
+      return nil, err
+   }
+   data, err := module.RequestBody()
+   if err != nil {
+      return nil, err
+   }
+   data, err = s.Wrapper.Wrap(data)
+   if err != nil {
+      return nil, err
+   }
+   var body widevine.ResponseBody
+   err = body.Unmarshal(data)
+   if err != nil {
+      return nil, err
+   }
+   block, err := module.Block(body)
+   if err != nil {
+      return nil, err
+   }
+   containers := body.Container()
+   for {
+      container, ok := containers()
+      if !ok {
+         return nil, errors.New("ResponseBody.Container")
+      }
+      if bytes.Equal(container.Id(), s.key_id) {
+         key := container.Key(block)
+         slog.Info(
+            "CDM",
+            "PSSH", base64.StdEncoding.EncodeToString(s.pssh),
+            "key", base64.StdEncoding.EncodeToString(key),
+         )
+         return key, nil
+      }
+   }
+}
 
 func (s *Stream) segment_base(represent *dash.Representation, ext string) error {
    file, err := os.Create(ext)
@@ -60,7 +117,7 @@ func (s *Stream) segment_base(represent *dash.Representation, ext string) error 
    if err != nil {
       return err
    }
-   var meter text.ProgressMeter
+   var meter log.ProgressMeter
    meter.Set(len(references))
    http.DefaultClient.Transport = nil
    for _, reference := range references {
@@ -130,7 +187,7 @@ func (s *Stream) segment_list(
    if err != nil {
       return err
    }
-   var meter text.ProgressMeter
+   var meter log.ProgressMeter
    meter.Set(len(represent.SegmentList.SegmentUrl))
    http.DefaultClient.Transport = nil
    for _, segment := range represent.SegmentList.SegmentUrl {
@@ -199,7 +256,7 @@ func (s *Stream) segment_template(
    for r := range represent.Representation() {
       segments = slices.AppendSeq(segments, r.Segment())
    }
-   var meter text.ProgressMeter
+   var meter log.ProgressMeter
    meter.Set(len(segments))
    http.DefaultClient.Transport = nil
    for _, segment := range segments {
@@ -267,7 +324,7 @@ func (s *Stream) Download(represent *dash.Representation) error {
    return s.segment_template(represent, ext)
 }
 
-func get(address *url.URL, meter *text.ProgressMeter) ([]byte, error) {
+func get(address *url.URL, meter *log.ProgressMeter) ([]byte, error) {
    resp, err := http.Get(address.String())
    if err != nil {
       return nil, err
@@ -385,61 +442,4 @@ func write_sidx(req *http.Request, index dash.Range) ([]sidx.Reference, error) {
       return nil, err
    }
    return file.Sidx.Reference, nil
-}
-
-func (s *Stream) key() ([]byte, error) {
-   if s.key_id == nil {
-      return nil, nil
-   }
-   private_key, err := os.ReadFile(s.PrivateKey)
-   if err != nil {
-      return nil, err
-   }
-   client_id, err := os.ReadFile(s.ClientId)
-   if err != nil {
-      return nil, err
-   }
-   if s.pssh == nil {
-      var pssh widevine.PsshData
-      pssh.KeyIds = [][]byte{s.key_id}
-      s.pssh = pssh.Marshal()
-   }
-   var module widevine.Cdm
-   err = module.New(private_key, client_id, s.pssh)
-   if err != nil {
-      return nil, err
-   }
-   data, err := module.RequestBody()
-   if err != nil {
-      return nil, err
-   }
-   data, err = s.Wrapper.Wrap(data)
-   if err != nil {
-      return nil, err
-   }
-   var body widevine.ResponseBody
-   err = body.Unmarshal(data)
-   if err != nil {
-      return nil, err
-   }
-   block, err := module.Block(body)
-   if err != nil {
-      return nil, err
-   }
-   containers := body.Container()
-   for {
-      container, ok := containers()
-      if !ok {
-         return nil, errors.New("ResponseBody.Container")
-      }
-      if bytes.Equal(container.Id(), s.key_id) {
-         key := container.Key(block)
-         slog.Info(
-            "CDM",
-            "PSSH", base64.StdEncoding.EncodeToString(s.pssh),
-            "key", base64.StdEncoding.EncodeToString(key),
-         )
-         return key, nil
-      }
-   }
 }
