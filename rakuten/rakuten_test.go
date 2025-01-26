@@ -3,16 +3,15 @@ package rakuten
 import (
    "41.neocities.org/platform/mullvad"
    "41.neocities.org/widevine"
+   "41.neocities.org/x/http"
    "encoding/base64"
    "errors"
-   "log"
-   "net/http"
    "os"
    "testing"
 )
 
 func TestMain(m *testing.M) {
-   log.Transport{}.Set()
+   http.Transport{}.Set()
    m.Run()
 }
 

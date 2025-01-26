@@ -60,22 +60,23 @@ func (s *Stream) segment_template(
    if err != nil {
       return err
    }
+   http.DefaultClient.Transport = nil
    var segments []int
    for r := range represent.Representation() {
       segments = slices.AppendSeq(segments, r.Segment())
    }
-   var progress log1.ProgressMeter
+   var progress xhttp.ProgressParts
    progress.Set(len(segments))
-   http.DefaultClient.Transport = nil
    for _, segment := range segments {
       media, err := represent.SegmentTemplate.Media.Url(represent, segment)
       if err != nil {
          return err
       }
-      data, err := get(media, &progress)
+      data, err := get(media)
       if err != nil {
          return err
       }
+      progress.Next()
       data, err = write_segment(data, key)
       if err != nil {
          return err

@@ -5,11 +5,14 @@ import (
    "41.neocities.org/media/pluto"
    "41.neocities.org/x/http"
    "flag"
+   "log"
    "os"
    "path/filepath"
 )
 
 func main() {
+   http.Transport{}.Set()
+   log.SetFlags(log.Ltime)
    var f flags
    err := f.New()
    if err != nil {
@@ -22,7 +25,6 @@ func main() {
    flag.BoolVar(&f.get_forward, "g", false, "get forward")
    flag.StringVar(&f.set_forward, "s", "", "set forward")
    flag.Parse()
-   http.Transport{}.Set()
    switch {
    case f.get_forward:
       get_forward()
