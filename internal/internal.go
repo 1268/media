@@ -19,141 +19,6 @@ import (
    xhttp "41.neocities.org/x/http"
 )
 
-func (s *Stream) segment_base(represent *dash.Representation, ext string) error {
-   file, err := os.Create(ext)
-   if err != nil {
-      return err
-   }
-   defer file.Close()
-   segment := represent.SegmentBase
-   data, _ := segment.Initialization.Range.MarshalText()
-   var req http.Request
-   req.URL = represent.BaseUrl.Url
-   req.Header = http.Header{}
-   // need to use Set for lower case
-   req.Header.Set("range", "bytes=" + string(data))
-   resp, err := http.DefaultClient.Do(&req)
-   if err != nil {
-      return err
-   }
-   defer resp.Body.Close()
-   if resp.StatusCode != http.StatusPartialContent {
-      return errors.New(resp.Status)
-   }
-   data, err = io.ReadAll(resp.Body)
-   if err != nil {
-      return err
-   }
-   data, err = s.init_protect(data)
-   if err != nil {
-      return err
-   }
-   _, err = file.Write(data)
-   if err != nil {
-      return err
-   }
-   key, err := s.key()
-   if err != nil {
-      return err
-   }
-   references, err := write_sidx(&req, segment.IndexRange)
-   if err != nil {
-      return err
-   }
-   http.DefaultClient.Transport = nil
-   var progress xhttp.ProgressParts
-   progress.Set(len(references))
-   for _, reference := range references {
-      segment.IndexRange[0] = segment.IndexRange[1] + 1
-      segment.IndexRange[1] += uint64(reference.Size())
-      data, _ := segment.IndexRange.MarshalText()
-      data, err = func() ([]byte, error) {
-         req.Header.Set("range", "bytes=" + string(data))
-         resp, err := http.DefaultClient.Do(&req)
-         if err != nil {
-            return nil, err
-         }
-         defer resp.Body.Close()
-         if resp.StatusCode != http.StatusPartialContent {
-            return nil, errors.New(resp.Status)
-         }
-         return io.ReadAll(progress.Reader(resp))
-      }()
-      if err != nil {
-         return err
-      }
-      data, err = write_segment(data, key)
-      if err != nil {
-         return err
-      }
-      _, err = file.Write(data)
-      if err != nil {
-         return err
-      }
-   }
-   return nil
-}
-
-func (s *Stream) segment_list(
-   represent *dash.Representation, ext string,
-) error {
-   file, err := os.Create(ext)
-   if err != nil {
-      return err
-   }
-   defer file.Close()
-   initial, err := represent.SegmentList.Initialization.SourceUrl.Url(represent)
-   if err != nil {
-      return err
-   }
-   resp, err := http.Get(initial.String())
-   if err != nil {
-      return err
-   }
-   defer resp.Body.Close()
-   if resp.StatusCode != http.StatusOK {
-      return errors.New(resp.Status)
-   }
-   data, err := io.ReadAll(resp.Body)
-   if err != nil {
-      return err
-   }
-   data, err = s.init_protect(data)
-   if err != nil {
-      return err
-   }
-   _, err = file.Write(data)
-   if err != nil {
-      return err
-   }
-   key, err := s.key()
-   if err != nil {
-      return err
-   }
-   var progress log1.ProgressMeter
-   progress.Set(len(represent.SegmentList.SegmentUrl))
-   http.DefaultClient.Transport = nil
-   for _, segment := range represent.SegmentList.SegmentUrl {
-      media, err := segment.Media.Url(represent)
-      if err != nil {
-         return err
-      }
-      data, err := get(media, &progress)
-      if err != nil {
-         return err
-      }
-      data, err = write_segment(data, key)
-      if err != nil {
-         return err
-      }
-      _, err = file.Write(data)
-      if err != nil {
-         return err
-      }
-   }
-   return nil
-}
-
 func (s *Stream) segment_template(
    represent *dash.Representation, ext string,
 ) error {
@@ -266,20 +131,6 @@ func (s *Stream) Download(represent *dash.Representation) error {
       return s.segment_list(represent, ext)
    }
    return s.segment_template(represent, ext)
-}
-
-func get(address *url.URL, progress *log1.ProgressMeter) ([]byte, error) {
-   resp, err := http.Get(address.String())
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   if resp.StatusCode != http.StatusOK {
-      var b strings.Builder
-      resp.Write(&b)
-      return nil, errors.New(b.String())
-   }
-   return io.ReadAll(progress.Reader(resp))
 }
 
 func write_segment(data, key []byte) ([]byte, error) {
@@ -439,4 +290,152 @@ func (s *Stream) key() ([]byte, error) {
          return key, nil
       }
    }
+}
+func (s *Stream) segment_base(represent *dash.Representation, ext string) error {
+   file, err := os.Create(ext)
+   if err != nil {
+      return err
+   }
+   defer file.Close()
+   segment := represent.SegmentBase
+   data, _ := segment.Initialization.Range.MarshalText()
+   var req http.Request
+   req.URL = represent.BaseUrl.Url
+   req.Header = http.Header{}
+   // need to use Set for lower case
+   req.Header.Set("range", "bytes=" + string(data))
+   resp, err := http.DefaultClient.Do(&req)
+   if err != nil {
+      return err
+   }
+   defer resp.Body.Close()
+   if resp.StatusCode != http.StatusPartialContent {
+      return errors.New(resp.Status)
+   }
+   data, err = io.ReadAll(resp.Body)
+   if err != nil {
+      return err
+   }
+   data, err = s.init_protect(data)
+   if err != nil {
+      return err
+   }
+   _, err = file.Write(data)
+   if err != nil {
+      return err
+   }
+   key, err := s.key()
+   if err != nil {
+      return err
+   }
+   references, err := write_sidx(&req, segment.IndexRange)
+   if err != nil {
+      return err
+   }
+   http.DefaultClient.Transport = nil
+   var progress xhttp.ProgressParts
+   progress.Set(len(references))
+   for _, reference := range references {
+      segment.IndexRange[0] = segment.IndexRange[1] + 1
+      segment.IndexRange[1] += uint64(reference.Size())
+      data, _ := segment.IndexRange.MarshalText()
+      data, err = func() ([]byte, error) {
+         req.Header.Set("range", "bytes=" + string(data))
+         resp, err := http.DefaultClient.Do(&req)
+         if err != nil {
+            return nil, err
+         }
+         defer resp.Body.Close()
+         if resp.StatusCode != http.StatusPartialContent {
+            return nil, errors.New(resp.Status)
+         }
+         return io.ReadAll(resp.Body)
+      }()
+      if err != nil {
+         return err
+      }
+      progress.Next()
+      data, err = write_segment(data, key)
+      if err != nil {
+         return err
+      }
+      _, err = file.Write(data)
+      if err != nil {
+         return err
+      }
+   }
+   return nil
+}
+func get(address *url.URL) ([]byte, error) {
+   resp, err := http.Get(address.String())
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   if resp.StatusCode != http.StatusOK {
+      var b strings.Builder
+      resp.Write(&b)
+      return nil, errors.New(b.String())
+   }
+   return io.ReadAll(resp.Body)
+}
+func (s *Stream) segment_list(
+   represent *dash.Representation, ext string,
+) error {
+   file, err := os.Create(ext)
+   if err != nil {
+      return err
+   }
+   defer file.Close()
+   initial, err := represent.SegmentList.Initialization.SourceUrl.Url(represent)
+   if err != nil {
+      return err
+   }
+   resp, err := http.Get(initial.String())
+   if err != nil {
+      return err
+   }
+   defer resp.Body.Close()
+   if resp.StatusCode != http.StatusOK {
+      return errors.New(resp.Status)
+   }
+   data, err := io.ReadAll(resp.Body)
+   if err != nil {
+      return err
+   }
+   data, err = s.init_protect(data)
+   if err != nil {
+      return err
+   }
+   _, err = file.Write(data)
+   if err != nil {
+      return err
+   }
+   key, err := s.key()
+   if err != nil {
+      return err
+   }
+   http.DefaultClient.Transport = nil
+   var progress xhttp.ProgressParts
+   progress.Set(len(represent.SegmentList.SegmentUrl))
+   for _, segment := range represent.SegmentList.SegmentUrl {
+      media, err := segment.Media.Url(represent)
+      if err != nil {
+         return err
+      }
+      data, err := get(media)
+      if err != nil {
+         return err
+      }
+      progress.Next()
+      data, err = write_segment(data, key)
+      if err != nil {
+         return err
+      }
+      _, err = file.Write(data)
+      if err != nil {
+         return err
+      }
+   }
+   return nil
 }

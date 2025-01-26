@@ -4,11 +4,14 @@ import (
    "41.neocities.org/media/internal"
    "41.neocities.org/x/http"
    "flag"
+   "log"
    "os"
    "path/filepath"
 )
 
 func main() {
+   http.Transport{}.Set()
+   log.SetFlags(log.Ltime)
    var f flags
    err := f.New()
    if err != nil {
@@ -19,7 +22,6 @@ func main() {
    flag.StringVar(&f.s.ClientId, "c", f.s.ClientId, "client ID")
    flag.StringVar(&f.s.PrivateKey, "p", f.s.PrivateKey, "private key")
    flag.Parse()
-   http.Transport{}.Set()
    if f.nbc >= 1 {
       err := f.download()
       if err != nil {
