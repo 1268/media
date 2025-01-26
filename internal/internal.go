@@ -16,7 +16,7 @@ import (
    "os"
    "slices"
    "strings"
-   log1 "41.neocities.org/log"
+   xhttp "41.neocities.org/x/http"
 )
 
 func (s *Stream) segment_base(represent *dash.Representation, ext string) error {
@@ -61,8 +61,8 @@ func (s *Stream) segment_base(represent *dash.Representation, ext string) error 
       return err
    }
    http.DefaultClient.Transport = nil
-   var meter log1.ProgressMeter
-   meter.Set(len(references))
+   var progress xhttp.ProgressParts
+   progress.Set(len(references))
    for _, reference := range references {
       segment.IndexRange[0] = segment.IndexRange[1] + 1
       segment.IndexRange[1] += uint64(reference.Size())
@@ -77,7 +77,7 @@ func (s *Stream) segment_base(represent *dash.Representation, ext string) error 
          if resp.StatusCode != http.StatusPartialContent {
             return nil, errors.New(resp.Status)
          }
-         return io.ReadAll(meter.Reader(resp))
+         return io.ReadAll(progress.Reader(resp))
       }()
       if err != nil {
          return err
@@ -130,15 +130,15 @@ func (s *Stream) segment_list(
    if err != nil {
       return err
    }
-   var meter log1.ProgressMeter
-   meter.Set(len(represent.SegmentList.SegmentUrl))
+   var progress log1.ProgressMeter
+   progress.Set(len(represent.SegmentList.SegmentUrl))
    http.DefaultClient.Transport = nil
    for _, segment := range represent.SegmentList.SegmentUrl {
       media, err := segment.Media.Url(represent)
       if err != nil {
          return err
       }
-      data, err := get(media, &meter)
+      data, err := get(media, &progress)
       if err != nil {
          return err
       }
@@ -199,15 +199,15 @@ func (s *Stream) segment_template(
    for r := range represent.Representation() {
       segments = slices.AppendSeq(segments, r.Segment())
    }
-   var meter log1.ProgressMeter
-   meter.Set(len(segments))
+   var progress log1.ProgressMeter
+   progress.Set(len(segments))
    http.DefaultClient.Transport = nil
    for _, segment := range segments {
       media, err := represent.SegmentTemplate.Media.Url(represent, segment)
       if err != nil {
          return err
       }
-      data, err := get(media, &meter)
+      data, err := get(media, &progress)
       if err != nil {
          return err
       }
@@ -268,7 +268,7 @@ func (s *Stream) Download(represent *dash.Representation) error {
    return s.segment_template(represent, ext)
 }
 
-func get(address *url.URL, meter *log1.ProgressMeter) ([]byte, error) {
+func get(address *url.URL, progress *log1.ProgressMeter) ([]byte, error) {
    resp, err := http.Get(address.String())
    if err != nil {
       return nil, err
@@ -279,7 +279,7 @@ func get(address *url.URL, meter *log1.ProgressMeter) ([]byte, error) {
       resp.Write(&b)
       return nil, errors.New(b.String())
    }
-   return io.ReadAll(meter.Reader(resp))
+   return io.ReadAll(progress.Reader(resp))
 }
 
 func write_segment(data, key []byte) ([]byte, error) {
