@@ -2,13 +2,14 @@ package main
 
 import (
    "41.neocities.org/media/internal"
-   "41.neocities.org/log"
+   "41.neocities.org/x/http"
    "flag"
    "os"
    "path/filepath"
 )
 
 func main() {
+   http.Transport{}.Set()
    var f flags
    err := f.New()
    if err != nil {
@@ -20,7 +21,6 @@ func main() {
    flag.StringVar(&f.s.PrivateKey, "p", f.s.PrivateKey, "private key")
    flag.BoolVar(&f.content, "w", false, "write content")
    flag.Parse()
-   log.Transport{}.Set()
    switch {
    case f.content:
       err := f.write_content()

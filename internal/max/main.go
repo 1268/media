@@ -3,7 +3,7 @@ package main
 import (
    "41.neocities.org/media/internal"
    "41.neocities.org/media/max"
-   "41.neocities.org/log"
+   "41.neocities.org/x/http"
    "flag"
    "os"
    "path/filepath"
@@ -28,7 +28,7 @@ func main() {
    flag.Int64Var(&f.min_width, "min", 1024, "min width")
    flag.Int64Var(&f.max_width, "max", 1600, "max width")
    flag.Parse()
-   log.Transport{}.Set()
+   http.Transport{}.Set()
    switch {
    case f.initiate:
       err := f.do_initiate()

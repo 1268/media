@@ -2,7 +2,7 @@ package main
 
 import (
    "41.neocities.org/media/internal"
-   "41.neocities.org/log"
+   "41.neocities.org/x/http"
    "flag"
    "os"
    "path/filepath"
@@ -19,7 +19,7 @@ func main() {
    flag.StringVar(&f.s.PrivateKey, "p", f.s.PrivateKey, "private key")
    flag.StringVar(&f.address, "a", "", "address")
    flag.Parse()
-   log.Transport{}.Set()
+   http.Transport{}.Set()
    if f.address != "" {
       err := f.download()
       if err != nil {

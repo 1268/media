@@ -3,7 +3,7 @@ package main
 import (
    "41.neocities.org/media/ctv"
    "41.neocities.org/media/internal"
-   "41.neocities.org/log"
+   "41.neocities.org/x/http"
    "flag"
    "os"
    "path/filepath"
@@ -21,7 +21,7 @@ func main() {
    flag.BoolVar(&f.manifest, "w", false, "manifest")
    flag.StringVar(&f.s.PrivateKey, "p", f.s.PrivateKey, "private key")
    flag.Parse()
-   log.Transport{}.Set()
+   http.Transport{}.Set()
    switch {
    case f.manifest:
       err := f.get_manifest()

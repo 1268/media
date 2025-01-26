@@ -11,6 +11,11 @@ import (
    "testing"
 )
 
+func TestMain(m *testing.M) {
+   log.Transport{}.Set()
+   m.Run()
+}
+
 func TestStreamInfo(t *testing.T) {
    home, err := os.UserHomeDir()
    if err != nil {
@@ -90,10 +95,6 @@ func (w *web_test) content() (*content_class, error) {
    }
    return &content, nil
 }
-func TestMain(m *testing.M) {
-   http.DefaultClient.Transport = transport{}
-   m.Run()
-}
 
 var web_tests = []web_test{
    {
@@ -167,13 +168,6 @@ func TestAddress(t *testing.T) {
          t.Fatal(web)
       }
    })
-}
-
-type transport struct{}
-
-func (transport) RoundTrip(req *http.Request) (*http.Response, error) {
-   log.Print(req.URL)
-   return http.DefaultTransport.RoundTrip(req)
 }
 
 func TestContent(t *testing.T) {

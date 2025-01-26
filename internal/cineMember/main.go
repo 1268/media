@@ -3,7 +3,7 @@ package main
 import (
    "41.neocities.org/media/cineMember"
    "41.neocities.org/media/internal"
-   "41.neocities.org/log"
+   "41.neocities.org/x/http"
    "flag"
    "os"
    "path/filepath"
@@ -23,7 +23,7 @@ func main() {
    flag.BoolVar(&f.play, "w", false, "operation play")
    flag.StringVar(&f.password, "p", "", "password")
    flag.Parse()
-   log.Transport{}.Set()
+   http.Transport{}.Set()
    switch {
    case f.password != "":
       err := f.write_user()
