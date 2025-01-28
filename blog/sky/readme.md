@@ -8,71 +8,63 @@ country = Switzerland
 
 - https://github.com/sunsettrack4/plugin.video.skych/blob/master/addon.py
 - https://justwatch.com/ch/Anbieter/sky
-- https://proxy-seller.com
+
+## tv google play
+
+if you request TV app, phone app is returned:
 
 ~~~
-GET /b0c7c16365cdaef75e81/0/0/m_drm_widevine.mpd?z32=MF2WI2LPL5RW6ZDFMNZT2YLBMMTGG43JMQ6TCOBRIU2UCOKEIE2UIMJUIFBUGLJSGQ3TMMRRG4ZDSMBWII3TKNZREZSHE3J5MV4HA2LSMF2GS33OHIYTOMZYGUZTAOJTHETGS3TJORUWC3DSMF2GKPJSGAYDAJTNMF4HEYLUMU6TQMBQGATG22LOOJQXIZJ5GUYDAJTQOJSWMZLSOJSWIX3MMFXGO5LBM5ST2ZDFEZZWSZZ5GI3F6YZYGQ2DQY3DG4YWGNZWGAYDIZLEMMYDKOLCMVRGENJQMJSTANJVEZZXKYTUNF2GYZLTHVUGSZDEMVXC243ENATHK43FOJPWSZB5ONVXSX3DNA5DUMJZGM4DINBREZ3D2MA HTTP/1.1
-Host: sunlau1-1-dashenc-vod.zahs.tv
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0
-Accept: */*
-Accept-Language: en-US,en;q=0.5
-Accept-Encoding: gzip, deflate, br, zstd
-Referer: https://show.sky.ch/
-Origin: https://show.sky.ch
-Connection: keep-alive
-Sec-Fetch-Dest: empty
-Sec-Fetch-Mode: cors
-Sec-Fetch-Site: cross-site
-content-length: 0
+> play -i homedia.sky.sport -leanback
+details[8] = 0 USD
+details[13][1][4] = 1.18.1.142
+details[13][1][16] = Jan 21, 2025
+details[13][1][17] = APK APK APK
+details[13][1][82][1][1] = 8.0 and up
+details[15][18] = https://support.sky.ch/hc/en-us/articles/9520105066140
+downloads = 468.36 thousand
+name = Sky
+size = 35.09 megabyte
+version code = 584
+
+> play -i homedia.sky.sport
+details[8] = 0 USD
+details[13][1][4] = 1.18.1.142
+details[13][1][16] = Jan 21, 2025
+details[13][1][17] = APK APK APK
+details[13][1][82][1][1] = 8.0 and up
+details[15][18] = https://support.sky.ch/hc/en-us/articles/9520105066140
+downloads = 468.36 thousand
+name = Sky
+size = 35.09 megabyte
+version code = 584
 ~~~
 
-## tv
+## tv apk mirror
 
-- https://play.google.com/store/apps/details?id=homedia.sky.sport
-- https://apkmirror.com/apk/sky-switzerland/sky-android-tv
+https://apkmirror.com/apk/sky-switzerland/sky-android-tv
 
-lets try it with only location proxy for now.
+if you try version 2.3.6.6 with just residential proxy, all the request fail,
+which means version is too old.
 
-it seems 2.3.6.6 (514) (june 13 2024) is too old. can we find a newer version?
-no
+## tv other locations
 
-## phone
+cannot find a newer TV APK at other locations, which means it was likely dropped
+in favor of phone app
 
-I found the Sky Switzerland TV app, but its from last year. when I intercepted
-it all the request failed even with residential proxy - so likely its just an
-old version of the the app, and I cant find a newer version online - its
-possible they are just using the phone app for both. also I cant download it
-directly from Google Play, even with residential proxy, since they tie your
-location to your account location instead of IP - you can change it once a year
-but its not worth it for this. I guess I could create a Google account from a
-Switzerland IP, but making a TV call to Google Play returned the phone app so
-its probably a waste of time. so looks like I am stuck with the web client. I
-saw someone solving the Amazon CAPTCHA using https://huggingface.co/ - but I
-don't wanna fuck with that 
+## phone apk mirror
+
+too old
+
+## phone apk fab
+
+login is protected:
+
+~~~go
+req.Header["Cookie"] = []string{
+   "aws-waf-token=2e86b681-4c6d-40cd-9856-9ec0780664e5:HAoAkAsSO8kGAAAA:wWotxIx/qIxwEPx20cZJqorgSm4bt5YuAhntIxvP7HAXyKYgrnJD39XjU8Vlcwcb88umfrKppm+luczkW5DnyMk7l+eU7KbxOIi76foo8gRgpdS9e18/BwJVciM=",
+}
+~~~
+
+if you drop the Amazon request or the Cookie, the login fails
 
 https://apkfab.com/it/sky/homedia.sky.sport
-
-no x86, but does have armeabi-v7a
-
-1.18.1.125
-
-so we will need Android 9. install system certificate. first try with no proxy
-
-~~~
-adb install-multiple (Get-ChildItem *.apk)
-adb shell input text EMAIL
-~~~
-
-1. email
-2. password
-3. continue
-
-no connection to sky. if we try Mullvad it just times out. smart proxy works
-
-~~~
-mitmproxy --upstream-auth USERNAME:PASSWORD `
---mode upstream:http://ch.smartproxy.com:29001
-
-mitmproxy --upstream-auth USERNAME:PASSWORD `
---mode upstream:http://res.proxy-seller.com:10000
-~~~
