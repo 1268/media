@@ -9,6 +9,10 @@ country = Switzerland
 - https://github.com/sunsettrack4/plugin.video.skych/blob/master/addon.py
 - https://justwatch.com/ch/Anbieter/sky
 
+## web
+
+Amazon CAPTCHA is required
+
 ## tv google play
 
 if you request TV app, phone app is returned:
