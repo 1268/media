@@ -25,3 +25,54 @@ Sec-Fetch-Mode: cors
 Sec-Fetch-Site: cross-site
 content-length: 0
 ~~~
+
+## tv
+
+- https://play.google.com/store/apps/details?id=homedia.sky.sport
+- https://apkmirror.com/apk/sky-switzerland/sky-android-tv
+
+lets try it with only location proxy for now.
+
+it seems 2.3.6.6 (514) (june 13 2024) is too old. can we find a newer version?
+no
+
+## phone
+
+I found the Sky Switzerland TV app, but its from last year. when I intercepted
+it all the request failed even with residential proxy - so likely its just an
+old version of the the app, and I cant find a newer version online - its
+possible they are just using the phone app for both. also I cant download it
+directly from Google Play, even with residential proxy, since they tie your
+location to your account location instead of IP - you can change it once a year
+but its not worth it for this. I guess I could create a Google account from a
+Switzerland IP, but making a TV call to Google Play returned the phone app so
+its probably a waste of time. so looks like I am stuck with the web client. I
+saw someone solving the Amazon CAPTCHA using https://huggingface.co/ - but I
+don't wanna fuck with that 
+
+https://apkfab.com/it/sky/homedia.sky.sport
+
+no x86, but does have armeabi-v7a
+
+1.18.1.125
+
+so we will need Android 9. install system certificate. first try with no proxy
+
+~~~
+adb install-multiple (Get-ChildItem *.apk)
+adb shell input text EMAIL
+~~~
+
+1. email
+2. password
+3. continue
+
+no connection to sky. if we try Mullvad it just times out. smart proxy works
+
+~~~
+mitmproxy --upstream-auth USERNAME:PASSWORD `
+--mode upstream:http://ch.smartproxy.com:29001
+
+mitmproxy --upstream-auth USERNAME:PASSWORD `
+--mode upstream:http://res.proxy-seller.com:10000
+~~~
