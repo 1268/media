@@ -3,13 +3,15 @@ package main
 import (
    "41.neocities.org/media/hulu"
    "41.neocities.org/media/internal"
-   "41.neocities.org/x/http"
    "flag"
+   "net/http"
    "os"
    "path/filepath"
+   xhttp "41.neocities.org/x/http"
 )
 
 func main() {
+   xhttp.Transport{Proxy: http.ProxyFromEnvironment}.Set()
    var f flags
    err := f.New()
    if err != nil {
@@ -23,7 +25,6 @@ func main() {
    flag.StringVar(&f.password, "p", "", "password")
    flag.Int64Var(&f.min_width, "m", 1280, "min width")
    flag.Parse()
-   http.Transport{}.Set()
    switch {
    case f.password != "":
       err := f.authenticate()
