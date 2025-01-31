@@ -9,6 +9,7 @@ import (
 )
 
 func main() {
+   http.Transport{}.DefaultClient()
    var f flags
    err := f.New()
    if err != nil {
@@ -21,7 +22,6 @@ func main() {
    flag.BoolVar(&f.write, "w", false, "write")
    flag.BoolVar(&f.intl, "n", false, "intl")
    flag.Parse()
-   http.Transport{}.Set()
    switch {
    case f.write:
       err := f.do_write()

@@ -9,6 +9,36 @@ import (
    "path/filepath"
 )
 
+func main() {
+   http.Transport{}.DefaultClient()
+   var f flags
+   err := f.New()
+   if err != nil {
+      panic(err)
+   }
+   flag.Var(&f.address, "a", "address")
+   flag.StringVar(&f.language, "b", "", "language")
+   flag.StringVar(&f.s.ClientId, "c", f.s.ClientId, "client ID")
+   flag.StringVar(&f.representation, "i", "", "representation")
+   flag.StringVar(&f.s.PrivateKey, "k", f.s.PrivateKey, "private key")
+   flag.Parse()
+   if f.address.MarketCode != "" {
+      if f.language != "" {
+         err := f.download()
+         if err != nil {
+            panic(err)
+         }
+      } else {
+         err := f.do_language()
+         if err != nil {
+            panic(err)
+         }
+      }
+   } else {
+      flag.Usage()
+   }
+}
+
 func (f *flags) New() error {
    home, err := os.UserHomeDir()
    if err != nil {
@@ -25,34 +55,4 @@ type flags struct {
    representation string
    s              internal.Stream
    language       string
-}
-
-func main() {
-   var f flags
-   err := f.New()
-   if err != nil {
-      panic(err)
-   }
-   flag.Var(&f.address, "a", "address")
-   flag.StringVar(&f.language, "b", "", "language")
-   flag.StringVar(&f.s.ClientId, "c", f.s.ClientId, "client ID")
-   flag.StringVar(&f.representation, "i", "", "representation")
-   flag.StringVar(&f.s.PrivateKey, "k", f.s.PrivateKey, "private key")
-   flag.Parse()
-   http.Transport{}.Set()
-   if f.address.MarketCode != "" {
-      if f.language != "" {
-         err := f.download()
-         if err != nil {
-            panic(err)
-         }
-      } else {
-         err := f.do_language()
-         if err != nil {
-            panic(err)
-         }
-      }
-   } else {
-      flag.Usage()
-   }
 }

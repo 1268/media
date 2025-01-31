@@ -9,6 +9,7 @@ import (
 )
 
 func main() {
+   http.Transport{}.DefaultClient()
    var f flags
    err := f.New()
    if err != nil {
@@ -21,7 +22,6 @@ func main() {
    flag.StringVar(&f.s.PrivateKey, "k", f.s.PrivateKey, "private key")
    flag.StringVar(&f.address, "a", "", "address")
    flag.Parse()
-   http.Transport{}.Set()
    switch {
    case f.password != "":
       err := f.authenticate()

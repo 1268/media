@@ -10,6 +10,7 @@ import (
 )
 
 func main() {
+   http.Transport{}.DefaultClient()
    var f flags
    err := f.New()
    if err != nil {
@@ -23,7 +24,6 @@ func main() {
    flag.BoolVar(&f.play, "w", false, "operation play")
    flag.StringVar(&f.password, "p", "", "password")
    flag.Parse()
-   http.Transport{}.Set()
    switch {
    case f.password != "":
       err := f.write_user()

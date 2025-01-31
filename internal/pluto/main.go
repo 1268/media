@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-   http.Transport{}.Set()
+   http.Transport{}.DefaultClient()
    log.SetFlags(log.Ltime)
    var f flags
    err := f.New()

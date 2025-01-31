@@ -10,6 +10,7 @@ import (
 )
 
 func main() {
+   http.Transport{}.DefaultClient()
    var f flags
    err := f.New()
    if err != nil {
@@ -22,7 +23,6 @@ func main() {
    flag.StringVar(&f.s.ClientId, "c", f.s.ClientId, "client ID")
    flag.StringVar(&f.s.PrivateKey, "k", f.s.PrivateKey, "private key")
    flag.Parse()
-   http.Transport{}.Set()
    switch {
    case f.email != "":
       err := f.login()

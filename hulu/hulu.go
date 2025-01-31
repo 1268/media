@@ -11,6 +11,39 @@ import (
    "strings"
 )
 
+func (a *Authenticate) DeepLink(id *EntityId) (*DeepLink, error) {
+   req, err := http.NewRequest("", "https://discover.hulu.com", nil)
+   if err != nil {
+      return nil, err
+   }
+   req.URL.Path = "/content/v5/deeplink/playback"
+   req.URL.RawQuery = url.Values{
+      "id":        {id.s},
+      "namespace": {"entity"},
+   }.Encode()
+   req.Header.Set("authorization", "Bearer "+a.Data.UserToken)
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   if resp.StatusCode != http.StatusOK {
+      var b strings.Builder
+      resp.Write(&b)
+      return nil, errors.New(b.String())
+   }
+   link := &DeepLink{}
+   err = json.NewDecoder(resp.Body).Decode(link)
+   if err != nil {
+      return nil, err
+   }
+   return link, nil
+}
+
+type DeepLink struct {
+   EabId string `json:"eab_id"`
+}
+
 type codec_value struct {
    Height  int    `json:"height,omitempty"`
    Level   string `json:"level,omitempty"`
@@ -205,37 +238,4 @@ func (e *EntityId) String() string {
 func (e *EntityId) Set(s string) error {
    e.s = path.Base(s)
    return nil
-}
-
-func (a *Authenticate) DeepLink(id *EntityId) (*DeepLink, error) {
-   req, err := http.NewRequest("", "https://discover.hulu.com", nil)
-   if err != nil {
-      return nil, err
-   }
-   req.URL.Path = "/content/v5/deeplink/playback"
-   req.URL.RawQuery = url.Values{
-      "id":        {id.s},
-      "namespace": {"entity"},
-   }.Encode()
-   req.Header.Set("authorization", "Bearer "+a.Data.UserToken)
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   if resp.StatusCode != http.StatusOK {
-      var b strings.Builder
-      resp.Write(&b)
-      return nil, errors.New(b.String())
-   }
-   link := &DeepLink{}
-   err = json.NewDecoder(resp.Body).Decode(link)
-   if err != nil {
-      return nil, err
-   }
-   return link, nil
-}
-
-type DeepLink struct {
-   EabId string `json:"eab_id"`
 }

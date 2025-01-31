@@ -11,7 +11,7 @@ import (
 )
 
 func TestMain(m *testing.M) {
-   http.Transport{}.Set()
+   http.Transport{}.DefaultClient()
    m.Run()
 }
 

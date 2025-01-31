@@ -10,6 +10,7 @@ import (
 )
 
 func main() {
+   http.Transport{}.DefaultClient()
    var f flags
    err := f.New()
    if err != nil {
@@ -28,7 +29,6 @@ func main() {
    flag.Int64Var(&f.min_width, "min", 1024, "min width")
    flag.Int64Var(&f.max_width, "max", 1600, "max width")
    flag.Parse()
-   http.Transport{}.Set()
    switch {
    case f.initiate:
       err := f.do_initiate()

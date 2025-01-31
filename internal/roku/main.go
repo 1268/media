@@ -9,6 +9,7 @@ import (
 )
 
 func main() {
+   http.Transport{}.DefaultClient()
    var f flags
    err := f.New()
    if err != nil {
@@ -22,7 +23,6 @@ func main() {
    flag.BoolVar(&f.token_write, "token", false, "write token")
    flag.BoolVar(&f.token_read, "t", false, "read token")
    flag.Parse()
-   http.Transport{}.Set()
    switch {
    case f.code_write:
       err := write_code()
