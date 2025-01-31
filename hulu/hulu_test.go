@@ -41,6 +41,7 @@ var tests = []struct {
       url:     "hulu.com/watch/f70dfd4d-dbfb-46b8-abb3-136c841bba11",
    },
 }
+
 func TestLicense(t *testing.T) {
    home, err := os.UserHomeDir()
    if err != nil {

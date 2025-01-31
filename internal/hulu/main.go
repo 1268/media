@@ -24,7 +24,6 @@ func main() {
    flag.StringVar(&f.representation, "i", "", "representation")
    flag.StringVar(&f.s.PrivateKey, "k", f.s.PrivateKey, "private key")
    flag.StringVar(&f.password, "p", "", "password")
-   flag.Int64Var(&f.min_width, "m", 1280, "min width")
    flag.Parse()
    switch {
    case f.password != "":
@@ -46,7 +45,6 @@ type flags struct {
    email          string
    entity         hulu.EntityId
    home           string
-   min_width      int64
    password       string
    representation string
    s              internal.Stream
