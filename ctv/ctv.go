@@ -171,18 +171,16 @@ query resolvePath($path: String!) {
 }
 `
 
-///
-
 func (a Address) Resolve() (*ResolvePath, error) {
-   var body struct {
+   var value struct {
       Query         string `json:"query"`
       Variables     struct {
          Path string `json:"path"`
       } `json:"variables"`
    }
-   body.Query = graphql_compact(query_resolve)
-   body.Variables.Path = a.s
-   data, err := json.MarshalIndent(body, "", " ")
+   value.Query = graphql_compact(query_resolve)
+   value.Variables.Path = a.s
+   data, err := json.MarshalIndent(value, "", " ")
    if err != nil {
       return nil, err
    }
@@ -204,7 +202,7 @@ func (a Address) Resolve() (*ResolvePath, error) {
    if err != nil {
       return nil, err
    }
-   var resp_body struct {
+   var value1 struct {
       Data struct {
          ResolvedPath *struct {
             LastSegment struct {
@@ -213,26 +211,26 @@ func (a Address) Resolve() (*ResolvePath, error) {
          }
       }
    }
-   err = json.Unmarshal(data, &resp_body)
+   err = json.Unmarshal(data, &value1)
    if err != nil {
       return nil, err
    }
-   if v := resp_body.Data.ResolvedPath; v != nil {
-      return &v.LastSegment.Content, nil
+   if path := value1.Data.ResolvedPath; path != nil {
+      return &path.LastSegment.Content, nil
    }
    return nil, errors.New(string(data))
 }
 
 func (r *ResolvePath) Axis() (*AxisContent, error) {
-   var body struct {
+   var value struct {
       Query         string `json:"query"`
       Variables     struct {
          Id string `json:"id"`
       } `json:"variables"`
    }
-   body.Query = graphql_compact(query_axis)
-   body.Variables.Id = r.get_id()
-   data, err := json.Marshal(body)
+   value.Query = graphql_compact(query_axis)
+   value.Variables.Id = r.get_id()
+   data, err := json.Marshal(value)
    if err != nil {
       return nil, err
    }
@@ -250,7 +248,7 @@ func (r *ResolvePath) Axis() (*AxisContent, error) {
       return nil, err
    }
    defer resp.Body.Close()
-   var resp_body struct {
+   var value1 struct {
       Data struct {
          AxisContent AxisContent
       }
@@ -258,13 +256,12 @@ func (r *ResolvePath) Axis() (*AxisContent, error) {
          Message string
       }
    }
-   err = json.NewDecoder(resp.Body).Decode(&resp_body)
+   err = json.NewDecoder(resp.Body).Decode(&value1)
    if err != nil {
       return nil, err
    }
-   if v := resp_body.Errors; len(v) >= 1 {
-      return nil, errors.New(v[0].Message)
+   if err := value1.Errors; len(err) >= 1 {
+      return nil, errors.New(err[0].Message)
    }
-   return &resp_body.Data.AxisContent, nil
+   return &value1.Data.AxisContent, nil
 }
-
