@@ -1,93 +1,14 @@
 package tv
 
 import (
+   "bytes"
+   "encoding/json"
    "encoding/xml"
    "errors"
    "net/http"
    "net/url"
    "strings"
 )
-
-func (p *login_page) login_page(
-   username, password string,
-) (*http.Response, error) {
-   page_token, err := p.page_token()
-   if err != nil {
-      return nil, err
-   }
-   data := url.Values{
-      "__RequestVerificationToken": {page_token},
-      "password": {password},
-      "returnUrl": {"Home/HomeTv"},
-      "subscriptionUrl": {"/de/subscription"},
-      "username": {username},
-   }.Encode()
-   req, err := http.NewRequest(
-      "POST", "https://show.sky.ch/de/Authentication/Login",
-      strings.NewReader(data),
-   )
-   req.Header.Set("accept-language", "de")
-   req.Header.Set("referer", "https://show.sky.ch/de/tv/")
-   req.Header.Set("tv", "Emulator")
-   req.Header.Set(
-      "user-agent",
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0",
-   )
-   cookie_token, err := p.cookie_token()
-   if err != nil {
-      return nil, err
-   }
-   req.AddCookie(cookie_token)
-   asp_cookie, err := p.asp_cookie()
-   if err != nil {
-      return nil, err
-   }
-   req.AddCookie(asp_cookie)
-   req.AddCookie(p.sky_tv_device())
-   return http.DefaultClient.Do(req)
-}
-
-func (*login_page) sky_tv_device() *http.Cookie {
-   var cookie http.Cookie
-   cookie.Name = "SkyTvDevice"
-   cookie.Value = url.QueryEscape(`
-   {
-      "isSky": true,
-      "keys": {
-         "back": 461,
-         "down": 40,
-         "enter": 13,
-         "ff": 417,
-         "ff10": -1,
-         "key0": -1,
-         "key1": -1,
-         "key2": -1,
-         "key3": -1,
-         "key4": -1,
-         "key5": -1,
-         "key6": -1,
-         "key7": -1,
-         "key8": -1,
-         "key9": -1,
-         "left": 37,
-         "pause": 19,
-         "play": 415,
-         "playPause": -1,
-         "rew": 412,
-         "rew10": -1,
-         "right": 39,
-         "search": -1,
-         "stop": 413,
-         "up": 38
-      },
-      "type": {
-         "code": "Desktop"
-      },
-      "year": ""
-   }
-   `)
-   return &cookie
-}
 
 func (p login_page) asp_cookie() (*http.Cookie, error) {
    for _, cookie := range p.cookies {
@@ -121,14 +42,6 @@ func (p *login_page) page_token() (string, error) {
       }
    }
    return "", http.ErrNoCookie
-}
-
-var cookie_check = map[string]string{
-  "asp": "_ASP.NET_SessionId_",
-  "cc": "SkyCheeseCake",
-  "cc2": "SkyCake",
-  "rvt": "__RequestVerificationToken",
-  "rvtp": "__RequestVerificationToken",
 }
 
 type login_page struct {
@@ -166,3 +79,95 @@ func (p *login_page) New() error {
 }
 
 const out_of_country = "/out-of-country"
+
+func (p *login_page) login_page(
+   username, password string,
+) (*http.Response, error) {
+   page_token, err := p.page_token()
+   if err != nil {
+      return nil, err
+   }
+   data := url.Values{
+      "__RequestVerificationToken": {page_token},
+      "password": {password},
+      "returnUrl": {"Home/HomeTv"},
+      "subscriptionUrl": {"/de/subscription"},
+      "username": {username},
+   }.Encode()
+   req, err := http.NewRequest(
+      "POST", "https://show.sky.ch/de/Authentication/Login",
+      strings.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   req.Header.Set("accept-language", "de")
+   req.Header.Set("referer", "https://show.sky.ch/de/tv/")
+   req.Header.Set("tv", "Emulator")
+   req.Header.Set(
+      "user-agent",
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0",
+   )
+   cookie_token, err := p.cookie_token()
+   if err != nil {
+      return nil, err
+   }
+   req.AddCookie(cookie_token)
+   asp_cookie, err := p.asp_cookie()
+   if err != nil {
+      return nil, err
+   }
+   req.AddCookie(asp_cookie)
+   err = sky_tv_device(req.Header)
+   if err != nil {
+      return nil, err
+   }
+   return http.DefaultClient.Do(req)
+}
+
+func sky_tv_device(head http.Header) error {
+   var dst bytes.Buffer
+   err := json.Compact(&dst, []byte(sky_tv_device1))
+   if err != nil {
+      return err
+   }
+   head.Add("cookie", "SkyTvDevice=" + dst.String())
+   return nil
+}
+
+const sky_tv_device1 = `
+{
+   "isSky": true,
+   "keys": {
+      "back": 461,
+      "down": 40,
+      "enter": 13,
+      "ff": 417,
+      "ff10": -1,
+      "key0": -1,
+      "key1": -1,
+      "key2": -1,
+      "key3": -1,
+      "key4": -1,
+      "key5": -1,
+      "key6": -1,
+      "key7": -1,
+      "key8": -1,
+      "key9": -1,
+      "left": 37,
+      "pause": 19,
+      "play": 415,
+      "playPause": -1,
+      "rew": 412,
+      "rew10": -1,
+      "right": 39,
+      "search": -1,
+      "stop": 413,
+      "up": 38
+   },
+   "type": {
+      "code": "Desktop"
+   },
+   "year": ""
+}
+`
