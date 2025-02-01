@@ -33,6 +33,12 @@ if you drop the Amazon request or the Cookie, the login fails
 
 https://apkfab.com/it/sky/homedia.sky.sport
 
+~~~
+config.armeabi_v7a.apk
+~~~
+
+so need Android 9
+
 ## tv
 
 if you request TV app, phone app is returned:
