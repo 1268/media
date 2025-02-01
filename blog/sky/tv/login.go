@@ -1,16 +1,34 @@
 package tv
 
 import (
-   "io"
+   "encoding/xml"
+   "errors"
    "net/http"
    "net/url"
+   "strings"
 )
 
-var login_headers = http.Header{
-   "accept-language": {"de"},
-   "referer": {"https://show.sky.ch/de/tv/"},
-   "tv": {"Emulator"},
-   "user-agent": {"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0"},
+func (p *login_page) login_page() (*http.Response, error) {
+   data = {
+      'username': __login, 'password': __password,
+      'returnUrl': 'Home/HomeTv', 'subscriptionUrl': '/de/subscription',
+      cookie_check["rvtp"]: page_token,
+   }
+   return requests.post(
+      auth_url, timeout=5, headers=login_headers,
+      cookies=cookies,
+      data=data,
+      allow_redirects=False, verify=False
+   )
+}
+
+func (p *login_page) page_token() (string, bool) {
+   for _, input := range p.section.Div.Form.Input {
+      if input.Name == "__RequestVerificationToken" {
+         return input.Value, true
+      }
+   }
+   return "", false
 }
 
 var cookie_check = map[string]string{
@@ -19,6 +37,20 @@ var cookie_check = map[string]string{
   "cc2": "SkyCake",
   "rvt": "__RequestVerificationToken",
   "rvtp": "__RequestVerificationToken",
+}
+
+type login_page struct {
+   cookies []*http.Cookie
+   section struct {
+      Div     struct {
+         Form struct {
+            Input []struct {
+               Name  string `xml:"name,attr"`
+               Value string `xml:"value,attr"`
+            } `xml:"input"`
+         } `xml:"form"`
+      } `xml:"div"`
+   }
 }
 
 func (p *login_page) New() error {
@@ -30,7 +62,10 @@ func (p *login_page) New() error {
       return err
    }
    defer resp.Body.Close()
-   p.content, err = io.ReadAll(resp.Body)
+   if strings.HasSuffix(resp.Request.URL.Path, out_of_country) {
+      return errors.New(out_of_country)
+   }
+   err = xml.NewDecoder(resp.Body).Decode(&p.section)
    if err != nil {
       return err
    }
@@ -38,12 +73,16 @@ func (p *login_page) New() error {
    return nil
 }
 
-const auth_url = "https://show.sky.ch/de/Authentication/Login"
+const out_of_country = "/out-of-country"
 
-type login_page struct {
-   content []byte
-   cookies []*http.Cookie
+var login_headers = http.Header{
+   "accept-language": {"de"},
+   "referer": {"https://show.sky.ch/de/tv/"},
+   "tv": {"Emulator"},
+   "user-agent": {"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0"},
 }
+
+const auth_url = "https://show.sky.ch/de/Authentication/Login"
 
 func (p login_page) asp_cookie() (*http.Cookie, bool) {
    for _, cookie := range p.cookies {
