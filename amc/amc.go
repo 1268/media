@@ -209,16 +209,16 @@ func (a *Authorization) Playback(web Address) (*Playback, error) {
       resp.Write(&b)
       return nil, errors.New(b.String())
    }
-   var play struct {
+   var value1 struct {
       Data struct {
          PlaybackJsonData struct {
             Sources []DataSource
          }
       }
    }
-   err = json.NewDecoder(resp.Body).Decode(&play)
+   err = json.NewDecoder(resp.Body).Decode(&value1)
    if err != nil {
       return nil, err
    }
-   return &Playback{resp.Header, play.Data.PlaybackJsonData.Sources}, nil
+   return &Playback{resp.Header, value1.Data.PlaybackJsonData.Sources}, nil
 }

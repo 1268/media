@@ -167,12 +167,12 @@ func (w *WebToken) Membership() (*Membership, error) {
       return nil, err
    }
    defer resp.Body.Close()
-   var member struct {
+   var value struct {
       List []Membership
    }
-   err = json.NewDecoder(resp.Body).Decode(&member)
+   err = json.NewDecoder(resp.Body).Decode(&value)
    if err != nil {
       return nil, err
    }
-   return &member.List[0], nil
+   return &value.List[0], nil
 }

@@ -146,51 +146,6 @@ type FullMovie struct {
    Title          string
 }
 
-func (f *FullMovie) New(custom_id string) error {
-   var req_body struct {
-      Query     string `json:"query"`
-      Variables struct {
-         CustomId string `json:"customId"`
-      } `json:"variables"`
-   }
-   req_body.Variables.CustomId = custom_id
-   req_body.Query = graphql_compact(get_custom_id)
-   data, err := json.Marshal(req_body)
-   if err != nil {
-      return err
-   }
-   req, err := http.NewRequest(
-      "POST", "https://client-api.magine.com/api/apiql/v2",
-      bytes.NewReader(data),
-   )
-   if err != nil {
-      return err
-   }
-   magine_accesstoken.set(req.Header)
-   x_forwarded_for.set(req.Header)
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return err
-   }
-   defer resp.Body.Close()
-   var resp_body struct {
-      Data struct {
-         Viewer struct {
-            ViewableCustomId *FullMovie
-         }
-      }
-   }
-   err = json.NewDecoder(resp.Body).Decode(&resp_body)
-   if err != nil {
-      return err
-   }
-   if id := resp_body.Data.Viewer.ViewableCustomId; id != nil {
-      *f = *id
-      return nil
-   }
-   return errors.New("ViewableCustomId")
-}
-
 // NO ANONYMOUS QUERY
 const get_custom_id = `
 query GetCustomIdFullMovie($customId: ID!) {
@@ -238,4 +193,49 @@ func (a *AuthLogin) Entitlement(movie *FullMovie) (*Entitlement, error) {
 
 type Entitlement struct {
    Token string
+}
+
+func (f *FullMovie) New(custom_id string) error {
+   var value struct {
+      Query     string `json:"query"`
+      Variables struct {
+         CustomId string `json:"customId"`
+      } `json:"variables"`
+   }
+   value.Variables.CustomId = custom_id
+   value.Query = graphql_compact(get_custom_id)
+   data, err := json.Marshal(value)
+   if err != nil {
+      return err
+   }
+   req, err := http.NewRequest(
+      "POST", "https://client-api.magine.com/api/apiql/v2",
+      bytes.NewReader(data),
+   )
+   if err != nil {
+      return err
+   }
+   magine_accesstoken.set(req.Header)
+   x_forwarded_for.set(req.Header)
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return err
+   }
+   defer resp.Body.Close()
+   var value1 struct {
+      Data struct {
+         Viewer struct {
+            ViewableCustomId *FullMovie
+         }
+      }
+   }
+   err = json.NewDecoder(resp.Body).Decode(&value1)
+   if err != nil {
+      return err
+   }
+   if id := value1.Data.Viewer.ViewableCustomId; id != nil {
+      *f = *id
+      return nil
+   }
+   return errors.New("ViewableCustomId")
 }

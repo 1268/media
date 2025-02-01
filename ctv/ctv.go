@@ -118,6 +118,61 @@ func (MediaContent) Marshal(axis *AxisContent) ([]byte, error) {
    return io.ReadAll(resp.Body)
 }
 
+func (r *ResolvePath) get_id() string {
+   if r.FirstPlayableContent != nil {
+      return r.FirstPlayableContent.Id
+   }
+   return r.Id
+}
+
+type ResolvePath struct {
+   Id                   string
+   FirstPlayableContent *struct {
+      Id string
+   }
+}
+
+// YOU CANNOT USE ANONYMOUS QUERY!
+const query_axis = `
+query axisContent($id: ID!) {
+   axisContent(id: $id) {
+      axisId
+      axisPlaybackLanguages {
+         ... on AxisPlayback {
+            destinationCode
+         }
+      }
+   }
+}
+`
+
+// this is better than strings.Replace and strings.ReplaceAll
+func graphql_compact(data string) string {
+   field := strings.Fields(data)
+   return strings.Join(field, " ")
+}
+
+const query_resolve = `
+query resolvePath($path: String!) {
+   resolvedPath(path: $path) {
+      lastSegment {
+         content {
+            ... on AxisObject {
+               id
+               ... on AxisMedia {
+                  firstPlayableContent {
+                     id
+                  }
+               }
+            }
+         }
+      }
+   }
+}
+`
+
+///
+
 func (a Address) Resolve() (*ResolvePath, error) {
    var body struct {
       Query         string `json:"query"`
@@ -213,55 +268,3 @@ func (r *ResolvePath) Axis() (*AxisContent, error) {
    return &resp_body.Data.AxisContent, nil
 }
 
-func (r *ResolvePath) get_id() string {
-   if r.FirstPlayableContent != nil {
-      return r.FirstPlayableContent.Id
-   }
-   return r.Id
-}
-
-type ResolvePath struct {
-   Id                   string
-   FirstPlayableContent *struct {
-      Id string
-   }
-}
-
-// YOU CANNOT USE ANONYMOUS QUERY!
-const query_axis = `
-query axisContent($id: ID!) {
-   axisContent(id: $id) {
-      axisId
-      axisPlaybackLanguages {
-         ... on AxisPlayback {
-            destinationCode
-         }
-      }
-   }
-}
-`
-
-// this is better than strings.Replace and strings.ReplaceAll
-func graphql_compact(data string) string {
-   field := strings.Fields(data)
-   return strings.Join(field, " ")
-}
-
-const query_resolve = `
-query resolvePath($path: String!) {
-   resolvedPath(path: $path) {
-      lastSegment {
-         content {
-            ... on AxisObject {
-               id
-               ... on AxisMedia {
-                  firstPlayableContent {
-                     id
-                  }
-               }
-            }
-         }
-      }
-   }
-}
-`
