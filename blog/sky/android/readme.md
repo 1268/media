@@ -1,29 +1,23 @@
 # show.sky.ch
 
 ~~~
-url = https://show.sky.ch/de/filme/2035/a-knights-tale
-monetization = FLATRATE
-country = Switzerland
+GET https://clientapi.prd.sky.ch/stream/2035/MOVIE HTTP/2.0
+appversion: 1.18.1.125
+devicecode: ANDROID_INAPP
+devicename: Google AOSP on IA Emulator
+osversion: 28
+deviceplatform: ANDROID_INAPP
+accept-encoding: compress
+api-version: 1.13
+accept-language: de
+macaddress: 31f08176-dd2f-43a3-ae94-9e24190600fe
+environment: SkyShow
+serialnumber: 31f08176-dd2f-43a3-ae94-9e24190600fe
+bundles: SHOW_PREMIUM
+user-agent: okhttp/5.0.0-alpha.10
+content-length: 0
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIxOTM4NDQxIiwiUHJmSWQiOiIyMTE5ODA5IiwiUm9sZXMiOiIiLCJCdW5kbGVzIjoie1wiU2t5U2hvd1wiOlwiU0hPV19QUkVNSVVNXCIsXCJTa3lTcG9ydFwiOlwiXCJ9IiwiZXhwIjoxNzM3OTQ1NjU5LCJpc3MiOiJodHRwczovL3d3dy5za3kuY2giLCJhdWQiOiJTa3kgVXNlcnMifQ.7MMfzGZw4HIqpNOloFsVi4LSNSWYNjTJRT-mhyIG3y4
 ~~~
-
-- https://github.com/sunsettrack4/plugin.video.skych/blob/master/addon.py
-- https://justwatch.com/ch/Anbieter/sky
-
-## webDriver
-
-no support for `https_proxy`:
-
-<https://bugzilla.mozilla.org/show_bug.cgi?id=1944213>
-
-no proxy authentication:
-
-https://github.com/mozilla/geckodriver/issues/1872
-
-no proxy authentication:
-
-<https://bugzilla.mozilla.org/show_bug.cgi?id=1395886>
-
-we could use a proxy ladder, but does not seem worth the trouble
 
 ## phone
 
@@ -68,7 +62,3 @@ name = Sky
 size = 35.09 megabyte
 version code = 584
 ~~~
-
-## web
-
-Amazon CAPTCHA is required
