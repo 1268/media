@@ -1,4 +1,4 @@
-package tv
+package sky
 
 import (
    "encoding/xml"
