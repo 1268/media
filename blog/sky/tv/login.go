@@ -9,21 +9,30 @@ import (
    "strings"
 )
 
-func (c *cookie) Set(data string) error {
+type Cookie struct {
+   Cookie *http.Cookie
+}
+
+func (c *Cookie) Set(data string) error {
    var err error
-   c.c, err = http.ParseSetCookie(data)
+   c.Cookie, err = http.ParseSetCookie(data)
    if err != nil {
       return err
    }
    return nil
 }
 
-func (c cookie) String() string {
-   return c.c.String()
+func (c Cookie) String() string {
+   return c.Cookie.String()
 }
 
-type cookie struct {
-   c *http.Cookie
+func (c cookies) session_id() (*Cookie, bool) {
+   for _, cookie1 := range c {
+      if cookie1.Name == "_ASP.NET_SessionId_" {
+         return &Cookie{cookie1}, true
+      }
+   }
+   return nil, false
 }
 
 const (
@@ -124,12 +133,3 @@ func (n *login) login(username, password string) (cookies, error) {
 }
 
 type cookies []*http.Cookie
-
-func (c cookies) session_id() (*cookie, bool) {
-   for _, cookie1 := range c {
-      if cookie1.Name == "_ASP.NET_SessionId_" {
-         return &cookie{cookie1}, true
-      }
-   }
-   return nil, false
-}
