@@ -9,7 +9,7 @@ import (
    "testing"
 )
 
-func TestLoginPage(t *testing.T) {
+func TestLogin(t *testing.T) {
    var transport http.Transport
    transport.ProxyFromEnvironment()
    transport.DefaultClient()
@@ -19,12 +19,12 @@ func TestLoginPage(t *testing.T) {
       t.Fatal(err)
    }
    username, password, _ := strings.Cut(string(data), ":")
-   var login login_page
-   err = login.New()
+   var show show_login
+   err = show.New()
    if err != nil {
       t.Fatal(err)
    }
-   resp, err := login.login_page(username, password)
+   resp, err := show.login(username, password)
    if err != nil {
       t.Fatal(err)
    }

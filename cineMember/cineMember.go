@@ -3,10 +3,23 @@ package cineMember
 import (
    "bytes"
    "encoding/json"
+   "errors"
    "io"
    "net/http"
    "strings"
 )
+
+func (a *Address) Set(data string) error {
+   if !strings.HasPrefix(data, "https://") {
+      return errors.New("must start with https://")
+   }
+   a.s = strings.TrimPrefix(data, "https://")
+   a.s = strings.TrimPrefix(a.s, "www.")
+   a.s = strings.TrimPrefix(a.s, "cinemember.nl")
+   a.s = strings.TrimPrefix(a.s, "/nl")
+   a.s = strings.TrimPrefix(a.s, "/")
+   return nil
+}
 
 type Address struct {
    s string
@@ -14,15 +27,6 @@ type Address struct {
 
 func (a Address) String() string {
    return a.s
-}
-
-func (a *Address) Set(data string) error {
-   a.s = strings.TrimPrefix(data, "https://")
-   a.s = strings.TrimPrefix(a.s, "www.")
-   a.s = strings.TrimPrefix(a.s, "cinemember.nl")
-   a.s = strings.TrimPrefix(a.s, "/nl")
-   a.s = strings.TrimPrefix(a.s, "/")
-   return nil
 }
 
 type Entitlement struct {
