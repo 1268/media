@@ -9,45 +9,30 @@ import (
    "strings"
 )
 
+func (c *cookie) Set(data string) error {
+   var err error
+   c.c, err = http.ParseSetCookie(data)
+   if err != nil {
+      return err
+   }
+   return nil
+}
+
+func (c cookie) String() string {
+   return c.c.String()
+}
+
+type cookie struct {
+   c *http.Cookie
+}
+
 const (
    out_of_country = "/out-of-country"
    verification_token = "__RequestVerificationToken"
 )
 
-type get_login struct {
-   cookies []*http.Cookie
-   section struct {
-      Div     struct {
-         Form struct {
-            Input []struct {
-               Name  string `xml:"name,attr"`
-               Value string `xml:"value,attr"`
-            } `xml:"input"`
-         } `xml:"form"`
-      } `xml:"div"`
-   }
-}
-
-func (s *get_login) cookie_token() (*http.Cookie, error) {
-   for _, cookie := range s.cookies {
-      if cookie.Name == verification_token {
-         return cookie, nil
-      }
-   }
-   return nil, http.ErrNoCookie
-}
-
-func (s *get_login) input_token() (string, error) {
-   for _, input := range s.section.Div.Form.Input {
-      if input.Name == verification_token {
-         return input.Value, nil
-      }
-   }
-   return "", errors.New(verification_token)
-}
-
 // hard geo block
-func (s *get_login) New() error {
+func (n *login) New() error {
    req, _ := http.NewRequest("", "https://show.sky.ch/de/login", nil)
    req.Header.Set("tv", "Emulator")
    resp, err := http.DefaultClient.Do(req)
@@ -61,21 +46,49 @@ func (s *get_login) New() error {
    if strings.HasSuffix(resp.Request.URL.Path, out_of_country) {
       return errors.New(out_of_country)
    }
-   err = xml.NewDecoder(resp.Body).Decode(&s.section)
+   err = xml.NewDecoder(resp.Body).Decode(&n.section)
    if err != nil {
       return err
    }
-   s.cookies = resp.Cookies()
+   n.cookies = resp.Cookies()
    return nil
 }
 
-type post_login []*http.Cookie
+type login struct {
+   cookies []*http.Cookie
+   section struct {
+      Div     struct {
+         Form struct {
+            Input []struct {
+               Name  string `xml:"name,attr"`
+               Value string `xml:"value,attr"`
+            } `xml:"input"`
+         } `xml:"form"`
+      } `xml:"div"`
+   }
+}
 
-///
+func (n *login) cookie_token() (*http.Cookie, error) {
+   for _, cookie1 := range n.cookies {
+      if cookie1.Name == verification_token {
+         return cookie1, nil
+      }
+   }
+   return nil, http.ErrNoCookie
+}
+
+func (n *login) input_token() (string, error) {
+   for _, input := range n.section.Div.Form.Input {
+      if input.Name == verification_token {
+         return input.Value, nil
+      }
+   }
+   return "", errors.New(verification_token)
+}
 
 // hard geo block
-func (s *get_login) login(username, password string) (post_login, error) {
-   input_token, err := s.input_token()
+func (n *login) login(username, password string) (cookies, error) {
+   input_token, err := n.input_token()
    if err != nil {
       return nil, err
    }
@@ -93,7 +106,7 @@ func (s *get_login) login(username, password string) (post_login, error) {
    }
    req.Header.Set("content-type", "application/x-www-form-urlencoded")
    req.Header.Set("tv", "Emulator")
-   cookie_token, err := s.cookie_token()
+   cookie_token, err := n.cookie_token()
    if err != nil {
       return nil, err
    }
@@ -110,5 +123,13 @@ func (s *get_login) login(username, password string) (post_login, error) {
    return resp.Cookies(), nil
 }
 
-//sky-auth-token
+type cookies []*http.Cookie
 
+func (c cookies) session_id() (*cookie, bool) {
+   for _, cookie1 := range c {
+      if cookie1.Name == "_ASP.NET_SessionId_" {
+         return &cookie{cookie1}, true
+      }
+   }
+   return nil, false
+}

@@ -1,7 +1,7 @@
 package main
 
 import (
-   "bytes"
+   //"bytes"
    "net/http"
    "net/url"
    "os"
@@ -24,16 +24,10 @@ func main() {
    values["contentType"] = []string{"2"}
    req.URL.RawQuery = values.Encode()
    req.Header["X-Requested-With"] = []string{"XMLHttpRequest"}
-   data, err := os.ReadFile("sky.json")
-   if err != nil {
-      panic(err)
-   }
-   data = bytes.TrimSpace(data)
-   
-   //pass
-   //req.Header.Set("cookie", "sky-auth-token=" + string(data))
-   req.Header.Set("cookie", "_ASP.NET_SessionId_=gqqn5xtzsrzu3qzw4e5hrgz0")
-   
+   req.Header.Set(
+      "cookie",
+      "_ASP.NET_SessionId_=oiqw4d0k0x1ymoap0rlmbntj",
+   )
    resp, err := http.DefaultClient.Do(&req)
    if err != nil {
       panic(err)
