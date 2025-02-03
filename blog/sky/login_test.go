@@ -33,12 +33,12 @@ func TestWrite(t *testing.T) {
       t.Fatal(err)
    }
    username, password, _ := strings.Cut(string(data), ":")
-   var login1 login
-   err = login1.New()
+   var login0 login
+   err = login0.New()
    if err != nil {
       t.Fatal(err)
    }
-   cookies1, err := login1.login(username, password)
+   cookies1, err := login0.login(username, password)
    if err != nil {
       t.Fatal(err)
    }
