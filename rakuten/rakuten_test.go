@@ -12,6 +12,20 @@ import (
 
 var web_tests = []web_test{
    {
+      address:  "rakuten.tv/at/movies/ricky-bobby-koenig-der-rennfahrer",
+      content_id: "",
+      key_id: "",
+      language: "",
+      location: "at",
+   },
+   {
+      address:  "rakuten.tv/ch/movies/ricky-bobby-koenig-der-rennfahrer",
+      content_id: "",
+      key_id: "",
+      language: "",
+      location: "ch",
+   },
+   {
       address:  "rakuten.tv/cz/movies/transvulcania-the-people-s-run",
       content_id: "MzE4ZjdlY2U2OWFmY2ZlM2U5NmRlMzFiZTZiNzcyNzItbWMtMC0xNjQtMC0w",
       key_id: "MY9+zmmvz+PpbeMb5rdycg==",
@@ -19,11 +33,25 @@ var web_tests = []web_test{
       location: "cz",
    },
    {
+      address:  "rakuten.tv/de/movies/ricky-bobby-konig-der-rennfahrer",
+      content_id: "",
+      key_id: "",
+      language: "",
+      location: "de",
+   },
+   {
       address:    "rakuten.tv/fr/movies/infidele",
       content_id: "MGU1MTgwMDA2Y2Q1MDhlZWMwMGQ1MzVmZWM2YzQyMGQtbWMtMC0xNDEtMC0w",
       key_id:     "DlGAAGzVCO7ADVNf7GxCDQ==",
       language:   "ENG",
       location:   "fr",
+   },
+   {
+      address:  "rakuten.tv/ie/movies/talladega-nights-the-ballad-of-ricky-bobby",
+      content_id: "",
+      key_id: "",
+      language: "",
+      location: "ie",
    },
    {
       address:    "rakuten.tv/nl/movies/a-knight-s-tale",
