@@ -10,91 +10,6 @@ import (
    "testing"
 )
 
-func TestMain(m *testing.M) {
-   http.Transport{}.DefaultClient()
-   m.Run()
-}
-
-func TestStreamInfo(t *testing.T) {
-   home, err := os.UserHomeDir()
-   if err != nil {
-      t.Fatal(err)
-   }
-   private_key, err := os.ReadFile(home + "/widevine/private_key.pem")
-   if err != nil {
-      t.Fatal(err)
-   }
-   client_id, err := os.ReadFile(home + "/widevine/client_id.bin")
-   if err != nil {
-      t.Fatal(err)
-   }
-   for _, test := range web_tests {
-      content, err := test.content()
-      if err != nil {
-         t.Fatal(err)
-      }
-      func() {
-         err := mullvad.Connect(test.location)
-         if err != nil {
-            t.Fatal(err)
-         }
-         defer mullvad.Disconnect()
-         info, err := content.g.Hd(content.class, test.language).Streamings()
-         if err != nil {
-            t.Fatal(err)
-         }
-         var pssh widevine.PsshData
-         pssh.ContentId, err = base64.StdEncoding.DecodeString(test.content_id)
-         if err != nil {
-            t.Fatal(err)
-         }
-         key_id, err := base64.StdEncoding.DecodeString(test.key_id)
-         if err != nil {
-            t.Fatal(err)
-         }
-         pssh.KeyIds = [][]byte{key_id}
-         var module widevine.Cdm
-         err = module.New(private_key, client_id, pssh.Marshal())
-         if err != nil {
-            t.Fatal(err)
-         }
-         data, err := module.RequestBody()
-         if err != nil {
-            t.Fatal(err)
-         }
-         _, err = info.Wrap(data)
-         if err != nil {
-            t.Fatal(err)
-         }
-      }()
-   }
-}
-
-func (w *web_test) content() (*content_class, error) {
-   var web Address
-   web.Set(w.address)
-   var content content_class
-   content.class, _ = web.ClassificationId()
-   if web.SeasonId != "" {
-      season, err := web.Season(content.class)
-      if err != nil {
-         return nil, err
-      }
-      _, ok := season.Content(&Address{})
-      if ok {
-         return nil, errors.New("gizmo_season.content")
-      }
-      content.g, _ = season.Content(&web)
-   } else {
-      var err error
-      content.g, err = web.Movie(content.class)
-      if err != nil {
-         return nil, err
-      }
-   }
-   return &content, nil
-}
-
 var web_tests = []web_test{
    {
       address:  "rakuten.tv/cz/movies/transvulcania-the-people-s-run",
@@ -208,4 +123,88 @@ type web_test struct {
    key_id     string
    language   string
    location   string
+}
+func TestMain(m *testing.M) {
+   http.Transport{}.DefaultClient()
+   m.Run()
+}
+
+func TestStreamInfo(t *testing.T) {
+   home, err := os.UserHomeDir()
+   if err != nil {
+      t.Fatal(err)
+   }
+   private_key, err := os.ReadFile(home + "/widevine/private_key.pem")
+   if err != nil {
+      t.Fatal(err)
+   }
+   client_id, err := os.ReadFile(home + "/widevine/client_id.bin")
+   if err != nil {
+      t.Fatal(err)
+   }
+   for _, test := range web_tests {
+      content, err := test.content()
+      if err != nil {
+         t.Fatal(err)
+      }
+      func() {
+         err := mullvad.Connect(test.location)
+         if err != nil {
+            t.Fatal(err)
+         }
+         defer mullvad.Disconnect()
+         info, err := content.g.Hd(content.class, test.language).Streamings()
+         if err != nil {
+            t.Fatal(err)
+         }
+         var pssh widevine.PsshData
+         pssh.ContentId, err = base64.StdEncoding.DecodeString(test.content_id)
+         if err != nil {
+            t.Fatal(err)
+         }
+         key_id, err := base64.StdEncoding.DecodeString(test.key_id)
+         if err != nil {
+            t.Fatal(err)
+         }
+         pssh.KeyIds = [][]byte{key_id}
+         var module widevine.Cdm
+         err = module.New(private_key, client_id, pssh.Marshal())
+         if err != nil {
+            t.Fatal(err)
+         }
+         data, err := module.RequestBody()
+         if err != nil {
+            t.Fatal(err)
+         }
+         _, err = info.Wrap(data)
+         if err != nil {
+            t.Fatal(err)
+         }
+      }()
+   }
+}
+
+func (w *web_test) content() (*content_class, error) {
+   var web Address
+   web.Set(w.address)
+   var content content_class
+   content.class, _ = web.ClassificationId()
+   if web.SeasonId != "" {
+      season, err := web.Season(content.class)
+      if err != nil {
+         return nil, err
+      }
+      _, ok := season.Content(&Address{})
+      if ok {
+         return nil, errors.New("gizmo_season.content")
+      }
+      content.g, _ = season.Content(&web)
+   } else {
+      var err error
+      content.g, err = web.Movie(content.class)
+      if err != nil {
+         return nil, err
+      }
+   }
+   return &content, nil
 }
