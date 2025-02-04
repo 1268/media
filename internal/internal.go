@@ -19,92 +19,18 @@ import (
    xhttp "41.neocities.org/x/http"
 )
 
-func write_sidx(req *http.Request, index dash.Range) ([]sidx.Reference, error) {
-   data, _ := index.MarshalText()
-   req.Header.Set("range", "bytes=" + string(data))
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   data, err = io.ReadAll(resp.Body)
-   if err != nil {
-      return nil, err
-   }
-   var file container.File
-   err = file.Read(data)
-   if err != nil {
-      return nil, err
-   }
-   return file.Sidx.Reference, nil
-}
-
-func (s *Stream) key() ([]byte, error) {
-   if s.key_id == nil {
-      return nil, nil
-   }
-   private_key, err := os.ReadFile(s.PrivateKey)
-   if err != nil {
-      return nil, err
-   }
-   client_id, err := os.ReadFile(s.ClientId)
-   if err != nil {
-      return nil, err
-   }
-   if s.pssh == nil {
-      var pssh widevine.PsshData
-      pssh.KeyIds = [][]byte{s.key_id}
-      s.pssh = pssh.Marshal()
-   }
-   log.Println("PSSH", base64.StdEncoding.EncodeToString(s.pssh))
-   var module widevine.Cdm
-   err = module.New(private_key, client_id, s.pssh)
-   if err != nil {
-      return nil, err
-   }
-   data, err := module.RequestBody()
-   if err != nil {
-      return nil, err
-   }
-   data, err = s.Wrapper.Wrap(data)
-   if err != nil {
-      return nil, err
-   }
-   var body widevine.ResponseBody
-   err = body.Unmarshal(data)
-   if err != nil {
-      return nil, err
-   }
-   block, err := module.Block(body)
-   if err != nil {
-      return nil, err
-   }
-   containers := body.Container()
-   for {
-      container, ok := containers()
-      if !ok {
-         return nil, errors.New("ResponseBody.Container")
-      }
-      if bytes.Equal(container.Id(), s.key_id) {
-         key := container.Key(block)
-         log.Println("key", base64.StdEncoding.EncodeToString(key))
-         return key, nil
-      }
-   }
-}
 func (s *Stream) segment_base(represent *dash.Representation, ext string) error {
    file, err := os.Create(ext)
    if err != nil {
       return err
    }
    defer file.Close()
-   segment := represent.SegmentBase
-   data, _ := segment.Initialization.Range.MarshalText()
+   base := represent.SegmentBase
    var req http.Request
-   req.URL = represent.BaseUrl.Url
    req.Header = http.Header{}
+   req.URL = represent.BaseUrl.Url
    // need to use Set for lower case
-   req.Header.Set("range", "bytes=" + string(data))
+   req.Header.Set("range", "bytes=" + base.Initialization.Range.String())
    resp, err := http.DefaultClient.Do(&req)
    if err != nil {
       return err
@@ -113,7 +39,7 @@ func (s *Stream) segment_base(represent *dash.Representation, ext string) error 
    if resp.StatusCode != http.StatusPartialContent {
       return errors.New(resp.Status)
    }
-   data, err = io.ReadAll(resp.Body)
+   data, err := io.ReadAll(resp.Body)
    if err != nil {
       return err
    }
@@ -129,7 +55,7 @@ func (s *Stream) segment_base(represent *dash.Representation, ext string) error 
    if err != nil {
       return err
    }
-   references, err := write_sidx(&req, segment.IndexRange)
+   references, err := write_sidx(&req, base.IndexRange)
    if err != nil {
       return err
    }
@@ -137,11 +63,10 @@ func (s *Stream) segment_base(represent *dash.Representation, ext string) error 
    var progress xhttp.ProgressParts
    progress.Set(len(references))
    for _, reference := range references {
-      segment.IndexRange[0] = segment.IndexRange[1] + 1
-      segment.IndexRange[1] += uint64(reference.Size())
-      data, _ := segment.IndexRange.MarshalText()
+      base.IndexRange[0] = base.IndexRange[1] + 1
+      base.IndexRange[1] += uint64(reference.Size())
       data, err = func() ([]byte, error) {
-         req.Header.Set("range", "bytes=" + string(data))
+         req.Header.Set("range", "bytes=" + base.IndexRange.String())
          resp, err := http.DefaultClient.Do(&req)
          if err != nil {
             return nil, err
@@ -167,6 +92,7 @@ func (s *Stream) segment_base(represent *dash.Representation, ext string) error 
    }
    return nil
 }
+
 func get(address *url.URL) ([]byte, error) {
    resp, err := http.Get(address.String())
    if err != nil {
@@ -180,6 +106,7 @@ func get(address *url.URL) ([]byte, error) {
    }
    return io.ReadAll(resp.Body)
 }
+
 func (s *Stream) segment_list(
    represent *dash.Representation, ext string,
 ) error {
@@ -240,6 +167,7 @@ func (s *Stream) segment_list(
    }
    return nil
 }
+
 func (s *Stream) segment_template(
    represent *dash.Representation, ext string,
 ) error {
@@ -447,4 +375,76 @@ var Forward = []struct{
 {"Taiwan", "120.96.0.0"},
 {"United Kingdom", "25.0.0.0"},
 {"Venezuela", "190.72.0.0"},
+}
+func write_sidx(req *http.Request, index dash.Range) ([]sidx.Reference, error) {
+   req.Header.Set("range", "bytes=" + index.String())
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   data, err := io.ReadAll(resp.Body)
+   if err != nil {
+      return nil, err
+   }
+   var file container.File
+   err = file.Read(data)
+   if err != nil {
+      return nil, err
+   }
+   return file.Sidx.Reference, nil
+}
+
+func (s *Stream) key() ([]byte, error) {
+   if s.key_id == nil {
+      return nil, nil
+   }
+   private_key, err := os.ReadFile(s.PrivateKey)
+   if err != nil {
+      return nil, err
+   }
+   client_id, err := os.ReadFile(s.ClientId)
+   if err != nil {
+      return nil, err
+   }
+   if s.pssh == nil {
+      var pssh widevine.PsshData
+      pssh.KeyIds = [][]byte{s.key_id}
+      s.pssh = pssh.Marshal()
+   }
+   log.Println("PSSH", base64.StdEncoding.EncodeToString(s.pssh))
+   var module widevine.Cdm
+   err = module.New(private_key, client_id, s.pssh)
+   if err != nil {
+      return nil, err
+   }
+   data, err := module.RequestBody()
+   if err != nil {
+      return nil, err
+   }
+   data, err = s.Wrapper.Wrap(data)
+   if err != nil {
+      return nil, err
+   }
+   var body widevine.ResponseBody
+   err = body.Unmarshal(data)
+   if err != nil {
+      return nil, err
+   }
+   block, err := module.Block(body)
+   if err != nil {
+      return nil, err
+   }
+   containers := body.Container()
+   for {
+      container, ok := containers()
+      if !ok {
+         return nil, errors.New("ResponseBody.Container")
+      }
+      if bytes.Equal(container.Id(), s.key_id) {
+         key := container.Key(block)
+         log.Println("key", base64.StdEncoding.EncodeToString(key))
+         return key, nil
+      }
+   }
 }

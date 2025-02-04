@@ -34,8 +34,11 @@ func (f *flags) download() error {
       return err
    }
    var mpd dash.Mpd
-   mpd.BaseUrl = &dash.Url{resp.Request.URL}
-   mpd.Unmarshal(data)
+   err = mpd.Unmarshal(data)
+   if err != nil {
+      return err
+   }
+   mpd.Set(resp.Request.URL)
    represents := slices.SortedFunc(mpd.Representation(),
       func(a, b dash.Representation) int {
          return a.Bandwidth - b.Bandwidth
