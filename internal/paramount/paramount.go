@@ -12,21 +12,25 @@ import (
 )
 
 func (f *flags) do_read() error {
-   data, err := os.ReadFile(f.content_id + "/request.txt")
+   data, err := os.ReadFile(f.content_id + "/body.txt")
    if err != nil {
       return err
    }
    var mpd dash.Mpd
-   mpd.BaseUrl = &dash.Url{}
-   err = mpd.BaseUrl.UnmarshalText(data)
+   err = mpd.Unmarshal(data)
    if err != nil {
       return err
    }
-   data, err = os.ReadFile(f.content_id + "/body.txt")
+   data, err = os.ReadFile(f.content_id + "/request.txt")
    if err != nil {
       return err
    }
-   mpd.Unmarshal(data)
+   var url dash.Url
+   err = url.UnmarshalText(data)
+   if err != nil {
+      return err
+   }
+   mpd.Set(url.Url)
    represents := slices.SortedFunc(mpd.Representation(),
       func(a, b dash.Representation) int {
          return a.Bandwidth - b.Bandwidth
