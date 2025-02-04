@@ -6,24 +6,51 @@ import (
    "41.neocities.org/x/http"
    "encoding/base64"
    "errors"
+   "log"
    "os"
    "testing"
 )
 
+func TestMain(m *testing.M) {
+   http.Transport{}.DefaultClient()
+   log.SetFlags(log.Ltime)
+   m.Run()
+}
+
+func TestContent(t *testing.T) {
+   for _, test := range web_tests {
+      content, err := test.content()
+      if err != nil {
+         t.Fatal(err)
+      }
+      func() {
+         err := mullvad.Connect(test.location)
+         if err != nil {
+            t.Fatal(err)
+         }
+         defer mullvad.Disconnect()
+         _, err = content.g.Hd(content.class, test.language).Streamings()
+         if err != nil {
+            t.Fatal(err)
+         }
+      }()
+   }
+}
+
 var web_tests = []web_test{
    {
       address:  "rakuten.tv/at/movies/ricky-bobby-koenig-der-rennfahrer",
-      content_id: "",
-      key_id: "",
-      language: "",
+      language: "ENG",
       location: "at",
+      key_id: "OsBLtLhCGMexX+THBcRobw==",
+      content_id: "M2FjMDRiYjRiODQyMThjN2IxNWZlNGM3MDVjNDY4NmYtbWMtMC0xMzktMC0w",
    },
    {
       address:  "rakuten.tv/ch/movies/ricky-bobby-koenig-der-rennfahrer",
-      content_id: "",
-      key_id: "",
-      language: "",
+      language: "ENG",
       location: "ch",
+      key_id: "OsBLtLhCGMexX+THBcRobw==",
+      content_id: "M2FjMDRiYjRiODQyMThjN2IxNWZlNGM3MDVjNDY4NmYtbWMtMC0xMzktMC0w",
    },
    {
       address:  "rakuten.tv/cz/movies/transvulcania-the-people-s-run",
@@ -34,10 +61,10 @@ var web_tests = []web_test{
    },
    {
       address:  "rakuten.tv/de/movies/ricky-bobby-konig-der-rennfahrer",
-      content_id: "",
-      key_id: "",
-      language: "",
+      language: "ENG",
       location: "de",
+      key_id: "OsBLtLhCGMexX+THBcRobw==",
+      content_id: "M2FjMDRiYjRiODQyMThjN2IxNWZlNGM3MDVjNDY4NmYtbWMtMC0xMzktMC0w",
    },
    {
       address:    "rakuten.tv/fr/movies/infidele",
@@ -48,10 +75,10 @@ var web_tests = []web_test{
    },
    {
       address:  "rakuten.tv/ie/movies/talladega-nights-the-ballad-of-ricky-bobby",
-      content_id: "",
-      key_id: "",
-      language: "",
+      language: "ENG",
       location: "ie",
+      key_id: "r+ROUU1Y1yEFHQKKKSmwkg==",
+      content_id: "YWZlNDRlNTE0ZDU4ZDcyMTA1MWQwMjhhMjkyOWIwOTItbWMtMC0xNDMtMC0w",
    },
    {
       address:    "rakuten.tv/nl/movies/a-knight-s-tale",
@@ -112,49 +139,12 @@ func TestAddress(t *testing.T) {
    })
 }
 
-func TestContent(t *testing.T) {
-   for _, test := range web_tests {
-      content, err := test.content()
-      if err != nil {
-         t.Fatal(err)
-      }
-      t.Run("String", func(t *testing.T) {
-         if content.g.String() == "" {
-            t.Fatal(content.g)
-         }
-      })
-      t.Run("Fhd", func(t *testing.T) {
-         _, err = content.g.Fhd(content.class, test.language).Streamings()
-         if err == nil {
-            t.Fatal(content.g)
-         }
-      })
-      func() {
-         err := mullvad.Connect(test.location)
-         if err != nil {
-            t.Fatal(err)
-         }
-         defer mullvad.Disconnect()
-         t.Run("Hd", func(t *testing.T) {
-            _, err = content.g.Hd(content.class, test.language).Streamings()
-            if err != nil {
-               t.Fatal(err)
-            }
-         })
-      }()
-   }
-}
-
 type web_test struct {
    address    string
    content_id string
    key_id     string
    language   string
    location   string
-}
-func TestMain(m *testing.M) {
-   http.Transport{}.DefaultClient()
-   m.Run()
 }
 
 func TestStreamInfo(t *testing.T) {

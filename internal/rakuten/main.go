@@ -5,12 +5,14 @@ import (
    "41.neocities.org/media/rakuten"
    "41.neocities.org/x/http"
    "flag"
+   "log"
    "os"
    "path/filepath"
 )
 
 func main() {
    http.Transport{}.DefaultClient()
+   log.SetFlags(log.Ltime)
    var f flags
    err := f.New()
    if err != nil {

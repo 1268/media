@@ -11,12 +11,21 @@ import (
    "strings"
 )
 
+// github.com/pandvan/rakuten-m3u-generator/blob/master/rakuten.py
 func (a *Address) ClassificationId() (int, bool) {
    switch a.MarketCode {
+   case "at":
+      return 300, true
+   case "ch":
+      return 319, true
    case "cz":
       return 272, true
+   case "de":
+      return 307, true
    case "fr":
       return 23, true
+   case "ie":
+      return 41, true
    case "nl":
       return 69, true
    case "pl":

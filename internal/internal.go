@@ -19,85 +19,6 @@ import (
    xhttp "41.neocities.org/x/http"
 )
 
-func (s *Stream) segment_template(
-   represent *dash.Representation, ext string,
-) error {
-   file, err := os.Create(ext)
-   if err != nil {
-      return err
-   }
-   defer file.Close()
-   var initial *url.URL
-   if i := represent.SegmentTemplate.Initialization; i != nil {
-      initial, err = i.Url(represent)
-      if err != nil {
-         return err
-      }
-   }
-   if initial != nil {
-      resp, err := http.Get(initial.String())
-      if err != nil {
-         return err
-      }
-      defer resp.Body.Close()
-      if resp.StatusCode != http.StatusOK {
-         return errors.New(resp.Status)
-      }
-      data, err := io.ReadAll(resp.Body)
-      if err != nil {
-         return err
-      }
-      data, err = s.init_protect(data)
-      if err != nil {
-         return err
-      }
-      _, err = file.Write(data)
-      if err != nil {
-         return err
-      }
-   }
-   key, err := s.key()
-   if err != nil {
-      return err
-   }
-   http.DefaultClient.Transport = nil
-   var segments []int
-   for r := range represent.Representation() {
-      segments = slices.AppendSeq(segments, r.Segment())
-   }
-   var progress xhttp.ProgressParts
-   progress.Set(len(segments))
-   for _, segment := range segments {
-      media, err := represent.SegmentTemplate.Media.Url(represent, segment)
-      if err != nil {
-         return err
-      }
-      data, err := get(media)
-      if err != nil {
-         return err
-      }
-      progress.Next()
-      data, err = write_segment(data, key)
-      if err != nil {
-         return err
-      }
-      _, err = file.Write(data)
-      if err != nil {
-         return err
-      }
-   }
-   return nil
-}
-
-// wikipedia.org/wiki/Dynamic_Adaptive_Streaming_over_HTTP
-type Stream struct {
-   ClientId string
-   PrivateKey string
-   Wrapper widevine.Wrapper
-   key_id []byte
-   pssh []byte
-}
-
 func (s *Stream) Download(represent *dash.Representation) error {
    for _, protect := range represent.ContentProtection {
       if protect.SchemeIdUri.Widevine() {
@@ -439,4 +360,79 @@ func (s *Stream) segment_list(
       }
    }
    return nil
+}
+func (s *Stream) segment_template(
+   represent *dash.Representation, ext string,
+) error {
+   file, err := os.Create(ext)
+   if err != nil {
+      return err
+   }
+   defer file.Close()
+   if initial := represent.SegmentTemplate.Initialization; initial != "" {
+      url0, err := initial.Url(represent)
+      if err != nil {
+         return err
+      }
+      resp, err := http.Get(url0.String())
+      if err != nil {
+         return err
+      }
+      defer resp.Body.Close()
+      if resp.StatusCode != http.StatusOK {
+         return errors.New(resp.Status)
+      }
+      data, err := io.ReadAll(resp.Body)
+      if err != nil {
+         return err
+      }
+      data, err = s.init_protect(data)
+      if err != nil {
+         return err
+      }
+      _, err = file.Write(data)
+      if err != nil {
+         return err
+      }
+   }
+   key, err := s.key()
+   if err != nil {
+      return err
+   }
+   http.DefaultClient.Transport = nil
+   var segments []int
+   for r := range represent.Representation() {
+      segments = slices.AppendSeq(segments, r.Segment())
+   }
+   var progress xhttp.ProgressParts
+   progress.Set(len(segments))
+   for _, segment := range segments {
+      media, err := represent.SegmentTemplate.Media.Url(represent, segment)
+      if err != nil {
+         return err
+      }
+      data, err := get(media)
+      if err != nil {
+         return err
+      }
+      progress.Next()
+      data, err = write_segment(data, key)
+      if err != nil {
+         return err
+      }
+      _, err = file.Write(data)
+      if err != nil {
+         return err
+      }
+   }
+   return nil
+}
+
+// wikipedia.org/wiki/Dynamic_Adaptive_Streaming_over_HTTP
+type Stream struct {
+   ClientId string
+   PrivateKey string
+   Wrapper widevine.Wrapper
+   key_id []byte
+   pssh []byte
 }
