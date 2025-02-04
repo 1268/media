@@ -19,128 +19,6 @@ import (
    xhttp "41.neocities.org/x/http"
 )
 
-func (s *Stream) Download(represent *dash.Representation) error {
-   for _, protect := range represent.ContentProtection {
-      if protect.SchemeIdUri.Widevine() {
-         if len(protect.Pssh) >= 1 {
-            var box pssh.Box
-            n, err := box.BoxHeader.Decode(protect.Pssh)
-            if err != nil {
-               return err
-            }
-            err = box.Read(protect.Pssh[n:])
-            if err != nil {
-               return err
-            }
-            s.pssh = box.Data
-            break
-         }
-      }
-   }
-   var ext string
-   switch *represent.MimeType {
-   case "audio/mp4":
-      ext = ".m4a"
-   case "text/vtt":
-      ext = ".vtt"
-   case "video/mp4":
-      ext = ".m4v"
-   }
-   if represent.SegmentBase != nil {
-      return s.segment_base(represent, ext)
-   }
-   if represent.SegmentList != nil {
-      return s.segment_list(represent, ext)
-   }
-   return s.segment_template(represent, ext)
-}
-
-func write_segment(data, key []byte) ([]byte, error) {
-   if key == nil {
-      return data, nil
-   }
-   var file container.File
-   err := file.Read(data)
-   if err != nil {
-      return nil, err
-   }
-   track := file.Moof.Traf
-   if senc := track.Senc; senc != nil {
-      for i, data := range file.Mdat.Data(&track) {
-         err = senc.Sample[i].DecryptCenc(data, key)
-         if err != nil {
-            return nil, err
-         }
-      }
-   }
-   return file.Append(nil)
-}
-
-func (s *Stream) init_protect(data []byte) ([]byte, error) {
-   var file container.File
-   err := file.Read(data)
-   if err != nil {
-      return nil, err
-   }
-   if moov, ok := file.GetMoov(); ok {
-      for _, value := range moov.Pssh {
-         if value.Widevine() {
-            s.pssh = value.Data
-         }
-         copy(value.BoxHeader.Type[:], "free") // Firefox
-      }
-      description := moov.Trak.Mdia.Minf.Stbl.Stsd
-      if sinf, ok := description.Sinf(); ok {
-         s.key_id = sinf.Schi.Tenc.S.DefaultKid[:]
-         // Firefox
-         copy(sinf.BoxHeader.Type[:], "free")
-         if sample, ok := description.SampleEntry(); ok {
-            // Firefox
-            copy(sample.BoxHeader.Type[:], sinf.Frma.DataFormat[:])
-         }
-      }
-   }
-   return file.Append(nil)
-}
-
-var Forward = []struct{
-   Country string
-   Ip string
-}{
-{"Argentina", "186.128.0.0"},
-{"Australia", "1.128.0.0"},
-{"Bolivia", "179.58.0.0"},
-{"Brazil", "179.192.0.0"},
-{"Canada", "99.224.0.0"},
-{"Chile", "191.112.0.0"},
-{"Colombia", "181.128.0.0"},
-{"Costa Rica", "201.192.0.0"},
-{"Denmark", "2.104.0.0"},
-{"Ecuador", "186.68.0.0"},
-{"Egypt", "197.32.0.0"},
-{"Germany", "53.0.0.0"},
-{"Guatemala", "190.56.0.0"},
-{"India", "106.192.0.0"},
-{"Indonesia", "39.192.0.0"},
-{"Ireland", "87.32.0.0"},
-{"Italy", "79.0.0.0"},
-{"Latvia", "78.84.0.0"},
-{"Malaysia", "175.136.0.0"},
-{"Mexico", "189.128.0.0"},
-{"Netherlands", "145.160.0.0"},
-{"New Zealand", "49.224.0.0"},
-{"Norway", "88.88.0.0"},
-{"Peru", "190.232.0.0"},
-{"Russia", "95.24.0.0"},
-{"South Africa", "105.0.0.0"},
-{"South Korea", "175.192.0.0"},
-{"Spain", "88.0.0.0"},
-{"Sweden", "78.64.0.0"},
-{"Taiwan", "120.96.0.0"},
-{"United Kingdom", "25.0.0.0"},
-{"Venezuela", "190.72.0.0"},
-}
-
 func write_sidx(req *http.Request, index dash.Range) ([]sidx.Reference, error) {
    data, _ := index.MarshalText()
    req.Header.Set("range", "bytes=" + string(data))
@@ -160,6 +38,7 @@ func write_sidx(req *http.Request, index dash.Range) ([]sidx.Reference, error) {
    }
    return file.Sidx.Reference, nil
 }
+
 func (s *Stream) key() ([]byte, error) {
    if s.key_id == nil {
       return nil, nil
@@ -435,4 +314,137 @@ type Stream struct {
    Wrapper widevine.Wrapper
    key_id []byte
    pssh []byte
+}
+func get_ext(represent *dash.Representation) (string, error) {
+   switch *represent.MimeType {
+   case "audio/mp4":
+      return ".m4a", nil
+   case "text/vtt":
+      return ".vtt", nil
+   case "video/mp4":
+      return ".m4v", nil
+   }
+   return "", errors.New(*represent.MimeType)
+}
+
+func (s *Stream) Download(represent *dash.Representation) error {
+   for _, p := range represent.ContentProtection {
+      if p.SchemeIdUri == "urn:uuid:edef8ba9-79d6-4ace-a3c8-27dcd51d21ed" {
+         if p.Pssh != "" {
+            data, err := base64.StdEncoding.DecodeString(p.Pssh)
+            if err != nil {
+               return err
+            }
+            var box pssh.Box
+            n, err := box.BoxHeader.Decode(data)
+            if err != nil {
+               return err
+            }
+            err = box.Read(data[n:])
+            if err != nil {
+               return err
+            }
+            s.pssh = box.Data
+            // fallback to INIT
+            break
+         }
+      }
+   }
+   ext, err := get_ext(represent)
+   if err != nil {
+      return err
+   }
+   if represent.SegmentBase != nil {
+      return s.segment_base(represent, ext)
+   }
+   if represent.SegmentList != nil {
+      return s.segment_list(represent, ext)
+   }
+   return s.segment_template(represent, ext)
+}
+
+func write_segment(data, key []byte) ([]byte, error) {
+   if key == nil {
+      return data, nil
+   }
+   var file container.File
+   err := file.Read(data)
+   if err != nil {
+      return nil, err
+   }
+   track := file.Moof.Traf
+   if senc := track.Senc; senc != nil {
+      for i, data := range file.Mdat.Data(&track) {
+         err = senc.Sample[i].DecryptCenc(data, key)
+         if err != nil {
+            return nil, err
+         }
+      }
+   }
+   return file.Append(nil)
+}
+
+func (s *Stream) init_protect(data []byte) ([]byte, error) {
+   var file container.File
+   err := file.Read(data)
+   if err != nil {
+      return nil, err
+   }
+   if moov, ok := file.GetMoov(); ok {
+      for _, value := range moov.Pssh {
+         if value.Widevine() {
+            s.pssh = value.Data
+         }
+         copy(value.BoxHeader.Type[:], "free") // Firefox
+      }
+      description := moov.Trak.Mdia.Minf.Stbl.Stsd
+      if sinf, ok := description.Sinf(); ok {
+         s.key_id = sinf.Schi.Tenc.S.DefaultKid[:]
+         // Firefox
+         copy(sinf.BoxHeader.Type[:], "free")
+         if sample, ok := description.SampleEntry(); ok {
+            // Firefox
+            copy(sample.BoxHeader.Type[:], sinf.Frma.DataFormat[:])
+         }
+      }
+   }
+   return file.Append(nil)
+}
+
+var Forward = []struct{
+   Country string
+   Ip string
+}{
+{"Argentina", "186.128.0.0"},
+{"Australia", "1.128.0.0"},
+{"Bolivia", "179.58.0.0"},
+{"Brazil", "179.192.0.0"},
+{"Canada", "99.224.0.0"},
+{"Chile", "191.112.0.0"},
+{"Colombia", "181.128.0.0"},
+{"Costa Rica", "201.192.0.0"},
+{"Denmark", "2.104.0.0"},
+{"Ecuador", "186.68.0.0"},
+{"Egypt", "197.32.0.0"},
+{"Germany", "53.0.0.0"},
+{"Guatemala", "190.56.0.0"},
+{"India", "106.192.0.0"},
+{"Indonesia", "39.192.0.0"},
+{"Ireland", "87.32.0.0"},
+{"Italy", "79.0.0.0"},
+{"Latvia", "78.84.0.0"},
+{"Malaysia", "175.136.0.0"},
+{"Mexico", "189.128.0.0"},
+{"Netherlands", "145.160.0.0"},
+{"New Zealand", "49.224.0.0"},
+{"Norway", "88.88.0.0"},
+{"Peru", "190.232.0.0"},
+{"Russia", "95.24.0.0"},
+{"South Africa", "105.0.0.0"},
+{"South Korea", "175.192.0.0"},
+{"Spain", "88.0.0.0"},
+{"Sweden", "78.64.0.0"},
+{"Taiwan", "120.96.0.0"},
+{"United Kingdom", "25.0.0.0"},
+{"Venezuela", "190.72.0.0"},
 }
