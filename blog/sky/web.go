@@ -7,6 +7,19 @@ import (
    "strings"
 )
 
+type service struct {
+   s string
+}
+
+func (s service) Error() string {
+   s.s = strings.TrimSuffix(s.s, ".")
+   return strings.ToLower(s.s)
+}
+
+var not_available = service{
+   "We're sorry our service is not available in your region yet.",
+}
+
 // x-forwarded-for fail
 // mullvad.net fail
 // proxy-seller.com pass
@@ -36,17 +49,4 @@ func sky_player(cookie *http.Cookie) ([]byte, error) {
       return nil, not_available
    }
    return data, nil
-}
-
-func (s service) Error() string {
-   s.s = strings.TrimSuffix(s.s, ".")
-   return strings.ToLower(s.s)
-}
-
-type service struct {
-   s string
-}
-
-var not_available = service{
-   "We're sorry our service is not available in your region yet.",
 }

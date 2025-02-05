@@ -1,5 +1,36 @@
 # Mubi
 
+## privacy.com
+
+~~~
+from:	Tana (Privacy Support) <support@privacy.com>
+date:	Nov 24, 2024, 10:38 AM
+subject:	Re: mubi.com
+
+Thanks for reaching out! I just increased the number of Privacy Cards you can
+use with this merchant. Another attempt with this card should be successful.
+
+For context into why you received this decline, we limit the number of Privacy
+Cards that users can create for a single merchant. We do this to reduce the
+risk of users violating merchant policies or terms, which could lead to the
+merchant banning Privacy Cards altogether.
+~~~
+
+1. mubi.com
+2. log in
+3. sign up now
+4. email
+   - tempmail.best
+5. sign up
+6. code
+7. watch, you will be charged $1 for your first 3 months
+8. cardholder
+9. card number
+10. expiry date
+11. CVV
+12. zip code
+13. start watching
+
 ## paypal.com
 
 1. mubi.com
@@ -37,28 +68,3 @@
 12. mubi.com/subscription/cancel
 
 if you cancel, you lose access immediately
-
-## privacy.com
-
-~~~
-Date: Sat, 23 Nov 2024 20:02:49 -0600
-Subject: mubi.com
-To: Privacy Support <support@privacy.com>
-
-I am not able to use my Privacy Mubi card on their site, it says
-
-Please check your card has sufficient funds to complete the purchase.
-
-even though the card has enough funds
-~~~
-
-also I cannot add Privacy card to PayPal:
-
-~~~json
-{
-  "error": {
-    "message": "We're sorry. We're not able to process your request right now. Please try again later.",
-    "name": "ISSUER_DECLINE"
-  }
-}
-~~~
