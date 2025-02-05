@@ -19,6 +19,41 @@ import (
    xhttp "41.neocities.org/x/http"
 )
 
+func get(address *url.URL) ([]byte, error) {
+   resp, err := http.Get(address.String())
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   if resp.StatusCode != http.StatusOK {
+      var data strings.Builder
+      resp.Write(&data)
+      return nil, errors.New(data.String())
+   }
+   return io.ReadAll(resp.Body)
+}
+
+// wikipedia.org/wiki/Dynamic_Adaptive_Streaming_over_HTTP
+type Stream struct {
+   ClientId string
+   PrivateKey string
+   Wrapper widevine.Wrapper
+   key_id []byte
+   pssh []byte
+}
+
+func get_ext(represent *dash.Representation) (string, error) {
+   switch *represent.MimeType {
+   case "audio/mp4":
+      return ".m4a", nil
+   case "text/vtt":
+      return ".vtt", nil
+   case "video/mp4":
+      return ".m4v", nil
+   }
+   return "", errors.New(*represent.MimeType)
+}
+
 func (s *Stream) segment_base(represent *dash.Representation, ext string) error {
    file, err := os.Create(ext)
    if err != nil {
@@ -93,20 +128,6 @@ func (s *Stream) segment_base(represent *dash.Representation, ext string) error 
    return nil
 }
 
-func get(address *url.URL) ([]byte, error) {
-   resp, err := http.Get(address.String())
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   if resp.StatusCode != http.StatusOK {
-      var b strings.Builder
-      resp.Write(&b)
-      return nil, errors.New(b.String())
-   }
-   return io.ReadAll(resp.Body)
-}
-
 func (s *Stream) segment_list(
    represent *dash.Representation, ext string,
 ) error {
@@ -166,93 +187,6 @@ func (s *Stream) segment_list(
       }
    }
    return nil
-}
-
-func (s *Stream) segment_template(
-   represent *dash.Representation, ext string,
-) error {
-   file, err := os.Create(ext)
-   if err != nil {
-      return err
-   }
-   defer file.Close()
-   if initial := represent.SegmentTemplate.Initialization; initial != "" {
-      url0, err := initial.Url(represent)
-      if err != nil {
-         return err
-      }
-      resp, err := http.Get(url0.String())
-      if err != nil {
-         return err
-      }
-      defer resp.Body.Close()
-      if resp.StatusCode != http.StatusOK {
-         return errors.New(resp.Status)
-      }
-      data, err := io.ReadAll(resp.Body)
-      if err != nil {
-         return err
-      }
-      data, err = s.init_protect(data)
-      if err != nil {
-         return err
-      }
-      _, err = file.Write(data)
-      if err != nil {
-         return err
-      }
-   }
-   key, err := s.key()
-   if err != nil {
-      return err
-   }
-   http.DefaultClient.Transport = nil
-   var segments []int
-   for r := range represent.Representation() {
-      segments = slices.AppendSeq(segments, r.Segment())
-   }
-   var progress xhttp.ProgressParts
-   progress.Set(len(segments))
-   for _, segment := range segments {
-      media, err := represent.SegmentTemplate.Media.Url(represent, segment)
-      if err != nil {
-         return err
-      }
-      data, err := get(media)
-      if err != nil {
-         return err
-      }
-      progress.Next()
-      data, err = write_segment(data, key)
-      if err != nil {
-         return err
-      }
-      _, err = file.Write(data)
-      if err != nil {
-         return err
-      }
-   }
-   return nil
-}
-
-// wikipedia.org/wiki/Dynamic_Adaptive_Streaming_over_HTTP
-type Stream struct {
-   ClientId string
-   PrivateKey string
-   Wrapper widevine.Wrapper
-   key_id []byte
-   pssh []byte
-}
-func get_ext(represent *dash.Representation) (string, error) {
-   switch *represent.MimeType {
-   case "audio/mp4":
-      return ".m4a", nil
-   case "text/vtt":
-      return ".vtt", nil
-   case "video/mp4":
-      return ".m4v", nil
-   }
-   return "", errors.New(*represent.MimeType)
 }
 
 func (s *Stream) Download(represent *dash.Representation) error {
@@ -376,6 +310,7 @@ var Forward = []struct{
 {"United Kingdom", "25.0.0.0"},
 {"Venezuela", "190.72.0.0"},
 }
+
 func write_sidx(req *http.Request, index dash.Range) ([]sidx.Reference, error) {
    req.Header.Set("range", "bytes=" + index.String())
    resp, err := http.DefaultClient.Do(req)
@@ -393,6 +328,75 @@ func write_sidx(req *http.Request, index dash.Range) ([]sidx.Reference, error) {
       return nil, err
    }
    return file.Sidx.Reference, nil
+}
+
+///
+
+func (s *Stream) segment_template(
+   represent *dash.Representation, ext string,
+) error {
+   file, err := os.Create(ext)
+   if err != nil {
+      return err
+   }
+   defer file.Close()
+   if initial := represent.SegmentTemplate.Initialization; initial != "" {
+      url0, err := initial.Url(represent)
+      if err != nil {
+         return err
+      }
+      resp, err := http.Get(url0.String())
+      if err != nil {
+         return err
+      }
+      defer resp.Body.Close()
+      if resp.StatusCode != http.StatusOK {
+         return errors.New(resp.Status)
+      }
+      data, err := io.ReadAll(resp.Body)
+      if err != nil {
+         return err
+      }
+      data, err = s.init_protect(data)
+      if err != nil {
+         return err
+      }
+      _, err = file.Write(data)
+      if err != nil {
+         return err
+      }
+   }
+   key, err := s.key()
+   if err != nil {
+      return err
+   }
+   http.DefaultClient.Transport = nil
+   var segments []int
+   for r := range represent.Representation() {
+      segments = slices.AppendSeq(segments, r.Segment())
+   }
+   var progress xhttp.ProgressParts
+   progress.Set(len(segments))
+   for _, segment := range segments {
+      media, err := represent.SegmentTemplate.Media.Url(represent, segment)
+      if err != nil {
+         return err
+      }
+      data, err := get(media)
+      if err != nil {
+         return err
+      }
+      progress.Next()
+      data, err = write_segment(data, key)
+      if err != nil {
+         return err
+      }
+      _, err = file.Write(data)
+      if err != nil {
+         return err
+      }
+   }
+   return nil
 }
 
 func (s *Stream) key() ([]byte, error) {
