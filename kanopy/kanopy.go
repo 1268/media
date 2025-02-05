@@ -8,6 +8,20 @@ import (
    "strconv"
 )
 
+func (u Url) Get() ([]byte, error) {
+   req, err := http.NewRequest("", string(u), nil)
+   if err != nil {
+      return nil, err
+   }
+   req.Header.Set("user-agent", "Mozilla")
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   return io.ReadAll(resp.Body)
+}
+
 func (w *WebToken) Plays(
    member *Membership, video_id int,
 ) (*VideoPlays, error) {
@@ -56,19 +70,6 @@ func (v VideoPlays) Dash() (*VideoManifest, bool) {
       }
    }
    return nil, false
-}
-func (u Url) Get() ([]byte, error) {
-   req, err := http.NewRequest("", string(u), nil)
-   if err != nil {
-      return nil, err
-   }
-   req.Header.Set("user-agent", "Mozilla")
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   return io.ReadAll(resp.Body)
 }
 
 type Url string

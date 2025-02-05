@@ -50,9 +50,9 @@ func (a *Authorization) Playback(web Address) (*Playback, error) {
    }
    defer resp.Body.Close()
    if resp.StatusCode != http.StatusOK {
-      var b strings.Builder
-      resp.Write(&b)
-      return nil, errors.New(b.String())
+      var data strings.Builder
+      resp.Write(&data)
+      return nil, errors.New(data.String())
    }
    var value1 struct {
       Data struct {
@@ -67,6 +67,7 @@ func (a *Authorization) Playback(web Address) (*Playback, error) {
    }
    return &Playback{resp.Header, value1.Data.PlaybackJsonData.Sources}, nil
 }
+
 type Playback struct {
    Header http.Header
    Sources []DataSource

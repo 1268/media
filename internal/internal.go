@@ -6,6 +6,7 @@ import (
    "41.neocities.org/sofia/pssh"
    "41.neocities.org/sofia/sidx"
    "41.neocities.org/widevine"
+   xhttp "41.neocities.org/x/http"
    "bytes"
    "encoding/base64"
    "errors"
@@ -16,7 +17,6 @@ import (
    "os"
    "slices"
    "strings"
-   xhttp "41.neocities.org/x/http"
 )
 
 func Representation(resp *http.Response) ([]dash.Representation, error) {
@@ -90,11 +90,11 @@ func get(address *url.URL) ([]byte, error) {
 
 // wikipedia.org/wiki/Dynamic_Adaptive_Streaming_over_HTTP
 type Stream struct {
-   ClientId string
+   ClientId   string
    PrivateKey string
-   Wrapper widevine.Wrapper
-   key_id []byte
-   pssh []byte
+   Wrapper    widevine.Wrapper
+   key_id     []byte
+   pssh       []byte
 }
 
 func get_ext(represent *dash.Representation) (string, error) {
@@ -120,7 +120,7 @@ func (s *Stream) segment_base(represent *dash.Representation, ext string) error 
    req.Header = http.Header{}
    req.URL = represent.BaseUrl.Url
    // need to use Set for lower case
-   req.Header.Set("range", "bytes=" + base.Initialization.Range.String())
+   req.Header.Set("range", "bytes="+base.Initialization.Range.String())
    resp, err := http.DefaultClient.Do(&req)
    if err != nil {
       return err
@@ -156,7 +156,7 @@ func (s *Stream) segment_base(represent *dash.Representation, ext string) error 
       base.IndexRange[0] = base.IndexRange[1] + 1
       base.IndexRange[1] += uint64(reference.Size())
       data, err = func() ([]byte, error) {
-         req.Header.Set("range", "bytes=" + base.IndexRange.String())
+         req.Header.Set("range", "bytes="+base.IndexRange.String())
          resp, err := http.DefaultClient.Do(&req)
          if err != nil {
             return nil, err
@@ -265,46 +265,46 @@ func write_segment(data, key []byte) ([]byte, error) {
    return file.Append(nil)
 }
 
-var Forward = []struct{
+var Forward = []struct {
    Country string
-   Ip string
+   Ip      string
 }{
-{"Argentina", "186.128.0.0"},
-{"Australia", "1.128.0.0"},
-{"Bolivia", "179.58.0.0"},
-{"Brazil", "179.192.0.0"},
-{"Canada", "99.224.0.0"},
-{"Chile", "191.112.0.0"},
-{"Colombia", "181.128.0.0"},
-{"Costa Rica", "201.192.0.0"},
-{"Denmark", "2.104.0.0"},
-{"Ecuador", "186.68.0.0"},
-{"Egypt", "197.32.0.0"},
-{"Germany", "53.0.0.0"},
-{"Guatemala", "190.56.0.0"},
-{"India", "106.192.0.0"},
-{"Indonesia", "39.192.0.0"},
-{"Ireland", "87.32.0.0"},
-{"Italy", "79.0.0.0"},
-{"Latvia", "78.84.0.0"},
-{"Malaysia", "175.136.0.0"},
-{"Mexico", "189.128.0.0"},
-{"Netherlands", "145.160.0.0"},
-{"New Zealand", "49.224.0.0"},
-{"Norway", "88.88.0.0"},
-{"Peru", "190.232.0.0"},
-{"Russia", "95.24.0.0"},
-{"South Africa", "105.0.0.0"},
-{"South Korea", "175.192.0.0"},
-{"Spain", "88.0.0.0"},
-{"Sweden", "78.64.0.0"},
-{"Taiwan", "120.96.0.0"},
-{"United Kingdom", "25.0.0.0"},
-{"Venezuela", "190.72.0.0"},
+   {"Argentina", "186.128.0.0"},
+   {"Australia", "1.128.0.0"},
+   {"Bolivia", "179.58.0.0"},
+   {"Brazil", "179.192.0.0"},
+   {"Canada", "99.224.0.0"},
+   {"Chile", "191.112.0.0"},
+   {"Colombia", "181.128.0.0"},
+   {"Costa Rica", "201.192.0.0"},
+   {"Denmark", "2.104.0.0"},
+   {"Ecuador", "186.68.0.0"},
+   {"Egypt", "197.32.0.0"},
+   {"Germany", "53.0.0.0"},
+   {"Guatemala", "190.56.0.0"},
+   {"India", "106.192.0.0"},
+   {"Indonesia", "39.192.0.0"},
+   {"Ireland", "87.32.0.0"},
+   {"Italy", "79.0.0.0"},
+   {"Latvia", "78.84.0.0"},
+   {"Malaysia", "175.136.0.0"},
+   {"Mexico", "189.128.0.0"},
+   {"Netherlands", "145.160.0.0"},
+   {"New Zealand", "49.224.0.0"},
+   {"Norway", "88.88.0.0"},
+   {"Peru", "190.232.0.0"},
+   {"Russia", "95.24.0.0"},
+   {"South Africa", "105.0.0.0"},
+   {"South Korea", "175.192.0.0"},
+   {"Spain", "88.0.0.0"},
+   {"Sweden", "78.64.0.0"},
+   {"Taiwan", "120.96.0.0"},
+   {"United Kingdom", "25.0.0.0"},
+   {"Venezuela", "190.72.0.0"},
 }
 
 func write_sidx(req *http.Request, index dash.Range) ([]sidx.Reference, error) {
-   req.Header.Set("range", "bytes=" + index.String())
+   req.Header.Set("range", "bytes="+index.String())
    resp, err := http.DefaultClient.Do(req)
    if err != nil {
       return nil, err
