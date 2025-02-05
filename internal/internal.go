@@ -19,19 +19,27 @@ import (
    "strings"
 )
 
-func Representation(resp *http.Response) ([]dash.Representation, error) {
+type DashClient interface {
+   Mpd() (*http.Response, error)
+}
+
+func Mpd(client DashClient) ([]dash.Representation, error) {
+   resp, err := client.Mpd()
+   if err != nil {
+      return nil, err
+   }
    defer resp.Body.Close()
    data, err := io.ReadAll(resp.Body)
    if err != nil {
       return nil, err
    }
-   var mpd dash.Mpd
-   err = mpd.Unmarshal(data)
+   var media dash.Mpd
+   err = media.Unmarshal(data)
    if err != nil {
       return nil, err
    }
-   mpd.Set(resp.Request.URL)
-   return slices.SortedFunc(mpd.Representation(),
+   media.Set(resp.Request.URL)
+   return slices.SortedFunc(media.Representation(),
       func(a, b dash.Representation) int {
          return a.Bandwidth - b.Bandwidth
       },

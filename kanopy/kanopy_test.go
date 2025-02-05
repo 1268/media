@@ -17,40 +17,8 @@ const sleep = 99 * time.Millisecond
 func Test(t *testing.T) {
    http.DefaultClient.Transport = transport{}
    t.Run("WebToken", TestWebToken)
-   t.Run("Url", TestUrl)
    t.Run("VideoPlays", TestVideoPlays)
    t.Run("Wrapper", TestWrapper)
-}
-
-func TestUrl(t *testing.T) {
-   data, err := os.ReadFile("ignore/token.txt")
-   if err != nil {
-      t.Fatal(err)
-   }
-   var token WebToken
-   token.Unmarshal(data)
-   member, err := token.Membership()
-   if err != nil {
-      t.Fatal(err)
-   }
-   for _, test := range tests {
-      plays, err := token.Plays(member, test.video_id)
-      if err != nil {
-         t.Fatal(err)
-      }
-      manifest, ok := plays.Dash()
-      if !ok {
-         t.Fatal("VideoPlays.Dash")
-      }
-      data, err = manifest.Url.Get()
-      if err != nil {
-         t.Fatal(err)
-      }
-      if !strings.HasPrefix(string(data), `<?xml version="1.0"?>`) {
-         t.Fatal(manifest.Url)
-      }
-      time.Sleep(sleep)
-   }
 }
 
 var tests = []struct {

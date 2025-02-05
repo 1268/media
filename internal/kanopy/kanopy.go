@@ -1,12 +1,11 @@
 package main
 
 import (
-   "41.neocities.org/dash"
+   "41.neocities.org/media/internal"
    "41.neocities.org/media/kanopy"
    "errors"
    "fmt"
    "os"
-   "slices"
 )
 
 func (f *flags) download() error {
@@ -31,20 +30,10 @@ func (f *flags) download() error {
    if !ok {
       return errors.New("VideoPlays.Dash")
    }
-   data, err = manifest.Url.Get()
+   represents, err := internal.Mpd(manifest.Url)
    if err != nil {
       return err
    }
-   var mpd dash.Mpd
-   err = mpd.Unmarshal(data)
-   if err != nil {
-      return err
-   }
-   represents := slices.SortedFunc(mpd.Representation(),
-      func(a, b dash.Representation) int {
-         return a.Bandwidth - b.Bandwidth
-      },
-   )
    for _, represent := range represents {
       switch f.representation {
       case "":

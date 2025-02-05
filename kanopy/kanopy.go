@@ -8,18 +8,21 @@ import (
    "strconv"
 )
 
-func (u Url) Get() ([]byte, error) {
+func (u Url) Mpd() (*http.Response, error) {
    req, err := http.NewRequest("", string(u), nil)
    if err != nil {
       return nil, err
    }
    req.Header.Set("user-agent", "Mozilla")
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   return io.ReadAll(resp.Body)
+   return http.DefaultClient.Do(req)
+}
+
+type Url string
+
+type VideoManifest struct {
+   DrmLicenseId string
+   ManifestType string
+   Url          Url
 }
 
 func (w *WebToken) Plays(
@@ -70,14 +73,6 @@ func (v VideoPlays) Dash() (*VideoManifest, bool) {
       }
    }
    return nil, false
-}
-
-type Url string
-
-type VideoManifest struct {
-   DrmLicenseId string
-   ManifestType string
-   Url          Url
 }
 
 type Wrapper struct {
