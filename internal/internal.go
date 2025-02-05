@@ -246,33 +246,6 @@ func write_segment(data, key []byte) ([]byte, error) {
    return file.Append(nil)
 }
 
-func (s *Stream) init_protect(data []byte) ([]byte, error) {
-   var file container.File
-   err := file.Read(data)
-   if err != nil {
-      return nil, err
-   }
-   if moov, ok := file.GetMoov(); ok {
-      for _, value := range moov.Pssh {
-         if value.Widevine() {
-            s.pssh = value.Data
-         }
-         copy(value.BoxHeader.Type[:], "free") // Firefox
-      }
-      description := moov.Trak.Mdia.Minf.Stbl.Stsd
-      if sinf, ok := description.Sinf(); ok {
-         s.key_id = sinf.Schi.Tenc.S.DefaultKid[:]
-         // Firefox
-         copy(sinf.BoxHeader.Type[:], "free")
-         if sample, ok := description.SampleEntry(); ok {
-            // Firefox
-            copy(sample.BoxHeader.Type[:], sinf.Frma.DataFormat[:])
-         }
-      }
-   }
-   return file.Append(nil)
-}
-
 var Forward = []struct{
    Country string
    Ip string
@@ -329,8 +302,6 @@ func write_sidx(req *http.Request, index dash.Range) ([]sidx.Reference, error) {
    }
    return file.Sidx.Reference, nil
 }
-
-///
 
 func (s *Stream) segment_template(
    represent *dash.Representation, ext string,
@@ -397,6 +368,33 @@ func (s *Stream) segment_template(
       }
    }
    return nil
+}
+
+func (s *Stream) init_protect(data []byte) ([]byte, error) {
+   var file container.File
+   err := file.Read(data)
+   if err != nil {
+      return nil, err
+   }
+   if moov, ok := file.GetMoov(); ok {
+      for _, value := range moov.Pssh {
+         if value.Widevine() {
+            s.pssh = value.Data
+         }
+         copy(value.BoxHeader.Type[:], "free") // Firefox
+      }
+      description := moov.Trak.Mdia.Minf.Stbl.Stsd
+      if sinf, ok := description.Sinf(); ok {
+         s.key_id = sinf.Schi.Tenc.S.DefaultKid[:]
+         // Firefox
+         copy(sinf.BoxHeader.Type[:], "free")
+         if sample, ok := description.SampleEntry(); ok {
+            // Firefox
+            copy(sample.BoxHeader.Type[:], sinf.Frma.DataFormat[:])
+         }
+      }
+   }
+   return file.Append(nil)
 }
 
 func (s *Stream) key() ([]byte, error) {
