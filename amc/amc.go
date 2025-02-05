@@ -9,11 +9,6 @@ import (
    "strings"
 )
 
-type Wrapper struct {
-   Header http.Header
-   Source Source
-}
-
 type Address [2]string
 
 func (a *Address) Set(data string) error {
@@ -32,31 +27,12 @@ func (a Address) String() string {
    return strings.Join(a[:], "--")
 }
 
-func (w *Wrapper) Wrap(data []byte) ([]byte, error) {
-   req, err := http.NewRequest(
-      "POST", w.Source.KeySystems.Widevine.LicenseUrl, bytes.NewReader(data),
-   )
-   if err != nil {
-      return nil, err
-   }
-   req.Header.Set("bcov-auth", w.Header.Get("x-amcn-bc-jwt"))
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   return io.ReadAll(resp.Body)
-}
-
 func (a *Auth) Unmarshal(data []byte) error {
    return json.Unmarshal(data, a)
 }
 
 func (a *Auth) Refresh() ([]byte, error) {
-   req, err := http.NewRequest("POST", "https://gw.cds.amcn.com", nil)
-   if err != nil {
-      return nil, err
-   }
+   req, _ := http.NewRequest("POST", "https://gw.cds.amcn.com", nil)
    req.URL.Path = "/auth-orchestration-id/api/v1/refresh"
    req.Header.Set("authorization", "Bearer " + a.Data.RefreshToken)
    resp, err := http.DefaultClient.Do(req)
@@ -110,10 +86,7 @@ func (a *Auth) Login(email, password string) ([]byte, error) {
 }
 
 func (a *Auth) Unauth() error {
-   req, err := http.NewRequest("POST", "https://gw.cds.amcn.com", nil)
-   if err != nil {
-      return err
-   }
+   req, _ := http.NewRequest("POST", "https://gw.cds.amcn.com", nil)
    req.URL.Path = "/auth-orchestration-id/api/v1/unauth"
    req.Header = http.Header{
       "x-amcn-device-id": {"-"},
@@ -149,8 +122,6 @@ type Source struct {
    Src string
    Type string
 }
-
-///
 
 func (a *Auth) Playback(web Address) (*Playback, error) {
    var value struct {
@@ -197,24 +168,19 @@ func (a *Auth) Playback(web Address) (*Playback, error) {
       resp.Write(&data)
       return nil, errors.New(data.String())
    }
-   var value1 struct {
-      Data struct {
-         PlaybackJsonData struct {
-            Sources []Source
-         }
-      }
-   }
-   err = json.NewDecoder(resp.Body).Decode(&value1)
+   var play Playback
+   err = json.NewDecoder(resp.Body).Decode(&play)
    if err != nil {
       return nil, err
    }
-   return &Playback{resp.Header, value1.Data.PlaybackJsonData.Sources}, nil
+   play.Header = resp.Header
+   return &play, nil
 }
 
-func (p *Playback) Dash() (*Wrapper, bool) {
-   for _, source0 := range p.Sources {
+func (p *Playback) Dash() (*Source, bool) {
+   for _, source0 := range p.Body.Data.PlaybackJsonData.Sources {
       if source0.Type == "application/dash+xml" {
-         return &Wrapper{p.Header, source0}, true
+         return &source0, true
       }
    }
    return nil, false
@@ -222,5 +188,27 @@ func (p *Playback) Dash() (*Wrapper, bool) {
 
 type Playback struct {
    Header http.Header
-   Sources []Source
+   Body struct {
+      Data struct {
+         PlaybackJsonData struct {
+            Sources []Source
+         }
+      }
+   }
+}
+
+type Widevine struct {
+   Header http.Header
+   Source *Source
+}
+
+func (w *Widevine) License(data []byte) (*http.Response, error) {
+   req, err := http.NewRequest(
+      "POST", w.Source.KeySystems.Widevine.LicenseUrl, bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   req.Header.Set("bcov-auth", w.Header.Get("x-amcn-bc-jwt"))
+   return http.DefaultClient.Do(req)
 }

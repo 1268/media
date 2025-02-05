@@ -19,6 +19,10 @@ import (
    "strings"
 )
 
+type WidevineClient interface {
+   License([]byte) (*http.Response, error)
+}
+
 type DashClient interface {
    Mpd() (*http.Response, error)
 }
