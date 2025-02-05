@@ -1,11 +1,10 @@
 package main
 
 import (
-   "41.neocities.org/dash"
    "41.neocities.org/media/cineMember"
+   "41.neocities.org/media/internal"
    "errors"
    "fmt"
-   "io"
    "net/http"
    "os"
    "path"
@@ -67,18 +66,11 @@ func (f *flags) download() error {
    if err != nil {
       return err
    }
-   defer resp.Body.Close()
-   data, err = io.ReadAll(resp.Body)
+   represents, err := internal.Representation(resp)
    if err != nil {
       return err
    }
-   var mpd dash.Mpd
-   err = mpd.Unmarshal(data)
-   if err != nil {
-      return err
-   }
-   mpd.Set(resp.Request.URL)
-   for represent := range mpd.Representation() {
+   for _, represent := range represents {
       switch f.representation {
       case "":
          fmt.Print(&represent, "\n\n")

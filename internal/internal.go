@@ -19,6 +19,61 @@ import (
    xhttp "41.neocities.org/x/http"
 )
 
+func Representation(resp *http.Response) ([]dash.Representation, error) {
+   defer resp.Body.Close()
+   data, err := io.ReadAll(resp.Body)
+   if err != nil {
+      return nil, err
+   }
+   var mpd dash.Mpd
+   err = mpd.Unmarshal(data)
+   if err != nil {
+      return nil, err
+   }
+   mpd.Set(resp.Request.URL)
+   return slices.SortedFunc(mpd.Representation(),
+      func(a, b dash.Representation) int {
+         return a.Bandwidth - b.Bandwidth
+      },
+   ), nil
+}
+
+func (s *Stream) Download(represent *dash.Representation) error {
+   for _, p := range represent.ContentProtection {
+      if p.SchemeIdUri == "urn:uuid:edef8ba9-79d6-4ace-a3c8-27dcd51d21ed" {
+         if p.Pssh != "" {
+            data, err := base64.StdEncoding.DecodeString(p.Pssh)
+            if err != nil {
+               return err
+            }
+            var box pssh.Box
+            n, err := box.BoxHeader.Decode(data)
+            if err != nil {
+               return err
+            }
+            err = box.Read(data[n:])
+            if err != nil {
+               return err
+            }
+            s.pssh = box.Data
+            // fallback to INIT
+            break
+         }
+      }
+   }
+   ext, err := get_ext(represent)
+   if err != nil {
+      return err
+   }
+   if represent.SegmentBase != nil {
+      return s.segment_base(represent, ext)
+   }
+   if represent.SegmentList != nil {
+      return s.segment_list(represent, ext)
+   }
+   return s.segment_template(represent, ext)
+}
+
 func get(address *url.URL) ([]byte, error) {
    resp, err := http.Get(address.String())
    if err != nil {
@@ -187,42 +242,6 @@ func (s *Stream) segment_list(
       }
    }
    return nil
-}
-
-func (s *Stream) Download(represent *dash.Representation) error {
-   for _, p := range represent.ContentProtection {
-      if p.SchemeIdUri == "urn:uuid:edef8ba9-79d6-4ace-a3c8-27dcd51d21ed" {
-         if p.Pssh != "" {
-            data, err := base64.StdEncoding.DecodeString(p.Pssh)
-            if err != nil {
-               return err
-            }
-            var box pssh.Box
-            n, err := box.BoxHeader.Decode(data)
-            if err != nil {
-               return err
-            }
-            err = box.Read(data[n:])
-            if err != nil {
-               return err
-            }
-            s.pssh = box.Data
-            // fallback to INIT
-            break
-         }
-      }
-   }
-   ext, err := get_ext(represent)
-   if err != nil {
-      return err
-   }
-   if represent.SegmentBase != nil {
-      return s.segment_base(represent, ext)
-   }
-   if represent.SegmentList != nil {
-      return s.segment_list(represent, ext)
-   }
-   return s.segment_template(represent, ext)
 }
 
 func write_segment(data, key []byte) ([]byte, error) {
