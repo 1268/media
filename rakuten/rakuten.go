@@ -10,6 +10,33 @@ import (
    "strings"
 )
 
+// github.com/pandvan/rakuten-m3u-generator/blob/master/rakuten.py
+func (a *Address) ClassificationId() (int, bool) {
+   switch a.MarketCode {
+   case "at":
+      return 300, true
+   case "ch":
+      return 319, true
+   case "cz":
+      return 272, true
+   case "de":
+      return 307, true
+   case "fr":
+      return 23, true
+   case "ie":
+      return 41, true
+   case "nl":
+      return 69, true
+   case "pl":
+      return 277, true
+   case "se":
+      return 282, true
+   case "uk":
+      return 18, true
+   }
+   return 0, false
+}
+
 type OnDemand struct {
    AudioLanguage            string `json:"audio_language"`
    AudioQuality             string `json:"audio_quality"`
@@ -60,35 +87,6 @@ type StreamInfo struct {
    LicenseUrl   string `json:"license_url"`
    Url          string
    VideoQuality string `json:"video_quality"`
-}
-
-// github.com/pandvan/rakuten-m3u-generator/blob/master/rakuten.py
-func (a *Address) ClassificationId() (int, bool) {
-   switch a.MarketCode {
-   case "at":
-      return 300, true
-   case "ch":
-      return 319, true
-   case "cz":
-      return 272, true
-   case "de":
-      return 307, true
-   case "es":
-      return 5, true
-   case "fr":
-      return 23, true
-   case "ie":
-      return 41, true
-   case "nl":
-      return 69, true
-   case "pl":
-      return 277, true
-   case "se":
-      return 282, true
-   case "uk":
-      return 18, true
-   }
-   return 0, false
 }
 
 type Address struct {
