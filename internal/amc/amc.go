@@ -14,7 +14,7 @@ func (f *flags) download() error {
    if err != nil {
       return err
    }
-   var auth amc.Authorization
+   var auth amc.Auth
    err = auth.Unmarshal(data)
    if err != nil {
       return err
@@ -57,7 +57,7 @@ func (f *flags) download() error {
 }
 
 func (f *flags) login() error {
-   var auth amc.Authorization
+   var auth amc.Auth
    err := auth.Unauth()
    if err != nil {
       return err

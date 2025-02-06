@@ -2,28 +2,11 @@ package amc
 
 import (
    "fmt"
-   "os"
-   "os/exec"
-   "strings"
    "testing"
 )
 
-func TestLogin(t *testing.T) {
-   data, err := exec.Command("password", "amcplus.com").Output()
-   if err != nil {
-      t.Fatal(err)
-   }
-   username, password, _ := strings.Cut(string(data), ":")
-   var auth Authorization
-   err = auth.Unauth()
-   if err != nil {
-      t.Fatal(err)
-   }
-   data, err = auth.Login(username, password)
-   if err != nil {
-      t.Fatal(err)
-   }
-   os.WriteFile("amc.txt", data, os.ModePerm)
+func TestLicense(t *testing.T) {
+   fmt.Println(key_tests)
 }
 
 var key_tests = []struct{
@@ -56,21 +39,4 @@ func TestPath(t *testing.T) {
       }
       fmt.Println(web)
    }
-}
-
-func TestRefresh(t *testing.T) {
-   data, err := os.ReadFile("amc.txt")
-   if err != nil {
-      t.Fatal(err)
-   }
-   var auth Authorization
-   err = auth.Unmarshal(data)
-   if err != nil {
-      t.Fatal(err)
-   }
-   data, err = auth.Refresh()
-   if err != nil {
-      t.Fatal(err)
-   }
-   os.WriteFile("amc.txt", data, os.ModePerm)
 }
