@@ -5,7 +5,6 @@ import (
    "41.neocities.org/media/internal"
    "errors"
    "fmt"
-   "net/http"
    "os"
    "path"
 )
@@ -24,11 +23,7 @@ func (f *flags) download() error {
    if !ok {
       return errors.New("OperationPlay.Dash")
    }
-   resp, err := http.Get(title.Manifest)
-   if err != nil {
-      return err
-   }
-   represents, err := internal.Representation(resp)
+   represents, err := internal.Mpd(title)
    if err != nil {
       return err
    }
@@ -37,7 +32,7 @@ func (f *flags) download() error {
       case "":
          fmt.Print(&represent, "\n\n")
       case represent.Id:
-         f.s.Wrapper = title
+         f.s.Widevine = title
          return f.s.Download(&represent)
       }
    }

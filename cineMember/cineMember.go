@@ -4,10 +4,25 @@ import (
    "bytes"
    "encoding/json"
    "errors"
-   "io"
    "net/http"
    "strings"
 )
+
+func (e *Entitlement) License(data []byte) (*http.Response, error) {
+   return http.Post(
+      e.KeyDeliveryUrl, "application/x-protobuf", bytes.NewReader(data),
+   )
+}
+
+func (e *Entitlement) Mpd() (*http.Response, error) {
+   return http.Get(e.Manifest)
+}
+
+type Entitlement struct {
+   KeyDeliveryUrl string `json:"key_delivery_url"`
+   Manifest string
+   Protocol string
+}
 
 func (a *Address) Set(data string) error {
    if !strings.HasPrefix(data, "https://") {
@@ -27,23 +42,6 @@ type Address struct {
 
 func (a Address) String() string {
    return a.s
-}
-
-type Entitlement struct {
-   KeyDeliveryUrl string `json:"key_delivery_url"`
-   Manifest string
-   Protocol string
-}
-
-func (e *Entitlement) Wrap(data []byte) ([]byte, error) {
-   resp, err := http.Post(
-      e.KeyDeliveryUrl, "application/x-protobuf", bytes.NewReader(data),
-   )
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   return io.ReadAll(resp.Body)
 }
 
 // NO ANONYMOUS QUERY

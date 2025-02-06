@@ -8,6 +8,15 @@ import (
    "net/http"
 )
 
+func (a *AssetPlay) Dash() (*Entitlement, bool) {
+   for _, title := range a.Data.ArticleAssetPlay.Entitlements {
+      if title.Protocol == "dash" {
+         return &title, true
+      }
+   }
+   return nil, false
+}
+
 const query_asset = `
 mutation($article_id: Int, $asset_id: Int) {
    ArticleAssetPlay(article_id: $article_id asset_id: $asset_id) {
@@ -31,15 +40,6 @@ type AssetPlay struct {
    Errors []struct {
       Message string
    }
-}
-
-func (a *AssetPlay) Dash() (*Entitlement, bool) {
-   for _, title := range a.Data.ArticleAssetPlay.Entitlements {
-      if title.Protocol == "dash" {
-         return &title, true
-      }
-   }
-   return nil, false
 }
 
 func (a *AssetPlay) Unmarshal(data []byte) error {
