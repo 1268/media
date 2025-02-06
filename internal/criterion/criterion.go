@@ -5,7 +5,6 @@ import (
    "41.neocities.org/media/internal"
    "errors"
    "fmt"
-   "net/http"
    "os"
    "path"
 )
@@ -15,7 +14,7 @@ func (f *flags) download() error {
    if err != nil {
       return err
    }
-   var token criterion.AuthToken
+   var token criterion.Token
    err = token.Unmarshal(data)
    if err != nil {
       return err
@@ -32,11 +31,7 @@ func (f *flags) download() error {
    if !ok {
       return errors.New("VideoFiles.Dash")
    }
-   resp, err := http.Get(file.Links.Source.Href)
-   if err != nil {
-      return err
-   }
-   represents, err := internal.Representation(resp)
+   represents, err := internal.Mpd(file)
    if err != nil {
       return err
    }
@@ -45,7 +40,7 @@ func (f *flags) download() error {
       case "":
          fmt.Print(&represent, "\n\n")
       case represent.Id:
-         f.s.Wrapper = file
+         f.s.Widevine = file
          return f.s.Download(&represent)
       }
    }
@@ -53,7 +48,7 @@ func (f *flags) download() error {
 }
 
 func (f *flags) authenticate() error {
-   data, err := criterion.AuthToken{}.Marshal(f.email, f.password)
+   data, err := criterion.Token{}.Marshal(f.email, f.password)
    if err != nil {
       return err
    }

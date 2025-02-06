@@ -10,7 +10,7 @@ import (
    "strings"
 )
 
-func (f *File) Wrap(data []byte) ([]byte, error) {
+func (f *File) License(data []byte) (*http.Response, error) {
    req, err := http.NewRequest(
       "POST", "https://drm.vhx.com/v2/widevine", bytes.NewReader(data),
    )
@@ -18,12 +18,21 @@ func (f *File) Wrap(data []byte) ([]byte, error) {
       return nil, err
    }
    req.URL.RawQuery = "token=" + f.DrmAuthorizationToken
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   return io.ReadAll(resp.Body)
+   return http.DefaultClient.Do(req)
+}
+
+func (f *File) Mpd() (*http.Response, error) {
+   return http.Get(f.Links.Source.Href)
+}
+
+type File struct {
+   DrmAuthorizationToken string `json:"drm_authorization_token"`
+   Links                 struct {
+      Source struct {
+         Href string
+      }
+   } `json:"_links"`
+   Method string
 }
 
 const client_id = "9a87f110f79cd25250f6c7f3a6ec8b9851063ca156dae493bf362a7faf146c78"
@@ -115,13 +124,3 @@ func (t *Token) Files(video0 *Video) (Files, error) {
 }
 
 type Files []File
-
-type File struct {
-   DrmAuthorizationToken string `json:"drm_authorization_token"`
-   Links                 struct {
-      Source struct {
-         Href string
-      }
-   } `json:"_links"`
-   Method string
-}
