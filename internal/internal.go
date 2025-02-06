@@ -32,65 +32,6 @@ type WidevineClient interface {
    License([]byte) (*http.Response, error)
 }
 
-func (s *Stream) key() ([]byte, error) {
-   if s.key_id == nil {
-      return nil, nil
-   }
-   private_key, err := os.ReadFile(s.PrivateKey)
-   if err != nil {
-      return nil, err
-   }
-   client_id, err := os.ReadFile(s.ClientId)
-   if err != nil {
-      return nil, err
-   }
-   if s.pssh == nil {
-      var pssh widevine.PsshData
-      pssh.KeyIds = [][]byte{s.key_id}
-      s.pssh = pssh.Marshal()
-   }
-   log.Println("PSSH", base64.StdEncoding.EncodeToString(s.pssh))
-   var module widevine.Cdm
-   err = module.New(private_key, client_id, s.pssh)
-   if err != nil {
-      return nil, err
-   }
-   data, err := module.RequestBody()
-   if err != nil {
-      return nil, err
-   }
-   resp, err := s.Widevine.License(data)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   data, err = io.ReadAll(resp.Body)
-   if err != nil {
-      return nil, err
-   }
-   var body widevine.ResponseBody
-   err = body.Unmarshal(data)
-   if err != nil {
-      return nil, err
-   }
-   block, err := module.Block(body)
-   if err != nil {
-      return nil, err
-   }
-   containers := body.Container()
-   for {
-      container, ok := containers()
-      if !ok {
-         return nil, errors.New("ResponseBody.Container")
-      }
-      if bytes.Equal(container.Id(), s.key_id) {
-         key := container.Key(block)
-         log.Println("key", base64.StdEncoding.EncodeToString(key))
-         return key, nil
-      }
-   }
-}
-
 type DashClient interface {
    Mpd() (*http.Response, error)
 }
@@ -485,4 +426,63 @@ func (s *Stream) init_protect(data []byte) ([]byte, error) {
       }
    }
    return file.Append(nil)
+}
+
+func (s *Stream) key() ([]byte, error) {
+   if s.key_id == nil {
+      return nil, nil
+   }
+   private_key, err := os.ReadFile(s.PrivateKey)
+   if err != nil {
+      return nil, err
+   }
+   client_id, err := os.ReadFile(s.ClientId)
+   if err != nil {
+      return nil, err
+   }
+   if s.pssh == nil {
+      var pssh widevine.PsshData
+      pssh.KeyIds = [][]byte{s.key_id}
+      s.pssh = pssh.Marshal()
+   }
+   log.Println("PSSH", base64.StdEncoding.EncodeToString(s.pssh))
+   var module widevine.Cdm
+   err = module.New(private_key, client_id, s.pssh)
+   if err != nil {
+      return nil, err
+   }
+   data, err := module.RequestBody()
+   if err != nil {
+      return nil, err
+   }
+   resp, err := s.Widevine.License(data)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   data, err = io.ReadAll(resp.Body)
+   if err != nil {
+      return nil, err
+   }
+   var body widevine.ResponseBody
+   err = body.Unmarshal(data)
+   if err != nil {
+      return nil, err
+   }
+   block, err := module.Block(body)
+   if err != nil {
+      return nil, err
+   }
+   containers := body.Container()
+   for {
+      container, ok := containers()
+      if !ok {
+         return nil, errors.New("ResponseBody.Container")
+      }
+      if bytes.Equal(container.Id(), s.key_id) {
+         key := container.Key(block)
+         log.Println("key", base64.StdEncoding.EncodeToString(key))
+         return key, nil
+      }
+   }
 }

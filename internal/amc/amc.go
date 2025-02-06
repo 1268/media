@@ -5,7 +5,6 @@ import (
    "41.neocities.org/media/internal"
    "errors"
    "fmt"
-   "net/http"
    "os"
 )
 
@@ -32,15 +31,11 @@ func (f *flags) download() error {
    if err != nil {
       return err
    }
-   wrap, ok := play.Dash()
+   source, ok := play.Dash()
    if !ok {
       return errors.New("Playback.Dash")
    }
-   resp, err := http.Get(wrap.Source.Src)
-   if err != nil {
-      return err
-   }
-   represents, err := internal.Representation(resp)
+   represents, err := internal.Mpd(source)
    if err != nil {
       return err
    }
@@ -49,7 +44,7 @@ func (f *flags) download() error {
       case "":
          fmt.Print(&represent, "\n\n")
       case represent.Id:
-         f.s.Wrapper = wrap
+         f.s.Widevine = &amc.Widevine{play.Header, source}
          return f.s.Download(&represent)
       }
    }

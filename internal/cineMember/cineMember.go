@@ -10,6 +10,40 @@ import (
    "path"
 )
 
+func (f *flags) download() error {
+   data, err := os.ReadFile(f.base() + "/play.txt")
+   if err != nil {
+      return err
+   }
+   var play cineMember.AssetPlay
+   err = play.Unmarshal(data)
+   if err != nil {
+      return err
+   }
+   title, ok := play.Dash()
+   if !ok {
+      return errors.New("OperationPlay.Dash")
+   }
+   resp, err := http.Get(title.Manifest)
+   if err != nil {
+      return err
+   }
+   represents, err := internal.Representation(resp)
+   if err != nil {
+      return err
+   }
+   for _, represent := range represents {
+      switch f.representation {
+      case "":
+         fmt.Print(&represent, "\n\n")
+      case represent.Id:
+         f.s.Wrapper = title
+         return f.s.Download(&represent)
+      }
+   }
+   return nil
+}
+
 func (f *flags) write_user() error {
    data, err := cineMember.Authenticate{}.Marshal(f.email, f.password)
    if err != nil {
@@ -46,38 +80,4 @@ func (f *flags) write_play() error {
    }
    os.Mkdir(f.base(), os.ModePerm)
    return os.WriteFile(f.base()+"/play.txt", data, os.ModePerm)
-}
-
-func (f *flags) download() error {
-   data, err := os.ReadFile(f.base() + "/play.txt")
-   if err != nil {
-      return err
-   }
-   var play cineMember.AssetPlay
-   err = play.Unmarshal(data)
-   if err != nil {
-      return err
-   }
-   title, ok := play.Dash()
-   if !ok {
-      return errors.New("OperationPlay.Dash")
-   }
-   resp, err := http.Get(title.Manifest)
-   if err != nil {
-      return err
-   }
-   represents, err := internal.Representation(resp)
-   if err != nil {
-      return err
-   }
-   for _, represent := range represents {
-      switch f.representation {
-      case "":
-         fmt.Print(&represent, "\n\n")
-      case represent.Id:
-         f.s.Wrapper = title
-         return f.s.Download(&represent)
-      }
-   }
-   return nil
 }

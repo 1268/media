@@ -9,6 +9,36 @@ import (
    "strings"
 )
 
+type Widevine struct {
+   Header http.Header
+   Source *Source
+}
+
+func (w *Widevine) License(data []byte) (*http.Response, error) {
+   req, err := http.NewRequest(
+      "POST", w.Source.KeySystems.Widevine.LicenseUrl, bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   req.Header.Set("bcov-auth", w.Header.Get("x-amcn-bc-jwt"))
+   return http.DefaultClient.Do(req)
+}
+
+func (s *Source) Mpd() (*http.Response, error) {
+   return http.Get(s.Src)
+}
+
+type Source struct {
+   KeySystems *struct {
+      Widevine struct {
+         LicenseUrl string `json:"license_url"`
+      } `json:"com.widevine.alpha"`
+   } `json:"key_systems"`
+   Src string
+   Type string
+}
+
 type Address [2]string
 
 func (a *Address) Set(data string) error {
@@ -113,16 +143,6 @@ type Auth struct {
    }
 }
 
-type Source struct {
-   KeySystems *struct {
-      Widevine struct {
-         LicenseUrl string `json:"license_url"`
-      } `json:"com.widevine.alpha"`
-   } `json:"key_systems"`
-   Src string
-   Type string
-}
-
 func (a *Auth) Playback(web Address) (*Playback, error) {
    var value struct {
       AdTags struct {
@@ -195,20 +215,4 @@ type Playback struct {
          }
       }
    }
-}
-
-type Widevine struct {
-   Header http.Header
-   Source *Source
-}
-
-func (w *Widevine) License(data []byte) (*http.Response, error) {
-   req, err := http.NewRequest(
-      "POST", w.Source.KeySystems.Widevine.LicenseUrl, bytes.NewReader(data),
-   )
-   if err != nil {
-      return nil, err
-   }
-   req.Header.Set("bcov-auth", w.Header.Get("x-amcn-bc-jwt"))
-   return http.DefaultClient.Do(req)
 }
