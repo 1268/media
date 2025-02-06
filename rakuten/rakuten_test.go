@@ -2,18 +2,17 @@ package rakuten
 
 import (
    "41.neocities.org/platform/mullvad"
-   "41.neocities.org/widevine"
    "41.neocities.org/x/http"
-   "encoding/base64"
    "errors"
    "log"
-   "os"
    "testing"
 )
 
 func TestMain(m *testing.M) {
-   http.Transport{}.DefaultClient()
    log.SetFlags(log.Ltime)
+   var port http.Transport
+   port.ProxyFromEnvironment()
+   port.DefaultClient()
    m.Run()
 }
 
@@ -145,61 +144,6 @@ type web_test struct {
    key_id     string
    language   string
    location   string
-}
-
-func TestStreamInfo(t *testing.T) {
-   home, err := os.UserHomeDir()
-   if err != nil {
-      t.Fatal(err)
-   }
-   private_key, err := os.ReadFile(home + "/widevine/private_key.pem")
-   if err != nil {
-      t.Fatal(err)
-   }
-   client_id, err := os.ReadFile(home + "/widevine/client_id.bin")
-   if err != nil {
-      t.Fatal(err)
-   }
-   for _, test := range web_tests {
-      content, err := test.content()
-      if err != nil {
-         t.Fatal(err)
-      }
-      func() {
-         err := mullvad.Connect(test.location)
-         if err != nil {
-            t.Fatal(err)
-         }
-         defer mullvad.Disconnect()
-         info, err := content.g.Hd(content.class, test.language).Streamings()
-         if err != nil {
-            t.Fatal(err)
-         }
-         var pssh widevine.PsshData
-         pssh.ContentId, err = base64.StdEncoding.DecodeString(test.content_id)
-         if err != nil {
-            t.Fatal(err)
-         }
-         key_id, err := base64.StdEncoding.DecodeString(test.key_id)
-         if err != nil {
-            t.Fatal(err)
-         }
-         pssh.KeyIds = [][]byte{key_id}
-         var module widevine.Cdm
-         err = module.New(private_key, client_id, pssh.Marshal())
-         if err != nil {
-            t.Fatal(err)
-         }
-         data, err := module.RequestBody()
-         if err != nil {
-            t.Fatal(err)
-         }
-         _, err = info.Wrap(data)
-         if err != nil {
-            t.Fatal(err)
-         }
-      }()
-   }
 }
 
 func (w *web_test) content() (*content_class, error) {

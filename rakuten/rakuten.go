@@ -4,12 +4,63 @@ import (
    "bytes"
    "encoding/json"
    "errors"
-   "io"
    "net/http"
    "net/url"
    "strconv"
    "strings"
 )
+
+type OnDemand struct {
+   AudioLanguage            string `json:"audio_language"`
+   AudioQuality             string `json:"audio_quality"`
+   ClassificationId         int    `json:"classification_id"`
+   ContentId                string `json:"content_id"`
+   ContentType              string `json:"content_type"`
+   DeviceIdentifier         string `json:"device_identifier"`
+   DeviceSerial             string `json:"device_serial"`
+   DeviceStreamVideoQuality string `json:"device_stream_video_quality"`
+   Player                   string `json:"player"`
+   SubtitleLanguage         string `json:"subtitle_language"`
+   VideoType                string `json:"video_type"`
+}
+
+func (g *GizmoContent) video(
+   classification_id int, language, quality string,
+) *OnDemand {
+   return &OnDemand{
+      DeviceStreamVideoQuality: quality,
+      AudioLanguage:            language,
+      AudioQuality:             "2.0",
+      ClassificationId:         classification_id,
+      DeviceIdentifier:         "atvui40",
+      DeviceSerial:             "not implemented",
+      Player:                   "atvui40:DASH-CENC:WVM",
+      SubtitleLanguage:         "MIS",
+      VideoType:                "stream",
+      ContentId:                g.Id,
+      ContentType:              g.Type,
+   }
+}
+
+func (g *GizmoContent) Fhd(classification_id int, language string) *OnDemand {
+   return g.video(classification_id, language, "FHD")
+}
+
+func (s *StreamInfo) Mpd() (*http.Response, error) {
+   return http.Get(s.Url)
+}
+
+func (s *StreamInfo) License(data []byte) (*http.Response, error) {
+   return http.Post(
+      s.LicenseUrl, "application/x-protobuf", bytes.NewReader(data),
+   )
+}
+
+type StreamInfo struct {
+   LicenseUrl   string `json:"license_url"`
+   Url          string
+   VideoQuality string `json:"video_quality"`
+}
 
 // github.com/pandvan/rakuten-m3u-generator/blob/master/rakuten.py
 func (a *Address) ClassificationId() (int, bool) {
@@ -22,6 +73,8 @@ func (a *Address) ClassificationId() (int, bool) {
       return 272, true
    case "de":
       return 307, true
+   case "es":
+      return 5, true
    case "fr":
       return 23, true
    case "ie":
@@ -59,19 +112,13 @@ func (a *Address) String() string {
    return data.String()
 }
 
-type StreamInfo struct {
-   LicenseUrl   string `json:"license_url"`
-   Url          string
-   VideoQuality string `json:"video_quality"`
-}
-
 func (g *GizmoContent) Hd(classification_id int, language string) *OnDemand {
    return g.video(classification_id, language, "HD")
 }
 
 // hard geo block
 func (o *OnDemand) Streamings() (*StreamInfo, error) {
-   data, err := json.Marshal(o)
+   data, err := json.MarshalIndent(o, "", " ")
    if err != nil {
       return nil, err
    }
@@ -99,10 +146,6 @@ func (o *OnDemand) Streamings() (*StreamInfo, error) {
       return nil, errors.New(err[0].Message)
    }
    return &value.Data.StreamInfos[0], nil
-}
-
-func (g *GizmoContent) Fhd(classification_id int, language string) *OnDemand {
-   return g.video(classification_id, language, "FHD")
 }
 
 func (g *GizmoContent) String() string {
@@ -154,49 +197,6 @@ func (a *Address) Movie(classification_id int) (*GizmoContent, error) {
       return nil, err
    }
    return &value.Data, nil
-}
-
-func (g *GizmoContent) video(
-   classification_id int, language, quality string,
-) *OnDemand {
-   return &OnDemand{
-      AudioLanguage:            language,
-      AudioQuality:             "2.0",
-      ClassificationId:         classification_id,
-      DeviceIdentifier:         "atvui40",
-      DeviceSerial:             "not implemented",
-      DeviceStreamVideoQuality: quality,
-      Player:                   "atvui40:DASH-CENC:WVM",
-      SubtitleLanguage:         "MIS",
-      VideoType:                "stream",
-      ContentId:                g.Id,
-      ContentType:              g.Type,
-   }
-}
-
-type OnDemand struct {
-   AudioLanguage            string `json:"audio_language"`
-   AudioQuality             string `json:"audio_quality"`
-   ClassificationId         int    `json:"classification_id"`
-   ContentId                string `json:"content_id"`
-   ContentType              string `json:"content_type"`
-   DeviceIdentifier         string `json:"device_identifier"`
-   DeviceSerial             string `json:"device_serial"`
-   DeviceStreamVideoQuality string `json:"device_stream_video_quality"`
-   Player                   string `json:"player"`
-   SubtitleLanguage         string `json:"subtitle_language"`
-   VideoType                string `json:"video_type"`
-}
-
-func (s *StreamInfo) Wrap(data []byte) ([]byte, error) {
-   resp, err := http.Post(
-      s.LicenseUrl, "application/x-protobuf", bytes.NewReader(data),
-   )
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   return io.ReadAll(resp.Body)
 }
 
 func (a *Address) Set(data string) error {

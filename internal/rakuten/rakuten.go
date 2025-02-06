@@ -5,7 +5,6 @@ import (
    "41.neocities.org/media/rakuten"
    "errors"
    "fmt"
-   "net/http"
 )
 
 func (f *flags) download() error {
@@ -34,11 +33,7 @@ func (f *flags) download() error {
    if err != nil {
       return err
    }
-   resp, err := http.Get(fhd.Url)
-   if err != nil {
-      return err
-   }
-   represents, err := internal.Representation(resp)
+   represents, err := internal.Mpd(fhd)
    if err != nil {
       return err
    }
@@ -52,7 +47,7 @@ func (f *flags) download() error {
             return err
          }
          fhd.LicenseUrl = hd.LicenseUrl
-         f.s.Wrapper = fhd
+         f.s.Widevine = fhd
          return f.s.Download(&represent)
       }
    }
