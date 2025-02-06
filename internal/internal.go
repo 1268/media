@@ -25,7 +25,7 @@ type Stream struct {
    PrivateKey string
    key_id     []byte
    pssh       []byte
-   Widevine WidevineClient
+   Widevine   WidevineClient
 }
 
 type WidevineClient interface {

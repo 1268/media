@@ -9,6 +9,38 @@ import (
    "path"
 )
 
+func (f *flags) get_manifest() error {
+   resolve, err := f.address.Resolve()
+   if err != nil {
+      return err
+   }
+   axis, err := resolve.Axis()
+   if err != nil {
+      return err
+   }
+   os.Mkdir(f.base(), os.ModePerm)
+   // content
+   var content ctv.Content
+   data, err := content.Marshal(axis)
+   if err != nil {
+      return err
+   }
+   err = os.WriteFile(f.base()+"/content.txt", data, os.ModePerm)
+   if err != nil {
+      return err
+   }
+   // manifest
+   err = content.Unmarshal(data)
+   if err != nil {
+      return err
+   }
+   manifest, err := axis.Manifest(&content)
+   if err != nil {
+      return err
+   }
+   return os.WriteFile(f.base()+"/manifest.txt", []byte(manifest), os.ModePerm)
+}
+
 func (f *flags) download() error {
    manifest, err := os.ReadFile(f.base() + "/manifest.txt")
    if err != nil {
@@ -36,36 +68,4 @@ func (f *flags) download() error {
 
 func (f *flags) base() string {
    return path.Base(f.address.String())
-}
-
-func (f *flags) get_manifest() error {
-   resolve, err := f.address.Resolve()
-   if err != nil {
-      return err
-   }
-   axis, err := resolve.Axis()
-   if err != nil {
-      return err
-   }
-   os.Mkdir(f.base(), os.ModePerm)
-   // media
-   var media ctv.MediaContent
-   data, err := media.Marshal(axis)
-   if err != nil {
-      return err
-   }
-   err = os.WriteFile(f.base()+"/media.txt", data, os.ModePerm)
-   if err != nil {
-      return err
-   }
-   // manifest
-   err = media.Unmarshal(data)
-   if err != nil {
-      return err
-   }
-   manifest, err := axis.Manifest(&media)
-   if err != nil {
-      return err
-   }
-   return os.WriteFile(f.base()+"/manifest.txt", []byte(manifest), os.ModePerm)
 }
