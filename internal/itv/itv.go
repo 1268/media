@@ -5,8 +5,6 @@ import (
    "41.neocities.org/media/itv"
    "errors"
    "fmt"
-   "net/http"
-   "net/http/cookiejar"
    "path"
 )
 
@@ -16,11 +14,11 @@ func (f *flags) download() error {
    if err != nil {
       return err
    }
-   discovery, err := id.Discovery()
+   title, err := id.Title()
    if err != nil {
       return err
    }
-   play, err := discovery.Playlist()
+   play, err := title.Playlist()
    if err != nil {
       return err
    }
@@ -28,15 +26,7 @@ func (f *flags) download() error {
    if !ok {
       return errors.New("resolution 1080")
    }
-   http.DefaultClient.Jar, err = cookiejar.New(nil)
-   if err != nil {
-      return err
-   }
-   resp, err := http.Get(file.Href.S)
-   if err != nil {
-      return err
-   }
-   represents, err := internal.Representation(resp)
+   represents, err := internal.Mpd(file.Href)
    if err != nil {
       return err
    }
@@ -45,7 +35,7 @@ func (f *flags) download() error {
       case "":
          fmt.Print(&represent, "\n\n")
       case represent.Id:
-         f.s.Wrapper = file
+         f.s.Widevine = file
          return f.s.Download(&represent)
       }
    }

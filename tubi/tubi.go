@@ -10,63 +10,6 @@ import (
    "strings"
 )
 
-type Resolution struct {
-   I int64
-}
-
-func (r *Resolution) UnmarshalText(data []byte) error {
-   var err error
-   r.I, err = strconv.ParseInt(strings.TrimSuffix(
-      strings.TrimPrefix(string(data), "VIDEO_RESOLUTION_"), "P",
-   ), 10, 64)
-   if err != nil {
-      return err
-   }
-   return nil
-}
-
-func (r Resolution) MarshalText() ([]byte, error) {
-   b := []byte("VIDEO_RESOLUTION_")
-   b = strconv.AppendInt(b, r.I, 10)
-   return append(b, 'P'), nil
-}
-
-type VideoResource struct {
-   LicenseServer *struct {
-      Url string
-   } `json:"license_server"`
-   Manifest struct {
-      Url string
-   }
-   Resolution Resolution
-   Type       string
-}
-
-func (v *VideoContent) Resource() (*VideoResource, bool) {
-   if len(v.VideoResources) == 0 {
-      return nil, false
-   }
-   a := v.VideoResources[0]
-   for _, b := range v.VideoResources {
-      if b.Resolution.I > a.Resolution.I {
-         a = b
-      }
-   }
-   return &a, true
-}
-
-type VideoContent struct {
-   Children       []*VideoContent
-   DetailedType   string `json:"detailed_type"`
-   EpisodeNumber  int    `json:"episode_number,string"`
-   Id             int    `json:",string"`
-   SeriesId       int    `json:"series_id,string"`
-   Title          string
-   VideoResources []VideoResource `json:"video_resources"`
-   Year           int
-   parent         *VideoContent
-}
-
 func (v *VideoContent) Series() bool {
    return v.DetailedType == "series"
 }
@@ -134,4 +77,54 @@ func (v *VideoResource) Wrap(data []byte) ([]byte, error) {
    }
    defer resp.Body.Close()
    return io.ReadAll(resp.Body)
+}
+
+type VideoResource struct {
+   LicenseServer *struct {
+      Url string
+   } `json:"license_server"`
+   Manifest struct {
+      Url string
+   }
+   Resolution Resolution
+   Type       string
+}
+
+func (r *Resolution) UnmarshalText(data []byte) error {
+   var err error
+   data1 := strings.TrimPrefix(string(data), "VIDEO_RESOLUTION_")
+   (*r)[0], err = strconv.ParseInt(strings.TrimSuffix(data1, "P"), 10, 64)
+   if err != nil {
+      return err
+   }
+   return nil
+}
+
+func (r Resolution) MarshalText() ([]byte, error) {
+   data := []byte("VIDEO_RESOLUTION_")
+   data = strconv.AppendInt(data, r[0], 10)
+   return append(data, 'P'), nil
+}
+
+type VideoContent struct {
+   Children       []*VideoContent
+   DetailedType   string `json:"detailed_type"`
+   Id             int    `json:",string"`
+   VideoResources []VideoResource `json:"video_resources"`
+   parent         *VideoContent
+}
+
+type Resolution [1]int64
+
+func (v *VideoContent) Resource() (*VideoResource, bool) {
+   if len(v.VideoResources) == 0 {
+      return nil, false
+   }
+   a := v.VideoResources[0]
+   for _, b := range v.VideoResources {
+      if b.Resolution[0] > a.Resolution[0] {
+         a = b
+      }
+   }
+   return &a, true
 }

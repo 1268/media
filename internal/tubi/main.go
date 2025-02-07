@@ -10,7 +10,9 @@ import (
 )
 
 func main() {
-   http.Transport{}.DefaultClient()
+   var port http.Transport
+   port.ProxyFromEnvironment()
+   port.DefaultClient()
    log.SetFlags(log.Ltime)
    var f flags
    err := f.New()

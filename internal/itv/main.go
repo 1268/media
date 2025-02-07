@@ -4,6 +4,7 @@ import (
    "41.neocities.org/media/internal"
    "41.neocities.org/x/http"
    "flag"
+   "log"
    "os"
    "path/filepath"
 )
@@ -12,6 +13,7 @@ func main() {
    var port http.Transport
    port.ProxyFromEnvironment()
    port.DefaultClient()
+   log.SetFlags(log.Ltime)
    var f flags
    err := f.New()
    if err != nil {
