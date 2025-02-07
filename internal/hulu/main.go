@@ -12,9 +12,9 @@ import (
 
 func main() {
    log.SetFlags(log.Ltime)
-   var transport http.Transport
-   transport.ProxyFromEnvironment()
-   transport.DefaultClient()
+   var port http.Transport
+   port.ProxyFromEnvironment()
+   port.DefaultClient()
    var f flags
    err := f.New()
    if err != nil {

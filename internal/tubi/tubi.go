@@ -5,7 +5,6 @@ import (
    "41.neocities.org/media/tubi"
    "errors"
    "fmt"
-   "net/http"
    "os"
 )
 
@@ -14,7 +13,7 @@ func (f *flags) download() error {
    if err != nil {
       return err
    }
-   content := &tubi.VideoContent{}
+   content := &tubi.Content{}
    err = content.Unmarshal(data)
    if err != nil {
       return err
@@ -23,18 +22,14 @@ func (f *flags) download() error {
       var ok bool
       content, ok = content.Get(f.tubi)
       if !ok {
-         return errors.New("VideoContent.Get")
+         return errors.New("Content.Get")
       }
    }
    resource, ok := content.Resource()
    if !ok {
-      return errors.New("VideoContent.Resource")
+      return errors.New("Content.Resource")
    }
-   resp, err := http.Get(resource.Manifest.Url)
-   if err != nil {
-      return err
-   }
-   represents, err := internal.Representation(resp)
+   represents, err := internal.Mpd(resource)
    if err != nil {
       return err
    }
@@ -43,7 +38,7 @@ func (f *flags) download() error {
       case "":
          fmt.Print(&represent, "\n\n")
       case represent.Id:
-         f.s.Wrapper = resource
+         f.s.Widevine = resource
          return f.s.Download(&represent)
       }
    }
@@ -55,7 +50,7 @@ func (f *flags) name() string {
 }
 
 func (f *flags) write_content() error {
-   var content tubi.VideoContent
+   var content tubi.Content
    data, err := content.Marshal(f.tubi)
    if err != nil {
       return err

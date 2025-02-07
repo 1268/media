@@ -11,6 +11,32 @@ import (
    "time"
 )
 
+var tests = []struct{
+   content_id string
+   key_id string
+   legacy_id LegacyId
+   url string
+}{
+   {
+      content_id: "",
+      key_id: "",
+      legacy_id: LegacyId{"10", "5503", "0001"},
+      url: "itv.com/watch/gone-girl/10a5503a0001",
+   },
+   {
+      content_id: "MTAtMzkxNS0wMDAyLTAwMV8zNA==",
+      key_id: "zCXIAYrkT9+eG6gbjNG1Qw==",
+      legacy_id: LegacyId{"10", "3915", "0002"},
+      url: "itv.com/watch/community/10a3915/10a3915a0002",
+   },
+   {
+      content_id: "MTAtMzkxOC0wMDAxLTAwMV8zNA==",
+      key_id: "znjzKgOaRBqJMBDGiUDN8g==",
+      legacy_id: LegacyId{"10", "3918", "0001"},
+      url: "itv.com/watch/joan/10a3918/10a3918a0001",
+   },
+}
+
 func TestWrap(t *testing.T) {
    home, err := os.UserHomeDir()
    if err != nil {
@@ -81,32 +107,6 @@ func TestWrap(t *testing.T) {
       }
       time.Sleep(time.Second)
    }
-}
-
-var tests = []struct{
-   content_id string
-   key_id string
-   legacy_id LegacyId
-   url string
-}{
-   {
-      content_id: "MS05MzU5LTAwMDEtMDA0XzM0",
-      key_id: "CqlTfeulS5mlu9fu81QtfQ==",
-      legacy_id: LegacyId{"1", "9359", "0001"},
-      url: "itv.com/watch/quantum-of-solace/1a9359",
-   },
-   {
-      content_id: "MTAtMzkxNS0wMDAyLTAwMV8zNA==",
-      key_id: "zCXIAYrkT9+eG6gbjNG1Qw==",
-      legacy_id: LegacyId{"10", "3915", "0002"},
-      url: "itv.com/watch/community/10a3915/10a3915a0002",
-   },
-   {
-      content_id: "MTAtMzkxOC0wMDAxLTAwMV8zNA==",
-      key_id: "znjzKgOaRBqJMBDGiUDN8g==",
-      legacy_id: LegacyId{"10", "3918", "0001"},
-      url: "itv.com/watch/joan/10a3918/10a3918a0001",
-   },
 }
 
 func TestLegacyId(t *testing.T) {
