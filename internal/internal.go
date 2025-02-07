@@ -28,9 +28,9 @@ func (s *Stream) segment_base(represent *dash.Representation, ext string) error 
    base := represent.SegmentBase
    var req http.Request
    req.Header = http.Header{}
-   req.URL = represent.BaseUrl.Url
    // need to use Set for lower case
    req.Header.Set("range", "bytes="+base.Initialization.Range.String())
+   req.URL = represent.BaseUrl[0]
    resp, err := http.DefaultClient.Do(&req)
    if err != nil {
       return err
