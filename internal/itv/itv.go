@@ -14,11 +14,7 @@ func (f *flags) download() error {
    if err != nil {
       return err
    }
-   title, err := id.Title()
-   if err != nil {
-      return err
-   }
-   play, err := title.Playlist()
+   play, err := id.Playlist()
    if err != nil {
       return err
    }

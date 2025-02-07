@@ -9,19 +9,6 @@ import (
    "strings"
 )
 
-func (i *LegacyId) Set(text string) error {
-   var found bool
-   (*i)[0], text, found = strings.Cut(text, "a")
-   if !found {
-      return errors.New(`"a" not found`)
-   }
-   (*i)[1], (*i)[2], found = strings.Cut(text, "a")
-   if !found {
-      (*i)[2] = "0001"
-   }
-   return nil
-}
-
 func (p *Playlist) Resolution1080() (*MediaFile, bool) {
    for _, file := range p.Playlist.Video.MediaFiles {
       if file.Resolution == "1080" {
@@ -32,9 +19,9 @@ func (p *Playlist) Resolution1080() (*MediaFile, bool) {
 }
 
 type MediaFile struct {
-   Href Href
+   Href          Href
    KeyServiceUrl string
-   Resolution string
+   Resolution    string
 }
 
 type Playlist struct {
@@ -76,7 +63,7 @@ func (i LegacyId) Playlist() (*Playlist, error) {
       "variantAvailability": map[string]any{
          "drm": map[string]string{
             "maxSupported": "L3",
-            "system": "widevine",
+            "system":       "widevine",
          },
          "featureset": []string{ // need all these to get 720p
             "hd",
@@ -117,4 +104,19 @@ type LegacyId [3]string
 
 func (i LegacyId) String() string {
    return strings.Join(i[:], "_") + ".001"
+}
+
+// https://www.itv.com/watch/gone-girl/10a5503a0001B
+func (i *LegacyId) Set(data string) error {
+   data = strings.TrimSuffix(data, "B")
+   var found bool
+   (*i)[0], data, found = strings.Cut(data, "a")
+   if !found {
+      return errors.New(`"a" not found`)
+   }
+   (*i)[1], (*i)[2], found = strings.Cut(data, "a")
+   if !found {
+      (*i)[2] = "0001"
+   }
+   return nil
 }
