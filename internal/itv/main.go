@@ -9,7 +9,9 @@ import (
 )
 
 func main() {
-   http.Transport{}.DefaultClient()
+   var port http.Transport
+   port.ProxyFromEnvironment()
+   port.DefaultClient()
    var f flags
    err := f.New()
    if err != nil {
