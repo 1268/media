@@ -18,46 +18,6 @@ var ClientCountry = "US"
 // client-version
 const client = "web"
 
-func (a *Authenticate) Wrap(data []byte) ([]byte, error) {
-   // final slash is needed
-   req, err := http.NewRequest(
-      "POST", "https://lic.drmtoday.com/license-proxy-widevine/cenc/",
-      bytes.NewReader(data),
-   )
-   if err != nil {
-      return nil, err
-   }
-   data, err = json.Marshal(map[string]any{
-      "merchant": "mubi",
-      "sessionId": a.Token,
-      "userId": a.User.Id,
-   })
-   if err != nil {
-      return nil, err
-   }
-   req.Header.Set("dt-custom-data", base64.StdEncoding.EncodeToString(data))
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   data, err = io.ReadAll(resp.Body)
-   if err != nil {
-      return nil, err
-   }
-   if strings.Contains(string(data), forbidden[0]) {
-      return nil, forbidden
-   }
-   var value struct {
-      License []byte
-   }
-   err = json.Unmarshal(data, &value)
-   if err != nil {
-      return nil, err
-   }
-   return value.License, nil
-}
-
 func (a *Authenticate) Unmarshal(data []byte) error {
    return json.Unmarshal(data, a)
 }
@@ -243,11 +203,6 @@ func (s *SecureUrl) Unmarshal(data []byte) error {
    return json.Unmarshal(data, s)
 }
 
-type SecureUrl struct {
-   TextTrackUrls []TextTrack `json:"text_track_urls"`
-   Url string
-}
-
 type TextTrack struct {
    Id string
    Url string
@@ -264,3 +219,53 @@ func (s status) Error() string {
 type status [1]string
 
 var forbidden = status{"HTTP Status 403 – Forbidden"}
+
+type SecureUrl struct {
+   TextTrackUrls []TextTrack `json:"text_track_urls"`
+   Url string
+}
+
+func (s *SecureUrl) Mpd() (*http.Response, error) {
+   return http.Get(s.Url)
+}
+
+func (a *Authenticate) License(data []byte) ([]byte, error) {
+   // final slash is needed
+   req, err := http.NewRequest(
+      "POST", "https://lic.drmtoday.com/license-proxy-widevine/cenc/",
+      bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   data, err = json.Marshal(map[string]any{
+      "merchant": "mubi",
+      "sessionId": a.Token,
+      "userId": a.User.Id,
+   })
+   if err != nil {
+      return nil, err
+   }
+   req.Header.Set("dt-custom-data", base64.StdEncoding.EncodeToString(data))
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   data, err = io.ReadAll(resp.Body)
+   if err != nil {
+      return nil, err
+   }
+   if strings.Contains(string(data), forbidden[0]) {
+      return nil, forbidden
+   }
+   var value struct {
+      License []byte
+   }
+   err = json.Unmarshal(data, &value)
+   if err != nil {
+      return nil, err
+   }
+   return value.License, nil
+}
+

@@ -19,6 +19,161 @@ import (
    "strings"
 )
 
+type WidevineClient interface {
+   License([]byte) ([]byte, error)
+}
+
+type DashClient interface {
+   Mpd() (*http.Response, error)
+}
+
+func (s *Stream) key() ([]byte, error) {
+   if s.key_id == nil {
+      return nil, nil
+   }
+   private_key, err := os.ReadFile(s.PrivateKey)
+   if err != nil {
+      return nil, err
+   }
+   client_id, err := os.ReadFile(s.ClientId)
+   if err != nil {
+      return nil, err
+   }
+   if s.pssh == nil {
+      var pssh widevine.PsshData
+      pssh.KeyIds = [][]byte{s.key_id}
+      s.pssh = pssh.Marshal()
+   }
+   log.Println("PSSH", base64.StdEncoding.EncodeToString(s.pssh))
+   var module widevine.Cdm
+   err = module.New(private_key, client_id, s.pssh)
+   if err != nil {
+      return nil, err
+   }
+   data, err := module.RequestBody()
+   if err != nil {
+      return nil, err
+   }
+   data, err = s.Widevine.License(data)
+   if err != nil {
+      return nil, err
+   }
+   var body widevine.ResponseBody
+   err = body.Unmarshal(data)
+   if err != nil {
+      return nil, err
+   }
+   block, err := module.Block(body)
+   if err != nil {
+      return nil, err
+   }
+   containers := body.Container()
+   for {
+      container, ok := containers()
+      if !ok {
+         return nil, errors.New("ResponseBody.Container")
+      }
+      if bytes.Equal(container.Id(), s.key_id) {
+         key := container.Key(block)
+         log.Println("key", base64.StdEncoding.EncodeToString(key))
+         return key, nil
+      }
+   }
+}
+
+// wikipedia.org/wiki/Dynamic_Adaptive_Streaming_over_HTTP
+type Stream struct {
+   ClientId   string
+   PrivateKey string
+   key_id     []byte
+   pssh       []byte
+   Widevine   WidevineClient
+}
+
+func Mpd(client DashClient) ([]dash.Representation, error) {
+   resp, err := client.Mpd()
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   data, err := io.ReadAll(resp.Body)
+   if err != nil {
+      return nil, err
+   }
+   var media dash.Mpd
+   err = media.Unmarshal(data)
+   if err != nil {
+      return nil, err
+   }
+   media.Set(resp.Request.URL)
+   return slices.SortedFunc(media.Representation(),
+      func(a, b dash.Representation) int {
+         return a.Bandwidth - b.Bandwidth
+      },
+   ), nil
+}
+
+func (s *Stream) Download(represent *dash.Representation) error {
+   for _, p := range represent.ContentProtection {
+      if p.SchemeIdUri == "urn:uuid:edef8ba9-79d6-4ace-a3c8-27dcd51d21ed" {
+         if p.Pssh != "" {
+            data, err := base64.StdEncoding.DecodeString(p.Pssh)
+            if err != nil {
+               return err
+            }
+            var box pssh.Box
+            n, err := box.BoxHeader.Decode(data)
+            if err != nil {
+               return err
+            }
+            err = box.Read(data[n:])
+            if err != nil {
+               return err
+            }
+            s.pssh = box.Data
+            // fallback to INIT
+            break
+         }
+      }
+   }
+   ext, err := get_ext(represent)
+   if err != nil {
+      return err
+   }
+   if represent.SegmentBase != nil {
+      return s.segment_base(represent, ext)
+   }
+   if represent.SegmentList != nil {
+      return s.segment_list(represent, ext)
+   }
+   return s.segment_template(represent, ext)
+}
+
+func get(address *url.URL) ([]byte, error) {
+   resp, err := http.Get(address.String())
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   if resp.StatusCode != http.StatusOK {
+      var data strings.Builder
+      resp.Write(&data)
+      return nil, errors.New(data.String())
+   }
+   return io.ReadAll(resp.Body)
+}
+
+func get_ext(represent *dash.Representation) (string, error) {
+   switch *represent.MimeType {
+   case "audio/mp4":
+      return ".m4a", nil
+   case "text/vtt":
+      return ".vtt", nil
+   case "video/mp4":
+      return ".m4v", nil
+   }
+   return "", errors.New(*represent.MimeType)
+}
 func (s *Stream) segment_base(represent *dash.Representation, ext string) error {
    file, err := os.Create(ext)
    if err != nil {
@@ -324,164 +479,4 @@ func (s *Stream) init_protect(data []byte) ([]byte, error) {
       }
    }
    return file.Append(nil)
-}
-
-func (s *Stream) key() ([]byte, error) {
-   if s.key_id == nil {
-      return nil, nil
-   }
-   private_key, err := os.ReadFile(s.PrivateKey)
-   if err != nil {
-      return nil, err
-   }
-   client_id, err := os.ReadFile(s.ClientId)
-   if err != nil {
-      return nil, err
-   }
-   if s.pssh == nil {
-      var pssh widevine.PsshData
-      pssh.KeyIds = [][]byte{s.key_id}
-      s.pssh = pssh.Marshal()
-   }
-   log.Println("PSSH", base64.StdEncoding.EncodeToString(s.pssh))
-   var module widevine.Cdm
-   err = module.New(private_key, client_id, s.pssh)
-   if err != nil {
-      return nil, err
-   }
-   data, err := module.RequestBody()
-   if err != nil {
-      return nil, err
-   }
-   resp, err := s.Widevine.License(data)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   data, err = io.ReadAll(resp.Body)
-   if err != nil {
-      return nil, err
-   }
-   var body widevine.ResponseBody
-   err = body.Unmarshal(data)
-   if err != nil {
-      return nil, err
-   }
-   block, err := module.Block(body)
-   if err != nil {
-      return nil, err
-   }
-   containers := body.Container()
-   for {
-      container, ok := containers()
-      if !ok {
-         return nil, errors.New("ResponseBody.Container")
-      }
-      if bytes.Equal(container.Id(), s.key_id) {
-         key := container.Key(block)
-         log.Println("key", base64.StdEncoding.EncodeToString(key))
-         return key, nil
-      }
-   }
-}
-// wikipedia.org/wiki/Dynamic_Adaptive_Streaming_over_HTTP
-type Stream struct {
-   ClientId   string
-   PrivateKey string
-   key_id     []byte
-   pssh       []byte
-   Widevine   WidevineClient
-}
-
-type WidevineClient interface {
-   License([]byte) (*http.Response, error)
-}
-
-type DashClient interface {
-   Mpd() (*http.Response, error)
-}
-
-func Mpd(client DashClient) ([]dash.Representation, error) {
-   resp, err := client.Mpd()
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   data, err := io.ReadAll(resp.Body)
-   if err != nil {
-      return nil, err
-   }
-   var media dash.Mpd
-   err = media.Unmarshal(data)
-   if err != nil {
-      return nil, err
-   }
-   media.Set(resp.Request.URL)
-   return slices.SortedFunc(media.Representation(),
-      func(a, b dash.Representation) int {
-         return a.Bandwidth - b.Bandwidth
-      },
-   ), nil
-}
-
-func (s *Stream) Download(represent *dash.Representation) error {
-   for _, p := range represent.ContentProtection {
-      if p.SchemeIdUri == "urn:uuid:edef8ba9-79d6-4ace-a3c8-27dcd51d21ed" {
-         if p.Pssh != "" {
-            data, err := base64.StdEncoding.DecodeString(p.Pssh)
-            if err != nil {
-               return err
-            }
-            var box pssh.Box
-            n, err := box.BoxHeader.Decode(data)
-            if err != nil {
-               return err
-            }
-            err = box.Read(data[n:])
-            if err != nil {
-               return err
-            }
-            s.pssh = box.Data
-            // fallback to INIT
-            break
-         }
-      }
-   }
-   ext, err := get_ext(represent)
-   if err != nil {
-      return err
-   }
-   if represent.SegmentBase != nil {
-      return s.segment_base(represent, ext)
-   }
-   if represent.SegmentList != nil {
-      return s.segment_list(represent, ext)
-   }
-   return s.segment_template(represent, ext)
-}
-
-func get(address *url.URL) ([]byte, error) {
-   resp, err := http.Get(address.String())
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   if resp.StatusCode != http.StatusOK {
-      var data strings.Builder
-      resp.Write(&data)
-      return nil, errors.New(data.String())
-   }
-   return io.ReadAll(resp.Body)
-}
-
-func get_ext(represent *dash.Representation) (string, error) {
-   switch *represent.MimeType {
-   case "audio/mp4":
-      return ".m4a", nil
-   case "text/vtt":
-      return ".vtt", nil
-   case "video/mp4":
-      return ".m4v", nil
-   }
-   return "", errors.New(*represent.MimeType)
 }

@@ -30,6 +30,7 @@ func (f *flags) download() error {
    // we dont need this until later, but you have to call before the first
    // request in the program
    os.Setenv("GODEBUG", "http2client=0")
+   
    resp, err := http.Get(secure.Url)
    if err != nil {
       return err
