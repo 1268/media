@@ -11,74 +11,6 @@ import (
    "strings"
 )
 
-func (SecureUrl) Marshal(
-   auth *Authenticate, film *FilmResponse,
-) ([]byte, error) {
-   req, err := http.NewRequest("", "https://api.mubi.com", nil)
-   if err != nil {
-      return nil, err
-   }
-   req.URL.Path = func() string {
-      b := []byte("/v3/films/")
-      b = strconv.AppendInt(b, film.Id, 10)
-      b = append(b, "/viewing/secure_url"...)
-      return string(b)
-   }()
-   req.Header = http.Header{
-      "authorization": {"Bearer " + auth.Token},
-      "client": {client},
-      "client-country": {ClientCountry},
-   }
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   if resp.StatusCode != http.StatusOK {
-      var b strings.Builder
-      resp.Write(&b)
-      return nil, errors.New(b.String())
-   }
-   return io.ReadAll(resp.Body)
-}
-
-type SecureUrl struct {
-   TextTrackUrls []TextTrack `json:"text_track_urls"`
-   Url string
-}
-
-func (s *SecureUrl) Unmarshal(data []byte) error {
-   return json.Unmarshal(data, s)
-}
-type FilmResponse struct {
-   Id int64
-   Title string
-   Year int
-}
-
-func (a Address) Film() (*FilmResponse, error) {
-   req, err := http.NewRequest("", "https://api.mubi.com", nil)
-   if err != nil {
-      return nil, err
-   }
-   req.URL.Path = "/v3/films/" + a.s
-   req.Header = http.Header{
-      "client": {client},
-      "client-country": {ClientCountry},
-   }
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   film := &FilmResponse{}
-   err = json.NewDecoder(resp.Body).Decode(film)
-   if err != nil {
-      return nil, err
-   }
-   return film, nil
-}
-
 func (LinkCode) Marshal() ([]byte, error) {
    req, err := http.NewRequest("", "https://api.mubi.com/v3/link_code", nil)
    if err != nil {
@@ -108,28 +40,6 @@ var ClientCountry = "US"
 // client-version
 const client = "web"
 
-type Address struct {
-   s string
-}
-
-func (a *Address) Set(text string) error {
-   var ok bool
-   _, a.s, ok = strings.Cut(text, "/films/")
-   if !ok {
-      return errors.New("/films/")
-   }
-   return nil
-}
-
-type TextTrack struct {
-   Id string
-   Url string
-}
-
-func (a *Address) String() string {
-   return a.s
-}
-
 func (t *TextTrack) String() string {
    return "id = " + t.Id
 }
@@ -143,15 +53,10 @@ func (c *LinkCode) String() string {
    b.WriteString(c.LinkCode)
    return b.String()
 }
-
-type LinkCode struct {
-   AuthToken string `json:"auth_token"`
-   LinkCode string `json:"link_code"`
-}
-
 func (c *LinkCode) Unmarshal(data []byte) error {
    return json.Unmarshal(data, c)
 }
+
 func (a *Authenticate) Wrap(data []byte) ([]byte, error) {
    // final slash is needed
    req, err := http.NewRequest(
@@ -197,11 +102,6 @@ var forbidden = status{"HTTP Status 403 – Forbidden"}
 func (s status) Error() string {
    return strings.ToLower(s.s)
 }
-
-type status struct {
-   s string
-}
-
 func (Authenticate) Marshal(code *LinkCode) ([]byte, error) {
    data, err := json.Marshal(map[string]string{"auth_token": code.AuthToken})
    if err != nil {
@@ -265,6 +165,81 @@ func (a *Authenticate) Viewing(film *FilmResponse) error {
    }
    return nil
 }
+func (a *Authenticate) Unmarshal(data []byte) error {
+   return json.Unmarshal(data, a)
+}
+
+func (s *SecureUrl) Unmarshal(data []byte) error {
+   return json.Unmarshal(data, s)
+}
+
+func (SecureUrl) Marshal(
+   auth *Authenticate, film *FilmResponse,
+) ([]byte, error) {
+   req, err := http.NewRequest("", "https://api.mubi.com", nil)
+   if err != nil {
+      return nil, err
+   }
+   req.URL.Path = func() string {
+      b := []byte("/v3/films/")
+      b = strconv.AppendInt(b, film.Id, 10)
+      b = append(b, "/viewing/secure_url"...)
+      return string(b)
+   }()
+   req.Header = http.Header{
+      "authorization": {"Bearer " + auth.Token},
+      "client": {client},
+      "client-country": {ClientCountry},
+   }
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   if resp.StatusCode != http.StatusOK {
+      var b strings.Builder
+      resp.Write(&b)
+      return nil, errors.New(b.String())
+   }
+   return io.ReadAll(resp.Body)
+}
+
+func (a Address) String() string {
+   return a[0]
+}
+
+func (a *Address) Set(data string) error {
+   var found bool
+   _, (*a)[0], found = strings.Cut(data, "/films/")
+   if !found {
+      return errors.New("/films/ not found")
+   }
+   return nil
+}
+
+func (a Address) Film() (*FilmResponse, error) {
+   req, _ := http.NewRequest("", "https://api.mubi.com", nil)
+   req.URL.Path = "/v3/films/" + a[0]
+   req.Header = http.Header{
+      "client": {client},
+      "client-country": {ClientCountry},
+   }
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   film := &FilmResponse{}
+   err = json.NewDecoder(resp.Body).Decode(film)
+   if err != nil {
+      return nil, err
+   }
+   return film, nil
+}
+
+type Address [1]string
+
+///
 
 type Authenticate struct {
    Token string
@@ -273,6 +248,27 @@ type Authenticate struct {
    }
 }
 
-func (a *Authenticate) Unmarshal(data []byte) error {
-   return json.Unmarshal(data, a)
+type FilmResponse struct {
+   Id int64
+   Title string
+   Year int
+}
+
+type LinkCode struct {
+   AuthToken string `json:"auth_token"`
+   LinkCode string `json:"link_code"`
+}
+
+type SecureUrl struct {
+   TextTrackUrls []TextTrack `json:"text_track_urls"`
+   Url string
+}
+
+type TextTrack struct {
+   Id string
+   Url string
+}
+
+type status struct {
+   s string
 }
