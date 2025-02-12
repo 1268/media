@@ -44,3 +44,22 @@ create Android 8 device. install system certificate
 adb shell am start -a android.intent.action.VIEW `
 -d https://auvio.rtbf.be/emission/i-care-a-lot-27462
 ~~~
+
+## client
+
+~~~
+/v2/customer/RTBF/businessunit/Auvio/entitlement
+entitlement
+
+/v2/customer/RTBF/businessunit/Auvio/auth/gigyaLogin
+gigya login
+
+/accounts.getJWT
+jwt
+
+/accounts.login
+login
+
+/auvio/v1.23/pages
+page
+~~~

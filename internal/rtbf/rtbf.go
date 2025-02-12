@@ -56,7 +56,7 @@ func (f *flags) download() error {
       case "":
          fmt.Print(&represent, "\n\n")
       case represent.Id:
-         f.s.Wrapper = title
+         f.s.Widevine = title
          return f.s.Download(&represent)
       }
    }
