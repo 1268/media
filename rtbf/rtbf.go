@@ -13,23 +13,21 @@ import (
 // hard coded in JavaScript
 const api_key = "4_Ml_fJ47GnBAW6FrPzMxh0w"
 
+type Address [1]string
+
 func (a *Address) Set(data string) error {
-   a.s = strings.TrimPrefix(data, "https://")
-   a.s = strings.TrimPrefix(a.s, "auvio.rtbf.be")
+   data = strings.TrimPrefix(data, "https://")
+   (*a)[0] = strings.TrimPrefix(data, "auvio.rtbf.be")
    return nil
 }
 
-func (a *Address) String() string {
-   return a.s
-}
-
-type Address struct {
-   s string
+func (a Address) String() string {
+   return a[0]
 }
 
 func (a Address) Content() (*Content, error) {
    resp, err := http.Get(
-      "https://bff-service.rtbf.be/auvio/v1.23/pages" + a.s,
+      "https://bff-service.rtbf.be/auvio/v1.23/pages" + a[0],
    )
    if err != nil {
       return nil, err
@@ -64,45 +62,6 @@ type Content struct {
    AssetId string
    Media   *struct {
       AssetId string
-   }
-}
-
-func (e *Entitlement) Dash() (string, bool) {
-   for _, format := range e.Formats {
-      if format.Format == "DASH" {
-         return format.MediaLocator, true
-      }
-   }
-   return "", false
-}
-
-func (e *Entitlement) Wrap(data []byte) ([]byte, error) {
-   req, err := http.NewRequest(
-      "POST", "https://rbm-rtbf.live.ott.irdeto.com", bytes.NewReader(data),
-   )
-   if err != nil {
-      return nil, err
-   }
-   req.URL.Path = "/licenseServer/widevine/v1/rbm-rtbf/license"
-   req.URL.RawQuery = url.Values{
-      "contentId":  {e.AssetId},
-      "ls_session": {e.PlayToken},
-   }.Encode()
-   req.Header.Set("content-type", "application/x-protobuf")
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   return io.ReadAll(resp.Body)
-}
-
-type Entitlement struct {
-   AssetId   string
-   PlayToken string
-   Formats   []struct {
-      Format       string
-      MediaLocator string
    }
 }
 
@@ -142,14 +101,13 @@ type GigyaLogin struct {
 }
 
 func (j *Jwt) Login() (*GigyaLogin, error) {
-   value := map[string]any{
+   data, err := json.Marshal(map[string]any{
       "device": map[string]string{
          "deviceId": "",
          "type":     "WEB",
       },
       "jwt": j.IdToken,
-   }
-   data, err := json.Marshal(value)
+   })
    if err != nil {
       return nil, err
    }
@@ -174,11 +132,6 @@ func (j *Jwt) Login() (*GigyaLogin, error) {
    return gigya, nil
 }
 
-type Jwt struct {
-   ErrorMessage string
-   IdToken      string `json:"id_token"`
-}
-
 func (n *Login) Jwt() (*Jwt, error) {
    resp, err := http.PostForm(
       "https://login.auvio.rtbf.be/accounts.getJWT", url.Values{
@@ -199,6 +152,11 @@ func (n *Login) Jwt() (*Jwt, error) {
       return nil, errors.New(token.ErrorMessage)
    }
    return &token, nil
+}
+
+type Jwt struct {
+   ErrorMessage string
+   IdToken      string `json:"id_token"`
 }
 
 type Login struct {
@@ -232,4 +190,49 @@ func (Login) Marshal(id, password string) ([]byte, error) {
    }
    defer resp.Body.Close()
    return io.ReadAll(resp.Body)
+}
+
+func (e *Entitlement) License(data []byte) ([]byte, error) {
+   req, err := http.NewRequest(
+      "POST", "https://rbm-rtbf.live.ott.irdeto.com", bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   req.URL.Path = "/licenseServer/widevine/v1/rbm-rtbf/license"
+   req.URL.RawQuery = url.Values{
+      "contentId":  {e.AssetId},
+      "ls_session": {e.PlayToken},
+   }.Encode()
+   req.Header.Set("content-type", "application/x-protobuf")
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   return io.ReadAll(resp.Body)
+}
+
+type Entitlement struct {
+   AssetId   string
+   PlayToken string
+   Formats   []Format
+}
+
+func (e *Entitlement) Dash() (*Format, bool) {
+   for _, format0 := range e.Formats {
+      if format0.Format == "DASH" {
+         return &format0, true
+      }
+   }
+   return nil, false
+}
+
+func (f *Format) Mpd() (*http.Response, error) {
+   return http.Get(f.MediaLocator)
+}
+
+type Format struct {
+   Format       string
+   MediaLocator string
 }
