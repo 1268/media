@@ -54,12 +54,12 @@ entitlement
 /v2/customer/RTBF/businessunit/Auvio/auth/gigyaLogin
 gigya login
 
-/accounts.getJWT
-jwt
+/auvio/v1.23/pages
+content
 
 /accounts.login
 login
 
-/auvio/v1.23/pages
-page
+/accounts.getJWT
+jwt
 ~~~
