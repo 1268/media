@@ -52,3 +52,12 @@ version code = 10017
 ~~~
 
 create Android 9 device. install system certificate.
+
+## client
+
+~~~
+/api/v1/account/activation
+/api/v1/account/activation/{{.Code}}
+/api/v1/account/token
+/api/v3/playback
+~~~

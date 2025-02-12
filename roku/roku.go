@@ -9,16 +9,8 @@ import (
    "strings"
 )
 
-func (p *Playback) Wrap(data []byte) ([]byte, error) {
-   resp, err := http.Post(
-      p.Drm.Widevine.LicenseServer, "application/x-protobuf",
-      bytes.NewReader(data),
-   )
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   return io.ReadAll(resp.Body)
+func (p *Playback) Mpd() (*http.Response, error) {
+   return http.Get(p.Url)
 }
 
 type Playback struct {
@@ -30,17 +22,50 @@ type Playback struct {
    Url string
 }
 
-func (AccountToken) Marshal(
-   auth *AccountAuth, code *AccountCode,
-) ([]byte, error) {
-   req, err := http.NewRequest("", "https://googletv.web.roku.com", nil)
-   if err != nil {
-      return nil, err
-   }
-   req.URL.Path = "/api/v1/account/activation/" + code.Code
-   req.Header = http.Header{
-      "user-agent":           {user_agent},
-      "x-roku-content-token": {auth.AuthToken},
+type Token struct {
+   AuthToken string
+}
+
+type Activation struct {
+   Code string
+}
+
+type Code struct {
+   Token string
+}
+
+const user_agent = "trc-googletv; production; 0"
+
+func (c *Code) Unmarshal(data []byte) error {
+   return json.Unmarshal(data, c)
+}
+
+func (a *Activation) String() string {
+   var b strings.Builder
+   b.WriteString("1 Visit the URL\n")
+   b.WriteString("  therokuchannel.com/link\n")
+   b.WriteString("\n")
+   b.WriteString("2 Enter the activation code\n")
+   b.WriteString("  ")
+   b.WriteString(a.Code)
+   return b.String()
+}
+
+func (t *Token) Unmarshal(data []byte) error {
+   return json.Unmarshal(data, t)
+}
+
+func (a *Activation) Unmarshal(data []byte) error {
+   return json.Unmarshal(data, a)
+}
+
+// code can be nil
+func (Token) Marshal(code0 *Code) ([]byte, error) {
+   req, _ := http.NewRequest("", "https://googletv.web.roku.com", nil)
+   req.URL.Path = "/api/v1/account/token"
+   req.Header.Set("user-agent", user_agent)
+   if code0 != nil {
+      req.Header.Set("x-roku-content-token", code0.Token)
    }
    resp, err := http.DefaultClient.Do(req)
    if err != nil {
@@ -50,16 +75,7 @@ func (AccountToken) Marshal(
    return io.ReadAll(resp.Body)
 }
 
-const user_agent = "trc-googletv; production; 0"
-
-type AccountToken struct {
-   Token string
-}
-
-func (a *AccountToken) Unmarshal(data []byte) error {
-   return json.Unmarshal(data, a)
-}
-func (*AccountCode) Marshal(auth *AccountAuth) ([]byte, error) {
+func (Activation) Marshal(token0 *Token) ([]byte, error) {
    data, err := json.Marshal(map[string]string{"platform": "googletv"})
    if err != nil {
       return nil, err
@@ -74,7 +90,7 @@ func (*AccountCode) Marshal(auth *AccountAuth) ([]byte, error) {
    req.Header = http.Header{
       "content-type":         {"application/json"},
       "user-agent":           {user_agent},
-      "x-roku-content-token": {auth.AuthToken},
+      "x-roku-content-token": {token0.AuthToken},
    }
    resp, err := http.DefaultClient.Do(req)
    if err != nil {
@@ -84,34 +100,12 @@ func (*AccountCode) Marshal(auth *AccountAuth) ([]byte, error) {
    return io.ReadAll(resp.Body)
 }
 
-func (a *AccountCode) String() string {
-   var b strings.Builder
-   b.WriteString("1 Visit the URL\n")
-   b.WriteString("  therokuchannel.com/link\n")
-   b.WriteString("\n")
-   b.WriteString("2 Enter the activation code\n")
-   b.WriteString("  ")
-   b.WriteString(a.Code)
-   return b.String()
-}
-
-type AccountCode struct {
-   Code string
-}
-
-func (a *AccountCode) Unmarshal(data []byte) error {
-   return json.Unmarshal(data, a)
-}
-// token can be nil
-func (*AccountAuth) Marshal(token *AccountToken) ([]byte, error) {
-   req, err := http.NewRequest("", "https://googletv.web.roku.com", nil)
-   if err != nil {
-      return nil, err
-   }
-   req.URL.Path = "/api/v1/account/token"
-   req.Header.Set("user-agent", user_agent)
-   if token != nil {
-      req.Header.Set("x-roku-content-token", token.Token)
+func (Code) Marshal(act *Activation, token0 *Token) ([]byte, error) {
+   req, _ := http.NewRequest("", "https://googletv.web.roku.com", nil)
+   req.URL.Path = "/api/v1/account/activation/" + act.Code
+   req.Header = http.Header{
+      "user-agent":           {user_agent},
+      "x-roku-content-token": {token0.AuthToken},
    }
    resp, err := http.DefaultClient.Do(req)
    if err != nil {
@@ -121,7 +115,7 @@ func (*AccountAuth) Marshal(token *AccountToken) ([]byte, error) {
    return io.ReadAll(resp.Body)
 }
 
-func (a *AccountAuth) Playback(roku_id string) (*Playback, error) {
+func (t *Token) Playback(roku_id string) (*Playback, error) {
    data, err := json.Marshal(map[string]string{
       "mediaFormat": "DASH",
       "providerId":  "rokuavod",
@@ -140,7 +134,7 @@ func (a *AccountAuth) Playback(roku_id string) (*Playback, error) {
    req.Header = http.Header{
       "content-type":         {"application/json"},
       "user-agent":           {user_agent},
-      "x-roku-content-token": {a.AuthToken},
+      "x-roku-content-token": {t.AuthToken},
    }
    resp, err := http.DefaultClient.Do(req)
    if err != nil {
@@ -160,10 +154,14 @@ func (a *AccountAuth) Playback(roku_id string) (*Playback, error) {
    return play, nil
 }
 
-type AccountAuth struct {
-   AuthToken string
-}
-
-func (a *AccountAuth) Unmarshal(data []byte) error {
-   return json.Unmarshal(data, a)
+func (p *Playback) License(data []byte) ([]byte, error) {
+   resp, err := http.Post(
+      p.Drm.Widevine.LicenseServer, "application/x-protobuf",
+      bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   return io.ReadAll(resp.Body)
 }

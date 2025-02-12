@@ -4,41 +4,36 @@ import (
    "41.neocities.org/media/internal"
    "41.neocities.org/media/roku"
    "fmt"
-   "net/http"
    "os"
 )
 
 func (f *flags) download() error {
-   var token *roku.AccountToken
+   var code *roku.Code
    if f.token_read {
       data, err := os.ReadFile(f.home + "/roku.txt")
       if err != nil {
          return err
       }
-      token = &roku.AccountToken{}
-      err = token.Unmarshal(data)
+      code = &roku.Code{}
+      err = code.Unmarshal(data)
       if err != nil {
          return err
       }
    }
-   var auth roku.AccountAuth
-   data, err := auth.Marshal(token)
+   var token roku.Token
+   data, err := token.Marshal(code)
    if err != nil {
       return err
    }
-   err = auth.Unmarshal(data)
+   err = token.Unmarshal(data)
    if err != nil {
       return err
    }
-   play, err := auth.Playback(f.roku)
+   play, err := token.Playback(f.roku)
    if err != nil {
       return err
    }
-   resp, err := http.Get(play.Url)
-   if err != nil {
-      return err
-   }
-   represents, err := internal.Representation(resp)
+   represents, err := internal.Mpd(play)
    if err != nil {
       return err
    }
@@ -47,7 +42,7 @@ func (f *flags) download() error {
       case "":
          fmt.Print(&represent, "\n\n")
       case represent.Id:
-         f.s.License = play
+         f.s.Widevine = play
          return f.s.Download(&represent)
       }
    }
@@ -55,28 +50,25 @@ func (f *flags) download() error {
 }
 
 func (f *flags) write_token() error {
-   // AccountAuth
-   data, err := os.ReadFile("auth.txt")
+   data, err := os.ReadFile("activation.txt")
    if err != nil {
       return err
    }
-   var auth roku.AccountAuth
-   err = auth.Unmarshal(data)
+   var activation roku.Activation
+   err = activation.Unmarshal(data)
    if err != nil {
       return err
    }
-   // AccountCode
-   data, err = os.ReadFile("code.txt")
+   data, err = os.ReadFile("token.txt")
    if err != nil {
       return err
    }
-   var code roku.AccountCode
-   err = code.Unmarshal(data)
+   var token roku.Token
+   err = token.Unmarshal(data)
    if err != nil {
       return err
    }
-   // AccountToken
-   data, err = roku.AccountToken{}.Marshal(&auth, &code)
+   data, err = roku.Code{}.Marshal(&activation, &token)
    if err != nil {
       return err
    }
@@ -84,34 +76,32 @@ func (f *flags) write_token() error {
 }
 
 func write_code() error {
-   // AccountAuth
-   var auth roku.AccountAuth
-   data, err := auth.Marshal(nil)
+   var token roku.Token
+   data, err := token.Marshal(nil)
    if err != nil {
       return err
    }
-   err = os.WriteFile("auth.txt", data, os.ModePerm)
+   err = os.WriteFile("token.txt", data, os.ModePerm)
    if err != nil {
       return err
    }
-   // AccountCode
-   err = auth.Unmarshal(data)
+   err = token.Unmarshal(data)
    if err != nil {
       return err
    }
-   var code roku.AccountCode
-   data, err = code.Marshal(&auth)
+   var activation roku.Activation
+   data, err = activation.Marshal(&token)
    if err != nil {
       return err
    }
-   err = os.WriteFile("code.txt", data, os.ModePerm)
+   err = os.WriteFile("activation.txt", data, os.ModePerm)
    if err != nil {
       return err
    }
-   err = code.Unmarshal(data)
+   err = activation.Unmarshal(data)
    if err != nil {
       return err
    }
-   fmt.Println(code)
+   fmt.Println(activation)
    return nil
 }
