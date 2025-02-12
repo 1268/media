@@ -29,11 +29,116 @@ func (Wrapper) Wrap(data []byte) ([]byte, error) {
    return data, nil
 }
 
-func (a Address) Video(forward string) (*OnDemand, error) {
-   req, err := http.NewRequest("", "https://boot.pluto.tv/v4/start", nil)
+func (c *Clips) Dash() (*url.URL, bool) {
+   for _, source := range c.Sources {
+      if source.Type == "DASH" {
+         return &source.File[0], true
+      }
+   }
+   return nil, false
+}
+
+func (a Address) String() string {
+   var data strings.Builder
+   if a[0] != "" {
+      if a[1] != "" {
+         data.WriteString("series/")
+         data.WriteString(a[0])
+         data.WriteString("/episode/")
+         data.WriteString(a[1])
+      } else {
+         data.WriteString("movies/")
+         data.WriteString(a[0])
+      }
+   }
+   return data.String()
+}
+
+func (u *Url) UnmarshalText(data []byte) error {
+   return (*u)[0].UnmarshalBinary(data)
+}
+
+func (a *Address) Set(data string) error {
+   for {
+      var (
+         key string
+         ok  bool
+      )
+      key, data, ok = strings.Cut(data, "/")
+      if !ok {
+         return nil
+      }
+      switch key {
+      case "movies":
+         (*a)[0] = data
+      case "series":
+         (*a)[0], data, ok = strings.Cut(data, "/")
+         if !ok {
+            return errors.New("episode")
+         }
+      case "episode":
+         (*a)[1] = data
+      }
+   }
+}
+
+var Base = []BaseUrl{
+   {"http", "silo-hybrik.pluto.tv.s3.amazonaws.com", "200 OK"},
+   {"http", "siloh-fs.plutotv.net", "403 OK"},
+   {"http", "siloh-ns1.plutotv.net", "403 OK"},
+   {"https", "siloh-fs.plutotv.net", "403 OK"},
+   {"https", "siloh-ns1.plutotv.net", "403 OK"},
+}
+
+type Address [2]string
+
+func (v Vod) Clip() (*Clips, error) {
+   req, err := http.NewRequest("", "https://api.pluto.tv", nil)
    if err != nil {
       return nil, err
    }
+   req.URL.Path = func() string {
+      var b strings.Builder
+      b.WriteString("/v2/episodes/")
+      if v.Id != "" {
+         b.WriteString(v.Id)
+      } else {
+         b.WriteString(v.Episode)
+      }
+      b.WriteString("/clips.json")
+      return b.String()
+   }()
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   if resp.StatusCode != http.StatusOK {
+      return nil, errors.New(resp.Status)
+   }
+   var clips0 []Clips
+   err = json.NewDecoder(resp.Body).Decode(&clips0)
+   if err != nil {
+      return nil, err
+   }
+   return &clips0[0], nil
+}
+
+type Clips struct {
+   Sources []struct {
+      File Url
+      Type string
+   }
+}
+
+type BaseUrl struct {
+   Scheme string
+   Host   string
+   Status string
+}
+
+func (a Address) Video(forward string) (*Vod, error) {
+   req, _ := http.NewRequest("", "https://boot.pluto.tv/v4/start", nil)
    if forward != "" {
       req.Header.Set("x-forwarded-for", forward)
    }
@@ -51,7 +156,7 @@ func (a Address) Video(forward string) (*OnDemand, error) {
    }
    defer resp.Body.Close()
    var value struct {
-      Vod []OnDemand
+      Vod []Vod
    }
    err = json.NewDecoder(resp.Body).Decode(&value)
    if err != nil {
@@ -78,12 +183,7 @@ func (a Address) Video(forward string) (*OnDemand, error) {
    return &demand, nil
 }
 
-type VideoSeason struct {
-   Episodes []*OnDemand
-   show     *OnDemand
-}
-
-type OnDemand struct {
+type Vod struct {
    Episode string `json:"_id"`
    Id      string
    Name    string
@@ -92,116 +192,13 @@ type OnDemand struct {
    season  *VideoSeason
 }
 
-func (o OnDemand) Clip() (*EpisodeClip, error) {
-   req, err := http.NewRequest("", "https://api.pluto.tv", nil)
-   if err != nil {
-      return nil, err
-   }
-   req.URL.Path = func() string {
-      var b strings.Builder
-      b.WriteString("/v2/episodes/")
-      if o.Id != "" {
-         b.WriteString(o.Id)
-      } else {
-         b.WriteString(o.Episode)
-      }
-      b.WriteString("/clips.json")
-      return b.String()
-   }()
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   if resp.StatusCode != http.StatusOK {
-      return nil, errors.New(resp.Status)
-   }
-   var clips []EpisodeClip
-   err = json.NewDecoder(resp.Body).Decode(&clips)
-   if err != nil {
-      return nil, err
-   }
-   return &clips[0], nil
-}
+type Url [1]url.URL
 
-type EpisodeClip struct {
-   Sources []struct {
-      File Url
-      Type string
-   }
-}
+///
 
-func (e *EpisodeClip) Dash() (*url.URL, bool) {
-   for _, source := range e.Sources {
-      if source.Type == "DASH" {
-         return &source.File.Url, true
-      }
-   }
-   return nil, false
-}
-
-func (a Address) String() string {
-   var data strings.Builder
-   if a[0] != "" {
-      if a[1] != "" {
-         data.WriteString("series/")
-         data.WriteString(a[0])
-         data.WriteString("/episode/")
-         data.WriteString(a[1])
-      } else {
-         data.WriteString("movies/")
-         data.WriteString(a[0])
-      }
-   }
-   return data.String()
+type VideoSeason struct {
+   Episodes []*Vod
+   show     *Vod
 }
 
 type Wrapper struct{}
-
-type Address [2]string
-
-func (a *Address) Set(text string) error {
-   for {
-      var (
-         key string
-         ok  bool
-      )
-      key, text, ok = strings.Cut(text, "/")
-      if !ok {
-         return nil
-      }
-      switch key {
-      case "movies":
-         (*a)[0] = text
-      case "series":
-         (*a)[0], text, ok = strings.Cut(text, "/")
-         if !ok {
-            return errors.New("episode")
-         }
-      case "episode":
-         (*a)[1] = text
-      }
-   }
-}
-
-var Base = []FileBase{
-   {"http", "silo-hybrik.pluto.tv.s3.amazonaws.com", "200 OK"},
-   {"http", "siloh-fs.plutotv.net", "403 OK"},
-   {"http", "siloh-ns1.plutotv.net", "403 OK"},
-   {"https", "siloh-fs.plutotv.net", "403 OK"},
-   {"https", "siloh-ns1.plutotv.net", "403 OK"},
-}
-
-type FileBase struct {
-   Scheme string
-   Host   string
-   Status string
-}
-
-type Url struct {
-   Url url.URL
-}
-
-func (u *Url) UnmarshalText(text []byte) error {
-   return u.Url.UnmarshalBinary(text)
-}
