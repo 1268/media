@@ -10,6 +10,25 @@ import (
    "strings"
 )
 
+func (Wrapper) Wrap(data []byte) ([]byte, error) {
+   resp, err := http.Post(
+      "https://service-concierge.clusters.pluto.tv/v1/wv/alt",
+      "application/x-protobuf", bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   data, err = io.ReadAll(resp.Body)
+   if err != nil {
+      return nil, err
+   }
+   if resp.StatusCode != http.StatusOK {
+      return nil, errors.New(string(data))
+   }
+   return data, nil
+}
+
 func (a Address) Video(forward string) (*OnDemand, error) {
    req, err := http.NewRequest("", "https://boot.pluto.tv/v4/start", nil)
    if err != nil {
@@ -135,25 +154,6 @@ func (a Address) String() string {
       }
    }
    return data.String()
-}
-
-func (Wrapper) Wrap(data []byte) ([]byte, error) {
-   resp, err := http.Post(
-      "https://service-concierge.clusters.pluto.tv/v1/wv/alt",
-      "application/x-protobuf", bytes.NewReader(data),
-   )
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   data, err = io.ReadAll(resp.Body)
-   if err != nil {
-      return nil, err
-   }
-   if resp.StatusCode != http.StatusOK {
-      return nil, errors.New(string(data))
-   }
-   return data, nil
 }
 
 type Wrapper struct{}

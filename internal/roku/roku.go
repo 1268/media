@@ -47,7 +47,7 @@ func (f *flags) download() error {
       case "":
          fmt.Print(&represent, "\n\n")
       case represent.Id:
-         f.s.Wrapper = play
+         f.s.License = play
          return f.s.Download(&represent)
       }
    }

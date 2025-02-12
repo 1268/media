@@ -10,6 +10,13 @@ import (
    "strings"
 )
 
+func (Widevine) License(data []byte) (*http.Response, error) {
+   return http.Post(
+      "https://license.9c9media.ca/widevine", "application/x-protobuf",
+      bytes.NewReader(data),
+   )
+}
+
 type ResolvedPath struct {
    LastSegment struct {
       Content struct {
@@ -71,13 +78,6 @@ func (r *ResolvedPath) Axis() (*AxisContent, error) {
       return nil, errors.New(err[0].Message)
    }
    return &value1.Data.AxisContent, nil
-}
-
-func (Widevine) License(data []byte) (*http.Response, error) {
-   return http.Post(
-      "https://license.9c9media.ca/widevine", "application/x-protobuf",
-      bytes.NewReader(data),
-   )
 }
 
 type AxisContent struct {

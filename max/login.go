@@ -9,6 +9,21 @@ import (
    "strings"
 )
 
+func (p *Playback) Wrap(data []byte) ([]byte, error) {
+   resp, err := http.Post(
+      p.Drm.Schemes.Widevine.LicenseUrl, "application/x-protobuf",
+      bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   if resp.StatusCode != http.StatusOK {
+      return nil, errors.New(resp.Status)
+   }
+   return io.ReadAll(resp.Body)
+}
+
 func (v *LinkLogin) Playback(watch *WatchUrl) (*Playback, error) {
    var body playback_request
    body.ConsumptionType = "streaming"
@@ -152,21 +167,6 @@ type Url struct {
 func (f *Url) UnmarshalText(data []byte) error {
    f.String = strings.Replace(string(data), "_fallback", "", 1)
    return nil
-}
-
-func (p *Playback) Wrap(data []byte) ([]byte, error) {
-   resp, err := http.Post(
-      p.Drm.Schemes.Widevine.LicenseUrl, "application/x-protobuf",
-      bytes.NewReader(data),
-   )
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   if resp.StatusCode != http.StatusOK {
-      return nil, errors.New(resp.Status)
-   }
-   return io.ReadAll(resp.Body)
 }
 
 // you must

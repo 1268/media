@@ -9,6 +9,17 @@ import (
    "strings"
 )
 
+func (m *MediaFile) License(data []byte) ([]byte, error) {
+   resp, err := http.Post(
+      m.KeyServiceUrl, "application/x-protobuf", bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   return io.ReadAll(resp.Body)
+}
+
 func (p *Playlist) Resolution1080() (*MediaFile, bool) {
    for _, file := range p.Playlist.Video.MediaFiles {
       if file.Resolution == "1080" {
@@ -30,12 +41,6 @@ type Playlist struct {
          MediaFiles []MediaFile
       }
    }
-}
-
-func (m *MediaFile) License(data []byte) (*http.Response, error) {
-   return http.Post(
-      m.KeyServiceUrl, "application/x-protobuf", bytes.NewReader(data),
-   )
 }
 
 func (h Href) Mpd() (*http.Response, error) {

@@ -6,8 +6,8 @@
 41.neocities.org/protobuf v1.4.5/go.mod h1:ZNqHwauHOrFn2S5GKDe2tw7o9TMt1mFmLWgj1q4s29w=
 41.neocities.org/sofia v1.6.9 h1:2ahxyvvXGk3hwH0U+QGBzQ1G6JGjAzF6lAdN5mGRtwY=
 41.neocities.org/sofia v1.6.9/go.mod h1:sEkwYTmUFHqoL34OBDmyeQR7BrMNa8Z60PKYjOT5unQ=
-41.neocities.org/widevine v1.6.1 h1:3seETXHAD3cI3mwFe4+xaKV6bjtVs0vxHLsN2OGMCFU=
-41.neocities.org/widevine v1.6.1/go.mod h1:sSI1G368zZU8qDXz6lkClAOVkNwMZpfQY+TBK6y4SO4=
+41.neocities.org/widevine v1.6.2 h1:O08+S4wbNcxT4dbVNk94EAATk9zh9b3BLK1sHJz+Tus=
+41.neocities.org/widevine v1.6.2/go.mod h1:CVsnGwCqkaSBqmD2xTAgWwYVF4o3Q7SBf3o9UcnqSO4=
 41.neocities.org/x v1.4.5 h1:4PSGA6ZVix6bAakpVx4lr09YuJbk21gF24WXrnGKzrA=
 41.neocities.org/x v1.4.5/go.mod h1:W914QR0V7rkZGunkjXoKFF97FiObrEdozhJj26qo+f0=
 github.com/chmike/cmac-go v1.1.0 h1:aF73ZAEx9N2WdQc93DOJ2fMsBDAGqUtuenjMJMb3kEI=

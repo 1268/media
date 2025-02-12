@@ -19,6 +19,7 @@ import (
    "strings"
 )
 
+// must return byte slice to cover unwrapping
 type WidevineClient interface {
    License([]byte) ([]byte, error)
 }
@@ -40,7 +41,7 @@ func (s *Stream) key() ([]byte, error) {
       return nil, err
    }
    if s.pssh == nil {
-      var pssh widevine.PsshData
+      var pssh widevine.Pssh
       pssh.KeyIds = [][]byte{s.key_id}
       s.pssh = pssh.Marshal()
    }

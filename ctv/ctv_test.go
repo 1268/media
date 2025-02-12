@@ -9,18 +9,23 @@ import (
    "time"
 )
 
-var test_paths = []string{
-   // ctv.ca/movies/fools-rush-in-57470
-   "/movies/fools-rush-in-57470",
-   // ctv.ca/shows/friends/the-one-with-the-chicken-pox-s2e23
-   "/shows/friends/the-one-with-the-chicken-pox-s2e23",
+var tests = []struct{
+   content_id string
+   key_id string
+   path string
+   url string
+}{
+   {
+      url: "ctv.ca/movies/fools-rush-in-57470",
+      path: "/movies/fools-rush-in-57470",
+      key_id: "A98dtspZsb9/z++3IHp0Dw==",
+      content_id: "ZmYtOGYyNjEzYWUtNTIxNTAx",
+   },
+   {
+      url: "ctv.ca/shows/friends/the-one-with-the-chicken-pox-s2e23",
+      path: "/shows/friends/the-one-with-the-chicken-pox-s2e23",
+   },
 }
-
-// ctv.ca/movies/the-girl-with-the-dragon-tattoo-2011
-const (
-   content_id = "ZmYtZDAxM2NhN2EtMjY0MjY1"
-   raw_key_id = "ywlXHuvLP3KHICZX9rn3pg=="
-)
 
 func TestWrap(t *testing.T) {
    home, err := os.UserHomeDir()
