@@ -10,91 +10,6 @@ import (
    "strings"
 )
 
-// github.com/pandvan/rakuten-m3u-generator/blob/master/rakuten.py
-func (a *Address) ClassificationId() (int, bool) {
-   switch a.MarketCode {
-   case "at":
-      return 300, true
-   case "ch":
-      return 319, true
-   case "cz":
-      return 272, true
-   case "de":
-      return 307, true
-   case "fr":
-      return 23, true
-   case "ie":
-      return 41, true
-   case "nl":
-      return 69, true
-   case "pl":
-      return 277, true
-   case "se":
-      return 282, true
-   case "uk":
-      return 18, true
-   }
-   return 0, false
-}
-
-type OnDemand struct {
-   AudioLanguage            string `json:"audio_language"`
-   AudioQuality             string `json:"audio_quality"`
-   ClassificationId         int    `json:"classification_id"`
-   ContentId                string `json:"content_id"`
-   ContentType              string `json:"content_type"`
-   DeviceIdentifier         string `json:"device_identifier"`
-   DeviceSerial             string `json:"device_serial"`
-   DeviceStreamVideoQuality string `json:"device_stream_video_quality"`
-   Player                   string `json:"player"`
-   SubtitleLanguage         string `json:"subtitle_language"`
-   VideoType                string `json:"video_type"`
-}
-
-func (g *GizmoContent) video(
-   classification_id int, language, quality string,
-) *OnDemand {
-   return &OnDemand{
-      DeviceStreamVideoQuality: quality,
-      AudioLanguage:            language,
-      AudioQuality:             "2.0",
-      ClassificationId:         classification_id,
-      DeviceIdentifier:         "atvui40",
-      DeviceSerial:             "not implemented",
-      Player:                   "atvui40:DASH-CENC:WVM",
-      SubtitleLanguage:         "MIS",
-      VideoType:                "stream",
-      ContentId:                g.Id,
-      ContentType:              g.Type,
-   }
-}
-
-func (g *GizmoContent) Fhd(classification_id int, language string) *OnDemand {
-   return g.video(classification_id, language, "FHD")
-}
-
-func (s *StreamInfo) Mpd() (*http.Response, error) {
-   return http.Get(s.Url)
-}
-
-func (s *StreamInfo) License(data []byte) (*http.Response, error) {
-   return http.Post(
-      s.LicenseUrl, "application/x-protobuf", bytes.NewReader(data),
-   )
-}
-
-type StreamInfo struct {
-   LicenseUrl   string `json:"license_url"`
-   Url          string
-   VideoQuality string `json:"video_quality"`
-}
-
-type Address struct {
-   MarketCode string
-   SeasonId   string
-   ContentId  string
-}
-
 func (a *Address) String() string {
    var data strings.Builder
    data.WriteString(a.MarketCode)
@@ -212,10 +127,6 @@ func (a *Address) Set(data string) error {
    return nil
 }
 
-type GizmoSeason struct {
-   Episodes []GizmoContent
-}
-
 func (g GizmoSeason) Content(web *Address) (*GizmoContent, bool) {
    for _, episode := range g.Episodes {
       if episode.Id == web.ContentId {
@@ -246,6 +157,97 @@ func (a *Address) Season(classification_id int) (*GizmoSeason, error) {
       return nil, err
    }
    return &value.Data, nil
+}
+
+// github.com/pandvan/rakuten-m3u-generator/blob/master/rakuten.py
+func (a *Address) ClassificationId() (int, bool) {
+   switch a.MarketCode {
+   case "at":
+      return 300, true
+   case "ch":
+      return 319, true
+   case "cz":
+      return 272, true
+   case "de":
+      return 307, true
+   case "fr":
+      return 23, true
+   case "ie":
+      return 41, true
+   case "nl":
+      return 69, true
+   case "pl":
+      return 277, true
+   case "se":
+      return 282, true
+   case "uk":
+      return 18, true
+   }
+   return 0, false
+}
+
+func (g *GizmoContent) video(
+   classification_id int, language, quality string,
+) *OnDemand {
+   return &OnDemand{
+      DeviceStreamVideoQuality: quality,
+      AudioLanguage:            language,
+      AudioQuality:             "2.0",
+      ClassificationId:         classification_id,
+      DeviceIdentifier:         "atvui40",
+      DeviceSerial:             "not implemented",
+      Player:                   "atvui40:DASH-CENC:WVM",
+      SubtitleLanguage:         "MIS",
+      VideoType:                "stream",
+      ContentId:                g.Id,
+      ContentType:              g.Type,
+   }
+}
+
+func (g *GizmoContent) Fhd(classification_id int, language string) *OnDemand {
+   return g.video(classification_id, language, "FHD")
+}
+
+func (s *StreamInfo) Mpd() (*http.Response, error) {
+   return http.Get(s.Url)
+}
+
+func (s *StreamInfo) License(data []byte) (*http.Response, error) {
+   return http.Post(
+      s.LicenseUrl, "application/x-protobuf", bytes.NewReader(data),
+   )
+}
+
+///
+
+type OnDemand struct {
+   AudioLanguage            string `json:"audio_language"`
+   AudioQuality             string `json:"audio_quality"`
+   ClassificationId         int    `json:"classification_id"`
+   ContentId                string `json:"content_id"`
+   ContentType              string `json:"content_type"`
+   DeviceIdentifier         string `json:"device_identifier"`
+   DeviceSerial             string `json:"device_serial"`
+   DeviceStreamVideoQuality string `json:"device_stream_video_quality"`
+   Player                   string `json:"player"`
+   SubtitleLanguage         string `json:"subtitle_language"`
+   VideoType                string `json:"video_type"`
+}
+
+type StreamInfo struct {
+   LicenseUrl   string `json:"license_url"`
+   Url          string
+   VideoQuality string `json:"video_quality"`
+}
+
+type Address struct {
+   MarketCode string
+   SeasonId   string
+   ContentId  string
+}
+
+type GizmoSeason struct {
+   Episodes []GizmoContent
 }
 
 type GizmoContent struct {

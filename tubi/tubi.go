@@ -61,19 +61,6 @@ func (c *Content) Unmarshal(data []byte) error {
    return nil
 }
 
-func (c *Content) Resource() (*VideoResource, bool) {
-   if len(c.VideoResources) == 0 {
-      return nil, false
-   }
-   a := c.VideoResources[0]
-   for _, b := range c.VideoResources {
-      if b.Resolution[0] > a.Resolution[0] {
-         a = b
-      }
-   }
-   return &a, true
-}
-
 func (Content) Marshal(id int) ([]byte, error) {
    req, _ := http.NewRequest("", "https://uapi.adrise.tv/cms/content", nil)
    req.URL.RawQuery = url.Values{
@@ -86,6 +73,32 @@ func (Content) Marshal(id int) ([]byte, error) {
       },
    }.Encode()
    resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   return io.ReadAll(resp.Body)
+}
+
+func (v *VideoResource) Mpd() (*http.Response, error) {
+   return http.Get(v.Manifest.Url)
+}
+
+type VideoResource struct {
+   LicenseServer *struct {
+      Url string
+   } `json:"license_server"`
+   Manifest struct {
+      Url string
+   }
+   Resolution Resolution
+   Type       string
+}
+
+func (v *VideoResource) License(data []byte) ([]byte, error) {
+   resp, err := http.Post(
+      v.LicenseServer.Url, "application/x-protobuf", bytes.NewReader(data),
+   )
    if err != nil {
       return nil, err
    }
@@ -106,23 +119,15 @@ func (c *Content) Get(id int) (*Content, bool) {
    return nil, false
 }
 
-func (v *VideoResource) License(data []byte) (*http.Response, error) {
-   return http.Post(
-      v.LicenseServer.Url, "application/x-protobuf", bytes.NewReader(data),
-   )
-}
-
-func (v *VideoResource) Mpd() (*http.Response, error) {
-   return http.Get(v.Manifest.Url)
-}
-
-type VideoResource struct {
-   LicenseServer *struct {
-      Url string
-   } `json:"license_server"`
-   Manifest struct {
-      Url string
+func (c *Content) Resource() (*VideoResource, bool) {
+   if len(c.VideoResources) == 0 {
+      return nil, false
    }
-   Resolution Resolution
-   Type       string
+   a := c.VideoResources[0]
+   for _, b := range c.VideoResources {
+      if b.Resolution[0] > a.Resolution[0] {
+         a = b
+      }
+   }
+   return &a, true
 }
