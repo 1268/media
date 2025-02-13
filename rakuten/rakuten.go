@@ -4,16 +4,53 @@ import (
    "bytes"
    "encoding/json"
    "errors"
+   "io"
    "net/http"
    "net/url"
    "strconv"
    "strings"
 )
 
-type StreamInfo struct {
-   LicenseUrl   string `json:"license_url"`
-   Url          string
-   VideoQuality string `json:"video_quality"`
+// hard geo block
+func (s *Streamings) Info(
+   audio_language string, classification_id int,
+) (*StreamInfo, error) {
+   s.AudioLanguage = audio_language
+   s.AudioQuality = "2.0"
+   s.ClassificationId = classification_id
+   s.DeviceIdentifier = "atvui40"
+   s.DeviceSerial = "not implemented"
+   s.Player = "atvui40:DASH-CENC:WVM"
+   s.SubtitleLanguage = "MIS"
+   s.VideoType = "stream"
+   data, err := json.Marshal(s)
+   if err != nil {
+      return nil, err
+   }
+   resp, err := http.Post(
+      "https://gizmo.rakuten.tv/v3/avod/streamings",
+      "application/json", bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   var value struct {
+      Data struct {
+         StreamInfos []StreamInfo `json:"stream_infos"`
+      }
+      Errors []struct {
+         Message string
+      }
+   }
+   err = json.NewDecoder(resp.Body).Decode(&value)
+   if err != nil {
+      return nil, err
+   }
+   // you can trigger this with wrong location
+   if err := value.Errors; len(err) >= 1 {
+      return nil, errors.New(err[0].Message)
+   }
+   return &value.Data.StreamInfos[0], nil
 }
 
 type Address struct {
@@ -23,7 +60,7 @@ type Address struct {
 }
 
 type Content struct {
-   ViewOptions  struct {
+   ViewOptions struct {
       Private struct {
          Streams []struct {
             AudioLanguages []struct {
@@ -32,18 +69,8 @@ type Content struct {
          }
       }
    } `json:"view_options"`
-   Id           string
-   Type         string
-}
-
-func (s *StreamInfo) Mpd() (*http.Response, error) {
-   return http.Get(s.Url)
-}
-
-func (s *StreamInfo) License(data []byte) (*http.Response, error) {
-   return http.Post(
-      s.LicenseUrl, "application/x-protobuf", bytes.NewReader(data),
-   )
+   Id   string
+   Type string
 }
 
 func (a *Address) String() string {
@@ -100,7 +127,7 @@ func (a *Address) Movie(classification_id int) (*Content, error) {
    }
    defer resp.Body.Close()
    var value struct {
-      Data Content
+      Data   Content
       Errors []struct {
          Message string
       }
@@ -208,46 +235,30 @@ func (s *Streamings) Fhd() {
    s.DeviceStreamVideoQuality = "FHD"
 }
 
-func (c *Content) Streamings() *Streamings {
-   return &Streamings{ContentId: c.Id, ContentType: c.Type}
-}
-
-// hard geo block
-func (s *Streamings) Info(
-   audio_language string, classification_id int,
-) (*StreamInfo, error) {
-   s.AudioLanguage = audio_language
-   s.ClassificationId = classification_id
-   data, err := json.Marshal(s)
-   if err != nil {
-      return nil, err
-   }
-   resp, err := http.Post(
-      "https://gizmo.rakuten.tv/v3/avod/streamings",
-      "application/json", bytes.NewReader(data),
-   )
-   if err != nil {
-      return nil, err
-   }
-   var value struct {
-      Data struct {
-         StreamInfos []StreamInfo `json:"stream_infos"`
-      }
-      Errors []struct {
-         Message string
-      }
-   }
-   err = json.NewDecoder(resp.Body).Decode(&value)
-   if err != nil {
-      return nil, err
-   }
-   // you can trigger this with wrong location
-   if err := value.Errors; len(err) >= 1 {
-      return nil, errors.New(err[0].Message)
-   }
-   return &value.Data.StreamInfos[0], nil
+func (c *Content) Streamings() Streamings {
+   return Streamings{ContentId: c.Id, ContentType: c.Type}
 }
 
 type Season struct {
    Episodes []Content
+}
+
+func (s *StreamInfo) Mpd() (*http.Response, error) {
+   return http.Get(s.Url)
+}
+
+func (s *StreamInfo) License(data []byte) ([]byte, error) {
+   resp, err := http.Post(
+      s.LicenseUrl, "application/x-protobuf", bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   return io.ReadAll(resp.Body)
+}
+
+type StreamInfo struct {
+   LicenseUrl string `json:"license_url"`
+   Url        string
 }

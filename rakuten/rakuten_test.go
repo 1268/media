@@ -8,61 +8,33 @@ import (
    "testing"
 )
 
-func TestMain(m *testing.M) {
-   log.SetFlags(log.Ltime)
-   var port http.Transport
-   port.ProxyFromEnvironment()
-   port.DefaultClient()
-   m.Run()
-}
-
-func TestContent(t *testing.T) {
-   for _, test := range web_tests {
-      content, err := test.content()
-      if err != nil {
-         t.Fatal(err)
-      }
-      func() {
-         err := mullvad.Connect(test.location)
-         if err != nil {
-            t.Fatal(err)
-         }
-         defer mullvad.Disconnect()
-         _, err = content.g.Hd(content.class, test.language).Streamings()
-         if err != nil {
-            t.Fatal(err)
-         }
-      }()
-   }
-}
-
 var web_tests = []web_test{
    {
-      address:  "rakuten.tv/at/movies/ricky-bobby-koenig-der-rennfahrer",
-      language: "ENG",
-      location: "at",
-      key_id: "OsBLtLhCGMexX+THBcRobw==",
+      address:    "rakuten.tv/at/movies/ricky-bobby-koenig-der-rennfahrer",
+      language:   "ENG",
+      location:   "at",
+      key_id:     "OsBLtLhCGMexX+THBcRobw==",
       content_id: "M2FjMDRiYjRiODQyMThjN2IxNWZlNGM3MDVjNDY4NmYtbWMtMC0xMzktMC0w",
    },
    {
-      address:  "rakuten.tv/ch/movies/ricky-bobby-koenig-der-rennfahrer",
-      language: "ENG",
-      location: "ch",
-      key_id: "OsBLtLhCGMexX+THBcRobw==",
+      address:    "rakuten.tv/ch/movies/ricky-bobby-koenig-der-rennfahrer",
+      language:   "ENG",
+      location:   "ch",
+      key_id:     "OsBLtLhCGMexX+THBcRobw==",
       content_id: "M2FjMDRiYjRiODQyMThjN2IxNWZlNGM3MDVjNDY4NmYtbWMtMC0xMzktMC0w",
    },
    {
-      address:  "rakuten.tv/cz/movies/transvulcania-the-people-s-run",
+      address:    "rakuten.tv/cz/movies/transvulcania-the-people-s-run",
       content_id: "MzE4ZjdlY2U2OWFmY2ZlM2U5NmRlMzFiZTZiNzcyNzItbWMtMC0xNjQtMC0w",
-      key_id: "MY9+zmmvz+PpbeMb5rdycg==",
-      language: "SPA",
-      location: "cz",
+      key_id:     "MY9+zmmvz+PpbeMb5rdycg==",
+      language:   "SPA",
+      location:   "cz",
    },
    {
-      address:  "rakuten.tv/de/movies/ricky-bobby-konig-der-rennfahrer",
-      language: "ENG",
-      location: "de",
-      key_id: "OsBLtLhCGMexX+THBcRobw==",
+      address:    "rakuten.tv/de/movies/ricky-bobby-konig-der-rennfahrer",
+      language:   "ENG",
+      location:   "de",
+      key_id:     "OsBLtLhCGMexX+THBcRobw==",
       content_id: "M2FjMDRiYjRiODQyMThjN2IxNWZlNGM3MDVjNDY4NmYtbWMtMC0xMzktMC0w",
    },
    {
@@ -73,25 +45,25 @@ var web_tests = []web_test{
       location:   "fr",
    },
    {
-      address:  "rakuten.tv/ie/movies/talladega-nights-the-ballad-of-ricky-bobby",
-      language: "ENG",
-      location: "ie",
-      key_id: "r+ROUU1Y1yEFHQKKKSmwkg==",
+      address:    "rakuten.tv/ie/movies/talladega-nights-the-ballad-of-ricky-bobby",
+      language:   "ENG",
+      location:   "ie",
+      key_id:     "r+ROUU1Y1yEFHQKKKSmwkg==",
       content_id: "YWZlNDRlNTE0ZDU4ZDcyMTA1MWQwMjhhMjkyOWIwOTItbWMtMC0xNDMtMC0w",
    },
    {
       address:    "rakuten.tv/nl/movies/a-knight-s-tale",
       content_id: "MGJlNmZmYWRhMzY2NjNhMGExNzMwODYwN2U3Y2ZjYzYtbWMtMC0xMzctMC0w",
-      key_id: "C+b/raNmY6Chcwhgfnz8xg==",
+      key_id:     "C+b/raNmY6Chcwhgfnz8xg==",
       language:   "ENG",
       location:   "nl",
    },
    {
-      address:  "rakuten.tv/pl/movies/ad-astra",
+      address:    "rakuten.tv/pl/movies/ad-astra",
       content_id: "YTk1MjMzMDI1NWFiOWJmZmIxYTAwZTk3ZDA1ZTBhZjItbWMtMC0xMzctMC0w",
-      key_id: "qVIzAlWrm/+xoA6X0F4K8g==",
-      language: "ENG",
-      location: "pl",
+      key_id:     "qVIzAlWrm/+xoA6X0F4K8g==",
+      language:   "ENG",
+      location:   "pl",
    },
    {
       address:    "rakuten.tv/se/movies/i-heart-huckabees",
@@ -101,11 +73,11 @@ var web_tests = []web_test{
       location:   "se",
    },
    {
-      address:  "rakuten.tv/uk/player/episodes/stream/hell-s-kitchen-usa-15/hell-s-kitchen-usa-15-1",
+      address:    "rakuten.tv/uk/player/episodes/stream/hell-s-kitchen-usa-15/hell-s-kitchen-usa-15-1",
       content_id: "YmI5NGE0YTA0MTdkMjYyY2MzMGMyZjIzODExNmQ2NzktbWMtMC0xMzktMC0w",
-      key_id: "u5SkoEF9JizDDC8jgRbWeQ==",
-      language: "ENG",
-      location: "gb",
+      key_id:     "u5SkoEF9JizDDC8jgRbWeQ==",
+      language:   "ENG",
+      location:   "gb",
    },
 }
 
@@ -169,4 +141,31 @@ func (w *web_test) content() (*content_class, error) {
       }
    }
    return &content, nil
+}
+func TestMain(m *testing.M) {
+   log.SetFlags(log.Ltime)
+   var port http.Transport
+   port.ProxyFromEnvironment()
+   port.DefaultClient()
+   m.Run()
+}
+
+func TestContent(t *testing.T) {
+   for _, test := range web_tests {
+      content, err := test.content()
+      if err != nil {
+         t.Fatal(err)
+      }
+      func() {
+         err := mullvad.Connect(test.location)
+         if err != nil {
+            t.Fatal(err)
+         }
+         defer mullvad.Disconnect()
+         _, err = content.g.Hd(content.class, test.language).Streamings()
+         if err != nil {
+            t.Fatal(err)
+         }
+      }()
+   }
 }

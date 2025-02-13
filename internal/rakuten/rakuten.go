@@ -12,7 +12,7 @@ func (f *flags) download() error {
    if !ok {
       return errors.New("Address.ClassificationId")
    }
-   var content *rakuten.GizmoContent
+   var content *rakuten.Content
    if f.address.SeasonId != "" {
       season, err := f.address.Season(class)
       if err != nil {
@@ -20,7 +20,7 @@ func (f *flags) download() error {
       }
       content, ok = season.Content(&f.address)
       if !ok {
-         return errors.New("GizmoSeason.Content")
+         return errors.New("Season.Content")
       }
    } else {
       var err error
@@ -29,11 +29,13 @@ func (f *flags) download() error {
          return err
       }
    }
-   fhd, err := content.Fhd(class, f.language).Streamings()
+   stream := content.Streamings()
+   stream.Fhd()
+   info, err := stream.Info(f.language, class)
    if err != nil {
       return err
    }
-   represents, err := internal.Mpd(fhd)
+   represents, err := internal.Mpd(info)
    if err != nil {
       return err
    }
@@ -42,12 +44,12 @@ func (f *flags) download() error {
       case "":
          fmt.Print(&represent, "\n\n")
       case represent.Id:
-         hd, err := content.Hd(class, f.language).Streamings()
+         stream.Hd()
+         info, err = stream.Info(f.language, class)
          if err != nil {
             return err
          }
-         fhd.LicenseUrl = hd.LicenseUrl
-         f.s.Widevine = fhd
+         f.s.Widevine = info
          return f.s.Download(&represent)
       }
    }
@@ -59,7 +61,7 @@ func (f *flags) do_language() error {
    if !ok {
       return errors.New("Address.ClassificationId")
    }
-   var content *rakuten.GizmoContent
+   var content *rakuten.Content
    if f.address.SeasonId != "" {
       season, err := f.address.Season(class)
       if err != nil {
@@ -67,7 +69,7 @@ func (f *flags) do_language() error {
       }
       content, ok = season.Content(&f.address)
       if !ok {
-         return errors.New("GizmoSeason.Content")
+         return errors.New("Season.Content")
       }
    } else {
       var err error
