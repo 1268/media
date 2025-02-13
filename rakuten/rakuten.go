@@ -10,6 +10,42 @@ import (
    "strings"
 )
 
+type StreamInfo struct {
+   LicenseUrl   string `json:"license_url"`
+   Url          string
+   VideoQuality string `json:"video_quality"`
+}
+
+type Address struct {
+   MarketCode string
+   SeasonId   string
+   ContentId  string
+}
+
+type Content struct {
+   ViewOptions  struct {
+      Private struct {
+         Streams []struct {
+            AudioLanguages []struct {
+               Id string
+            } `json:"audio_languages"`
+         }
+      }
+   } `json:"view_options"`
+   Id           string
+   Type         string
+}
+
+func (s *StreamInfo) Mpd() (*http.Response, error) {
+   return http.Get(s.Url)
+}
+
+func (s *StreamInfo) License(data []byte) (*http.Response, error) {
+   return http.Post(
+      s.LicenseUrl, "application/x-protobuf", bytes.NewReader(data),
+   )
+}
+
 func (a *Address) String() string {
    var data strings.Builder
    data.WriteString(a.MarketCode)
@@ -25,48 +61,12 @@ func (a *Address) String() string {
    return data.String()
 }
 
-func (g *GizmoContent) Hd(classification_id int, language string) *OnDemand {
-   return g.video(classification_id, language, "HD")
-}
-
-// hard geo block
-func (o *OnDemand) Streamings() (*StreamInfo, error) {
-   data, err := json.MarshalIndent(o, "", " ")
-   if err != nil {
-      return nil, err
-   }
-   resp, err := http.Post(
-      "https://gizmo.rakuten.tv/v3/avod/streamings",
-      "application/json", bytes.NewReader(data),
-   )
-   if err != nil {
-      return nil, err
-   }
-   var value struct {
-      Data struct {
-         StreamInfos []StreamInfo `json:"stream_infos"`
-      }
-      Errors []struct {
-         Message string
-      }
-   }
-   err = json.NewDecoder(resp.Body).Decode(&value)
-   if err != nil {
-      return nil, err
-   }
-   // you can trigger this with wrong location
-   if err := value.Errors; len(err) >= 1 {
-      return nil, errors.New(err[0].Message)
-   }
-   return &value.Data.StreamInfos[0], nil
-}
-
-func (g *GizmoContent) String() string {
+func (c *Content) String() string {
    var (
       audio = map[string]struct{}{}
       b     []byte
    )
-   for _, stream := range g.ViewOptions.Private.Streams {
+   for _, stream := range c.ViewOptions.Private.Streams {
       for _, language := range stream.AudioLanguages {
          _, ok := audio[language.Id]
          if !ok {
@@ -80,13 +80,13 @@ func (g *GizmoContent) String() string {
       }
    }
    b = append(b, "\nid = "...)
-   b = append(b, g.Id...)
+   b = append(b, c.Id...)
    b = append(b, "\ntype = "...)
-   b = append(b, g.Type...)
+   b = append(b, c.Type...)
    return string(b)
 }
 
-func (a *Address) Movie(classification_id int) (*GizmoContent, error) {
+func (a *Address) Movie(classification_id int) (*Content, error) {
    req, _ := http.NewRequest("", "https://gizmo.rakuten.tv", nil)
    req.URL.Path = "/v3/movies/" + a.ContentId
    req.URL.RawQuery = url.Values{
@@ -100,7 +100,7 @@ func (a *Address) Movie(classification_id int) (*GizmoContent, error) {
    }
    defer resp.Body.Close()
    var value struct {
-      Data GizmoContent
+      Data Content
       Errors []struct {
          Message string
       }
@@ -127,8 +127,8 @@ func (a *Address) Set(data string) error {
    return nil
 }
 
-func (g GizmoSeason) Content(web *Address) (*GizmoContent, bool) {
-   for _, episode := range g.Episodes {
+func (s Season) Content(web *Address) (*Content, bool) {
+   for _, episode := range s.Episodes {
       if episode.Id == web.ContentId {
          return &episode, true
       }
@@ -136,7 +136,7 @@ func (g GizmoSeason) Content(web *Address) (*GizmoContent, bool) {
    return nil, false
 }
 
-func (a *Address) Season(classification_id int) (*GizmoSeason, error) {
+func (a *Address) Season(classification_id int) (*Season, error) {
    req, _ := http.NewRequest("", "https://gizmo.rakuten.tv", nil)
    req.URL.Path = "/v3/seasons/" + a.SeasonId
    req.URL.RawQuery = url.Values{
@@ -150,7 +150,7 @@ func (a *Address) Season(classification_id int) (*GizmoSeason, error) {
    }
    defer resp.Body.Close()
    var value struct {
-      Data GizmoSeason
+      Data Season
    }
    err = json.NewDecoder(resp.Body).Decode(&value)
    if err != nil {
@@ -186,41 +186,7 @@ func (a *Address) ClassificationId() (int, bool) {
    return 0, false
 }
 
-func (g *GizmoContent) video(
-   classification_id int, language, quality string,
-) *OnDemand {
-   return &OnDemand{
-      DeviceStreamVideoQuality: quality,
-      AudioLanguage:            language,
-      AudioQuality:             "2.0",
-      ClassificationId:         classification_id,
-      DeviceIdentifier:         "atvui40",
-      DeviceSerial:             "not implemented",
-      Player:                   "atvui40:DASH-CENC:WVM",
-      SubtitleLanguage:         "MIS",
-      VideoType:                "stream",
-      ContentId:                g.Id,
-      ContentType:              g.Type,
-   }
-}
-
-func (g *GizmoContent) Fhd(classification_id int, language string) *OnDemand {
-   return g.video(classification_id, language, "FHD")
-}
-
-func (s *StreamInfo) Mpd() (*http.Response, error) {
-   return http.Get(s.Url)
-}
-
-func (s *StreamInfo) License(data []byte) (*http.Response, error) {
-   return http.Post(
-      s.LicenseUrl, "application/x-protobuf", bytes.NewReader(data),
-   )
-}
-
-///
-
-type OnDemand struct {
+type Streamings struct {
    AudioLanguage            string `json:"audio_language"`
    AudioQuality             string `json:"audio_quality"`
    ClassificationId         int    `json:"classification_id"`
@@ -234,33 +200,54 @@ type OnDemand struct {
    VideoType                string `json:"video_type"`
 }
 
-type StreamInfo struct {
-   LicenseUrl   string `json:"license_url"`
-   Url          string
-   VideoQuality string `json:"video_quality"`
+func (s *Streamings) Hd() {
+   s.DeviceStreamVideoQuality = "HD"
 }
 
-type Address struct {
-   MarketCode string
-   SeasonId   string
-   ContentId  string
+func (s *Streamings) Fhd() {
+   s.DeviceStreamVideoQuality = "FHD"
 }
 
-type GizmoSeason struct {
-   Episodes []GizmoContent
+func (c *Content) Streamings() *Streamings {
+   return &Streamings{ContentId: c.Id, ContentType: c.Type}
 }
 
-type GizmoContent struct {
-   ViewOptions  struct {
-      Private struct {
-         Streams []struct {
-            AudioLanguages []struct {
-               Id string
-            } `json:"audio_languages"`
-         }
+// hard geo block
+func (s *Streamings) Info(
+   audio_language string, classification_id int,
+) (*StreamInfo, error) {
+   s.AudioLanguage = audio_language
+   s.ClassificationId = classification_id
+   data, err := json.Marshal(s)
+   if err != nil {
+      return nil, err
+   }
+   resp, err := http.Post(
+      "https://gizmo.rakuten.tv/v3/avod/streamings",
+      "application/json", bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   var value struct {
+      Data struct {
+         StreamInfos []StreamInfo `json:"stream_infos"`
       }
-   } `json:"view_options"`
-   Id           string
-   Type         string
+      Errors []struct {
+         Message string
+      }
+   }
+   err = json.NewDecoder(resp.Body).Decode(&value)
+   if err != nil {
+      return nil, err
+   }
+   // you can trigger this with wrong location
+   if err := value.Errors; len(err) >= 1 {
+      return nil, errors.New(err[0].Message)
+   }
+   return &value.Data.StreamInfos[0], nil
 }
 
+type Season struct {
+   Episodes []Content
+}
