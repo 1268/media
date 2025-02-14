@@ -27,9 +27,9 @@ func (c Cookie) String() string {
 }
 
 func (c cookies) session_id() (*Cookie, bool) {
-   for _, cookie0 := range c {
-      if cookie0.Name == "_ASP.NET_SessionId_" {
-         return &Cookie{cookie0}, true
+   for _, cookie1 := range c {
+      if cookie1.Name == "_ASP.NET_SessionId_" {
+         return &Cookie{cookie1}, true
       }
    }
    return nil, false
@@ -78,9 +78,9 @@ type login struct {
 }
 
 func (n *login) cookie_token() (*http.Cookie, error) {
-   for _, cookie0 := range n.cookies {
-      if cookie0.Name == verification_token {
-         return cookie0, nil
+   for _, cookie1 := range n.cookies {
+      if cookie1.Name == verification_token {
+         return cookie1, nil
       }
    }
    return nil, http.ErrNoCookie
