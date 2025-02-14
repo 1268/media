@@ -198,9 +198,9 @@ func (a *Auth) Playback(web Address) (*Playback, error) {
 }
 
 func (p *Playback) Dash() (*Source, bool) {
-   for _, source0 := range p.Body.Data.PlaybackJsonData.Sources {
-      if source0.Type == "application/dash+xml" {
-         return &source0, true
+   for _, source1 := range p.Body.Data.PlaybackJsonData.Sources {
+      if source1.Type == "application/dash+xml" {
+         return &source1, true
       }
    }
    return nil, false
