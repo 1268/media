@@ -9,36 +9,6 @@ import (
    "strings"
 )
 
-type Widevine struct {
-   Header http.Header
-   Source *Source
-}
-
-func (w *Widevine) License(data []byte) (*http.Response, error) {
-   req, err := http.NewRequest(
-      "POST", w.Source.KeySystems.Widevine.LicenseUrl, bytes.NewReader(data),
-   )
-   if err != nil {
-      return nil, err
-   }
-   req.Header.Set("bcov-auth", w.Header.Get("x-amcn-bc-jwt"))
-   return http.DefaultClient.Do(req)
-}
-
-func (s *Source) Mpd() (*http.Response, error) {
-   return http.Get(s.Src)
-}
-
-type Source struct {
-   KeySystems *struct {
-      Widevine struct {
-         LicenseUrl string `json:"license_url"`
-      } `json:"com.widevine.alpha"`
-   } `json:"key_systems"`
-   Src string
-   Type string
-}
-
 type Address [2]string
 
 func (a *Address) Set(data string) error {
@@ -74,6 +44,13 @@ func (a *Auth) Refresh() ([]byte, error) {
       return nil, errors.New(resp.Status)
    }
    return io.ReadAll(resp.Body)
+}
+
+type Auth struct {
+   Data struct {
+      AccessToken string `json:"access_token"`
+      RefreshToken string `json:"refresh_token"`
+   }
 }
 
 func (a *Auth) Login(email, password string) ([]byte, error) {
@@ -136,27 +113,17 @@ func (a *Auth) Unauth() error {
    return json.NewDecoder(resp.Body).Decode(a)
 }
 
-type Auth struct {
-   Data struct {
-      AccessToken string `json:"access_token"`
-      RefreshToken string `json:"refresh_token"`
-   }
-}
-
 func (a *Auth) Playback(web Address) (*Playback, error) {
-   var value struct {
-      AdTags struct {
-         Lat int `json:"lat"`
-         Mode string `json:"mode"`
-         Ppid int `json:"ppid"`
-         PlayerHeight int `json:"playerHeight"`
-         PlayerWidth int `json:"playerWidth"`
-         Url string `json:"url"`
-      } `json:"adtags"`
-   }
-   value.AdTags.Mode = "on-demand"
-   value.AdTags.Url = "-"
-   data, err := json.Marshal(value)
+   data, err := json.Marshal(map[string]any{
+      "adtags": map[string]any{
+         "lat": 0,
+         "mode": "on-demand",
+         "playerHeight": 0,
+         "playerWidth": 0,
+         "ppid": 0,
+         "url": "-",
+      },
+   })
    if err != nil {
       return nil, err
    }
@@ -189,7 +156,7 @@ func (a *Auth) Playback(web Address) (*Playback, error) {
       return nil, errors.New(data.String())
    }
    var play Playback
-   err = json.NewDecoder(resp.Body).Decode(&play)
+   err = json.NewDecoder(resp.Body).Decode(&play.Body)
    if err != nil {
       return nil, err
    }
@@ -197,13 +164,14 @@ func (a *Auth) Playback(web Address) (*Playback, error) {
    return &play, nil
 }
 
-func (p *Playback) Dash() (*Source, bool) {
-   for _, source1 := range p.Body.Data.PlaybackJsonData.Sources {
-      if source1.Type == "application/dash+xml" {
-         return &source1, true
-      }
-   }
-   return nil, false
+type Source struct {
+   KeySystems *struct {
+      Widevine struct {
+         LicenseUrl string `json:"license_url"`
+      } `json:"com.widevine.alpha"`
+   } `json:"key_systems"`
+   Src string
+   Type string
 }
 
 type Playback struct {
@@ -215,4 +183,38 @@ type Playback struct {
          }
       }
    }
+}
+
+type Client struct {
+   Header http.Header
+   Source Source
+}
+
+func (c *Client) Mpd() (*http.Response, error) {
+   return http.Get(c.Source.Src)
+}
+
+func (p *Playback) Dash() (*Client, bool) {
+   for _, source1 := range p.Body.Data.PlaybackJsonData.Sources {
+      if source1.Type == "application/dash+xml" {
+         return &Client{p.Header, source1}, true
+      }
+   }
+   return nil, false
+}
+
+func (c *Client) License(data []byte) ([]byte, error) {
+   req, err := http.NewRequest(
+      "POST", c.Source.KeySystems.Widevine.LicenseUrl, bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   req.Header.Set("bcov-auth", c.Header.Get("x-amcn-bc-jwt"))
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   return io.ReadAll(resp.Body)
 }

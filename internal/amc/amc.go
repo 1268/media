@@ -31,11 +31,11 @@ func (f *flags) download() error {
    if err != nil {
       return err
    }
-   source, ok := play.Dash()
+   client, ok := play.Dash()
    if !ok {
       return errors.New("Playback.Dash")
    }
-   represents, err := internal.Mpd(source)
+   represents, err := internal.Mpd(client)
    if err != nil {
       return err
    }
@@ -44,7 +44,7 @@ func (f *flags) download() error {
       case "":
          fmt.Print(&represent, "\n\n")
       case represent.Id:
-         f.s.Widevine = &amc.Widevine{play.Header, source}
+         f.s.Client = client
          return f.s.Download(&represent)
       }
    }

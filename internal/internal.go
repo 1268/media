@@ -3,7 +3,6 @@ package internal
 import (
    "41.neocities.org/dash"
    "41.neocities.org/sofia/container"
-   "41.neocities.org/sofia/pssh"
    "41.neocities.org/sofia/sidx"
    "41.neocities.org/widevine"
    xhttp "41.neocities.org/x/http"
@@ -18,6 +17,15 @@ import (
    "slices"
    "strings"
 )
+
+// wikipedia.org/wiki/Dynamic_Adaptive_Streaming_over_HTTP
+type Stream struct {
+   Client     WidevineClient
+   ClientId   string
+   PrivateKey string
+   key_id     []byte
+   pssh       []byte
+}
 
 // must return byte slice to cover unwrapping
 type WidevineClient interface {
@@ -55,7 +63,7 @@ func (s *Stream) key() ([]byte, error) {
    if err != nil {
       return nil, err
    }
-   data, err = s.Widevine.License(data)
+   data, err = s.Client.License(data)
    if err != nil {
       return nil, err
    }
@@ -82,15 +90,6 @@ func (s *Stream) key() ([]byte, error) {
    }
 }
 
-// wikipedia.org/wiki/Dynamic_Adaptive_Streaming_over_HTTP
-type Stream struct {
-   ClientId   string
-   PrivateKey string
-   key_id     []byte
-   pssh       []byte
-   Widevine   WidevineClient
-}
-
 func Mpd(client DashClient) ([]dash.Representation, error) {
    resp, err := client.Mpd()
    if err != nil {
@@ -112,42 +111,6 @@ func Mpd(client DashClient) ([]dash.Representation, error) {
          return a.Bandwidth - b.Bandwidth
       },
    ), nil
-}
-
-func (s *Stream) Download(represent *dash.Representation) error {
-   for _, p := range represent.ContentProtection {
-      if p.SchemeIdUri == "urn:uuid:edef8ba9-79d6-4ace-a3c8-27dcd51d21ed" {
-         if p.Pssh != "" {
-            data, err := base64.StdEncoding.DecodeString(p.Pssh)
-            if err != nil {
-               return err
-            }
-            var box pssh.Box
-            n, err := box.BoxHeader.Decode(data)
-            if err != nil {
-               return err
-            }
-            err = box.Read(data[n:])
-            if err != nil {
-               return err
-            }
-            s.pssh = box.Data
-            // fallback to INIT
-            break
-         }
-      }
-   }
-   ext, err := get_ext(represent)
-   if err != nil {
-      return err
-   }
-   if represent.SegmentBase != nil {
-      return s.segment_base(represent, ext)
-   }
-   if represent.SegmentList != nil {
-      return s.segment_list(represent, ext)
-   }
-   return s.segment_template(represent, ext)
 }
 
 func get(address *url.URL) ([]byte, error) {
@@ -175,6 +138,7 @@ func get_ext(represent *dash.Representation) (string, error) {
    }
    return "", errors.New(*represent.MimeType)
 }
+
 func (s *Stream) segment_base(represent *dash.Representation, ext string) error {
    file, err := os.Create(ext)
    if err != nil {

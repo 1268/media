@@ -4,6 +4,7 @@ import (
    "bytes"
    "encoding/json"
    "errors"
+   "io"
    "net/http"
    "net/http/cookiejar"
    "strings"
