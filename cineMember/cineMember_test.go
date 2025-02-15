@@ -8,7 +8,9 @@ import (
    "testing"
 )
 
-func Test(t *testing.T) {
+const test_url = "cinemember.nl/films/american-hustle"
+
+func TestAuthenticate(t *testing.T) {
    data, err := exec.Command("password", "cinemember.nl").Output()
    if err != nil {
       t.Fatal(err)
@@ -20,8 +22,6 @@ func Test(t *testing.T) {
    }
    os.WriteFile("user.txt", data, os.ModePerm)
 }
-
-const test_url = "cinemember.nl/films/american-hustle"
 
 func TestAsset(t *testing.T) {
    data, err := os.ReadFile("authenticate.txt")

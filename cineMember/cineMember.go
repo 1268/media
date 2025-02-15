@@ -9,21 +9,80 @@ import (
    "strings"
 )
 
+func (u *UserArticle) Film() (*UserAsset, bool) {
+   for _, asset := range u.Assets {
+      if asset.LinkedType == "film" {
+         asset.article = u
+         return asset, true
+      }
+   }
+   return nil, false
+}
+
+func (e *Entitlement) License(data []byte) (*http.Response, error) {
+   return http.Post(
+      e.KeyDeliveryUrl, "application/x-protobuf", bytes.NewReader(data),
+   )
+}
+
+func (e *Entitlement) Mpd() (*http.Response, error) {
+   return http.Get(e.Manifest)
+}
+
+func (a *Address) Set(data string) error {
+   if !strings.HasPrefix(data, "https://") {
+      return errors.New("must start with https://")
+   }
+   a.s = strings.TrimPrefix(data, "https://")
+   a.s = strings.TrimPrefix(a.s, "www.")
+   a.s = strings.TrimPrefix(a.s, "cinemember.nl")
+   a.s = strings.TrimPrefix(a.s, "/nl")
+   a.s = strings.TrimPrefix(a.s, "/")
+   return nil
+}
+
+func (a Address) String() string {
+   return a.s
+}
+
+// NO ANONYMOUS QUERY
+const query_article = `
+query Article($articleUrlSlug: String) {
+   Article(full_url_slug: $articleUrlSlug) {
+      ... on Article {
+         assets {
+            ... on Asset {
+               id
+               linked_type
+            }
+         }
+         id
+      }
+   }
+}
+`
+
+const query_asset = `
+mutation ArticleAssetPlay($article_id: Int, $asset_id: Int) {
+   ArticleAssetPlay(article_id: $article_id asset_id: $asset_id) {
+      entitlements {
+         ... on ArticleAssetPlayEntitlement {
+            key_delivery_url
+            manifest
+            protocol
+         }
+      }
+   }
+}
+`
+
 const query_user = `
-mutation($email: String, $password: String) {
+mutation UserAuthenticate($email: String, $password: String) {
    UserAuthenticate(email: $email, password: $password) {
       access_token
    }
 }
 `
-
-type Authenticate struct {
-   Data struct {
-      UserAuthenticate struct {
-         AccessToken string `json:"access_token"`
-      }
-   }
-}
 
 func (a *Authenticate) Unmarshal(data []byte) error {
    return json.Unmarshal(data, a)
@@ -50,6 +109,7 @@ func (Authenticate) Marshal(email, password string) ([]byte, error) {
    defer resp.Body.Close()
    return io.ReadAll(resp.Body)
 }
+
 func (a *AssetPlay) Dash() (*Entitlement, bool) {
    for _, title := range a.Data.ArticleAssetPlay.Entitlements {
       if title.Protocol == "dash" {
@@ -57,31 +117,6 @@ func (a *AssetPlay) Dash() (*Entitlement, bool) {
       }
    }
    return nil, false
-}
-
-const query_asset = `
-mutation($article_id: Int, $asset_id: Int) {
-   ArticleAssetPlay(article_id: $article_id asset_id: $asset_id) {
-      entitlements {
-         ... on ArticleAssetPlayEntitlement {
-            key_delivery_url
-            manifest
-            protocol
-         }
-      }
-   }
-}
-`
-
-type AssetPlay struct {
-   Data struct {
-      ArticleAssetPlay struct {
-         Entitlements []Entitlement
-      }
-   }
-   Errors []struct {
-      Message string
-   }
 }
 
 func (a *AssetPlay) Unmarshal(data []byte) error {
@@ -125,64 +160,6 @@ func (AssetPlay) Marshal(user Authenticate, asset *UserAsset) ([]byte, error) {
    defer resp.Body.Close()
    return io.ReadAll(resp.Body)
 }
-func (e *Entitlement) License(data []byte) (*http.Response, error) {
-   return http.Post(
-      e.KeyDeliveryUrl, "application/x-protobuf", bytes.NewReader(data),
-   )
-}
-
-func (e *Entitlement) Mpd() (*http.Response, error) {
-   return http.Get(e.Manifest)
-}
-
-type Entitlement struct {
-   KeyDeliveryUrl string `json:"key_delivery_url"`
-   Manifest string
-   Protocol string
-}
-
-func (a *Address) Set(data string) error {
-   if !strings.HasPrefix(data, "https://") {
-      return errors.New("must start with https://")
-   }
-   a.s = strings.TrimPrefix(data, "https://")
-   a.s = strings.TrimPrefix(a.s, "www.")
-   a.s = strings.TrimPrefix(a.s, "cinemember.nl")
-   a.s = strings.TrimPrefix(a.s, "/nl")
-   a.s = strings.TrimPrefix(a.s, "/")
-   return nil
-}
-
-type Address struct {
-   s string
-}
-
-func (a Address) String() string {
-   return a.s
-}
-
-// NO ANONYMOUS QUERY
-const query_article = `
-query Article($articleUrlSlug: String) {
-   Article(full_url_slug: $articleUrlSlug) {
-      ... on Article {
-         assets {
-            ... on Asset {
-               id
-               linked_type
-            }
-         }
-         id
-      }
-   }
-}
-`
-
-type UserAsset struct {
-   Id         int
-   LinkedType string `json:"linked_type"`
-   article    *UserArticle
-}
 
 func (a Address) Article() (*UserArticle, error) {
    data, err := json.Marshal(map[string]any{
@@ -214,17 +191,44 @@ func (a Address) Article() (*UserArticle, error) {
    return &value.Data.Article, nil
 }
 
+///
+
+type Address struct {
+   s string
+}
+
+type AssetPlay struct {
+   Data struct {
+      ArticleAssetPlay struct {
+         Entitlements []Entitlement
+      }
+   }
+   Errors []struct {
+      Message string
+   }
+}
+
+type Authenticate struct {
+   Data struct {
+      UserAuthenticate struct {
+         AccessToken string `json:"access_token"`
+      }
+   }
+}
+
+type Entitlement struct {
+   KeyDeliveryUrl string `json:"key_delivery_url"`
+   Manifest string
+   Protocol string
+}
+
 type UserArticle struct {
    Assets []*UserAsset
    Id     int
 }
 
-func (u *UserArticle) Film() (*UserAsset, bool) {
-   for _, asset := range u.Assets {
-      if asset.LinkedType == "film" {
-         asset.article = u
-         return asset, true
-      }
-   }
-   return nil, false
+type UserAsset struct {
+   Id         int
+   LinkedType string `json:"linked_type"`
+   article    *UserArticle
 }
