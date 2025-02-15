@@ -23,7 +23,7 @@ func main() {
    flag.StringVar(&f.representation, "i", "", "representation")
    flag.StringVar(&f.s.PrivateKey, "p", f.s.PrivateKey, "private key")
    flag.BoolVar(&f.get_forward, "g", false, "get forward")
-   flag.StringVar(&f.set_forward, "s", "", "set forward")
+   flag.StringVar(&plex.ForwardedFor, "s", "", "set forward")
    flag.Parse()
    switch {
    case f.get_forward:
@@ -43,7 +43,6 @@ type flags struct {
    get_forward    bool
    representation string
    s              internal.Stream
-   set_forward    string
 }
 
 func (f *flags) New() error {

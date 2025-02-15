@@ -5,41 +5,27 @@ import (
    "41.neocities.org/media/plex"
    "errors"
    "fmt"
-   "net/http"
 )
 
 func (f *flags) download() error {
-   var user plex.Anonymous
+   var user plex.User
    err := user.New()
    if err != nil {
       return err
    }
-   match, err := user.Match(&f.address)
+   match, err := user.Match(f.address)
    if err != nil {
       return err
    }
-   video, err := user.Video(match, f.set_forward)
+   metadata, err := user.Metadata(match)
    if err != nil {
       return err
    }
-   part, ok := video.Dash()
+   client, ok := metadata.Dash(user)
    if !ok {
-      return errors.New("OnDemand.Dash")
+      return errors.New("Metadata.Dash")
    }
-   
-   var req http.Request
-   req.URL = part.Key.Url
-   if f.set_forward != "" {
-      req.Header = http.Header{
-         "x-forwarded-for": {f.set_forward},
-      }
-   }
-   
-   resp, err := http.DefaultClient.Do(&req)
-   if err != nil {
-      return err
-   }
-   represents, err := internal.Representation(resp)
+   represents, err := internal.Mpd(client)
    if err != nil {
       return err
    }
@@ -48,7 +34,7 @@ func (f *flags) download() error {
       case "":
          fmt.Print(&represent, "\n\n")
       case represent.Id:
-         f.s.Wrapper = part
+         f.s.Widevine = client
          return f.s.Download(&represent)
       }
    }
