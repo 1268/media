@@ -10,6 +10,14 @@ import (
    "strings"
 )
 
+func (r *ResolvedPath) get_id() string {
+   content1 := r.LastSegment.Content.FirstPlayableContent
+   if content1 != nil {
+      return content1.Id
+   }
+   return r.LastSegment.Content.Id
+}
+
 func (a Address) String() string {
    return a[0]
 }
@@ -59,14 +67,6 @@ type ResolvedPath struct {
          Id                   string
       }
    }
-}
-
-func (r *ResolvedPath) get_id() string {
-   content1 := r.LastSegment.Content.FirstPlayableContent
-   if content1 != nil {
-      return c.Id
-   }
-   return r.LastSegment.Content.Id
 }
 
 func (r *ResolvedPath) Axis() (*AxisContent, error) {
@@ -215,7 +215,7 @@ func (a Address) Resolve() (*ResolvedPath, error) {
    data, err := json.Marshal(map[string]any{
       "query": graphql_compact(query_resolve),
       "variables": map[string]string{
-         "path": a[0]
+         "path": a[0],
       },
    })
    if err != nil {

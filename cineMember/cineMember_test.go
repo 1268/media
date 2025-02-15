@@ -3,8 +3,23 @@ package cineMember
 import (
    "fmt"
    "os"
+   "os/exec"
+   "strings"
    "testing"
 )
+
+func Test(t *testing.T) {
+   data, err := exec.Command("password", "cinemember.nl").Output()
+   if err != nil {
+      t.Fatal(err)
+   }
+   email, password, _ := strings.Cut(string(data), ":")
+   data, err = Authenticate{}.Marshal(email, password)
+   if err != nil {
+      t.Fatal(err)
+   }
+   os.WriteFile("user.txt", data, os.ModePerm)
+}
 
 const test_url = "cinemember.nl/films/american-hustle"
 

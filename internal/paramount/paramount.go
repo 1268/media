@@ -34,7 +34,7 @@ func (f *flags) do_read() error {
       case represent.Id:
          // INTL does NOT allow anonymous key request, so if you are INTL you
          // will need to use US VPN until someone codes the INTL login
-         f.s.Wrapper, err = paramount.ComCbsApp.Session(f.content_id)
+         f.s.Client, err = paramount.ComCbsApp.Session(f.content_id)
          if err != nil {
             return err
          }
