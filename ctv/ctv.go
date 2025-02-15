@@ -10,6 +10,89 @@ import (
    "strings"
 )
 
+func (a Address) Resolve() (*ResolvedPath, error) {
+   var value struct {
+      Query         string `json:"query"`
+      Variables     struct {
+         Path string `json:"path"`
+      } `json:"variables"`
+   }
+   value.Query = graphql_compact(query_resolve)
+   value.Variables.Path = a.s
+   data, err := json.MarshalIndent(value, "", " ")
+   if err != nil {
+      return nil, err
+   }
+   req, err := http.NewRequest(
+      "POST", "https://www.ctv.ca/space-graphql/apq/graphql",
+      bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   // you need this for the first request, then can omit
+   req.Header.Set("graphql-client-platform", "entpay_web")
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   data, err = io.ReadAll(resp.Body)
+   if err != nil {
+      return nil, err
+   }
+   var value1 struct {
+      Data struct {
+         ResolvedPath *ResolvedPath
+      }
+   }
+   err = json.Unmarshal(data, &value1)
+   if err != nil {
+      return nil, err
+   }
+   if value1.Data.ResolvedPath == nil {
+      return nil, errors.New(string(data))
+   }
+   return value1.Data.ResolvedPath, nil
+}
+
+type Content struct {
+   ContentPackages []struct {
+      Id int64
+   }
+   Episode int
+   Media   struct {
+      Name string
+      Type string
+   }
+   Name   string
+   Season struct {
+      Number int
+   }
+}
+
+func (a *AxisContent) Content() (*Content, error) {
+   req, _ := http.NewRequest("", "https://capi.9c9media.com", nil)
+   req.URL.Path = func() string {
+      b := []byte("/destinations/")
+      b = append(b, a.AxisPlaybackLanguages[0].DestinationCode...)
+      b = append(b, "/platforms/desktop/contents/"...)
+      b = strconv.AppendInt(b, a.AxisId, 10)
+      return string(b)
+   }()
+   req.URL.RawQuery = "$include=[ContentPackages,Media,Season]"
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   content0 := &Content{}
+   err = json.NewDecoder(resp.Body).Decode(content0)
+   if err != nil {
+      return nil, err
+   }
+   return content0, nil
+}
 func (Widevine) License(data []byte) (*http.Response, error) {
    return http.Post(
       "https://license.9c9media.ca/widevine", "application/x-protobuf",
@@ -34,17 +117,13 @@ func (r *ResolvedPath) get_id() string {
    }
    return r.LastSegment.Content.Id
 }
-
 func (r *ResolvedPath) Axis() (*AxisContent, error) {
-   var value struct {
-      Query         string `json:"query"`
-      Variables     struct {
-         Id string `json:"id"`
-      } `json:"variables"`
-   }
-   value.Query = graphql_compact(query_axis)
-   value.Variables.Id = r.get_id()
-   data, err := json.Marshal(value)
+   data, err := json.Marshal(map[string]any{
+      "query": graphql_compact(query_axis),
+      "variables": map[string]string{
+         "id": r.get_id(),
+      },
+   })
    if err != nil {
       return nil, err
    }
@@ -62,7 +141,7 @@ func (r *ResolvedPath) Axis() (*AxisContent, error) {
       return nil, err
    }
    defer resp.Body.Close()
-   var value1 struct {
+   var value struct {
       Data struct {
          AxisContent AxisContent
       }
@@ -70,14 +149,14 @@ func (r *ResolvedPath) Axis() (*AxisContent, error) {
          Message string
       }
    }
-   err = json.NewDecoder(resp.Body).Decode(&value1)
+   err = json.NewDecoder(resp.Body).Decode(&value)
    if err != nil {
       return nil, err
    }
-   if err := value1.Errors; len(err) >= 1 {
+   if err := value.Errors; len(err) >= 1 {
       return nil, errors.New(err[0].Message)
    }
-   return &value1.Data.AxisContent, nil
+   return &value.Data.AxisContent, nil
 }
 
 type AxisContent struct {
@@ -182,87 +261,3 @@ query resolvePath($path: String!) {
    }
 }
 `
-
-func (a Address) Resolve() (*ResolvedPath, error) {
-   var value struct {
-      Query         string `json:"query"`
-      Variables     struct {
-         Path string `json:"path"`
-      } `json:"variables"`
-   }
-   value.Query = graphql_compact(query_resolve)
-   value.Variables.Path = a.s
-   data, err := json.MarshalIndent(value, "", " ")
-   if err != nil {
-      return nil, err
-   }
-   req, err := http.NewRequest(
-      "POST", "https://www.ctv.ca/space-graphql/apq/graphql",
-      bytes.NewReader(data),
-   )
-   if err != nil {
-      return nil, err
-   }
-   // you need this for the first request, then can omit
-   req.Header.Set("graphql-client-platform", "entpay_web")
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   data, err = io.ReadAll(resp.Body)
-   if err != nil {
-      return nil, err
-   }
-   var value1 struct {
-      Data struct {
-         ResolvedPath *ResolvedPath
-      }
-   }
-   err = json.Unmarshal(data, &value1)
-   if err != nil {
-      return nil, err
-   }
-   if value1.Data.ResolvedPath == nil {
-      return nil, errors.New(string(data))
-   }
-   return value1.Data.ResolvedPath, nil
-}
-
-type Content struct {
-   ContentPackages []struct {
-      Id int64
-   }
-   Episode int
-   Media   struct {
-      Name string
-      Type string
-   }
-   Name   string
-   Season struct {
-      Number int
-   }
-}
-
-func (a *AxisContent) Content() (*Content, error) {
-   req, _ := http.NewRequest("", "https://capi.9c9media.com", nil)
-   req.URL.Path = func() string {
-      b := []byte("/destinations/")
-      b = append(b, a.AxisPlaybackLanguages[0].DestinationCode...)
-      b = append(b, "/platforms/desktop/contents/"...)
-      b = strconv.AppendInt(b, a.AxisId, 10)
-      return string(b)
-   }()
-   req.URL.RawQuery = "$include=[ContentPackages,Media,Season]"
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   content0 := &Content{}
-   err = json.NewDecoder(resp.Body).Decode(content0)
-   if err != nil {
-      return nil, err
-   }
-   return content0, nil
-}

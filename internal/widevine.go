@@ -2,9 +2,41 @@ package internal
 
 import (
    "41.neocities.org/dash"
+   "41.neocities.org/sofia/container"
    "41.neocities.org/sofia/pssh"
    "encoding/base64"
 )
+
+var widevine = [8]uint16{
+   0xEDEF, 0x8BA9, 0x79D6, 0x4ACE, 0xA3C8, 0x27DC, 0xD51D, 0x21ED,
+}
+
+func (s *Stream) init_protect(data []byte) ([]byte, error) {
+   var file container.File
+   err := file.Read(data)
+   if err != nil {
+      return nil, err
+   }
+   if moov, ok := file.GetMoov(); ok {
+      for _, pssh1 := range moov.Pssh {
+         if pssh1.Widevine() {
+            s.pssh = pssh1.Data
+         }
+         copy(pssh1.BoxHeader.Type[:], "free") // Firefox
+      }
+      description := moov.Trak.Mdia.Minf.Stbl.Stsd
+      if sinf, ok := description.Sinf(); ok {
+         s.key_id = sinf.Schi.Tenc.S.DefaultKid[:]
+         // Firefox
+         copy(sinf.BoxHeader.Type[:], "free")
+         if sample, ok := description.SampleEntry(); ok {
+            // Firefox
+            copy(sample.BoxHeader.Type[:], sinf.Frma.DataFormat[:])
+         }
+      }
+   }
+   return file.Append(nil)
+}
 
 // dashif.org/identifiers/content_protection
 // func (b *Box) Widevine() bool {
