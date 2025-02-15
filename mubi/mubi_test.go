@@ -120,18 +120,19 @@ var dogvilles = []string{
    "/en/films/dogville",
 }
 
-var test = struct{
-   id int64
+var test = struct {
+   id     int64
    key_id string
-   url []string
+   url    []string
 }{
-   id: 325455,
+   id:     325455,
    key_id: "CA215A25BB2D43F0BD095FC671C984EE",
    url: []string{
       "mubi.com/films/325455/player",
       "mubi.com/films/passages-2022",
    },
 }
+
 func TestCode(t *testing.T) {
    var code LinkCode
    data, err := code.Marshal()

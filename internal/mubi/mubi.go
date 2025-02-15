@@ -30,12 +30,7 @@ func (f *flags) download() error {
    // we dont need this until later, but you have to call before the first
    // request in the program
    os.Setenv("GODEBUG", "http2client=0")
-   
-   resp, err := http.Get(secure.Url)
-   if err != nil {
-      return err
-   }
-   represents, err := internal.Representation(resp)
+   represents, err := internal.Mpd(&secure)
    if err != nil {
       return err
    }
@@ -53,7 +48,7 @@ func (f *flags) download() error {
          if err != nil {
             return err
          }
-         f.s.Wrapper = &auth
+         f.s.Client = &auth
          return f.s.Download(&represent)
       }
    }

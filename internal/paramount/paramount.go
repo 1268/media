@@ -1,14 +1,8 @@
 package main
 
 import (
-   "41.neocities.org/dash"
    "41.neocities.org/media/paramount"
-   "errors"
    "fmt"
-   "io"
-   "net/http"
-   "os"
-   "slices"
 )
 
 func (f *flags) do_read() error {
