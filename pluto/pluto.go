@@ -10,34 +10,6 @@ import (
    "strings"
 )
 
-func (Wrapper) Wrap(data []byte) ([]byte, error) {
-   resp, err := http.Post(
-      "https://service-concierge.clusters.pluto.tv/v1/wv/alt",
-      "application/x-protobuf", bytes.NewReader(data),
-   )
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   data, err = io.ReadAll(resp.Body)
-   if err != nil {
-      return nil, err
-   }
-   if resp.StatusCode != http.StatusOK {
-      return nil, errors.New(string(data))
-   }
-   return data, nil
-}
-
-func (c *Clips) Dash() (*url.URL, bool) {
-   for _, source := range c.Sources {
-      if source.Type == "DASH" {
-         return &source.File[0], true
-      }
-   }
-   return nil, false
-}
-
 func (a Address) String() string {
    var data strings.Builder
    if a[0] != "" {
@@ -52,10 +24,6 @@ func (a Address) String() string {
       }
    }
    return data.String()
-}
-
-func (u *Url) UnmarshalText(data []byte) error {
-   return (*u)[0].UnmarshalBinary(data)
 }
 
 func (a *Address) Set(data string) error {
@@ -82,31 +50,23 @@ func (a *Address) Set(data string) error {
    }
 }
 
-var Base = []BaseUrl{
-   {"http", "silo-hybrik.pluto.tv.s3.amazonaws.com", "200 OK"},
-   {"http", "siloh-fs.plutotv.net", "403 OK"},
-   {"http", "siloh-ns1.plutotv.net", "403 OK"},
-   {"https", "siloh-fs.plutotv.net", "403 OK"},
-   {"https", "siloh-ns1.plutotv.net", "403 OK"},
-}
-
 type Address [2]string
 
-func (v Vod) Clip() (*Clips, error) {
+func (v Vod) Clips() (*Clips, error) {
    req, err := http.NewRequest("", "https://api.pluto.tv", nil)
    if err != nil {
       return nil, err
    }
    req.URL.Path = func() string {
-      var b strings.Builder
-      b.WriteString("/v2/episodes/")
+      var data strings.Builder
+      data.WriteString("/v2/episodes/")
       if v.Id != "" {
-         b.WriteString(v.Id)
+         data.WriteString(v.Id)
       } else {
-         b.WriteString(v.Episode)
+         data.WriteString(v.Episode)
       }
-      b.WriteString("/clips.json")
-      return b.String()
+      data.WriteString("/clips.json")
+      return data.String()
    }()
    resp, err := http.DefaultClient.Do(req)
    if err != nil {
@@ -116,25 +76,12 @@ func (v Vod) Clip() (*Clips, error) {
    if resp.StatusCode != http.StatusOK {
       return nil, errors.New(resp.Status)
    }
-   var clips0 []Clips
-   err = json.NewDecoder(resp.Body).Decode(&clips0)
+   var clips1 []Clips
+   err = json.NewDecoder(resp.Body).Decode(&clips1)
    if err != nil {
       return nil, err
    }
-   return &clips0[0], nil
-}
-
-type Clips struct {
-   Sources []struct {
-      File Url
-      Type string
-   }
-}
-
-type BaseUrl struct {
-   Scheme string
-   Host   string
-   Status string
+   return &clips1[0], nil
 }
 
 func (a Address) Video(forward string) (*Vod, error) {
@@ -168,10 +115,8 @@ func (a Address) Video(forward string) (*Vod, error) {
          return nil, errors.New(demand.Slug)
       }
    }
-   for _, season := range demand.Seasons {
-      season.show = &demand
-      for _, episode := range season.Episodes {
-         episode.season = season
+   for _, season1 := range demand.Seasons {
+      for _, episode := range season1.Episodes {
          if episode.Episode == a[1] {
             return episode, nil
          }
@@ -183,22 +128,74 @@ func (a Address) Video(forward string) (*Vod, error) {
    return &demand, nil
 }
 
+type Widevine struct{}
+
+func (Widevine) License(data []byte) ([]byte, error) {
+   resp, err := http.Post(
+      "https://service-concierge.clusters.pluto.tv/v1/wv/alt",
+      "application/x-protobuf", bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   data, err = io.ReadAll(resp.Body)
+   if err != nil {
+      return nil, err
+   }
+   if resp.StatusCode != http.StatusOK {
+      return nil, errors.New(string(data))
+   }
+   return data, nil
+}
+
 type Vod struct {
    Episode string `json:"_id"`
    Id      string
    Name    string
-   Seasons []*VideoSeason
+   Seasons []struct {
+      Episodes []*Vod
+   }
    Slug    string
-   season  *VideoSeason
 }
 
-type Url [1]url.URL
-
-///
-
-type VideoSeason struct {
-   Episodes []*Vod
-   show     *Vod
+type Clips struct {
+   Sources []struct {
+      File File
+      Type string
+   }
 }
 
-type Wrapper struct{}
+func (c *Clips) Dash() (*File, bool) {
+   for _, source := range c.Sources {
+      if source.Type == "DASH" {
+         return &source.File, true
+      }
+   }
+   return nil, false
+}
+
+type File [1]url.URL
+
+// these return a valid response body, but response status is "403 OK":
+// http://siloh-fs.plutotv.net
+// http://siloh-ns1.plutotv.net
+// https://siloh-fs.plutotv.net
+// https://siloh-ns1.plutotv.net
+func (f *File) UnmarshalText(data []byte) error {
+   err := (*f)[0].UnmarshalBinary(data)
+   if err != nil {
+      return err
+   }
+   (*f)[0].Scheme = "http"
+   (*f)[0].Host = "silo-hybrik.pluto.tv.s3.amazonaws.com"
+   return nil
+}
+
+// The Request's URL and Header fields must be initialized
+func (f File) Mpd() (*http.Response, error) {
+   var req http.Request
+   req.Header = http.Header{}
+   req.URL = &f[0]
+   return http.DefaultClient.Do(&req)
+}

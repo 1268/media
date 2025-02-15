@@ -5,49 +5,52 @@ import (
    "41.neocities.org/media/rtbf"
    "errors"
    "fmt"
-   "net/http"
    "os"
 )
+
+func (f *flags) authenticate() error {
+   data, err := rtbf.Login{}.Marshal(f.email, f.password)
+   if err != nil {
+      return err
+   }
+   return os.WriteFile(f.home+"/rtbf.txt", data, os.ModePerm)
+}
 
 func (f *flags) download() error {
    data, err := os.ReadFile(f.home + "/rtbf.txt")
    if err != nil {
       return err
    }
-   var login rtbf.AuvioLogin
+   var login rtbf.Login
    err = login.Unmarshal(data)
    if err != nil {
       return err
    }
-   token, err := login.Token()
+   jwt, err := login.Jwt()
    if err != nil {
       return err
    }
-   auth, err := token.Auth()
+   gigya, err := jwt.Login()
    if err != nil {
       return err
    }
-   page, err := f.address.Page()
+   content, err := f.address.Content()
    if err != nil {
       return err
    }
-   asset_id, ok := page.GetAssetId()
+   asset_id, ok := content.GetAssetId()
    if !ok {
-      return errors.New("AuvioPage.GetAssetId")
+      return errors.New("Content.GetAssetId")
    }
-   title, err := auth.Entitlement(asset_id)
+   title, err := gigya.Entitlement(asset_id)
    if err != nil {
       return err
    }
-   address, ok := title.Dash()
+   format, ok := title.Dash()
    if !ok {
       return errors.New("Entitlement.Dash")
    }
-   resp, err := http.Get(address)
-   if err != nil {
-      return err
-   }
-   represents, err := internal.Representation(resp)
+   represents, err := internal.Mpd(format)
    if err != nil {
       return err
    }
@@ -61,12 +64,4 @@ func (f *flags) download() error {
       }
    }
    return nil
-}
-
-func (f *flags) authenticate() error {
-   data, err := rtbf.AuvioLogin{}.Marshal(f.email, f.password)
-   if err != nil {
-      return err
-   }
-   return os.WriteFile(f.home+"/rtbf.txt", data, os.ModePerm)
 }

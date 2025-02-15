@@ -5,7 +5,6 @@ import (
    "41.neocities.org/media/pluto"
    "errors"
    "fmt"
-   "net/http"
 )
 
 func (f *flags) download() error {
@@ -13,25 +12,15 @@ func (f *flags) download() error {
    if err != nil {
       return err
    }
-   clip, err := video.Clip()
+   clips, err := video.Clips()
    if err != nil {
       return err
    }
-   var (
-      req http.Request
-      ok  bool
-   )
-   req.URL, ok = clip.Dash()
+   file, ok := clips.Dash()
    if !ok {
-      return errors.New("EpisodeClip.Dash")
+      return errors.New("Clips.Dash")
    }
-   req.URL.Scheme = pluto.Base[0].Scheme
-   req.URL.Host = pluto.Base[0].Host
-   resp, err := http.DefaultClient.Do(&req)
-   if err != nil {
-      return err
-   }
-   represents, err := internal.Representation(resp)
+   represents, err := internal.Mpd(file)
    if err != nil {
       return err
    }
@@ -40,7 +29,7 @@ func (f *flags) download() error {
       case "":
          fmt.Print(&represent, "\n\n")
       case represent.Id:
-         f.s.Wrapper = pluto.Wrapper{}
+         f.s.Widevine = pluto.Widevine{}
          return f.s.Download(&represent)
       }
    }
