@@ -9,6 +9,47 @@ import (
    "strings"
 )
 
+func (f *FullMovie) New(custom_id string) error {
+   data, err := json.Marshal(map[string]any{
+      "query": graphql_compact(get_custom_id),
+      "variables": map[string]string{
+         "customId": custom_id,
+      },
+   })
+   if err != nil {
+      return err
+   }
+   req, err := http.NewRequest(
+      "POST", "https://client-api.magine.com/api/apiql/v2",
+      bytes.NewReader(data),
+   )
+   if err != nil {
+      return err
+   }
+   magine_accesstoken.set(req.Header)
+   x_forwarded_for.set(req.Header)
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return err
+   }
+   defer resp.Body.Close()
+   var value struct {
+      Data struct {
+         Viewer struct {
+            ViewableCustomId *FullMovie
+         }
+      }
+   }
+   err = json.NewDecoder(resp.Body).Decode(&value)
+   if err != nil {
+      return err
+   }
+   if id := value.Data.Viewer.ViewableCustomId; id != nil {
+      *f = *id
+      return nil
+   }
+   return errors.New("ViewableCustomId")
+}
 type header struct {
    key   string
    value string
@@ -193,49 +234,4 @@ func (a *AuthLogin) Entitlement(movie *FullMovie) (*Entitlement, error) {
 
 type Entitlement struct {
    Token string
-}
-
-func (f *FullMovie) New(custom_id string) error {
-   var value struct {
-      Query     string `json:"query"`
-      Variables struct {
-         CustomId string `json:"customId"`
-      } `json:"variables"`
-   }
-   value.Variables.CustomId = custom_id
-   value.Query = graphql_compact(get_custom_id)
-   data, err := json.Marshal(value)
-   if err != nil {
-      return err
-   }
-   req, err := http.NewRequest(
-      "POST", "https://client-api.magine.com/api/apiql/v2",
-      bytes.NewReader(data),
-   )
-   if err != nil {
-      return err
-   }
-   magine_accesstoken.set(req.Header)
-   x_forwarded_for.set(req.Header)
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return err
-   }
-   defer resp.Body.Close()
-   var value1 struct {
-      Data struct {
-         Viewer struct {
-            ViewableCustomId *FullMovie
-         }
-      }
-   }
-   err = json.NewDecoder(resp.Body).Decode(&value1)
-   if err != nil {
-      return err
-   }
-   if id := value1.Data.Viewer.ViewableCustomId; id != nil {
-      *f = *id
-      return nil
-   }
-   return errors.New("ViewableCustomId")
 }

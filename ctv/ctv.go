@@ -11,15 +11,12 @@ import (
 )
 
 func (a Address) Resolve() (*ResolvedPath, error) {
-   var value struct {
-      Query         string `json:"query"`
-      Variables     struct {
-         Path string `json:"path"`
-      } `json:"variables"`
-   }
-   value.Query = graphql_compact(query_resolve)
-   value.Variables.Path = a.s
-   data, err := json.MarshalIndent(value, "", " ")
+   data, err := json.Marshal(map[string]any{
+      "query": graphql_compact(query_resolve),
+      "variables": map[string]string{
+         "path": a.s,
+      },
+   })
    if err != nil {
       return nil, err
    }
@@ -41,19 +38,19 @@ func (a Address) Resolve() (*ResolvedPath, error) {
    if err != nil {
       return nil, err
    }
-   var value1 struct {
+   var value struct {
       Data struct {
          ResolvedPath *ResolvedPath
       }
    }
-   err = json.Unmarshal(data, &value1)
+   err = json.Unmarshal(data, &value)
    if err != nil {
       return nil, err
    }
-   if value1.Data.ResolvedPath == nil {
+   if value.Data.ResolvedPath == nil {
       return nil, errors.New(string(data))
    }
-   return value1.Data.ResolvedPath, nil
+   return value.Data.ResolvedPath, nil
 }
 
 type Content struct {

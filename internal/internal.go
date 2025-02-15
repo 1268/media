@@ -3,6 +3,7 @@ package internal
 import (
    "41.neocities.org/dash"
    "41.neocities.org/sofia/container"
+   "41.neocities.org/sofia/pssh"
    "41.neocities.org/sofia/sidx"
    "41.neocities.org/widevine"
    xhttp "41.neocities.org/x/http"
@@ -17,6 +18,74 @@ import (
    "slices"
    "strings"
 )
+
+const (
+   widevine_system_id = "edef8ba979d64acea3c827dcd51d21ed"
+   widevine_urn       = "urn:uuid:edef8ba9-79d6-4ace-a3c8-27dcd51d21ed"
+)
+
+func (s *Stream) Download(represent *dash.Representation) error {
+   for _, protect := range represent.ContentProtection {
+      if protect.SchemeIdUri == widevine_urn {
+         if protect.Pssh != "" {
+            data, err := base64.StdEncoding.DecodeString(protect.Pssh)
+            if err != nil {
+               return err
+            }
+            var box pssh.Box
+            n, err := box.BoxHeader.Decode(data)
+            if err != nil {
+               return err
+            }
+            err = box.Read(data[n:])
+            if err != nil {
+               return err
+            }
+            s.pssh = box.Data
+            // fallback to INIT
+            break
+         }
+      }
+   }
+   ext, err := get_ext(represent)
+   if err != nil {
+      return err
+   }
+   if represent.SegmentBase != nil {
+      return s.segment_base(represent, ext)
+   }
+   if represent.SegmentList != nil {
+      return s.segment_list(represent, ext)
+   }
+   return s.segment_template(represent, ext)
+}
+
+func (s *Stream) init_protect(data []byte) ([]byte, error) {
+   var file container.File
+   err := file.Read(data)
+   if err != nil {
+      return nil, err
+   }
+   if moov, ok := file.GetMoov(); ok {
+      for _, pssh1 := range moov.Pssh {
+         if pssh1.SystemId.String() == widevine_system_id {
+            s.pssh = pssh1.Data
+         }
+         copy(pssh1.BoxHeader.Type[:], "free") // Firefox
+      }
+      description := moov.Trak.Mdia.Minf.Stbl.Stsd
+      if sinf, ok := description.Sinf(); ok {
+         s.key_id = sinf.Schi.Tenc.S.DefaultKid[:]
+         // Firefox
+         copy(sinf.BoxHeader.Type[:], "free")
+         if sample, ok := description.SampleEntry(); ok {
+            // Firefox
+            copy(sample.BoxHeader.Type[:], sinf.Frma.DataFormat[:])
+         }
+      }
+   }
+   return file.Append(nil)
+}
 
 // wikipedia.org/wiki/Dynamic_Adaptive_Streaming_over_HTTP
 type Stream struct {
