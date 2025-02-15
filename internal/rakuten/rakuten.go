@@ -49,7 +49,7 @@ func (f *flags) download() error {
          if err != nil {
             return err
          }
-         f.s.Widevine = info
+         f.s.Client = info
          return f.s.Download(&represent)
       }
    }

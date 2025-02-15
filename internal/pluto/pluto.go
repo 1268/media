@@ -29,7 +29,7 @@ func (f *flags) download() error {
       case "":
          fmt.Print(&represent, "\n\n")
       case represent.Id:
-         f.s.Widevine = pluto.Widevine{}
+         f.s.Client = pluto.Client{}
          return f.s.Download(&represent)
       }
    }

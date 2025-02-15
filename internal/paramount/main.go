@@ -21,15 +21,9 @@ func main() {
    flag.StringVar(&f.s.ClientId, "c", f.s.ClientId, "client ID")
    flag.StringVar(&f.representation, "i", "", "representation")
    flag.StringVar(&f.s.PrivateKey, "p", f.s.PrivateKey, "private key")
-   flag.BoolVar(&f.write, "w", false, "write")
    flag.BoolVar(&f.intl, "n", false, "intl")
    flag.Parse()
    switch {
-   case f.write:
-      err := f.do_write()
-      if err != nil {
-         panic(err)
-      }
    case f.content_id != "":
       err := f.do_read()
       if err != nil {
@@ -56,5 +50,4 @@ type flags struct {
    intl           bool
    representation string
    s              internal.Stream
-   write          bool
 }

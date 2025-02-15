@@ -90,7 +90,8 @@ func (a *AxisContent) Content() (*Content, error) {
    }
    return content0, nil
 }
-func (Widevine) License(data []byte) (*http.Response, error) {
+
+func (Client) License(data []byte) (*http.Response, error) {
    return http.Post(
       "https://license.9c9media.ca/widevine", "application/x-protobuf",
       bytes.NewReader(data),
@@ -203,7 +204,7 @@ func (m *Manifest) Unmarshal(data []byte) error {
    return nil
 }
 
-type Widevine struct{}
+type Client struct{}
 
 type Address struct {
    s string

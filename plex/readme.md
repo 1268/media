@@ -67,7 +67,6 @@ X-Plex-Advertising-DoNotTrack: 0
 X-Plex-Advertising-Identifier: 7d57058e-e508-435d-98ff-8b6aa0cd9a9b
 X-Plex-Client-Identifier: 429675a6d0ceebc9-com-plexapp-android
 X-Plex-Client-Platform: Android
-X-Plex-DRM: widevine:video
 X-Plex-Device-Screen-Density: 420
 X-Plex-Device-Screen-Resolution: 1920x1080 (Mobile)
 X-Plex-Device-Vendor: unknown
@@ -97,7 +96,6 @@ x-plex-device-screen-density: 420
 x-plex-device-screen-resolution: 1920x1080 (Mobile)
 x-plex-device-vendor: unknown
 x-plex-device: Android SDK built for x86
-x-plex-drm: widevine:video
 x-plex-features: external-media,indirect-media,hub-style-list
 x-plex-marketplace: googlePlay
 x-plex-model: generic_x86

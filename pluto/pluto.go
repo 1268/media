@@ -128,9 +128,9 @@ func (a Address) Video(forward string) (*Vod, error) {
    return &demand, nil
 }
 
-type Widevine struct{}
+type Client struct{}
 
-func (Widevine) License(data []byte) ([]byte, error) {
+func (Client) License(data []byte) ([]byte, error) {
    resp, err := http.Post(
       "https://service-concierge.clusters.pluto.tv/v1/wv/alt",
       "application/x-protobuf", bytes.NewReader(data),

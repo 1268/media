@@ -1,11 +1,5 @@
 # web client
 
-if you disable Widevine, and visit:
-
-https://nbc.com/saturday-night-live/video/october-21-bad-bunny/9000283422
-
-you get:
-
 > SORRY! WE'RE HAVING SOME TROUBLE.
 >
 > If the problem persists, please contact us and send us a note.

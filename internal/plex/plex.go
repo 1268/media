@@ -34,7 +34,7 @@ func (f *flags) download() error {
       case "":
          fmt.Print(&represent, "\n\n")
       case represent.Id:
-         f.s.Widevine = client
+         f.s.Client = client
          return f.s.Download(&represent)
       }
    }

@@ -96,24 +96,10 @@ func (i *Item) Unmarshal(data []byte) error {
       return errors.New(value.Error)
    }
    if len(value.ItemList) == 0 {
-      return errors.New(`"itemList":[]`)
+      return errors.New("item list length is zero")
    }
    *i = value.ItemList[0]
    return nil
-}
-
-// hard geo block
-func (i *Item) Mpd() string {
-   b := []byte("https://link.theplatform.com/s/")
-   b = append(b, i.CmsAccountId...)
-   b = append(b, "/media/guid/"...)
-   b = strconv.AppendInt(b, cms_account(i.CmsAccountId), 10)
-   b = append(b, '/')
-   b = append(b, i.ContentId...)
-   b = append(b, "?assetTypes="...)
-   b = append(b, i.AssetType...)
-   b = append(b, "&formats=MPEG-DASH"...)
-   return string(b)
 }
 
 // 15.0.52
@@ -146,23 +132,6 @@ func (a *AppToken) encode() (string, error) {
    data1 = append(data1, iv[:]...)
    data1 = append(data1, data...)
    return base64.StdEncoding.EncodeToString(data1), nil
-}
-
-func (s *SessionToken) License(data []byte) ([]byte, error) {
-   req, err := http.NewRequest("POST", s.Url, bytes.NewReader(data))
-   if err != nil {
-      return nil, err
-   }
-   req.Header = http.Header{
-      "authorization": {"Bearer " + s.LsSession},
-      "content-type": {"application/x-protobuf"},
-   }
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   return io.ReadAll(resp.Body)
 }
 
 // must use app token and IP address for US
@@ -198,4 +167,40 @@ func (a *AppToken) Session(content_id string) (*SessionToken, error) {
       return nil, err
    }
    return session, nil
+}
+
+func (s *SessionToken) License(data []byte) ([]byte, error) {
+   req, err := http.NewRequest("POST", s.Url, bytes.NewReader(data))
+   if err != nil {
+      return nil, err
+   }
+   req.Header = http.Header{
+      "authorization": {"Bearer " + s.LsSession},
+      "content-type": {"application/x-protobuf"},
+   }
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   return io.ReadAll(resp.Body)
+}
+
+// hard geo block
+func (i *Item) Mpd() (*http.Response, error) {
+   req, _ := http.NewRequest("", "https://link.theplatform.com", nil)
+   req.URL.Path = func() string {
+      b := []byte("/s/")
+      b = append(b, i.CmsAccountId...)
+      b = append(b, "/media/guid/"...)
+      b = strconv.AppendInt(b, cms_account(i.CmsAccountId), 10)
+      b = append(b, '/')
+      b = append(b, i.ContentId...)
+      return string(b)
+   }()
+   req.URL.RawQuery = url.Values{
+      "assetTypes": {i.AssetType},
+      "formats": {"MPEG-DASH"},
+   }.Encode()
+   return http.DefaultClient.Do(req)
 }
