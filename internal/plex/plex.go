@@ -26,6 +26,7 @@ func (f *flags) download() error {
    if !ok {
       return errors.New("OnDemand.Dash")
    }
+   
    var req http.Request
    req.URL = part.Key.Url
    if f.set_forward != "" {
@@ -33,6 +34,7 @@ func (f *flags) download() error {
          "x-forwarded-for": {f.set_forward},
       }
    }
+   
    resp, err := http.DefaultClient.Do(&req)
    if err != nil {
       return err

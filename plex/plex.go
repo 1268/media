@@ -10,40 +10,9 @@ import (
    "strings"
 )
 
-type MediaPart struct {
-   Key Url
-   License *Url
-}
-
-func (o *OnDemand) Dash() (*MediaPart, bool) {
-   for _, media := range o.Media {
-      if media.Protocol == "dash" {
-         for _, part := range media.Part {
-            return &part, true
-         }
-      }
-   }
-   return nil, false
-}
-
-type OnDemand struct {
-   Media []struct {
-      Part []MediaPart
-      Protocol string
-   }
-}
-
-type Anonymous struct {
-   AuthToken string
-}
-
 func (a *Anonymous) New() error {
-   req, err := http.NewRequest(
-      "POST", "https://plex.tv/api/v2/users/anonymous", nil,
-   )
-   if err != nil {
-      return err
-   }
+   req, _ := http.NewRequest("POST", "https://plex.tv", nil)
+   req.URL.Path = "/api/v2/users/anonymous"
    req.Header = http.Header{
       "accept": {"application/json"},
       "x-plex-product": {"Plex Mediaverse"},
@@ -57,61 +26,31 @@ func (a *Anonymous) New() error {
    return json.NewDecoder(resp.Body).Decode(a)
 }
 
-type Url struct {
-   Url *url.URL
+func (a Address) String() string {
+   return a[0]
 }
 
-func (u *Url) UnmarshalText(data []byte) error {
-   u.Url = &url.URL{}
-   err := u.Url.UnmarshalBinary(data)
-   if err != nil {
-      return err
-   }
-   u.Url.Scheme = "https"
-   u.Url.Host = "vod.provider.plex.tv"
+func (a *Address) Set(data string) error {
+   data = strings.TrimPrefix(data, "https://")
+   data = strings.TrimPrefix(data, "watch.plex.tv")
+   (*a)[0] = strings.TrimPrefix(data, "/watch")
    return nil
 }
 
-type Address struct {
-   s string
+type Address [1]string
+
+type Match struct {
+   RatingKey string
 }
 
-func (a *Address) String() string {
-   return a.s
-}
-
-func (a *Address) Set(s string) error {
-   s = strings.TrimPrefix(s, "https://")
-   s = strings.TrimPrefix(s, "watch.plex.tv")
-   a.s = strings.TrimPrefix(s, "/watch")
-   return nil
-}
-
-func (m *MediaPart) Wrap(data []byte) ([]byte, error) {
-   var req http.Request
-   req.Body = io.NopCloser(bytes.NewReader(data))
-   req.Method = "POST"
-   req.URL = m.License.Url
-   resp, err := http.DefaultClient.Do(&req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   return io.ReadAll(resp.Body)
-}
-
-func (a *Anonymous) Match(web *Address) (*DiscoverMatch, error) {
-   req, err := http.NewRequest(
-      "", "https://discover.provider.plex.tv/library/metadata/matches", nil,
-   )
-   if err != nil {
-      return nil, err
-   }
-   req.Header.Set("accept", "application/json")
+func (a *Anonymous) Match(web Address) (*Match, error) {
+   req, _ := http.NewRequest("", "https://discover.provider.plex.tv", nil)
+   req.URL.Path = "/library/metadata/matches"
    req.URL.RawQuery = url.Values{
-      "url": {web.s},
+      "url": {web[0]},
       "x-plex-token": {a.AuthToken},
    }.Encode()
+   req.Header.Set("accept", "application/json")
    resp, err := http.DefaultClient.Do(req)
    if err != nil {
       return nil, err
@@ -122,7 +61,7 @@ func (a *Anonymous) Match(web *Address) (*DiscoverMatch, error) {
    }
    var value struct {
       MediaContainer struct {
-         Metadata []DiscoverMatch
+         Metadata []Match
       }
    }
    err = json.NewDecoder(resp.Body).Decode(&value)
@@ -132,18 +71,13 @@ func (a *Anonymous) Match(web *Address) (*DiscoverMatch, error) {
    return &value.MediaContainer.Metadata[0], nil
 }
 
-func (a *Anonymous) Video(
-   match *DiscoverMatch, forward string,
-) (*OnDemand, error) {
-   req, err := http.NewRequest("", "https://vod.provider.plex.tv", nil)
-   if err != nil {
-      return nil, err
-   }
-   req.URL.Path = "/library/metadata/" + match.RatingKey
+func (a *Anonymous) Metadata(match1 *Match) (*Metadata, error) {
+   req, _ := http.NewRequest("", "https://vod.provider.plex.tv", nil)
+   req.URL.Path = "/library/metadata/" + match1.RatingKey
    req.Header.Set("accept", "application/json")
    req.Header.Set("x-plex-token", a.AuthToken)
-   if forward != "" {
-      req.Header.Set("x-forwarded-for", forward)
+   if ForwardedFor != "" {
+      req.Header.Set("x-forwarded-for", ForwardedFor)
    }
    resp, err := http.DefaultClient.Do(req)
    if err != nil {
@@ -155,35 +89,83 @@ func (a *Anonymous) Video(
    }
    var value struct {
       MediaContainer struct {
-         Metadata []OnDemand
+         Metadata []Metadata
       }
    }
    err = json.NewDecoder(resp.Body).Decode(&value)
    if err != nil {
       return nil, err
    }
-   metadata := value.MediaContainer.Metadata[0]
-   for _, media := range metadata.Media {
-      for _, part := range media.Part {
-         part.Key.Url.RawQuery = url.Values{
-            "x-plex-token": {a.AuthToken},
-         }.Encode()
-         if part.License != nil {
-            part.License.Url.RawQuery = url.Values{
-               "x-plex-drm": {"widevine"},
-               "x-plex-token": {a.AuthToken},
-            }.Encode()
-         }
-      }
-   }
-   return &metadata, nil
+   return &value.MediaContainer.Metadata[0], nil
 }
 
-type DiscoverMatch struct {
-   GrandparentTitle string
-   Index int
-   ParentIndex int
-   RatingKey string
-   Title string
-   Year int
+var ForwardedFor string
+
+type Metadata struct {
+   Media []struct {
+      Part []Part
+      Protocol string
+   }
+}
+
+type Anonymous struct {
+   AuthToken string
+}
+
+func (m *Metadata) Dash(anon Anonymous) (*Client, bool) {
+   for _, media := range m.Media {
+      if media.Protocol == "dash" {
+         var c Client
+         c.AuthToken = anon.AuthToken
+         c.Part = media.Part[0]
+         return &c, true
+      }
+   }
+   return nil, false
+}
+
+type Client struct {
+   AuthToken string
+   Part Part
+}
+
+type Part struct {
+   Key string
+   License string
+}
+
+func (c *Client) Mpd() (*http.Response, error) {
+   req, err := http.NewRequest("", c.Part.Key, nil)
+   if err != nil {
+      return nil, err
+   }
+   req.URL.Scheme = "https"
+   req.URL.Host = "vod.provider.plex.tv"
+   req.URL.RawQuery = url.Values{
+      "x-plex-token": {c.AuthToken},
+   }.Encode()
+   req.Header = http.Header{}
+   if ForwardedFor != "" {
+      req.Header.Set("x-forwarded-for", ForwardedFor)
+   }
+   return http.DefaultClient.Do(req)
+}
+
+func (c *Client) License(data []byte) ([]byte, error) {
+   req, err := http.NewRequest("POST", c.Part.License, bytes.NewReader(data))
+   if err != nil {
+      return nil, err
+   }
+   req.URL.Scheme = "https"
+   req.URL.Host = "vod.provider.plex.tv"
+   req.URL.RawQuery = url.Values{
+      "x-plex-drm": {"widevine"},
+      "x-plex-token": {c.AuthToken},
+   }.Encode()
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   return io.ReadAll(resp.Body)
 }
