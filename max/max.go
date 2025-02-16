@@ -38,85 +38,15 @@ func (w *WatchUrl) UnmarshalText(data []byte) error {
    return nil
 }
 
-func (v *LinkLogin) Unmarshal(data []byte) error {
-   return json.Unmarshal(data, v)
+func (n *Login) Unmarshal(data []byte) error {
+   return json.Unmarshal(data, n)
 }
 
-func (f *Url) UnmarshalText(data []byte) error {
-   f.String = strings.Replace(string(data), "_fallback", "", 1)
-   return nil
-}
-
-// you must
-// /authentication/linkDevice/initiate
-// first or this will always fail
-func (LinkLogin) Marshal(token *BoltToken) ([]byte, error) {
-   req, err := http.NewRequest(
-      "POST", prd_api+"/authentication/linkDevice/login", nil,
-   )
-   if err != nil {
-      return nil, err
-   }
-   req.Header.Set("cookie", "st="+token.St)
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   return io.ReadAll(resp.Body)
-}
-
-func (b *BoltToken) Initiate() (*LinkInitiate, error) {
-   req, err := http.NewRequest(
-      "POST", prd_api+"/authentication/linkDevice/initiate", nil,
-   )
-   if err != nil {
-      return nil, err
-   }
-   req.Header = http.Header{
-      "cookie":        {"st=" + b.St},
-      "x-device-info": {device_info},
-   }
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   link := &LinkInitiate{}
-   err = json.NewDecoder(resp.Body).Decode(link)
-   if err != nil {
-      return nil, err
-   }
-   return link, nil
-}
 const (
    device_info  = "!/!(!/!;!/!;!/!)"
    disco_client = "!:!:beam:!"
    prd_api      = "https://default.prd.api.discomax.com"
 )
-
-func (b *BoltToken) New() error {
-   req, err := http.NewRequest("", prd_api+"/token?realm=bolt", nil)
-   if err != nil {
-      return err
-   }
-   req.Header = http.Header{
-      "x-device-info":  {device_info},
-      "x-disco-client": {disco_client},
-   }
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return err
-   }
-   defer resp.Body.Close()
-   for _, cookie := range resp.Cookies() {
-      if cookie.Name == "st" {
-         b.St = cookie.Value
-         return nil
-      }
-   }
-   return http.ErrNoCookie
-}
 
 func (p *Playback) Wrap(data []byte) ([]byte, error) {
    resp, err := http.Post(
@@ -133,66 +63,49 @@ func (p *Playback) Wrap(data []byte) ([]byte, error) {
    return io.ReadAll(resp.Body)
 }
 
-func (v *LinkLogin) Playback(watch *WatchUrl) (*Playback, error) {
-   var body playback_request
-   body.ConsumptionType = "streaming"
-   body.EditId = watch.EditId
-   data, err := json.MarshalIndent(body, "", " ")
-   if err != nil {
-      return nil, err
-   }
-   req, err := http.NewRequest("POST", prd_api, bytes.NewReader(data))
-   if err != nil {
-      return nil, err
-   }
-   req.URL.Path = func() string {
-      var b bytes.Buffer
-      b.WriteString("/playback-orchestrator/any/playback-orchestrator/v1")
-      b.WriteString("/playbackInfo")
-      return b.String()
-   }()
+type Url [1]string
+
+func (u *Url) UnmarshalText(data []byte) error {
+   (*u)[0] = strings.Replace(string(data), "_fallback", "", 1)
+   return nil
+}
+
+func (s *St) New() error {
+   req, _ := http.NewRequest("", prd_api+"/token?realm=bolt", nil)
    req.Header = http.Header{
-      "authorization": {"Bearer " + v.Data.Attributes.Token},
-      "content-type":  {"application/json"},
+      "x-device-info":  {device_info},
+      "x-disco-client": {disco_client},
    }
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return err
+   }
+   defer resp.Body.Close()
+   for _, cookie := range resp.Cookies() {
+      if cookie.Name == "st" {
+         (*s)[0] = cookie
+         return nil
+      }
+   }
+   return http.ErrNoCookie
+}
+
+// you must
+// /authentication/linkDevice/initiate
+// first or this will always fail
+func (Login) Marshal(token St) ([]byte, error) {
+   req, _ := http.NewRequest("POST", prd_api, nil)
+   req.URL.Path = "/authentication/linkDevice/login"
+   req.AddCookie(token[0])
    resp, err := http.DefaultClient.Do(req)
    if err != nil {
       return nil, err
    }
    defer resp.Body.Close()
-   var resp_body Playback
-   err = json.NewDecoder(resp.Body).Decode(&resp_body)
-   if err != nil {
-      return nil, err
-   }
-   if err := resp_body.Errors; len(err) >= 1 {
-      return nil, errors.New(err[0].Message)
-   }
-   return &resp_body, nil
+   return io.ReadAll(resp.Body)
 }
 
-///
-
-type BoltToken struct {
-   St string
-}
-
-type LinkInitiate struct {
-   Data struct {
-      Attributes struct {
-         LinkingCode string
-         TargetUrl   string
-      }
-   }
-}
-
-type LinkLogin struct {
-   Data struct {
-      Attributes struct {
-         Token string
-      }
-   }
-}
+type St [1]*http.Cookie
 
 type Playback struct {
    Drm struct {
@@ -212,45 +125,109 @@ type Playback struct {
    }
 }
 
-type Url struct {
-   String string
-}
-
 type WatchUrl struct {
    EditId  string
    VideoId string
 }
 
-type playback_request struct {
-   AppBundle            string `json:"appBundle"`            // required
-   ApplicationSessionId string `json:"applicationSessionId"` // required
-   Capabilities         struct {
-      Manifests struct {
-         Formats struct {
-            Dash struct{} `json:"dash"` // required
-         } `json:"formats"` // required
-      } `json:"manifests"` // required
-   } `json:"capabilities"` // required
-   ConsumptionType string `json:"consumptionType"`
-   DeviceInfo      struct {
-      Player struct {
-         MediaEngine struct {
-            Name    string `json:"name"`    // required
-            Version string `json:"version"` // required
-         } `json:"mediaEngine"` // required
-         PlayerView struct {
-            Height int `json:"height"` // required
-            Width  int `json:"width"`  // required
-         } `json:"playerView"` // required
-         Sdk struct {
-            Name    string `json:"name"`    // required
-            Version string `json:"version"` // required
-         } `json:"sdk"` // required
-      } `json:"player"` // required
-   } `json:"deviceInfo"` // required
-   EditId            string   `json:"editId"`
-   FirstPlay         bool     `json:"firstPlay"`         // required
-   Gdpr              bool     `json:"gdpr"`              // required
-   PlaybackSessionId string   `json:"playbackSessionId"` // required
-   UserPreferences   struct{} `json:"userPreferences"`   // required
+func (s St) Initiate() (*Initiate, error) {
+   req, _ := http.NewRequest("POST", prd_api, nil)
+   req.URL.Path = "/authentication/linkDevice/initiate"
+   req.Header.Set("x-device-info", device_info)
+   req.AddCookie(s[0])
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   value := &Initiate{}
+   err = json.NewDecoder(resp.Body).Decode(value)
+   if err != nil {
+      return nil, err
+   }
+   return value, nil
+}
+
+type Initiate struct {
+   Data struct {
+      Attributes struct {
+         LinkingCode string
+         TargetUrl   string
+      }
+   }
+}
+
+type Login struct {
+   Data struct {
+      Attributes struct {
+         Token string
+      }
+   }
+}
+
+func (n *Login) Playback(watch *WatchUrl) (*Playback, error) {
+   data, err := json.Marshal(map[string]any{
+      "consumptionType": "streaming",
+      "editId": watch.EditId,
+      "appBundle": "", // required
+      "applicationSessionId": "", // required
+      "firstPlay": false, // required
+      "gdpr": false, // required
+      "playbackSessionId": "", // required
+      "userPreferences": struct{}{}, // required
+      "capabilities": map[string]any{
+         "manifests": map[string]any{
+            "formats": map[string]any{
+               "dash": struct{}{}, // required
+            }, // required
+         }, // required
+      }, // required
+      "deviceInfo": map[string]any{
+         "player": map[string]any{
+            "mediaEngine": map[string]string{
+               "name": "", // required
+               "version": "", // required
+            }, // required
+            "playerView": map[string]int{
+               "height": 0, // required
+               "width": 0, // required
+            }, // required
+            "sdk": map[string]string{
+               "name": "", // required
+               "version": "", // required
+            }, // required
+         }, // required
+      }, // required
+   })
+   if err != nil {
+      return nil, err
+   }
+   req, err := http.NewRequest("POST", prd_api, bytes.NewReader(data))
+   if err != nil {
+      return nil, err
+   }
+   req.URL.Path = func() string {
+      var b bytes.Buffer
+      b.WriteString("/playback-orchestrator/any/playback-orchestrator/v1")
+      b.WriteString("/playbackInfo")
+      return b.String()
+   }()
+   req.Header = http.Header{
+      "authorization": {"Bearer " + n.Data.Attributes.Token},
+      "content-type":  {"application/json"},
+   }
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   var play Playback
+   err = json.NewDecoder(resp.Body).Decode(&play)
+   if err != nil {
+      return nil, err
+   }
+   if err := play.Errors; len(err) >= 1 {
+      return nil, errors.New(err[0].Message)
+   }
+   return &play, nil
 }
