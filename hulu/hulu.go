@@ -15,17 +15,6 @@ func (a *Authenticate) Unmarshal(data []byte) error {
    return json.Unmarshal(data, a)
 }
 
-func (p *Playlist) Wrap(data []byte) ([]byte, error) {
-   resp, err := http.Post(
-      p.WvServer, "application/x-protobuf", bytes.NewReader(data),
-   )
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   return io.ReadAll(resp.Body)
-}
-
 func (e EntityId) String() string {
    return e[0]
 }
@@ -91,11 +80,6 @@ type Authenticate struct {
 
 type DeepLink struct {
    EabId string `json:"eab_id"`
-}
-
-type Playlist struct {
-   StreamUrl string `json:"stream_url"`
-   WvServer  string `json:"wv_server"`
 }
 
 func (a Authenticate) Playlist(link *DeepLink) (*Playlist, error) {
@@ -193,4 +177,24 @@ func (a Authenticate) Playlist(link *DeepLink) (*Playlist, error) {
       return nil, err
    }
    return play, nil
+}
+
+func (p *Playlist) License(data []byte) ([]byte, error) {
+   resp, err := http.Post(
+      p.WvServer, "application/x-protobuf", bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   return io.ReadAll(resp.Body)
+}
+
+type Playlist struct {
+   StreamUrl string `json:"stream_url"`
+   WvServer  string `json:"wv_server"`
+}
+
+func (p *Playlist) Mpd() (*http.Response, error) {
+   return http.Get(p.StreamUrl)
 }

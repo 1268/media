@@ -4,7 +4,6 @@ import (
    "41.neocities.org/media/hulu"
    "41.neocities.org/media/internal"
    "fmt"
-   "net/http"
    "os"
 )
 
@@ -26,11 +25,7 @@ func (f *flags) download() error {
    if err != nil {
       return err
    }
-   resp, err := http.Get(play.StreamUrl)
-   if err != nil {
-      return err
-   }
-   represents, err := internal.Representation(resp)
+   represents, err := internal.Mpd(play)
    if err != nil {
       return err
    }
@@ -39,7 +34,7 @@ func (f *flags) download() error {
       case "":
          fmt.Print(&represent, "\n\n")
       case represent.Id:
-         f.s.Wrapper = play
+         f.s.Client = play
          return f.s.Download(&represent)
       }
    }

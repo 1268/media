@@ -9,6 +9,38 @@ import (
    "strings"
 )
 
+const (
+   device_info  = "!/!(!/!;!/!;!/!)"
+   disco_client = "!:!:beam:!"
+   prd_api      = "https://default.prd.api.discomax.com"
+)
+
+type BoltToken struct {
+   St string
+}
+
+func (b *BoltToken) New() error {
+   req, err := http.NewRequest("", prd_api+"/token?realm=bolt", nil)
+   if err != nil {
+      return err
+   }
+   req.Header = http.Header{
+      "x-device-info":  {device_info},
+      "x-disco-client": {disco_client},
+   }
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return err
+   }
+   defer resp.Body.Close()
+   for _, cookie := range resp.Cookies() {
+      if cookie.Name == "st" {
+         b.St = cookie.Value
+         return nil
+      }
+   }
+   return http.ErrNoCookie
+}
 func (p *Playback) Wrap(data []byte) ([]byte, error) {
    resp, err := http.Post(
       p.Drm.Schemes.Widevine.LicenseUrl, "application/x-protobuf",
@@ -188,3 +220,35 @@ func (LinkLogin) Marshal(token *BoltToken) ([]byte, error) {
    return io.ReadAll(resp.Body)
 }
 
+func (b *BoltToken) Initiate() (*LinkInitiate, error) {
+   req, err := http.NewRequest(
+      "POST", prd_api+"/authentication/linkDevice/initiate", nil,
+   )
+   if err != nil {
+      return nil, err
+   }
+   req.Header = http.Header{
+      "cookie":        {"st=" + b.St},
+      "x-device-info": {device_info},
+   }
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   link := &LinkInitiate{}
+   err = json.NewDecoder(resp.Body).Decode(link)
+   if err != nil {
+      return nil, err
+   }
+   return link, nil
+}
+
+type LinkInitiate struct {
+   Data struct {
+      Attributes struct {
+         LinkingCode string
+         TargetUrl   string
+      }
+   }
+}
