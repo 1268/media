@@ -4,7 +4,6 @@ import (
    "41.neocities.org/media/draken"
    "41.neocities.org/media/internal"
    "fmt"
-   "net/http"
    "os"
    "path"
 )
@@ -14,12 +13,12 @@ func (f *flags) download() error {
    if err != nil {
       return err
    }
-   var login draken.AuthLogin
+   var login draken.Login
    err = login.Unmarshal(data)
    if err != nil {
       return err
    }
-   var movie draken.FullMovie
+   var movie draken.Movie
    err = movie.New(path.Base(f.address))
    if err != nil {
       return err
@@ -32,11 +31,7 @@ func (f *flags) download() error {
    if err != nil {
       return err
    }
-   resp, err := http.Get(play.Playlist)
-   if err != nil {
-      return err
-   }
-   represents, err := internal.Representation(resp)
+   represents, err := internal.Mpd(play)
    if err != nil {
       return err
    }
@@ -45,7 +40,7 @@ func (f *flags) download() error {
       case "":
          fmt.Print(&represent, "\n\n")
       case represent.Id:
-         f.s.Wrapper = &draken.Wrapper{&login, play}
+         f.s.Client = &draken.Client{&login, play}
          return f.s.Download(&represent)
       }
    }
@@ -53,7 +48,7 @@ func (f *flags) download() error {
 }
 
 func (f *flags) authenticate() error {
-   data, err := draken.AuthLogin{}.Marshal(f.email, f.password)
+   data, err := draken.Login{}.Marshal(f.email, f.password)
    if err != nil {
       return err
    }
