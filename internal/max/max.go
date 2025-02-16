@@ -4,7 +4,6 @@ import (
    "41.neocities.org/media/internal"
    "41.neocities.org/media/max"
    "fmt"
-   "net/http"
    "os"
 )
 
@@ -13,7 +12,7 @@ func (f *flags) download() error {
    if err != nil {
       return err
    }
-   var login max.LinkLogin
+   var login max.Login
    err = login.Unmarshal(data)
    if err != nil {
       return err
@@ -22,28 +21,16 @@ func (f *flags) download() error {
    if err != nil {
       return err
    }
-   resp, err := http.Get(play.Fallback.Manifest.Url.String)
-   if err != nil {
-      return err
-   }
-   represents, err := internal.Representation(resp)
+   represents, err := internal.Mpd(play)
    if err != nil {
       return err
    }
    for _, represent := range represents {
-      if *represent.MimeType == "video/mp4" {
-         if *represent.Width < f.min_width {
-            continue
-         }
-         if *represent.Width > f.max_width {
-            continue
-         }
-      }
       switch f.representation {
       case "":
          fmt.Print(&represent, "\n\n")
       case represent.Id:
-         f.s.Wrapper = play
+         f.s.Client = play
          return f.s.Download(&represent)
       }
    }
@@ -51,27 +38,27 @@ func (f *flags) download() error {
 }
 
 func (f *flags) do_initiate() error {
-   var token max.BoltToken
-   err := token.New()
+   var st max.St
+   err := st.New()
    if err != nil {
       return err
    }
-   os.WriteFile("token.txt", []byte(token.St), os.ModePerm)
-   initiate, err := token.Initiate()
+   os.WriteFile("st.txt", st, os.ModePerm)
+   initiate, err := st.Initiate()
    if err != nil {
       return err
    }
    fmt.Printf("%+v\n", initiate)
    return nil
 }
+
 func (f *flags) do_login() error {
-   data, err := os.ReadFile("token.txt")
+   data, err := os.ReadFile("st.txt")
    if err != nil {
       return err
    }
-   var token max.BoltToken
-   token.St = string(data)
-   data, err = max.LinkLogin{}.Marshal(&token)
+   var st max.St
+   data, err = max.Login{}.Marshal(&st)
    if err != nil {
       return err
    }

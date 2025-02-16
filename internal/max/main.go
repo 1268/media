@@ -18,7 +18,6 @@ func main() {
    if err != nil {
       panic(err)
    }
-   flag.TextVar(&f.url, "a", &f.url, "URL")
    flag.StringVar(&f.s.ClientId, "c", f.s.ClientId, "client ID")
    flag.StringVar(&f.representation, "i", "", "representation")
    flag.BoolVar(
@@ -28,8 +27,7 @@ func main() {
    flag.BoolVar(
       &f.login, "login", false, "/authentication/linkDevice/login",
    )
-   flag.Int64Var(&f.min_width, "min", 1024, "min width")
-   flag.Int64Var(&f.max_width, "max", 1600, "max width")
+   flag.Var(&f.url, "a", "address")
    flag.Parse()
    switch {
    case f.initiate:
@@ -51,6 +49,7 @@ func main() {
       flag.Usage()
    }
 }
+
 func (f *flags) New() error {
    var err error
    f.home, err = os.UserHomeDir()
@@ -67,8 +66,6 @@ type flags struct {
    home           string
    initiate       bool
    login          bool
-   max_width      int64
-   min_width      int64
    representation string
    s              internal.Stream
    url            max.WatchUrl

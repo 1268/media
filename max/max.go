@@ -26,43 +26,6 @@ func (u *Url) UnmarshalText(data []byte) error {
    return nil
 }
 
-func (s *St) New() error {
-   req, _ := http.NewRequest("", prd_api+"/token?realm=bolt", nil)
-   req.Header = http.Header{
-      "x-device-info":  {device_info},
-      "x-disco-client": {disco_client},
-   }
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return err
-   }
-   defer resp.Body.Close()
-   for _, cookie := range resp.Cookies() {
-      if cookie.Name == "st" {
-         (*s)[0] = cookie
-         return nil
-      }
-   }
-   return http.ErrNoCookie
-}
-
-// you must
-// /authentication/linkDevice/initiate
-// first or this will always fail
-func (Login) Marshal(token St) ([]byte, error) {
-   req, _ := http.NewRequest("POST", prd_api, nil)
-   req.URL.Path = "/authentication/linkDevice/login"
-   req.AddCookie(token[0])
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   return io.ReadAll(resp.Body)
-}
-
-type St [1]*http.Cookie
-
 type Playback struct {
    Drm struct {
       Schemes struct {
@@ -79,29 +42,6 @@ type Playback struct {
          Url Url
       }
    }
-}
-
-type WatchUrl struct {
-   EditId  string
-   VideoId string
-}
-
-func (s St) Initiate() (*Initiate, error) {
-   req, _ := http.NewRequest("POST", prd_api, nil)
-   req.URL.Path = "/authentication/linkDevice/initiate"
-   req.Header.Set("x-device-info", device_info)
-   req.AddCookie(s[0])
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   value := &Initiate{}
-   err = json.NewDecoder(resp.Body).Decode(value)
-   if err != nil {
-      return nil, err
-   }
-   return value, nil
 }
 
 type Initiate struct {
@@ -188,10 +128,8 @@ func (n *Login) Playback(watch *WatchUrl) (*Playback, error) {
    return &play, nil
 }
 
-///
-
-func (w *WatchUrl) MarshalText() ([]byte, error) {
-   var b bytes.Buffer
+func (w *WatchUrl) String() string {
+   var b strings.Builder
    if w.VideoId != "" {
       b.WriteString("/video/watch/")
       b.WriteString(w.VideoId)
@@ -200,26 +138,34 @@ func (w *WatchUrl) MarshalText() ([]byte, error) {
       b.WriteByte('/')
       b.WriteString(w.EditId)
    }
-   return b.Bytes(), nil
+   return b.String()
 }
 
-func (w *WatchUrl) UnmarshalText(data []byte) error {
-   s := string(data)
-   if !strings.Contains(s, "/video/watch/") {
+func (w *WatchUrl) Set(data string) error {
+   if !strings.Contains(data, "/video/watch/") {
       return errors.New("/video/watch/ not found")
    }
-   s = strings.TrimPrefix(s, "https://")
-   s = strings.TrimPrefix(s, "play.max.com")
-   s = strings.TrimPrefix(s, "/video/watch/")
+   data = strings.TrimPrefix(data, "https://")
+   data = strings.TrimPrefix(data, "play.max.com")
+   data = strings.TrimPrefix(data, "/video/watch/")
    var found bool
-   w.VideoId, w.EditId, found = strings.Cut(s, "/")
+   w.VideoId, w.EditId, found = strings.Cut(data, "/")
    if !found {
       return errors.New("/ not found")
    }
    return nil
 }
 
-func (p *Playback) Wrap(data []byte) ([]byte, error) {
+type WatchUrl struct {
+   EditId  string
+   VideoId string
+}
+
+func (p *Playback) Mpd() (*http.Response, error) {
+   return http.Get(p.Fallback.Manifest.Url[0])
+}
+
+func (p *Playback) License(data []byte) ([]byte, error) {
    resp, err := http.Post(
       p.Drm.Schemes.Widevine.LicenseUrl, "application/x-protobuf",
       bytes.NewReader(data),
@@ -232,4 +178,72 @@ func (p *Playback) Wrap(data []byte) ([]byte, error) {
       return nil, errors.New(resp.Status)
    }
    return io.ReadAll(resp.Body)
+}
+
+func (s *St) New() error {
+   req, _ := http.NewRequest("", prd_api+"/token?realm=bolt", nil)
+   req.Header = http.Header{
+      "x-device-info":  {device_info},
+      "x-disco-client": {disco_client},
+   }
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return err
+   }
+   defer resp.Body.Close()
+   for _, cookie := range resp.Cookies() {
+      if cookie.Name == "st" {
+         (*s)[0] = cookie
+         return nil
+      }
+   }
+   return http.ErrNoCookie
+}
+
+// you must
+// /authentication/linkDevice/initiate
+// first or this will always fail
+func (Login) Marshal(token St) ([]byte, error) {
+   req, _ := http.NewRequest("POST", prd_api, nil)
+   req.URL.Path = "/authentication/linkDevice/login"
+   req.AddCookie(token[0])
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   return io.ReadAll(resp.Body)
+}
+
+func (s St) Initiate() (*Initiate, error) {
+   req, _ := http.NewRequest("POST", prd_api, nil)
+   req.URL.Path = "/authentication/linkDevice/initiate"
+   req.Header.Set("x-device-info", device_info)
+   req.AddCookie(s[0])
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   value := &Initiate{}
+   err = json.NewDecoder(resp.Body).Decode(value)
+   if err != nil {
+      return nil, err
+   }
+   return value, nil
+}
+
+type St [1]*http.Cookie
+
+func (s *St) Set(data string) error {
+   var err error
+   (*s)[0], err = http.ParseSetCookie(data)
+   if err != nil {
+      return err
+   }
+   return nil
+}
+
+func (s St) String() string {
+   return s[0].String()
 }
