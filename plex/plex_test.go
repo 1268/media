@@ -1,10 +1,7 @@
 package plex
 
 import (
-   "41.neocities.org/widevine"
-   "encoding/base64"
    "fmt"
-   "os"
    "testing"
    "time"
 )
@@ -32,26 +29,17 @@ var watch_tests = []struct{
 }
 
 func Test(t *testing.T) {
-   var user Anonymous
-   err := user.New()
+   var user1 User
+   err := user1.New()
    if err != nil {
       t.Fatal(err)
    }
    for _, test := range watch_tests {
-      match, err := user.Match(&Address{test.path})
+      match, err := user1.Match(Address{test.path})
       if err != nil {
          t.Fatal(err)
       }
-      video, err := user.Video(match, "")
-      if err != nil {
-         t.Fatal(err)
-      }
-      for _, media := range video.Media {
-         for _, part := range media.Part {
-            fmt.Println(part.Key)
-            fmt.Println(part.License)
-         }
-      }
+      fmt.Println(match)
       time.Sleep(time.Second)
    }
 }
