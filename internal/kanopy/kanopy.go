@@ -13,16 +13,16 @@ func (f *flags) download() error {
    if err != nil {
       return err
    }
-   var token kanopy.WebToken
-   err = token.Unmarshal(data)
+   var login kanopy.Login
+   err = login.Unmarshal(data)
    if err != nil {
       return err
    }
-   member, err := token.Membership()
+   member, err := login.Membership()
    if err != nil {
       return err
    }
-   plays, err := token.Plays(member, f.video_id)
+   plays, err := login.Plays(member, f.video_id)
    if err != nil {
       return err
    }
@@ -30,7 +30,7 @@ func (f *flags) download() error {
    if !ok {
       return errors.New("VideoPlays.Dash")
    }
-   represents, err := internal.Mpd(manifest.Url)
+   represents, err := internal.Mpd(manifest)
    if err != nil {
       return err
    }
@@ -39,7 +39,7 @@ func (f *flags) download() error {
       case "":
          fmt.Print(&represent, "\n\n")
       case represent.Id:
-         f.s.Wrapper = kanopy.Wrapper{manifest, &token}
+         f.s.Client = &kanopy.Client{manifest, &login}
          return f.s.Download(&represent)
       }
    }
@@ -47,7 +47,7 @@ func (f *flags) download() error {
 }
 
 func (f *flags) authenticate() error {
-   data, err := kanopy.WebToken{}.Marshal(f.email, f.password)
+   data, err := kanopy.Login{}.Marshal(f.email, f.password)
    if err != nil {
       return err
    }

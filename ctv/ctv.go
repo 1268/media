@@ -34,17 +34,6 @@ type Address [1]string
 
 type Client struct{}
 
-func (m Manifest) Mpd() (*http.Response, error) {
-   return http.Get(m[0])
-}
-
-func (m *Manifest) Unmarshal(data []byte) error {
-   (*m)[0] = strings.Replace(string(data), "/best/", "/ultimate/", 1)
-   return nil
-}
-
-type Manifest [1]string
-
 type AxisContent struct {
    AxisId                int64
    AxisPlaybackLanguages []struct {
@@ -161,33 +150,6 @@ func (Client) License(data []byte) ([]byte, error) {
    return io.ReadAll(resp.Body)
 }
 
-// hard geo block
-func (Manifest) Marshal(axis *AxisContent, content1 *Content) ([]byte, error) {
-   req, _ := http.NewRequest("", "https://capi.9c9media.com", nil)
-   req.URL.Path = func() string {
-      b := []byte("/destinations/")
-      b = append(b, axis.AxisPlaybackLanguages[0].DestinationCode...)
-      b = append(b, "/platforms/desktop/playback/contents/"...)
-      b = strconv.AppendInt(b, axis.AxisId, 10)
-      b = append(b, "/contentPackages/"...)
-      b = strconv.AppendInt(b, content1.ContentPackages[0].Id, 10)
-      b = append(b, "/manifest.mpd"...)
-      return string(b)
-   }()
-   req.URL.RawQuery = "action=reference"
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   if resp.StatusCode != http.StatusOK {
-      var data strings.Builder
-      resp.Write(&data)
-      return nil, errors.New(data.String())
-   }
-   return io.ReadAll(resp.Body)
-}
-
 func (a *AxisContent) Content() (*Content, error) {
    req, _ := http.NewRequest("", "https://capi.9c9media.com", nil)
    req.URL.Path = func() string {
@@ -252,4 +214,42 @@ func (a Address) Resolve() (*ResolvedPath, error) {
       return nil, errors.New(string(data))
    }
    return value.Data.ResolvedPath, nil
+}
+
+func (m Manifest) Mpd() (*http.Response, error) {
+   return http.Get(m[0])
+}
+
+type Manifest [1]string
+
+func (m *Manifest) Unmarshal(data []byte) error {
+   (*m)[0] = strings.Replace(string(data), "/best/", "/ultimate/", 1)
+   return nil
+}
+
+// hard geo block
+func (Manifest) Marshal(axis *AxisContent, content1 *Content) ([]byte, error) {
+   req, _ := http.NewRequest("", "https://capi.9c9media.com", nil)
+   req.URL.Path = func() string {
+      b := []byte("/destinations/")
+      b = append(b, axis.AxisPlaybackLanguages[0].DestinationCode...)
+      b = append(b, "/platforms/desktop/playback/contents/"...)
+      b = strconv.AppendInt(b, axis.AxisId, 10)
+      b = append(b, "/contentPackages/"...)
+      b = strconv.AppendInt(b, content1.ContentPackages[0].Id, 10)
+      b = append(b, "/manifest.mpd"...)
+      return string(b)
+   }()
+   req.URL.RawQuery = "action=reference"
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   if resp.StatusCode != http.StatusOK {
+      var data strings.Builder
+      resp.Write(&data)
+      return nil, errors.New(data.String())
+   }
+   return io.ReadAll(resp.Body)
 }

@@ -8,29 +8,10 @@ import (
    "strconv"
 )
 
-func (u Url) Mpd() (*http.Response, error) {
-   req, err := http.NewRequest("", string(u), nil)
-   if err != nil {
-      return nil, err
-   }
-   req.Header.Set("user-agent", "Mozilla")
-   return http.DefaultClient.Do(req)
-}
-
-type Url string
-
-type VideoManifest struct {
-   DrmLicenseId string
-   ManifestType string
-   Url          Url
-}
-
-func (w *WebToken) Plays(
-   member *Membership, video_id int,
-) (*VideoPlays, error) {
+func (n *Login) Plays(member *Membership, video_id int) (*Plays, error) {
    data, err := json.Marshal(map[string]int{
       "domainId": member.DomainId,
-      "userId":   w.UserId,
+      "userId":   n.UserId,
       "videoId":  video_id,
    })
    if err != nil {
@@ -43,7 +24,7 @@ func (w *WebToken) Plays(
       return nil, err
    }
    req.Header = http.Header{
-      "authorization": {"Bearer " + w.Jwt},
+      "authorization": {"Bearer " + n.Jwt},
       "content-type":  {"application/json"},
       "user-agent":    {user_agent},
       "x-version":     {x_version},
@@ -53,43 +34,34 @@ func (w *WebToken) Plays(
       return nil, err
    }
    defer resp.Body.Close()
-   play := &VideoPlays{}
-   err = json.NewDecoder(resp.Body).Decode(play)
+   value := &Plays{}
+   err = json.NewDecoder(resp.Body).Decode(value)
    if err != nil {
       return nil, err
    }
-   return play, nil
+   return value, nil
 }
 
-type VideoPlays struct {
-   ErrorMsgLong string `json:"error_msg_long"`
-   Manifests []VideoManifest
-}
-
-func (v VideoPlays) Dash() (*VideoManifest, bool) {
-   for _, manifest := range v.Manifests {
-      if manifest.ManifestType == "dash" {
-         return &manifest, true
+func (p *Plays) Dash() (*Manifest, bool) {
+   for _, value := range p.Manifests {
+      if value.ManifestType == "dash" {
+         return &value, true
       }
    }
    return nil, false
 }
 
-type Wrapper struct {
-   Manifest *VideoManifest
-   Token    *WebToken
-}
+const (
+   user_agent = "!"
+   x_version  = "!/!/!/!"
+)
 
-func (w Wrapper) Wrap(data []byte) ([]byte, error) {
-   req, err := http.NewRequest(
-      "POST", "https://www.kanopy.com", bytes.NewReader(data),
-   )
-   if err != nil {
-      return nil, err
-   }
-   req.URL.Path = "/kapi/licenses/widevine/" + w.Manifest.DrmLicenseId
+func (n *Login) Membership() (*Membership, error) {
+   req, _ := http.NewRequest("", "https://www.kanopy.com", nil)
+   req.URL.Path = "/kapi/memberships"
+   req.URL.RawQuery = "userId=" + strconv.Itoa(n.UserId)
    req.Header = http.Header{
-      "authorization": {"Bearer " + w.Token.Jwt},
+      "authorization": {"Bearer " + n.Jwt},
       "user-agent":    {user_agent},
       "x-version":     {x_version},
    }
@@ -98,21 +70,47 @@ func (w Wrapper) Wrap(data []byte) ([]byte, error) {
       return nil, err
    }
    defer resp.Body.Close()
-   return io.ReadAll(resp.Body)
+   var value struct {
+      List []Membership
+   }
+   err = json.NewDecoder(resp.Body).Decode(&value)
+   if err != nil {
+      return nil, err
+   }
+   return &value.List[0], nil
 }
 
-const (
-   user_agent = "!"
-   x_version  = "!/!/!/!"
-)
+func (n *Login) Unmarshal(data []byte) error {
+   return json.Unmarshal(data, n)
+}
+
+type Membership struct {
+   DomainId int
+}
+
+type Manifest struct {
+   DrmLicenseId string
+   ManifestType string
+   Url          string
+}
+
+type Plays struct {
+   ErrorMsgLong string `json:"error_msg_long"`
+   Manifests []Manifest
+}
 
 // good for 10 years
-type WebToken struct {
+type Login struct {
    Jwt    string
    UserId int
 }
 
-func (WebToken) Marshal(email, password string) ([]byte, error) {
+type Client struct {
+   Manifest *Manifest
+   Login    *Login
+}
+
+func (Login) Marshal(email, password string) ([]byte, error) {
    data, err := json.Marshal(map[string]any{
       "credentialType": "email",
       "emailUser": map[string]string{
@@ -141,20 +139,25 @@ func (WebToken) Marshal(email, password string) ([]byte, error) {
    return io.ReadAll(resp.Body)
 }
 
-func (w *WebToken) Unmarshal(data []byte) error {
-   return json.Unmarshal(data, w)
+func (m *Manifest) Mpd() (*http.Response, error) {
+   req, err := http.NewRequest("", m.Url, nil)
+   if err != nil {
+      return nil, err
+   }
+   req.Header.Set("user-agent", "Mozilla")
+   return http.DefaultClient.Do(req)
 }
 
-type Membership struct {
-   DomainId int
-}
-
-func (w *WebToken) Membership() (*Membership, error) {
-   req, _ := http.NewRequest("", "https://www.kanopy.com", nil)
-   req.URL.Path = "/kapi/memberships"
-   req.URL.RawQuery = "userId=" + strconv.Itoa(w.UserId)
+func (c *Client) License(data []byte) ([]byte, error) {
+   req, err := http.NewRequest(
+      "POST", "https://www.kanopy.com", bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   req.URL.Path = "/kapi/licenses/widevine/" + c.Manifest.DrmLicenseId
    req.Header = http.Header{
-      "authorization": {"Bearer " + w.Jwt},
+      "authorization": {"Bearer " + c.Login.Jwt},
       "user-agent":    {user_agent},
       "x-version":     {x_version},
    }
@@ -163,12 +166,5 @@ func (w *WebToken) Membership() (*Membership, error) {
       return nil, err
    }
    defer resp.Body.Close()
-   var value struct {
-      List []Membership
-   }
-   err = json.NewDecoder(resp.Body).Decode(&value)
-   if err != nil {
-      return nil, err
-   }
-   return &value.List[0], nil
+   return io.ReadAll(resp.Body)
 }

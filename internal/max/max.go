@@ -43,7 +43,7 @@ func (f *flags) do_initiate() error {
    if err != nil {
       return err
    }
-   os.WriteFile("st.txt", st, os.ModePerm)
+   os.WriteFile("st.txt", []byte(st.String()), os.ModePerm)
    initiate, err := st.Initiate()
    if err != nil {
       return err
@@ -58,7 +58,11 @@ func (f *flags) do_login() error {
       return err
    }
    var st max.St
-   data, err = max.Login{}.Marshal(&st)
+   err = st.Set(string(data))
+   if err != nil {
+      return err
+   }
+   data, err = max.Login{}.Marshal(st)
    if err != nil {
       return err
    }
