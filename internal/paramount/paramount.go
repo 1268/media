@@ -1,6 +1,7 @@
 package main
 
 import (
+   "41.neocities.org/media/internal"
    "41.neocities.org/media/paramount"
    "fmt"
 )

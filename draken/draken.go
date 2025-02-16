@@ -9,95 +9,6 @@ import (
    "strings"
 )
 
-func (f *FullMovie) New(custom_id string) error {
-   data, err := json.Marshal(map[string]any{
-      "query": graphql_compact(get_custom_id),
-      "variables": map[string]string{
-         "customId": custom_id,
-      },
-   })
-   if err != nil {
-      return err
-   }
-   req, err := http.NewRequest(
-      "POST", "https://client-api.magine.com/api/apiql/v2",
-      bytes.NewReader(data),
-   )
-   if err != nil {
-      return err
-   }
-   magine_accesstoken.set(req.Header)
-   x_forwarded_for.set(req.Header)
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return err
-   }
-   defer resp.Body.Close()
-   var value struct {
-      Data struct {
-         Viewer struct {
-            ViewableCustomId *FullMovie
-         }
-      }
-   }
-   err = json.NewDecoder(resp.Body).Decode(&value)
-   if err != nil {
-      return err
-   }
-   if id := value.Data.Viewer.ViewableCustomId; id != nil {
-      *f = *id
-      return nil
-   }
-   return errors.New("ViewableCustomId")
-}
-type header struct {
-   key   string
-   value string
-}
-
-var magine_accesstoken = header{
-   "magine-accesstoken", "22cc71a2-8b77-4819-95b0-8c90f4cf5663",
-}
-
-var magine_play_devicemodel = header{
-   "magine-play-devicemodel", "firefox 111.0 / windows 10",
-}
-
-var magine_play_deviceplatform = header{
-   "magine-play-deviceplatform", "firefox",
-}
-
-var magine_play_devicetype = header{
-   "magine-play-devicetype", "web",
-}
-
-var magine_play_drm = header{
-   "magine-play-drm", "widevine",
-}
-
-var magine_play_protocol = header{
-   "magine-play-protocol", "dashs",
-}
-
-// this value is important, with the wrong value you get random failures
-var x_forwarded_for = header{
-   "x-forwarded-for", "95.192.0.0",
-}
-
-func (h *header) set(head http.Header) {
-   head.Set(h.key, h.value)
-}
-
-type Wrapper struct {
-   AuthLogin *AuthLogin
-   Playback  *Playback
-}
-
-type Playback struct {
-   Headers  map[string]string
-   Playlist string
-}
-
 func (w Wrapper) Wrap(data []byte) ([]byte, error) {
    req, err := http.NewRequest(
       "POST", "https://client-api.magine.com/api/playback/v1/widevine/license",
@@ -171,20 +82,8 @@ func (a *AuthLogin) Playback(
    return play, nil
 }
 
-type AuthLogin struct {
-   Token string
-}
-
 func (a *AuthLogin) Unmarshal(data []byte) error {
    return json.Unmarshal(data, a)
-}
-
-type FullMovie struct {
-   DefaultPlayable struct {
-      Id string
-   }
-   ProductionYear int `json:",string"`
-   Title          string
 }
 
 // NO ANONYMOUS QUERY
@@ -205,8 +104,7 @@ query GetCustomIdFullMovie($customId: ID!) {
 `
 
 func graphql_compact(data string) string {
-   field := strings.Fields(data)
-   return strings.Join(field, " ")
+   return strings.Join(strings.Fields(data), " ")
 }
 
 func (a *AuthLogin) Entitlement(movie *FullMovie) (*Entitlement, error) {
@@ -232,6 +130,110 @@ func (a *AuthLogin) Entitlement(movie *FullMovie) (*Entitlement, error) {
    return title, nil
 }
 
+func (f *FullMovie) New(custom_id string) error {
+   data, err := json.Marshal(map[string]any{
+      "query": graphql_compact(get_custom_id),
+      "variables": map[string]string{
+         "customId": custom_id,
+      },
+   })
+   if err != nil {
+      return err
+   }
+   req, err := http.NewRequest(
+      "POST", "https://client-api.magine.com/api/apiql/v2",
+      bytes.NewReader(data),
+   )
+   if err != nil {
+      return err
+   }
+   magine_accesstoken.set(req.Header)
+   x_forwarded_for.set(req.Header)
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return err
+   }
+   defer resp.Body.Close()
+   var value struct {
+      Data struct {
+         Viewer struct {
+            ViewableCustomId *FullMovie
+         }
+      }
+   }
+   err = json.NewDecoder(resp.Body).Decode(&value)
+   if err != nil {
+      return err
+   }
+   if id := value.Data.Viewer.ViewableCustomId; id != nil {
+      *f = *id
+      return nil
+   }
+   return errors.New("ViewableCustomId")
+}
+
+var magine_accesstoken = header{
+   "magine-accesstoken", "22cc71a2-8b77-4819-95b0-8c90f4cf5663",
+}
+
+var magine_play_devicemodel = header{
+   "magine-play-devicemodel", "firefox 111.0 / windows 10",
+}
+
+var magine_play_deviceplatform = header{
+   "magine-play-deviceplatform", "firefox",
+}
+
+var magine_play_devicetype = header{
+   "magine-play-devicetype", "web",
+}
+
+var magine_play_drm = header{
+   "magine-play-drm", "widevine",
+}
+
+var magine_play_protocol = header{
+   "magine-play-protocol", "dashs",
+}
+
+// this value is important, with the wrong value you get random failures
+var x_forwarded_for = header{
+   "x-forwarded-for", "95.192.0.0",
+}
+
+func (h *header) set(head http.Header) {
+   head.Set(h.key, h.value)
+}
+
+///
+
+type AuthLogin struct {
+   Token string
+}
+
 type Entitlement struct {
    Token string
+}
+
+type FullMovie struct {
+   DefaultPlayable struct {
+      Id string
+   }
+   ProductionYear int `json:",string"`
+   Title          string
+}
+
+type Playback struct {
+   Headers  map[string]string
+   Playlist string
+}
+
+type Wrapper struct {
+   AuthLogin *AuthLogin
+   Playback  *Playback
+}
+
+type header struct {
+   key   string
+   value string
 }
