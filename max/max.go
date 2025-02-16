@@ -9,35 +9,6 @@ import (
    "strings"
 )
 
-func (w *WatchUrl) MarshalText() ([]byte, error) {
-   var b bytes.Buffer
-   if w.VideoId != "" {
-      b.WriteString("/video/watch/")
-      b.WriteString(w.VideoId)
-   }
-   if w.EditId != "" {
-      b.WriteByte('/')
-      b.WriteString(w.EditId)
-   }
-   return b.Bytes(), nil
-}
-
-func (w *WatchUrl) UnmarshalText(data []byte) error {
-   s := string(data)
-   if !strings.Contains(s, "/video/watch/") {
-      return errors.New("/video/watch/ not found")
-   }
-   s = strings.TrimPrefix(s, "https://")
-   s = strings.TrimPrefix(s, "play.max.com")
-   s = strings.TrimPrefix(s, "/video/watch/")
-   var found bool
-   w.VideoId, w.EditId, found = strings.Cut(s, "/")
-   if !found {
-      return errors.New("/ not found")
-   }
-   return nil
-}
-
 func (n *Login) Unmarshal(data []byte) error {
    return json.Unmarshal(data, n)
 }
@@ -47,21 +18,6 @@ const (
    disco_client = "!:!:beam:!"
    prd_api      = "https://default.prd.api.discomax.com"
 )
-
-func (p *Playback) Wrap(data []byte) ([]byte, error) {
-   resp, err := http.Post(
-      p.Drm.Schemes.Widevine.LicenseUrl, "application/x-protobuf",
-      bytes.NewReader(data),
-   )
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   if resp.StatusCode != http.StatusOK {
-      return nil, errors.New(resp.Status)
-   }
-   return io.ReadAll(resp.Body)
-}
 
 type Url [1]string
 
@@ -230,4 +186,50 @@ func (n *Login) Playback(watch *WatchUrl) (*Playback, error) {
       return nil, errors.New(err[0].Message)
    }
    return &play, nil
+}
+
+///
+
+func (w *WatchUrl) MarshalText() ([]byte, error) {
+   var b bytes.Buffer
+   if w.VideoId != "" {
+      b.WriteString("/video/watch/")
+      b.WriteString(w.VideoId)
+   }
+   if w.EditId != "" {
+      b.WriteByte('/')
+      b.WriteString(w.EditId)
+   }
+   return b.Bytes(), nil
+}
+
+func (w *WatchUrl) UnmarshalText(data []byte) error {
+   s := string(data)
+   if !strings.Contains(s, "/video/watch/") {
+      return errors.New("/video/watch/ not found")
+   }
+   s = strings.TrimPrefix(s, "https://")
+   s = strings.TrimPrefix(s, "play.max.com")
+   s = strings.TrimPrefix(s, "/video/watch/")
+   var found bool
+   w.VideoId, w.EditId, found = strings.Cut(s, "/")
+   if !found {
+      return errors.New("/ not found")
+   }
+   return nil
+}
+
+func (p *Playback) Wrap(data []byte) ([]byte, error) {
+   resp, err := http.Post(
+      p.Drm.Schemes.Widevine.LicenseUrl, "application/x-protobuf",
+      bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   if resp.StatusCode != http.StatusOK {
+      return nil, errors.New(resp.Status)
+   }
+   return io.ReadAll(resp.Body)
 }
