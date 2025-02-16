@@ -9,7 +9,7 @@ import (
    "strings"
 )
 
-func (w Wrapper) Wrap(data []byte) ([]byte, error) {
+func (c *Client) Wrap(data []byte) ([]byte, error) {
    req, err := http.NewRequest(
       "POST", "https://client-api.magine.com/api/playback/v1/widevine/license",
       bytes.NewReader(data),
@@ -18,10 +18,10 @@ func (w Wrapper) Wrap(data []byte) ([]byte, error) {
       return nil, err
    }
    magine_accesstoken.set(req.Header)
-   for key, value := range w.Playback.Headers {
+   for key, value := range c.Playback.Headers {
       req.Header.Set(key, value)
    }
-   req.Header.Set("authorization", "Bearer "+w.AuthLogin.Token)
+   req.Header.Set("authorization", "Bearer "+c.Login.Token)
    resp, err := http.DefaultClient.Do(req)
    if err != nil {
       return nil, err
@@ -30,37 +30,16 @@ func (w Wrapper) Wrap(data []byte) ([]byte, error) {
    return io.ReadAll(resp.Body)
 }
 
-func (AuthLogin) Marshal(identity, key string) ([]byte, error) {
-   data, err := json.Marshal(map[string]string{
-      "accessKey": key,
-      "identity":  identity,
-   })
-   if err != nil {
-      return nil, err
-   }
-   resp, err := http.Post(
-      "https://drakenfilm.se/api/auth/login", "application/json",
-      bytes.NewReader(data),
-   )
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   return io.ReadAll(resp.Body)
-}
-
-func (a *AuthLogin) Playback(
-   movie *FullMovie, title *Entitlement,
-) (*Playback, error) {
+func (n *Login) Playback(movie1 *Movie, title *Entitlement) (*Playback, error) {
    req, _ := http.NewRequest("POST", "https://client-api.magine.com", nil)
-   req.URL.Path = "/api/playback/v1/preflight/asset/" + movie.DefaultPlayable.Id
+   req.URL.Path = "/api/playback/v1/preflight/asset/" + movie1.DefaultPlayable.Id
    magine_accesstoken.set(req.Header)
    magine_play_devicemodel.set(req.Header)
    magine_play_deviceplatform.set(req.Header)
    magine_play_devicetype.set(req.Header)
    magine_play_drm.set(req.Header)
    magine_play_protocol.set(req.Header)
-   req.Header.Set("authorization", "Bearer "+a.Token)
+   req.Header.Set("authorization", "Bearer "+n.Token)
    req.Header.Set("magine-play-deviceid", "!")
    req.Header.Set("magine-play-entitlementid", title.Token)
    x_forwarded_for.set(req.Header)
@@ -82,35 +61,18 @@ func (a *AuthLogin) Playback(
    return play, nil
 }
 
-func (a *AuthLogin) Unmarshal(data []byte) error {
-   return json.Unmarshal(data, a)
+func (n *Login) Unmarshal(data []byte) error {
+   return json.Unmarshal(data, n)
 }
-
-// NO ANONYMOUS QUERY
-const get_custom_id = `
-query GetCustomIdFullMovie($customId: ID!) {
-   viewer {
-      viewableCustomId(customId: $customId) {
-         ... on Movie {
-            defaultPlayable {
-               id
-            }
-            productionYear
-            title
-         }
-      }
-   }
-}
-`
 
 func graphql_compact(data string) string {
    return strings.Join(strings.Fields(data), " ")
 }
 
-func (a *AuthLogin) Entitlement(movie *FullMovie) (*Entitlement, error) {
+func (n *Login) Entitlement(movie1 *Movie) (*Entitlement, error) {
    req, _ := http.NewRequest("POST", "https://client-api.magine.com", nil)
-   req.URL.Path = "/api/entitlement/v2/asset/" + movie.DefaultPlayable.Id
-   req.Header.Set("authorization", "Bearer "+a.Token)
+   req.URL.Path = "/api/entitlement/v2/asset/" + movie1.DefaultPlayable.Id
+   req.Header.Set("authorization", "Bearer "+n.Token)
    magine_accesstoken.set(req.Header)
    resp, err := http.DefaultClient.Do(req)
    if err != nil {
@@ -128,48 +90,6 @@ func (a *AuthLogin) Entitlement(movie *FullMovie) (*Entitlement, error) {
       return nil, err
    }
    return title, nil
-}
-
-func (f *FullMovie) New(custom_id string) error {
-   data, err := json.Marshal(map[string]any{
-      "query": graphql_compact(get_custom_id),
-      "variables": map[string]string{
-         "customId": custom_id,
-      },
-   })
-   if err != nil {
-      return err
-   }
-   req, err := http.NewRequest(
-      "POST", "https://client-api.magine.com/api/apiql/v2",
-      bytes.NewReader(data),
-   )
-   if err != nil {
-      return err
-   }
-   magine_accesstoken.set(req.Header)
-   x_forwarded_for.set(req.Header)
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return err
-   }
-   defer resp.Body.Close()
-   var value struct {
-      Data struct {
-         Viewer struct {
-            ViewableCustomId *FullMovie
-         }
-      }
-   }
-   err = json.NewDecoder(resp.Body).Decode(&value)
-   if err != nil {
-      return err
-   }
-   if id := value.Data.Viewer.ViewableCustomId; id != nil {
-      *f = *id
-      return nil
-   }
-   return errors.New("ViewableCustomId")
 }
 
 var magine_accesstoken = header{
@@ -205,9 +125,31 @@ func (h *header) set(head http.Header) {
    head.Set(h.key, h.value)
 }
 
-///
+type header struct {
+   key   string
+   value string
+}
 
-type AuthLogin struct {
+func (Login) Marshal(identity, key string) ([]byte, error) {
+   data, err := json.Marshal(map[string]string{
+      "accessKey": key,
+      "identity":  identity,
+   })
+   if err != nil {
+      return nil, err
+   }
+   resp, err := http.Post(
+      "https://drakenfilm.se/api/auth/login", "application/json",
+      bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   return io.ReadAll(resp.Body)
+}
+
+type Login struct {
    Token string
 }
 
@@ -215,7 +157,70 @@ type Entitlement struct {
    Token string
 }
 
-type FullMovie struct {
+type Playback struct {
+   Headers  map[string]string
+   Playlist string
+}
+
+func (m *Movie) New(custom_id string) error {
+   data, err := json.Marshal(map[string]any{
+      "query": graphql_compact(get_custom_id),
+      "variables": map[string]string{
+         "customId": custom_id,
+      },
+   })
+   if err != nil {
+      return err
+   }
+   req, err := http.NewRequest(
+      "POST", "https://client-api.magine.com/api/apiql/v2",
+      bytes.NewReader(data),
+   )
+   if err != nil {
+      return err
+   }
+   magine_accesstoken.set(req.Header)
+   x_forwarded_for.set(req.Header)
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return err
+   }
+   defer resp.Body.Close()
+   var value struct {
+      Data struct {
+         Viewer struct {
+            ViewableCustomId *Movie
+         }
+      }
+   }
+   err = json.NewDecoder(resp.Body).Decode(&value)
+   if err != nil {
+      return err
+   }
+   if id := value.Data.Viewer.ViewableCustomId; id != nil {
+      *m = *id
+      return nil
+   }
+   return errors.New("ViewableCustomId")
+}
+
+const get_custom_id = `
+query GetCustomIdFullMovie($customId: ID!) {
+   viewer {
+      viewableCustomId(customId: $customId) {
+         ... on Movie {
+            defaultPlayable {
+               id
+            }
+            productionYear
+            title
+         }
+      }
+   }
+}
+` // do not do `query(`
+
+type Movie struct {
    DefaultPlayable struct {
       Id string
    }
@@ -223,17 +228,7 @@ type FullMovie struct {
    Title          string
 }
 
-type Playback struct {
-   Headers  map[string]string
-   Playlist string
-}
-
-type Wrapper struct {
-   AuthLogin *AuthLogin
-   Playback  *Playback
-}
-
-type header struct {
-   key   string
-   value string
+type Client struct {
+   Login    *Login
+   Playback *Playback
 }
