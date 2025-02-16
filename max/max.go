@@ -9,15 +9,91 @@ import (
    "strings"
 )
 
+func (w *WatchUrl) MarshalText() ([]byte, error) {
+   var b bytes.Buffer
+   if w.VideoId != "" {
+      b.WriteString("/video/watch/")
+      b.WriteString(w.VideoId)
+   }
+   if w.EditId != "" {
+      b.WriteByte('/')
+      b.WriteString(w.EditId)
+   }
+   return b.Bytes(), nil
+}
+
+func (w *WatchUrl) UnmarshalText(data []byte) error {
+   s := string(data)
+   if !strings.Contains(s, "/video/watch/") {
+      return errors.New("/video/watch/ not found")
+   }
+   s = strings.TrimPrefix(s, "https://")
+   s = strings.TrimPrefix(s, "play.max.com")
+   s = strings.TrimPrefix(s, "/video/watch/")
+   var found bool
+   w.VideoId, w.EditId, found = strings.Cut(s, "/")
+   if !found {
+      return errors.New("/ not found")
+   }
+   return nil
+}
+
+func (v *LinkLogin) Unmarshal(data []byte) error {
+   return json.Unmarshal(data, v)
+}
+
+func (f *Url) UnmarshalText(data []byte) error {
+   f.String = strings.Replace(string(data), "_fallback", "", 1)
+   return nil
+}
+
+// you must
+// /authentication/linkDevice/initiate
+// first or this will always fail
+func (LinkLogin) Marshal(token *BoltToken) ([]byte, error) {
+   req, err := http.NewRequest(
+      "POST", prd_api+"/authentication/linkDevice/login", nil,
+   )
+   if err != nil {
+      return nil, err
+   }
+   req.Header.Set("cookie", "st="+token.St)
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   return io.ReadAll(resp.Body)
+}
+
+func (b *BoltToken) Initiate() (*LinkInitiate, error) {
+   req, err := http.NewRequest(
+      "POST", prd_api+"/authentication/linkDevice/initiate", nil,
+   )
+   if err != nil {
+      return nil, err
+   }
+   req.Header = http.Header{
+      "cookie":        {"st=" + b.St},
+      "x-device-info": {device_info},
+   }
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   link := &LinkInitiate{}
+   err = json.NewDecoder(resp.Body).Decode(link)
+   if err != nil {
+      return nil, err
+   }
+   return link, nil
+}
 const (
    device_info  = "!/!(!/!;!/!;!/!)"
    disco_client = "!:!:beam:!"
    prd_api      = "https://default.prd.api.discomax.com"
 )
-
-type BoltToken struct {
-   St string
-}
 
 func (b *BoltToken) New() error {
    req, err := http.NewRequest("", prd_api+"/token?realm=bolt", nil)
@@ -41,6 +117,7 @@ func (b *BoltToken) New() error {
    }
    return http.ErrNoCookie
 }
+
 func (p *Playback) Wrap(data []byte) ([]byte, error) {
    resp, err := http.Post(
       p.Drm.Schemes.Widevine.LicenseUrl, "application/x-protobuf",
@@ -94,6 +171,29 @@ func (v *LinkLogin) Playback(watch *WatchUrl) (*Playback, error) {
    return &resp_body, nil
 }
 
+///
+
+type BoltToken struct {
+   St string
+}
+
+type LinkInitiate struct {
+   Data struct {
+      Attributes struct {
+         LinkingCode string
+         TargetUrl   string
+      }
+   }
+}
+
+type LinkLogin struct {
+   Data struct {
+      Attributes struct {
+         Token string
+      }
+   }
+}
+
 type Playback struct {
    Drm struct {
       Schemes struct {
@@ -110,6 +210,15 @@ type Playback struct {
          Url Url
       }
    }
+}
+
+type Url struct {
+   String string
+}
+
+type WatchUrl struct {
+   EditId  string
+   VideoId string
 }
 
 type playback_request struct {
@@ -144,111 +253,4 @@ type playback_request struct {
    Gdpr              bool     `json:"gdpr"`              // required
    PlaybackSessionId string   `json:"playbackSessionId"` // required
    UserPreferences   struct{} `json:"userPreferences"`   // required
-}
-
-func (w *WatchUrl) MarshalText() ([]byte, error) {
-   var b bytes.Buffer
-   if w.VideoId != "" {
-      b.WriteString("/video/watch/")
-      b.WriteString(w.VideoId)
-   }
-   if w.EditId != "" {
-      b.WriteByte('/')
-      b.WriteString(w.EditId)
-   }
-   return b.Bytes(), nil
-}
-
-func (w *WatchUrl) UnmarshalText(data []byte) error {
-   s := string(data)
-   if !strings.Contains(s, "/video/watch/") {
-      return errors.New("/video/watch/ not found")
-   }
-   s = strings.TrimPrefix(s, "https://")
-   s = strings.TrimPrefix(s, "play.max.com")
-   s = strings.TrimPrefix(s, "/video/watch/")
-   var found bool
-   w.VideoId, w.EditId, found = strings.Cut(s, "/")
-   if !found {
-      return errors.New("/ not found")
-   }
-   return nil
-}
-
-type LinkLogin struct {
-   Data struct {
-      Attributes struct {
-         Token string
-      }
-   }
-}
-
-func (v *LinkLogin) Unmarshal(data []byte) error {
-   return json.Unmarshal(data, v)
-}
-
-type WatchUrl struct {
-   EditId  string
-   VideoId string
-}
-
-type Url struct {
-   String string
-}
-
-func (f *Url) UnmarshalText(data []byte) error {
-   f.String = strings.Replace(string(data), "_fallback", "", 1)
-   return nil
-}
-
-// you must
-// /authentication/linkDevice/initiate
-// first or this will always fail
-func (LinkLogin) Marshal(token *BoltToken) ([]byte, error) {
-   req, err := http.NewRequest(
-      "POST", prd_api+"/authentication/linkDevice/login", nil,
-   )
-   if err != nil {
-      return nil, err
-   }
-   req.Header.Set("cookie", "st="+token.St)
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   return io.ReadAll(resp.Body)
-}
-
-func (b *BoltToken) Initiate() (*LinkInitiate, error) {
-   req, err := http.NewRequest(
-      "POST", prd_api+"/authentication/linkDevice/initiate", nil,
-   )
-   if err != nil {
-      return nil, err
-   }
-   req.Header = http.Header{
-      "cookie":        {"st=" + b.St},
-      "x-device-info": {device_info},
-   }
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   link := &LinkInitiate{}
-   err = json.NewDecoder(resp.Body).Decode(link)
-   if err != nil {
-      return nil, err
-   }
-   return link, nil
-}
-
-type LinkInitiate struct {
-   Data struct {
-      Attributes struct {
-         LinkingCode string
-         TargetUrl   string
-      }
-   }
 }
