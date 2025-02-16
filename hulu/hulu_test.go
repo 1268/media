@@ -78,7 +78,7 @@ func TestLicense(t *testing.T) {
       if err != nil {
          t.Fatal(err)
       }
-      var pssh widevine.PsshData
+      var pssh widevine.Pssh
       pssh.KeyIds = [][]byte{key_id}
       var module widevine.Cdm
       err = module.New(private_key, client_id, pssh.Marshal())
