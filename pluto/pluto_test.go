@@ -1,11 +1,7 @@
 package pluto
 
 import (
-   "41.neocities.org/widevine"
-   "bytes"
-   "encoding/base64"
    "fmt"
-   "os"
    "testing"
 )
 
@@ -26,26 +22,17 @@ var tests = []struct{
    },
 }
 
-func TestClip(t *testing.T) {
-   clip, err := OnDemand{Id: video_test.id}.Clip()
-   if err != nil {
-      t.Fatal(err)
+func Test(t *testing.T) {
+   for _, test1 := range tests {
+      var web Address
+      err := web.Set(test1.url)
+      if err != nil {
+         t.Fatal(err)
+      }
+      video, err := web.Vod("")
+      if err != nil {
+         t.Fatal(err)
+      }
+      fmt.Printf("%+v\n", video)
    }
-   manifest, ok := clip.Dash()
-   if !ok {
-      t.Fatal("EpisodeClip.Dash")
-   }
-   manifest.Scheme = Base[0].Scheme
-   manifest.Host = Base[0].Host
-   fmt.Printf("%+v\n", manifest)
-}
-
-func TestVideo(t *testing.T) {
-   var web Address
-   web.Set(video_test.url)
-   video, err := web.Video("")
-   if err != nil {
-      t.Fatal(err)
-   }
-   fmt.Printf("%+v\n", video)
 }

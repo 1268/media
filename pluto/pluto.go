@@ -84,7 +84,7 @@ func (v Vod) Clips() (*Clips, error) {
    return &clips1[0], nil
 }
 
-func (a Address) Video(forward string) (*Vod, error) {
+func (a Address) Vod(forward string) (*Vod, error) {
    req, _ := http.NewRequest("", "https://boot.pluto.tv/v4/start", nil)
    if forward != "" {
       req.Header.Set("x-forwarded-for", forward)
