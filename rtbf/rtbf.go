@@ -10,6 +10,29 @@ import (
    "strings"
 )
 
+func (a Address) Content() (*Content, error) {
+   resp, err := http.Get(
+      "https://bff-service.rtbf.be/auvio/v1.23/pages" + a[0],
+   )
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   if resp.StatusCode != http.StatusOK {
+      return nil, errors.New(resp.Status)
+   }
+   var value struct {
+      Data struct {
+         Content Content
+      }
+   }
+   err = json.NewDecoder(resp.Body).Decode(&value)
+   if err != nil {
+      return nil, err
+   }
+   return &value.Data.Content, nil
+}
+
 func (f *Format) Mpd() (*http.Response, error) {
    return http.Get(f.MediaLocator)
 }
@@ -121,29 +144,6 @@ func (c *Content) GetAssetId() (string, bool) {
       return c.Media.AssetId, true
    }
    return "", false
-}
-
-func (a Address) Content() (*Content, error) {
-   resp, err := http.Get(
-      "https://bff-service.rtbf.be/auvio/v1.23/pages" + a[0],
-   )
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   if resp.StatusCode != http.StatusOK {
-      return nil, errors.New(resp.Status)
-   }
-   var value struct {
-      Data struct {
-         Content Content
-      }
-   }
-   err = json.NewDecoder(resp.Body).Decode(&value)
-   if err != nil {
-      return nil, err
-   }
-   return &value.Data.Content, nil
 }
 
 func (j *Jwt) Login() (*GigyaLogin, error) {

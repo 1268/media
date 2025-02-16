@@ -9,33 +9,24 @@ import (
    "time"
 )
 
-func TestTokenWrite(t *testing.T) {
-   // AccountAuth
-   data, err := os.ReadFile("auth.txt")
-   if err != nil {
-      t.Fatal(err)
-   }
-   var auth AccountAuth
-   err = auth.Unmarshal(data)
-   if err != nil {
-      t.Fatal(err)
-   }
-   // AccountCode
-   data, err = os.ReadFile("code.txt")
-   if err != nil {
-      t.Fatal(err)
-   }
-   var code AccountCode
-   err = code.Unmarshal(data)
-   if err != nil {
-      t.Fatal(err)
-   }
-   // AccountToken
-   data, err = (*AccountToken).Marshal(nil, &auth, &code)
-   if err != nil {
-      t.Fatal(err)
-   }
-   os.WriteFile("token.txt", data, os.ModePerm)
+var tests = map[string]struct {
+   content_id string
+   id         string
+   key_id     string
+   url        string
+}{
+   "episode": {
+      content_id: "Kg==",
+      id:         "105c41ea75775968b670fbb26978ed76",
+      key_id:     "vfpNbNs5cC5baB+QYX+afg==",
+      url:        "therokuchannel.roku.com/watch/105c41ea75775968b670fbb26978ed76",
+   },
+   "movie": {
+      content_id: "Kg==",
+      id:         "597a64a4a25c5bf6af4a8c7053049a6f",
+      key_id:     "KDOa149zRSDaJObgVz05Lg==",
+      url:        "therokuchannel.roku.com/watch/597a64a4a25c5bf6af4a8c7053049a6f",
+   },
 }
 
 func TestTokenRead(t *testing.T) {
@@ -61,6 +52,7 @@ func TestTokenRead(t *testing.T) {
    }
    fmt.Printf("%+v\n", auth)
 }
+
 func TestCode(t *testing.T) {
    // AccountAuth
    var auth AccountAuth
@@ -86,6 +78,7 @@ func TestCode(t *testing.T) {
    }
    fmt.Println(code)
 }
+
 func TestWrap(t *testing.T) {
    home, err := os.UserHomeDir()
    if err != nil {
@@ -138,24 +131,4 @@ func TestWrap(t *testing.T) {
       }
       time.Sleep(time.Second)
    }
-}
-
-var tests = map[string]struct {
-   content_id string
-   id         string
-   key_id     string
-   url        string
-}{
-   "episode": {
-      content_id: "Kg==",
-      id:         "105c41ea75775968b670fbb26978ed76",
-      key_id:     "vfpNbNs5cC5baB+QYX+afg==",
-      url:        "therokuchannel.roku.com/watch/105c41ea75775968b670fbb26978ed76",
-   },
-   "movie": {
-      content_id: "Kg==",
-      id:         "597a64a4a25c5bf6af4a8c7053049a6f",
-      key_id:     "KDOa149zRSDaJObgVz05Lg==",
-      url:        "therokuchannel.roku.com/watch/597a64a4a25c5bf6af4a8c7053049a6f",
-   },
 }
