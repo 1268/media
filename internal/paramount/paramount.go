@@ -24,7 +24,7 @@ func (f *flags) do_read() error {
       return err
    }
    // mpd
-   represents, err := internal.Mpd(item)
+   represents, err := internal.Mpd(&item)
    if err != nil {
       return err
    }
