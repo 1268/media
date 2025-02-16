@@ -11,6 +11,40 @@ import (
    "strings"
 )
 
+func (e *EntityId) String() string {
+   return e.s
+}
+
+// hulu.com/watch/023c49bf-6a99-4c67-851c-4c9e7609cc1d
+func (e *EntityId) Set(s string) error {
+   e.s = path.Base(s)
+   return nil
+}
+
+func (a *Authenticate) DeepLink(id *EntityId) (*DeepLink, error) {
+   req, _ := http.NewRequest("", "https://discover.hulu.com", nil)
+   req.URL.Path = "/content/v5/deeplink/playback"
+   req.URL.RawQuery = url.Values{
+      "id":        {id.s},
+      "namespace": {"entity"},
+   }.Encode()
+   req.Header.Set("authorization", "Bearer "+a.Data.UserToken)
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   var deep DeepLink
+   err = json.NewDecoder(resp.Body).Decode(&deep)
+   if err != nil {
+      return nil, err
+   }
+   if deep.EabId == "" {
+      return nil, errors.New("eab_id")
+   }
+   return &deep, nil
+}
+
 func (a *Authenticate) Playlist(link *DeepLink) (*Playlist, error) {
    var p playlist_request
    p.ContentEabId = link.EabId
@@ -111,12 +145,6 @@ func (Authenticate) Marshal(email, password string) ([]byte, error) {
    return io.ReadAll(resp.Body)
 }
 
-type Authenticate struct {
-   Data struct {
-      UserToken string `json:"user_token"`
-   }
-}
-
 func (a *Authenticate) Unmarshal(data []byte) error {
    return json.Unmarshal(data, a)
 }
@@ -132,6 +160,18 @@ func (p *Playlist) Wrap(data []byte) ([]byte, error) {
    return io.ReadAll(resp.Body)
 }
 
+///
+
+type DeepLink struct {
+   EabId string `json:"eab_id"`
+}
+
+type Authenticate struct {
+   Data struct {
+      UserToken string `json:"user_token"`
+   }
+}
+
 type Playlist struct {
    StreamUrl string `json:"stream_url"`
    WvServer  string `json:"wv_server"`
@@ -141,15 +181,6 @@ type EntityId struct {
    s string
 }
 
-func (e *EntityId) String() string {
-   return e.s
-}
-
-// hulu.com/watch/023c49bf-6a99-4c67-851c-4c9e7609cc1d
-func (e *EntityId) Set(s string) error {
-   e.s = path.Base(s)
-   return nil
-}
 type codec_value struct {
    Height  int    `json:"height,omitempty"`
    Level   string `json:"level,omitempty"`

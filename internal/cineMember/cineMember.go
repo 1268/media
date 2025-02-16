@@ -14,14 +14,14 @@ func (f *flags) download() error {
    if err != nil {
       return err
    }
-   var play cineMember.AssetPlay
+   var play cineMember.Play
    err = play.Unmarshal(data)
    if err != nil {
       return err
    }
    title, ok := play.Dash()
    if !ok {
-      return errors.New("OperationPlay.Dash")
+      return errors.New("Play.Dash")
    }
    represents, err := internal.Mpd(title)
    if err != nil {
@@ -40,7 +40,7 @@ func (f *flags) download() error {
 }
 
 func (f *flags) write_user() error {
-   data, err := cineMember.Authenticate{}.Marshal(f.email, f.password)
+   data, err := cineMember.User{}.Marshal(f.email, f.password)
    if err != nil {
       return err
    }
@@ -56,7 +56,7 @@ func (f *flags) write_play() error {
    if err != nil {
       return err
    }
-   var user cineMember.Authenticate
+   var user cineMember.User
    err = user.Unmarshal(data)
    if err != nil {
       return err
@@ -67,9 +67,9 @@ func (f *flags) write_play() error {
    }
    asset, ok := article.Film()
    if !ok {
-      return errors.New("OperationArticle.Film")
+      return errors.New("Article.Film")
    }
-   data, err = cineMember.AssetPlay{}.Marshal(user, asset)
+   data, err = cineMember.Play{}.Marshal(&user, asset)
    if err != nil {
       return err
    }
