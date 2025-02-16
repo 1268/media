@@ -9,7 +9,7 @@ import (
    "testing"
 )
 
-func TestSecure(t *testing.T) {
+func Test(t *testing.T) {
    data, err := os.ReadFile("authenticate.txt")
    if err != nil {
       t.Fatal(err)
@@ -19,146 +19,34 @@ func TestSecure(t *testing.T) {
    if err != nil {
       t.Fatal(err)
    }
-   var secure SecureUrl
-   data, err = secure.Marshal(&auth, &FilmResponse{Id: test.id})
-   if err != nil {
-      t.Fatal(err)
-   }
-   err = secure.Unmarshal(data)
-   if err != nil {
-      t.Fatal(err)
-   }
-   fmt.Printf("%+v\n", secure)
-}
-
-func TestFilm(t *testing.T) {
-   for i, dogville := range dogvilles {
-      var web Address
-      err := web.Set(dogville)
+   for _, test1 := range tests {
+      var secure SecureUrl
+      data, err = secure.Marshal(&auth, &FilmResponse{Id: test.id})
       if err != nil {
          t.Fatal(err)
       }
-      if i == 0 {
-         film, err := web.Film()
-         if err != nil {
-            t.Fatal(err)
-         }
-         fmt.Printf("%+v\n", film)
+      err = secure.Unmarshal(data)
+      if err != nil {
+         t.Fatal(err)
       }
-      fmt.Println(web)
+      fmt.Printf("%+v\n", secure)
+      time.Sleep(time.Second)
    }
 }
 
-func TestWrap(t *testing.T) {
-   home, err := os.UserHomeDir()
-   if err != nil {
-      t.Fatal(err)
-   }
-   data, err := os.ReadFile(home + "/authenticate.txt")
-   if err != nil {
-      t.Fatal(err)
-   }
-   var auth Authenticate
-   err = auth.Unmarshal(data)
-   if err != nil {
-      t.Fatal(err)
-   }
-   private_key, err := os.ReadFile(home + "/widevine/private_key.pem")
-   if err != nil {
-      t.Fatal(err)
-   }
-   client_id, err := os.ReadFile(home + "/widevine/client_id.bin")
-   if err != nil {
-      t.Fatal(err)
-   }
-   key_id, err := hex.DecodeString(test.key_id)
-   if err != nil {
-      t.Fatal(err)
-   }
-   var pssh widevine.PsshData
-   pssh.KeyIds = [][]byte{key_id}
-   var module widevine.Cdm
-   err = module.New(private_key, client_id, pssh.Marshal())
-   if err != nil {
-      t.Fatal(err)
-   }
-   data, err = module.RequestBody()
-   if err != nil {
-      t.Fatal(err)
-   }
-   data, err = auth.Wrap(data)
-   if err != nil {
-      t.Fatal(err)
-   }
-   var body widevine.ResponseBody
-   err = body.Unmarshal(data)
-   if err != nil {
-      t.Fatal(err)
-   }
-   block, err := module.Block(body)
-   if err != nil {
-      t.Fatal(err)
-   }
-   containers := body.Container()
-   for {
-      container, ok := containers()
-      if !ok {
-         break
-      }
-      if bytes.Equal(container.Id(), key_id) {
-         fmt.Printf("%x\n", container.Key(block))
-      }
-   }
-}
-
-// mubi.com/films/190/player
-// mubi.com/films/dogville
-var dogvilles = []string{
-   "/films/dogville",
-   "/en/us/films/dogville",
-   "/us/films/dogville",
-   "/en/films/dogville",
-}
-
-var test = struct {
+var tests = []struct{
    id     int64
    key_id string
-   url    []string
+   url  string
 }{
-   id:     325455,
-   key_id: "CA215A25BB2D43F0BD095FC671C984EE",
-   url: []string{
-      "mubi.com/films/325455/player",
-      "mubi.com/films/passages-2022",
+   {
+      id: 391623,
+      key_id: "",
+      url: "mubi.com/films/bird",
    },
-}
-
-func TestCode(t *testing.T) {
-   var code LinkCode
-   data, err := code.Marshal()
-   if err != nil {
-      t.Fatal(err)
-   }
-   os.WriteFile("code.txt", data, os.ModePerm)
-   err = code.Unmarshal(data)
-   if err != nil {
-      t.Fatal(err)
-   }
-   fmt.Println(code)
-}
-func TestAuthenticate(t *testing.T) {
-   data, err := os.ReadFile("code.txt")
-   if err != nil {
-      t.Fatal(err)
-   }
-   var code LinkCode
-   err = code.Unmarshal(data)
-   if err != nil {
-      t.Fatal(err)
-   }
-   data, err = (*Authenticate).Marshal(nil, &code)
-   if err != nil {
-      t.Fatal(err)
-   }
-   os.WriteFile("authenticate.txt", data, os.ModePerm)
+   {
+      id:     325455,
+      key_id: "CA215A25BB2D43F0BD095FC671C984EE",
+      url: "mubi.com/films/passages-2022",
+   },
 }

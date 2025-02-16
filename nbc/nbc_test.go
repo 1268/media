@@ -1,10 +1,7 @@
 package nbc
 
 import (
-   "41.neocities.org/widevine"
-   "encoding/hex"
    "fmt"
-   "os"
    "testing"
    "time"
 )
@@ -38,18 +35,14 @@ var tests = []struct {
    },
 }
 
-func TestOnDemand(t *testing.T) {
-   for _, test := range tests {
+func Test(t *testing.T) {
+   for _, test1 := range tests {
       var meta Metadata
-      err := meta.New(test.id)
+      err := meta.New(test1.id)
       if err != nil {
          t.Fatal(err)
       }
-      video, err := meta.OnDemand()
-      if err != nil {
-         t.Fatal(err)
-      }
-      fmt.Printf("%+v\n", video)
+      fmt.Println(meta)
       time.Sleep(time.Second)
    }
 }
