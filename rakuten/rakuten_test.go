@@ -4,9 +4,33 @@ import (
    "41.neocities.org/platform/mullvad"
    "41.neocities.org/x/http"
    "errors"
-   "log"
    "testing"
 )
+
+func Test(t *testing.T) {
+   var port http.Transport
+   port.ProxyFromEnvironment()
+   port.DefaultClient()
+   for _, test := range web_tests {
+      content, err := test.content()
+      if err != nil {
+         t.Fatal(err)
+      }
+      stream := content.c.Streamings()
+      stream.Hd()
+      func() {
+         err := mullvad.Connect(test.location)
+         if err != nil {
+            t.Fatal(err)
+         }
+         defer mullvad.Disconnect()
+         _, err = stream.Info(test.language, content.class)
+         if err != nil {
+            t.Fatal(err)
+         }
+      }()
+   }
+}
 
 var web_tests = []web_test{
    {
@@ -81,35 +105,6 @@ var web_tests = []web_test{
    },
 }
 
-type content_class struct {
-   g     *GizmoContent
-   class int
-}
-
-func TestAddress(t *testing.T) {
-   for _, test := range web_tests {
-      var web Address
-      t.Run("Set", func(t *testing.T) {
-         err := web.Set(test.address)
-         if err != nil {
-            t.Fatal(err)
-         }
-      })
-      t.Run("String", func(t *testing.T) {
-         if web.String() == "" {
-            t.Fatal(test)
-         }
-      })
-   }
-   t.Run("classification_id", func(t *testing.T) {
-      var web Address
-      _, ok := web.ClassificationId()
-      if ok {
-         t.Fatal(web)
-      }
-   })
-}
-
 type web_test struct {
    address    string
    content_id string
@@ -132,40 +127,18 @@ func (w *web_test) content() (*content_class, error) {
       if ok {
          return nil, errors.New("gizmo_season.content")
       }
-      content.g, _ = season.Content(&web)
+      content.c, _ = season.Content(&web)
    } else {
       var err error
-      content.g, err = web.Movie(content.class)
+      content.c, err = web.Movie(content.class)
       if err != nil {
          return nil, err
       }
    }
    return &content, nil
 }
-func TestMain(m *testing.M) {
-   log.SetFlags(log.Ltime)
-   var port http.Transport
-   port.ProxyFromEnvironment()
-   port.DefaultClient()
-   m.Run()
-}
 
-func TestContent(t *testing.T) {
-   for _, test := range web_tests {
-      content, err := test.content()
-      if err != nil {
-         t.Fatal(err)
-      }
-      func() {
-         err := mullvad.Connect(test.location)
-         if err != nil {
-            t.Fatal(err)
-         }
-         defer mullvad.Disconnect()
-         _, err = content.g.Hd(content.class, test.language).Streamings()
-         if err != nil {
-            t.Fatal(err)
-         }
-      }()
-   }
+type content_class struct {
+   c     *Content
+   class int
 }

@@ -53,6 +53,18 @@ func (s *Streamings) Info(
    return &value.Data.StreamInfos[0], nil
 }
 
+func (c *Content) Streamings() Streamings {
+   return Streamings{ContentId: c.Id, ContentType: c.Type}
+}
+
+func (s *Streamings) Hd() {
+   s.DeviceStreamVideoQuality = "HD"
+}
+
+func (s *Streamings) Fhd() {
+   s.DeviceStreamVideoQuality = "FHD"
+}
+
 type Address struct {
    MarketCode string
    SeasonId   string
@@ -225,18 +237,6 @@ type Streamings struct {
    Player                   string `json:"player"`
    SubtitleLanguage         string `json:"subtitle_language"`
    VideoType                string `json:"video_type"`
-}
-
-func (s *Streamings) Hd() {
-   s.DeviceStreamVideoQuality = "HD"
-}
-
-func (s *Streamings) Fhd() {
-   s.DeviceStreamVideoQuality = "FHD"
-}
-
-func (c *Content) Streamings() Streamings {
-   return Streamings{ContentId: c.Id, ContentType: c.Type}
 }
 
 type Season struct {
