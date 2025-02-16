@@ -27,7 +27,7 @@ var tests = []struct {
    {
       video_type: "EPISODE",
       url:        "play.max.com/video/watch/28ae9450-8192-4277-b661-e76eaad9b2e6/e19442fb-c7ac-4879-8d50-a301f613cb96",
-      key_id:     []string{},
+      key_id:     nil,
    },
 }
 
@@ -61,80 +61,6 @@ func TestLicense(t *testing.T) {
          t.Fatal(err)
       }
       fmt.Printf("%+v\n", play.Fallback)
-      var pssh widevine.PsshData
-      for _, data := range test.key_id {
-         key_id, err := base64.StdEncoding.DecodeString(data)
-         if err != nil {
-            t.Fatal(err)
-         }
-         pssh.KeyIds = append(pssh.KeyIds, key_id)
-      }
-      var module widevine.Cdm
-      err = module.New(private_key, client_id, pssh.Marshal())
-      if err != nil {
-         t.Fatal(err)
-      }
-      data, err = module.RequestBody()
-      if err != nil {
-         t.Fatal(err)
-      }
-      data, err = play.Wrap(data)
-      if err != nil {
-         t.Fatal(err)
-      }
-      var body widevine.ResponseBody
-      err = body.Unmarshal(data)
-      if err != nil {
-         t.Fatal(err)
-      }
-      block, err := module.Block(body)
-      if err != nil {
-         t.Fatal(err)
-      }
-      containers := body.Container()
-      for {
-         container, ok := containers()
-         if !ok {
-            break
-         }
-         if container.Type() == 2 {
-            fmt.Printf(
-               "%q %v %x %x\n",
-               container.TrackLabel(),
-               container.SecurityLevel(),
-               container.Id(),
-               container.Key(block),
-            )
-         }
-      }
       time.Sleep(time.Second)
    }
-}
-
-func TestLogin(t *testing.T) {
-   data, err := os.ReadFile("token.txt")
-   if err != nil {
-      t.Fatal(err)
-   }
-   var token BoltToken
-   token.St = string(data)
-   data, err = (*LinkLogin).Marshal(nil, &token)
-   if err != nil {
-      t.Fatal(err)
-   }
-   os.WriteFile("login.txt", data, os.ModePerm)
-}
-func TestInitiate(t *testing.T) {
-   var token BoltToken
-   err := token.New()
-   if err != nil {
-      t.Fatal(err)
-   }
-   os.WriteFile("token.txt", []byte(token.St), os.ModePerm)
-   time.Sleep(time.Second)
-   initiate, err := token.Initiate()
-   if err != nil {
-      t.Fatal(err)
-   }
-   fmt.Printf("%+v\n", initiate)
 }

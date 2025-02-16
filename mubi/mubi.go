@@ -11,6 +11,38 @@ import (
    "strings"
 )
 
+type Film struct {
+   Id    int64
+   Title string
+   Year  int
+}
+
+func (SecureUrl) Marshal(auth *Authenticate, film1 *Film) ([]byte, error) {
+   req, _ := http.NewRequest("", "https://api.mubi.com", nil)
+   req.URL.Path = func() string {
+      b := []byte("/v3/films/")
+      b = strconv.AppendInt(b, film1.Id, 10)
+      b = append(b, "/viewing/secure_url"...)
+      return string(b)
+   }()
+   req.Header = http.Header{
+      "authorization":  {"Bearer " + auth.Token},
+      "client":         {client},
+      "client-country": {ClientCountry},
+   }
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   if resp.StatusCode != http.StatusOK {
+      var data strings.Builder
+      resp.Write(&data)
+      return nil, errors.New(data.String())
+   }
+   return io.ReadAll(resp.Body)
+}
+
 var ClientCountry = "US"
 
 // "android" requires headers:
@@ -162,32 +194,6 @@ func (c *LinkCode) Unmarshal(data []byte) error {
    return json.Unmarshal(data, c)
 }
 
-func (SecureUrl) Marshal(auth *Authenticate, film1 *Film) ([]byte, error) {
-   req, _ := http.NewRequest("", "https://api.mubi.com", nil)
-   req.URL.Path = func() string {
-      b := []byte("/v3/films/")
-      b = strconv.AppendInt(b, film1.Id, 10)
-      b = append(b, "/viewing/secure_url"...)
-      return string(b)
-   }()
-   req.Header = http.Header{
-      "authorization":  {"Bearer " + auth.Token},
-      "client":         {client},
-      "client-country": {ClientCountry},
-   }
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   if resp.StatusCode != http.StatusOK {
-      var data strings.Builder
-      resp.Write(&data)
-      return nil, errors.New(data.String())
-   }
-   return io.ReadAll(resp.Body)
-}
-
 func (s *SecureUrl) Unmarshal(data []byte) error {
    return json.Unmarshal(data, s)
 }
@@ -242,12 +248,6 @@ func (a *Authenticate) License(data []byte) ([]byte, error) {
       return nil, err
    }
    return value.License, nil
-}
-
-type Film struct {
-   Id    int64
-   Title string
-   Year  int
 }
 
 type LinkCode struct {

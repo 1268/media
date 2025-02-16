@@ -1,12 +1,10 @@
 package mubi
 
 import (
-   "41.neocities.org/widevine"
-   "bytes"
-   "encoding/hex"
    "fmt"
    "os"
    "testing"
+   "time"
 )
 
 func Test(t *testing.T) {
@@ -21,7 +19,7 @@ func Test(t *testing.T) {
    }
    for _, test1 := range tests {
       var secure SecureUrl
-      data, err = secure.Marshal(&auth, &FilmResponse{Id: test.id})
+      data, err = secure.Marshal(&auth, &Film{Id: test1.id})
       if err != nil {
          t.Fatal(err)
       }
