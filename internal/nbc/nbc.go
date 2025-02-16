@@ -4,7 +4,6 @@ import (
    "41.neocities.org/media/internal"
    "41.neocities.org/media/nbc"
    "fmt"
-   "net/http"
 )
 
 func (f *flags) download() error {
@@ -13,15 +12,11 @@ func (f *flags) download() error {
    if err != nil {
       return err
    }
-   demand, err := meta.OnDemand()
+   vod, err := meta.Vod()
    if err != nil {
       return err
    }
-   resp, err := http.Get(demand.PlaybackUrl)
-   if err != nil {
-      return err
-   }
-   represents, err := internal.Representation(resp)
+   represents, err := internal.Mpd(vod)
    if err != nil {
       return err
    }
@@ -30,9 +25,9 @@ func (f *flags) download() error {
       case "":
          fmt.Print(&represent, "\n\n")
       case represent.Id:
-         var proxy nbc.DrmProxy
-         proxy.New()
-         f.s.Wrapper = &proxy
+         var client nbc.Client
+         client.New()
+         f.s.Client = &client
          return f.s.Download(&represent)
       }
    }

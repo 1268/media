@@ -15,66 +15,8 @@ import (
    "time"
 )
 
-func (d *DrmProxy) New() {
-   d.Time = fmt.Sprint(time.Now().UnixMilli())
-   d.Hash = func() string {
-      hash := hmac.New(sha256.New, []byte(drm_proxy_secret))
-      fmt.Fprint(hash, d.Time, "widevine")
-      return fmt.Sprintf("%x", hash.Sum(nil))
-   }()
-}
-
-type DrmProxy struct {
-   Hash string
-   Time string
-}
-
-const drm_proxy_secret = "Whn8QFuLFM7Heiz6fYCYga7cYPM8ARe6"
-
-func (d *DrmProxy) Wrap(data []byte) ([]byte, error) {
-   req, err := http.NewRequest(
-      "POST", "https://drmproxy.digitalsvc.apps.nbcuni.com",
-      bytes.NewReader(data),
-   )
-   if err != nil {
-      return nil, err
-   }
-   req.URL.Path = "/drm-proxy/license/widevine"
-   req.URL.RawQuery = url.Values{
-      "device": {"web"},
-      "hash":   {d.Hash},
-      "time":   {d.Time},
-   }.Encode()
-   req.Header.Set("content-type", "application/octet-stream")
-   resp, err := http.DefaultClient.Do(req)
-   if err != nil {
-      return nil, err
-   }
-   defer resp.Body.Close()
-   return io.ReadAll(resp.Body)
-}
-
-type OnDemand struct {
-   PlaybackUrl string
-}
-
-type Metadata struct {
-   AirDate          time.Time
-   EpisodeNumber    int `json:",string"`
-   MovieShortTitle  string
-   MpxAccountId     int64 `json:",string"`
-   MpxGuid          int64 `json:",string"`
-   ProgrammingType  string
-   SeasonNumber     int `json:",string"`
-   SecondaryTitle   string
-   SeriesShortTitle string
-}
-
-func (m *Metadata) OnDemand() (*OnDemand, error) {
-   req, err := http.NewRequest("", "https://lemonade.nbc.com", nil)
-   if err != nil {
-      return nil, err
-   }
+func (m *Metadata) Vod() (*Vod, error) {
+   req, _ := http.NewRequest("", "https://lemonade.nbc.com", nil)
    req.URL.Path = func() string {
       b := []byte("/v1/vod/")
       b = strconv.AppendInt(b, m.MpxAccountId, 10)
@@ -94,7 +36,7 @@ func (m *Metadata) OnDemand() (*OnDemand, error) {
    if resp.StatusCode != http.StatusOK {
       return nil, errors.New(resp.Status)
    }
-   video := &OnDemand{}
+   video := &Vod{}
    err = json.NewDecoder(resp.Body).Decode(video)
    if err != nil {
       return nil, err
@@ -102,15 +44,24 @@ func (m *Metadata) OnDemand() (*OnDemand, error) {
    return video, nil
 }
 
+type Metadata struct {
+   MpxAccountId     int64 `json:",string"`
+   MpxGuid          int64 `json:",string"`
+   ProgrammingType  string
+}
+
 func (m *Metadata) New(guid int) error {
-   var page page_request
-   page.Query = graphql_compact(bonanza_page)
-   page.Variables.App = "nbc"
-   page.Variables.Name = strconv.Itoa(guid)
-   page.Variables.OneApp = true
-   page.Variables.Platform = "android"
-   page.Variables.Type = "VIDEO"
-   data, err := json.Marshal(page)
+   data, err := json.Marshal(map[string]any{
+      "query": graphql_compact(bonanza_page),
+      "variables": map[string]any{
+         "app": "nbc",
+         "name": strconv.Itoa(guid),
+         "oneApp": true,
+         "platform": "android",
+         "type": "VIDEO",
+         "userId": "",
+      },
+   })
    if err != nil {
       return err
    }
@@ -136,8 +87,8 @@ func (m *Metadata) New(guid int) error {
    if err != nil {
       return err
    }
-   if v := value.Errors; len(v) >= 1 {
-      return errors.New(v[0].Message)
+   if err := value.Errors; len(err) >= 1 {
+      return errors.New(err[0].Message)
    }
    *m = value.Data.BonanzaPage.Metadata
    return nil
@@ -163,15 +114,9 @@ query bonanzaPage(
    ) {
       metadata {
          ... on VideoPageData {
-            airDate
-            episodeNumber
-            movieShortTitle
             mpxAccountId
             mpxGuid
             programmingType
-            seasonNumber
-            secondaryTitle
-            seriesShortTitle
          }
       }
    }
@@ -179,19 +124,53 @@ query bonanzaPage(
 `
 
 // this is better than strings.Replace and strings.ReplaceAll
-func graphql_compact(s string) string {
-   field := strings.Fields(s)
-   return strings.Join(field, " ")
+func graphql_compact(data string) string {
+   return strings.Join(strings.Fields(data), " ")
 }
 
-type page_request struct {
-   Query     string `json:"query"`
-   Variables struct {
-      App      string `json:"app"` // String cannot represent a non string value
-      Name     string `json:"name"`
-      OneApp   bool   `json:"oneApp"`
-      Platform string `json:"platform"`
-      Type     string `json:"type"` // can be empty
-      UserId   string `json:"userId"`
-   } `json:"variables"`
+const drm_proxy_secret = "Whn8QFuLFM7Heiz6fYCYga7cYPM8ARe6"
+
+func (v Vod) Mpd() (*http.Response, error) {
+   return http.Get(v.PlaybackUrl)
+}
+
+type Vod struct {
+   PlaybackUrl string
+}
+
+type Client struct {
+   Time string
+   Hash string
+}
+
+func (c *Client) New() {
+   c.Time = fmt.Sprint(time.Now().UnixMilli())
+   c.Hash = func() string {
+      hash := hmac.New(sha256.New, []byte(drm_proxy_secret))
+      fmt.Fprint(hash, c.Time, "widevine")
+      return fmt.Sprintf("%x", hash.Sum(nil))
+   }()
+}
+
+func (c *Client) License(data []byte) ([]byte, error) {
+   req, err := http.NewRequest(
+      "POST", "https://drmproxy.digitalsvc.apps.nbcuni.com",
+      bytes.NewReader(data),
+   )
+   if err != nil {
+      return nil, err
+   }
+   req.URL.Path = "/drm-proxy/license/widevine"
+   req.URL.RawQuery = url.Values{
+      "device": {"web"},
+      "hash":   {c.Hash},
+      "time":   {c.Time},
+   }.Encode()
+   req.Header.Set("content-type", "application/octet-stream")
+   resp, err := http.DefaultClient.Do(req)
+   if err != nil {
+      return nil, err
+   }
+   defer resp.Body.Close()
+   return io.ReadAll(resp.Body)
 }
